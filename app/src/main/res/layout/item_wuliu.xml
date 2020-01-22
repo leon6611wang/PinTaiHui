@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:background="@color/white"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <View
+            android:id="@+id/lefttopView"
+            android:layout_width="1dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="#DFDFDF"
+            android:visibility="visible" />
+
+        <View
+            android:id="@+id/jiedianView"
+            android:layout_width="@dimen/dp_15"
+            android:layout_height="@dimen/dp_15"
+            android:background="@drawable/shape_wuliu_gray" />
+
+        <View
+            android:id="@+id/leftbottomView"
+            android:layout_width="1dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="#DFDFDF"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/wuliulayout"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="8"
+        android:gravity="bottom"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/wuliuTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="到马鞍山花山区中转站"
+            android:textColor="@color/text_color_gray"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/shijianTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="2019-11-19 8:54"
+            android:textColor="@color/text_color_gray"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+
+
+</LinearLayout>

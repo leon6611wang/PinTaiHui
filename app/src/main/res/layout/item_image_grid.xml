@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="85dp"
+    android:layout_gravity="center"
+    android:gravity="center"
+    >
+
+    <com.zhiyu.quanzhu.ui.widget.RoundImageView
+        android:id="@+id/mImageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        android:src="@mipmap/header" />
+
+    <ImageView
+        android:id="@+id/mDeleteImageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/img_delete"
+        android:layout_gravity="top|right"
+        />
+
+</FrameLayout>

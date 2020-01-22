@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merger version="3"><dataSet config="main"><source path="F:\PinTaiHui\IMKit\src\main\assets"><file name="combine.json" path="F:\PinTaiHui\IMKit\src\main\assets\combine.json"/></source><source path="F:\PinTaiHui\IMKit\build\generated\assets\shaders\debug"/></dataSet><dataSet config="debug"><source path="F:\PinTaiHui\IMKit\src\debug\assets"/></dataSet></merger>

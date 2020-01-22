@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <com.zhiyu.quanzhu.ui.widget.VideoPlayer
+        android:id="@+id/mVideoPlayer"
+        android:layout_width="345dp"
+        android:layout_height="194dp"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        app:is_fullscreen="false"
+        app:videoplayer_height="194dp"
+        app:videoplayer_width="345dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_15"
+        android:visibility="gone" />
+
+
+</LinearLayout>

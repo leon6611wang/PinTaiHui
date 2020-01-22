@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!--<com.zhiyu.quanzhu.ui.widget.GoodsInfoBanner-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!---->
+        <!--/>-->
+
+
+    <TextView
+        android:id="@+id/addShopBtn"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="@dimen/dp_20"
+        android:background="@drawable/shape_oval_solid_bg_white"
+        android:gravity="center"
+        android:paddingBottom="@dimen/dp_3"
+        android:paddingLeft="@dimen/dp_10"
+        android:paddingRight="@dimen/dp_10"
+        android:paddingTop="@dimen/dp_3"
+        android:text="add shop"
+        android:textColor="@color/text_color_yellow"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/addUserBtn"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="@dimen/dp_20"
+        android:background="@drawable/shape_oval_solid_bg_white"
+        android:gravity="center"
+        android:paddingBottom="@dimen/dp_3"
+        android:paddingLeft="@dimen/dp_10"
+        android:paddingRight="@dimen/dp_10"
+        android:paddingTop="@dimen/dp_3"
+        android:text="add user"
+        android:textColor="@color/text_color_yellow"
+        android:textSize="16sp" />
+
+
+    <TextView
+        android:id="@+id/addInsuranceBtn"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="@dimen/dp_20"
+        android:background="@drawable/shape_oval_solid_bg_white"
+        android:gravity="center"
+        android:paddingBottom="@dimen/dp_3"
+        android:paddingLeft="@dimen/dp_10"
+        android:paddingRight="@dimen/dp_10"
+        android:paddingTop="@dimen/dp_3"
+        android:text="add insurance"
+        android:textColor="@color/text_color_yellow"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/shopListBtn"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="@dimen/dp_20"
+        android:background="@drawable/shape_oval_solid_bg_white"
+        android:gravity="center"
+        android:paddingBottom="@dimen/dp_3"
+        android:paddingLeft="@dimen/dp_10"
+        android:paddingRight="@dimen/dp_10"
+        android:paddingTop="@dimen/dp_3"
+        android:text="shop List"
+        android:textColor="@color/text_color_yellow"
+        android:textSize="16sp" />
+
+
+    <TextView
+        android:id="@+id/userListBtn"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="@dimen/dp_20"
+        android:background="@drawable/shape_oval_solid_bg_white"
+        android:gravity="center"
+        android:paddingBottom="@dimen/dp_3"
+        android:paddingLeft="@dimen/dp_10"
+        android:paddingRight="@dimen/dp_10"
+        android:paddingTop="@dimen/dp_3"
+        android:text="user List"
+        android:textColor="@color/text_color_yellow"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/shopListManageBtn"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="@dimen/dp_20"
+        android:background="@drawable/shape_oval_solid_bg_white"
+        android:gravity="center"
+        android:paddingBottom="@dimen/dp_3"
+        android:paddingLeft="@dimen/dp_10"
+        android:paddingRight="@dimen/dp_10"
+        android:paddingTop="@dimen/dp_3"
+        android:text="shopListMangeList"
+        android:textColor="@color/text_color_yellow"
+        android:textSize="16sp" />
+</LinearLayout>

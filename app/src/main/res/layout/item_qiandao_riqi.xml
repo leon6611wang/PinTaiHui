@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <View
+            android:id="@+id/leftView"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dp_1"
+            android:layout_weight="1"
+            android:background="#DFDFDF" />
+
+        <TextView
+            android:id="@+id/dayTextView"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:background="@drawable/shape_oval_solid_bg_gray"
+            android:text="1"
+            android:textColor="@color/white"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="8sp" />
+
+        <View
+            android:id="@+id/rightView"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dp_1"
+            android:layout_weight="1"
+            android:background="#DFDFDF" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_10"/>
+
+    <TextView
+        android:id="@+id/dayTextView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="第一天"
+        android:textSize="8sp"
+        android:textColor="#333333"
+        android:layout_gravity="center"
+        android:layout_marginLeft="@dimen/dp_5"
+        android:layout_marginRight="@dimen/dp_5"
+        android:gravity="center"
+        />
+
+</LinearLayout>

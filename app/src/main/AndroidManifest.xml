@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.zhiyu.quanzhu">
+
+    <uses-sdk android:minSdkVersion="8" />
+
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!--调用相机权限-->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <!--用于进行网络定位-->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!--用于访问GPS定位-->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!--用于获取运营商信息，用于支持提供运营商信息相关的接口-->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!--用于访问wifi网络信息，wifi信息会用于进行网络定位-->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <!--用于获取wifi的获取权限，wifi信息会用来进行网络定位-->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <!--用于读取手机当前的状态-->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <!--用于申请调用A-GPS模块-->
+    <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
+
+    <application
+        android:name=".base.BaseApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/logo"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/logo"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity android:name=".ui.activity.HomeActivity"
+            android:hardwareAccelerated="true"
+            >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".ui.widget.zxing.android.CaptureActivity"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar"></activity>
+        <activity android:name=".ui.activity.BindPhoneNumberActivity" />
+        <activity android:name=".ui.activity.SetLoginPwdActivity" />
+        <activity android:name=".ui.activity.LoginGetVertifyCodeActivity" />
+        <activity android:name=".ui.activity.LoginInputVertifyCodeActivity" />
+        <activity android:name=".ui.activity.LoginByPwdActivity" />
+        <activity android:name=".ui.activity.CityListActivity" />
+        <activity android:name=".ui.activity.DongTaiInformationActivity"/>
+        <activity android:name=".ui.activity.ShangQuanSettingActivity" />
+        <activity android:name=".ui.activity.ComplaintActivity"/>
+        <activity android:name=".ui.activity.PublishFeedActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden"
+            />
+        <activity
+            android:name=".ui.activity.ConversationActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data
+                    android:host="com.zhiyu.quanzhu"
+                    android:pathPrefix="/conversation/"
+                    android:scheme="rong" />
+            </intent-filter>
+        </activity>
+        <!--<activity android:name=".ui.activity.SearchHistoryActivity"-->
+        <!--android:windowSoftInputMode="stateAlwaysVisible|adjustPan"-->
+        <!--/>-->
+        <activity android:name=".ui.activity.ZuJiActivity" />
+        <activity android:name=".ui.activity.MyOrderActivity" />
+        <activity android:name=".ui.activity.WoDeHuiYuanYongHuActivity" />
+        <activity android:name=".ui.activity.WoDeHuiYuanQuanZhuActivity" />
+        <activity android:name=".ui.activity.EditPhoneNum1Activity" />
+        <activity android:name=".ui.activity.EditPhoneNum2Activity" />
+        <activity android:name=".ui.activity.EditPwd1Activity" />
+        <activity android:name=".ui.activity.EditPwd2Activity" />
+        <activity android:name=".ui.activity.SystemSettingActivity" />
+        <activity android:name=".ui.activity.YinSiSheZhiActivity" />
+        <activity android:name=".ui.activity.ZhangHaoYuAnQuanActivity" />
+        <activity android:name=".ui.activity.GuanYuWoMenActivity" />
+        <activity
+            android:name=".ui.activity.YongHuFanKuiActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity android:name=".ui.activity.QianDaoActivity" />
+        <activity android:name=".ui.activity.H5PageActivity" />
+        <activity android:name=".ui.activity.GeRenXinXiActivity" />
+        <activity android:name=".ui.activity.ShouHuoDiZhiGuanLiActivity" />
+        <activity android:name=".ui.activity.AddEditShouHuoDiZhiActivity" />
+        <activity android:name=".ui.activity.QianBaoActivity" />
+        <activity android:name=".ui.activity.HuiYuanDuiHuanJiLuActivity" />
+        <activity android:name=".ui.activity.BankCardListActivity" />
+        <activity
+            android:name=".ui.activity.TiXianActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".ui.activity.AddBankCardActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity android:name=".ui.activity.WoDeKaQuanActivity" />
+        <activity
+            android:name=".ui.activity.MingPianGuangChangActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity android:name=".ui.activity.MyCardInformationActivity" />
+        <activity
+            android:name=".ui.activity.EditCardActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+
+        <activity
+            android:name="io.vov.vitamio.activity.InitActivity"
+            android:configChanges="orientation|screenSize|smallestScreenSize|keyboard|keyboardHidden|navigation"
+            android:launchMode="singleTop"
+            android:theme="@android:style/Theme.NoTitleBar"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+
+        <activity android:name=".ui.activity.ShareInnerActivity" />
+        <activity android:name=".ui.activity.QuanShangFenLeiActivity" />
+        <activity android:name=".ui.activity.GoodsInformationActivity" />
+        <activity android:name=".ui.activity.CartActivity" />
+        <activity android:name=".ui.activity.GouWuCheJieSuanActivity" />
+        <activity android:name=".ui.activity.MyShangQuanActivity" />
+        <activity android:name=".ui.activity.MessageListActivity" />
+        <activity android:name=".ui.activity.ConversationPrivateSettingActivity" />
+        <activity android:name=".ui.activity.ManageReplyActivity" />
+        <activity
+            android:name=".ui.activity.CreateShangQuanActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".ui.activity.VideoPlayActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+
+        <activity android:name=".ui.activity.XiTongXiaoXiQuanYouShenHeActivity" />
+        <activity android:name=".ui.activity.XiTongXiaoXiQuanZiShenHeActivity" />
+        <activity android:name=".ui.activity.XiTongXiaoXiTuiKuanTongZhiActivity" />
+        <activity android:name=".ui.activity.XiTongXiaoXiKaQuanTongZhiActivity" />
+        <activity android:name=".ui.activity.XiTongXiaoXiGuanZhuDianPuActivity" />
+        <activity
+            android:name=".ui.activity.DongTaiVideoPlayerActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity android:name=".ui.activity.LargeImageActivity" />
+        <activity android:name=".ui.activity.BondPhoneNumberActivity" />
+        <activity android:name=".ui.activity.SettingPwdActivity" />
+        <activity android:name=".ui.activity.CompleteUserProfileActivity" />
+        <activity android:name=".ui.activity.HobbySelectActivity" />
+        <activity android:name=".ui.activity.InterestQuanZiSelectActivity" />
+        <activity android:name=".ui.activity.MyQRCodeActivity" />
+        <activity android:name=".ui.activity.ScanActivity" />
+        <activity
+            android:name=".ui.activity.ShangPinSearchListActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <!--<activity android:name=".ui.activity.ShopInformationActivity"/>-->
+        <activity android:name=".ui.activity.LargeImageListActivity" />
+        <activity android:name=".ui.activity.GoodsInfoAllCommentsActivity"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <provider
+            android:name="com.zhiyu.quanzhu.utils.MyFileProvider"
+            android:authorities="com.example.hxd.pictest.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <!-- 融云-->
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="${applicationId}.FileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/rc_file_path" />
+        </provider>
+
+
+        <!--db-->
+        <meta-data
+            android:name="DATABASE"
+            android:value="quanzhu.db" />
+        <meta-data
+            android:name="VERSION"
+            android:value="4" />
+        <meta-data
+            android:name="QUERY_LOG"
+            android:value="true" />
+        <meta-data
+            android:name="DOMAIN_PACKAGE_NAME"
+            android:value="com.zhiyu.pintaihui" />
+
+
+        <!-- wx start -->
+        <activity
+            android:name=".wxapi.WXEntryActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:launchMode="singleTask"
+            android:taskAffinity="net.sourceforge.simcpux"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"></activity>
+
+
+        <!-- wx end -->
+
+        <!-- qq start -->
+        <activity
+            android:name="com.tencent.tauth.AuthActivity"
+            android:launchMode="singleTask"
+            android:noHistory="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="101762258" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.tencent.connect.common.AssistActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="behind"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <!-- qq end -->
+
+        <!-- 高德定位 start -->
+        <service android:name="com.amap.api.location.APSService"></service>
+        <meta-data
+            android:name="com.amap.api.v2.apikey"
+            android:value="dd1c5585e8f23b3eecee05994819446a"></meta-data>
+        <!-- 高德定位 end -->
+    </application>
+
+</manifest>

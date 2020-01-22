@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/mRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+
+    <TextView
+        android:id="@+id/indicatorTextView"
+        android:layout_width="50dp"
+        android:layout_height="25dp"
+        android:background="@drawable/shape_goods_info_position_bg"
+        android:gravity="center"
+        android:text="2/14"
+        android:textColor="#DFDFDF"
+        android:layout_gravity="bottom|center"
+        android:layout_margin="@dimen/dp_10"
+        android:textSize="12sp" />
+</FrameLayout>

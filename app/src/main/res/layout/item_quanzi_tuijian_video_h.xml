@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/videohItemRootLayout"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/videohCardView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        app:cardBackgroundColor="@color/text_color_black"
+        app:cardCornerRadius="@dimen/dp_10">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <io.vov.vitamio.widget.VideoView
+                    android:id="@+id/videohVideoView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:transitionName="dongtai_video"
+                    android:visibility="visible" />
+
+                <ImageView
+                    android:id="@+id/videohCoverImageView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:scaleType="centerCrop"
+                    android:src="@mipmap/cover"
+                    android:transitionName="dongtai_video_cover"
+                    android:visibility="visible" />
+
+                <!-- 缓冲进度 -->
+                <com.zhiyu.quanzhu.ui.widget.CircleProgressView
+                    android:id="@+id/videohHuanchongView"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:layout_gravity="center"
+                    android:visibility="gone"
+                    app:inCircleColor="#00ffffff"
+                    app:lineWidth="1dp"
+                    app:progressColor="@color/white"
+                    app:textBold="false"
+                    app:textColor="@color/white" />
+            </FrameLayout>
+
+
+            <ImageView
+                android:id="@+id/videohPlayImageView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:src="@mipmap/bofang_circle_tragle_white"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/videohBottomLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:background="@color/black"
+                android:orientation="vertical"
+                android:paddingBottom="@dimen/dp_10"
+                android:paddingLeft="@dimen/dp_15"
+                android:paddingRight="@dimen/dp_15"
+                android:paddingTop="@dimen/dp_10">
+
+                <TextView
+                    android:id="@+id/videohContentTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="3"
+                    android:text="喝纯粮酒能够改善睡眠质量，纯粮酒具有以调节人体激素分泌，从而达到人体内环境健康的状态，从而促进睡眠质量的提高。"
+                    android:textColor="@color/white"
+                    android:textSize="13sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <com.zhiyu.quanzhu.ui.widget.CircleImageView
+                        android:id="@+id/videohHeaderImageView"
+                        android:layout_width="@dimen/dp_20"
+                        android:layout_height="@dimen/dp_20"
+                        android:layout_gravity="center"
+                        android:layout_marginRight="@dimen/dp_5"
+                        android:src="@mipmap/header" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/videohShopNameTextView"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="genanx旗舰店"
+                            android:textColor="#EDEDED"
+                            android:textSize="12sp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/videohDescTextView"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginRight="@dimen/dp_10"
+                                android:ellipsize="end"
+                                android:maxLines="1"
+                                android:text="品牌官方店"
+                                android:textColor="#DFDFDF"
+                                android:textSize="11sp" />
+
+                            <TextView
+                                android:id="@+id/videohTimeTextView"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="20分钟前"
+                                android:textColor="#DFDFDF"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/videohGuanZhuLayout"
+                        android:layout_width="53dp"
+                        android:layout_height="21dp"
+                        android:layout_gravity="center"
+                        android:background="@drawable/shape_oval_bg_yellow"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:id="@+id/videohGuanZhuImageView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@mipmap/guanzhu_yellow" />
+
+                        <TextView
+                            android:id="@+id/videohGuanZhuTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="关注"
+                            android:textColor="@color/text_color_yellow"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </FrameLayout>
+    </android.support.v7.widget.CardView>
+
+</LinearLayout>

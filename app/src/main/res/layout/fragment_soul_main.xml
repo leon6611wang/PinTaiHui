@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/clBackground"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black"
+    tools:context="com.zhiyu.quanzhu.planet.MainActivity">
+
+    <com.zhiyu.quanzhu.planet.view.SoulPlanetsView
+        android:id="@+id/soulPlanetView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        app:autoScrollMode="decelerate"
+        app:darkColor="#ff0000"
+
+        app:lightColor="#00ff00"
+        app:radiusPercent="0.75"
+        app:scrollSpeed="20" />
+
+</LinearLayout>

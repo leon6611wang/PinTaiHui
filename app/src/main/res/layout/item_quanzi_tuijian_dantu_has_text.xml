@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/dantuhastextItemRootLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/dantuhastextCardView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="@dimen/dp_10">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/dantuhastextContentTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/dp_15"
+                android:layout_marginLeft="@dimen/dp_15"
+                android:layout_marginRight="@dimen/dp_15"
+                android:layout_marginTop="@dimen/dp_50"
+                android:ellipsize="end"
+                android:maxLines="10"
+                android:text="喝纯粮酒能够改善睡眠质量，好多人由于平时的生活压力、工作压力，经常失眠，长期如此，对生活质量有很大的影响，工作也会受到一定影响。而喝纯粮酒可以改善人的睡眠质量，五谷中营养成分比较全，可以均衡膳食营养，纯粮酒具有以调节人体激素分泌，均衡激素分泌，从而达到人体内环境健康的状态，从而促进睡眠质量的提高。喝纯粮酒能够改善睡眠质量，好多人由于平时的生活压力、工作压力，经常失眠，长期如此，对生活质量有很大的影响，工作也会受到一定影响。而喝纯粮酒可以改善人的睡眠质量，五谷中营养成分比较全，可以均衡膳食营养，纯粮酒具有以调节人体激素分泌，均衡激素分泌，从而达到人体内环境健康的状态，从而促进睡眠质量的提高。喝纯粮酒能够改善睡眠质量，好多人由于平时的生活压力、工作压力，经常失眠，长期如此，对生活质量有很大的影响，工作也会受到一定影响。而喝纯粮酒可以改善人的睡眠质量，五谷中营养成分比较全，可以均衡膳食营养，纯粮酒具有以调节人体激素分泌，均衡激素分泌，从而达到人体内环境健康的状态，从而促进睡眠质量的提高。"
+                android:textColor="@color/text_color_black"
+                android:textSize="13sp"
+
+                />
+
+            <com.zhiyu.quanzhu.ui.widget.RoundImageView
+                android:id="@+id/dantuhastextContentImageView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/dp_15"
+                android:adjustViewBounds="true"
+                android:maxHeight="240dp"
+                android:maxWidth="240dp"
+                android:transitionName="img" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <LinearLayout
+                android:id="@+id/dantuhastextReviewInfoLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="@dimen/dp_15"
+                android:layout_marginTop="@dimen/dp_15"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="查看详情"
+                    android:textColor="@color/text_color_black"
+                    android:textSize="13sp" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/dp_5"
+                    android:src="@mipmap/arrow_gray_right" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:background="@color/white"
+                android:orientation="horizontal"
+                android:paddingBottom="@dimen/dp_10"
+                android:paddingLeft="@dimen/dp_15"
+                android:paddingRight="@dimen/dp_15"
+                android:paddingTop="@dimen/dp_10">
+
+                <com.zhiyu.quanzhu.ui.widget.CircleImageView
+                    android:id="@+id/dantuhastextHeaderImageView"
+                    android:layout_width="@dimen/dp_20"
+                    android:layout_height="@dimen/dp_20"
+                    android:layout_gravity="center"
+                    android:layout_marginRight="@dimen/dp_5"
+                    android:src="@mipmap/header" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/dantuhastextShopNameTextView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="genanx旗舰店"
+                        android:textColor="@color/text_color_black"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/dantuhastextTimeTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="20分钟前"
+                        android:textColor="#999999"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/dantuhastextGuanZhuLayout"
+                    android:layout_width="53dp"
+                    android:layout_height="21dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/shape_oval_bg_yellow"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/dantuhastextGuanZhuImageView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@mipmap/guanzhu_yellow" />
+
+                    <TextView
+                        android:id="@+id/dantuhastextGuanZhuTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="关注"
+                        android:textColor="@color/text_color_yellow"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+
+</LinearLayout>

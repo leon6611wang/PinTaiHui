@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#EDEDEDED"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="@dimen/dp_5">
+
+    <ImageView
+        android:id="@+id/id_header_iv_img"
+        android:layout_width="@dimen/dp_30"
+        android:layout_height="@dimen/dp_30"
+        android:background="@mipmap/wait"
+        android:scaleType="fitXY" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_5" />
+
+    <TextView
+        android:id="@+id/id_header_tv_tip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="下拉刷新数据"
+        android:textColor="@color/text_color_black"
+        android:textSize="10sp" />
+
+</LinearLayout>
