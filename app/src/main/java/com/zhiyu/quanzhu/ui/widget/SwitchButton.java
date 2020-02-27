@@ -44,11 +44,11 @@ public class SwitchButton extends android.support.v7.widget.AppCompatCheckBox {
     /**
      * 开关未选中状态,即关闭状态时的背景颜色
      */
-    private int mBackgroundColorUnchecked = 0xFFCCCCCC;
+    private int mBackgroundColorUnchecked = 0xFFBDBABD;
     /**
      * 开关选中状态,即打开状态时的背景颜色
      */
-    private int mBackgroundColorChecked = 0xFF6495ED;
+    private int mBackgroundColorChecked = 0xFFFF8629;
     /**
      * 开关指示器按钮的颜色
      */
@@ -83,6 +83,9 @@ public class SwitchButton extends android.support.v7.widget.AppCompatCheckBox {
             }
         });
     }
+
+    private boolean isOpen = false;
+
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -184,6 +187,30 @@ public class SwitchButton extends android.support.v7.widget.AppCompatCheckBox {
         // 同时开始修改开关指示器 X 坐标偏移量的动画和修改背景颜色过渡系数的动画
         animatorSet.play(objectAnimator).with(objectAnimator2);
         animatorSet.start();
+        isOpen = !isOpen;
+        if (null != onSwitchButtonListener) {
+            onSwitchButtonListener.onOpen(isOpen);
+        }
+    }
+
+    private boolean isCanSwitch = true;
+
+    public void setCanSwitch(boolean canSwitch) {
+        this.isCanSwitch = canSwitch;
+        setClickable(canSwitch);
+        setChecked(canSwitch);
+    }
+
+    public void open() {
+        isOpen = false;
+        setChecked(true);
+        startAnimate();
+    }
+
+    public void close() {
+        isOpen = true;
+        setChecked(false);
+        startAnimate();
     }
 
     /**
@@ -245,4 +272,14 @@ public class SwitchButton extends android.support.v7.widget.AppCompatCheckBox {
         mButtonColor = buttonColor;
     }
 
+
+    public interface OnSwitchButtonListener {
+        void onOpen(boolean isOpen);
+    }
+
+    private OnSwitchButtonListener onSwitchButtonListener;
+
+    public void setOnSwitchButtonListener(OnSwitchButtonListener listener) {
+        this.onSwitchButtonListener = listener;
+    }
 }

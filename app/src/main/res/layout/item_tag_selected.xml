@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/labelTextView"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:layout_margin="5dp"
+    android:background="@drawable/shape_tag_selected"
+    android:drawablePadding="@dimen/dp_5"
+    android:drawableRight="@mipmap/tag_selected_delete"
+    android:gravity="center"
+    android:text="Tag"
+    android:textColor="@color/text_color_yellow" />

@@ -15,7 +15,7 @@ import com.zhiyu.quanzhu.utils.ScreentUtils;
 public class MyShangQuanMenuDialog extends Dialog implements View.OnClickListener {
     private Context context;
     private int screenWidth, dp_5;
-    private float ratio = 0.3733f, ratio2 = 1.7714f;
+    private float ratio = 0.3733f, ratio2 = 1.142857f;
     private int dialogWidth, dialogHeight;
     private LinearLayout.LayoutParams ll;
     private LinearLayout contentLayout;

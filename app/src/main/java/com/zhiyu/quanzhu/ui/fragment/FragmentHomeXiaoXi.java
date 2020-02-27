@@ -12,11 +12,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.zhiyu.quanzhu.R;
-import com.zhiyu.quanzhu.ui.activity.CreateShangQuanActivity;
+import com.zhiyu.quanzhu.ui.activity.CreateCircleActivity;
 import com.zhiyu.quanzhu.ui.activity.MyShangQuanActivity;
 import com.zhiyu.quanzhu.ui.activity.ScanActivity;
 import com.zhiyu.quanzhu.ui.adapter.MyFragmentStatePagerAdapter;
-import com.zhiyu.quanzhu.ui.adapter.ViewPagerAdapter;
 import com.zhiyu.quanzhu.ui.dialog.HomeXiaoXiMenuDialog;
 import com.zhiyu.quanzhu.ui.widget.NoScrollViewPager;
 
@@ -56,7 +55,7 @@ public class FragmentHomeXiaoXi extends Fragment implements View.OnClickListener
                         getContext().startActivity(scanIntent);
                         break;
                     case 2:
-                        Intent createShangQuanIntent=new Intent(getActivity(), CreateShangQuanActivity.class);
+                        Intent createShangQuanIntent=new Intent(getActivity(), CreateCircleActivity.class);
                         createShangQuanIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         getContext().startActivity(createShangQuanIntent);
                         break;

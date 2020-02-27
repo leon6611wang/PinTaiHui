@@ -29,6 +29,7 @@
     <dimen name="dp_42">42dp</dimen>
     <dimen name="dp_64">64dp</dimen>
     <dimen name="dp_84">84dp</dimen>
+    <dimen name="dp_18_5">18.5dp</dimen>
 
 
     <dimen name="sp_10">10sp</dimen>

@@ -36,9 +36,9 @@
         android:roundIcon="@mipmap/logo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.activity.HomeActivity"
-            android:hardwareAccelerated="true"
-            >
+        <activity
+            android:name=".ui.activity.HomeActivity"
+            android:hardwareAccelerated="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -55,12 +55,12 @@
         <activity android:name=".ui.activity.LoginInputVertifyCodeActivity" />
         <activity android:name=".ui.activity.LoginByPwdActivity" />
         <activity android:name=".ui.activity.CityListActivity" />
-        <activity android:name=".ui.activity.DongTaiInformationActivity"/>
+        <activity android:name=".ui.activity.DongTaiInformationActivity" />
         <activity android:name=".ui.activity.ShangQuanSettingActivity" />
-        <activity android:name=".ui.activity.ComplaintActivity"/>
-        <activity android:name=".ui.activity.PublishFeedActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden"
-            />
+        <activity android:name=".ui.activity.ComplaintActivity" />
+        <activity
+            android:name=".ui.activity.PublishFeedActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".ui.activity.ConversationActivity"
             android:launchMode="singleTop"
@@ -133,7 +133,7 @@
         <activity android:name=".ui.activity.ConversationPrivateSettingActivity" />
         <activity android:name=".ui.activity.ManageReplyActivity" />
         <activity
-            android:name=".ui.activity.CreateShangQuanActivity"
+            android:name=".ui.activity.CreateCircleActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".ui.activity.VideoPlayActivity"
@@ -160,21 +160,20 @@
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <!--<activity android:name=".ui.activity.ShopInformationActivity"/>-->
         <activity android:name=".ui.activity.LargeImageListActivity" />
-        <activity android:name=".ui.activity.GoodsInfoAllCommentsActivity"/>
+        <activity android:name=".ui.activity.GoodsInfoAllCommentsActivity" />
+        <activity
+            android:name=".ui.activity.PublishArticle1Activity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".ui.activity.PublishVideoActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".ui.activity.PublishArticle2Activity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+        <activity android:name=".ui.activity.PublishParamSettingActivity"/>
+        <activity android:name=".ui.activity.PublishChooseGoodsActivity"/>
+        <activity android:name=".ui.activity.ShangQuanInformationActivity"/>
 
 
 

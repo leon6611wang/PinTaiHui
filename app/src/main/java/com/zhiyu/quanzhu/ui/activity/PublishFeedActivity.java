@@ -4,18 +4,26 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.lcw.library.imagepicker.ImagePicker;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseActivity;
+import com.zhiyu.quanzhu.model.bean.MyCircle;
+import com.zhiyu.quanzhu.model.bean.WhoCanSee;
 import com.zhiyu.quanzhu.ui.adapter.ComplaintImagesGridAdapter;
 import com.zhiyu.quanzhu.ui.adapter.PublishFeedImagesGridAdapter;
 import com.zhiyu.quanzhu.ui.dialog.AddTagDialog;
+import com.zhiyu.quanzhu.ui.dialog.CircleSelectDialog;
+import com.zhiyu.quanzhu.ui.dialog.DeleteImageDialog;
+import com.zhiyu.quanzhu.ui.dialog.WhoCanSeeDialog;
 import com.zhiyu.quanzhu.ui.widget.MyGridView;
 import com.zhiyu.quanzhu.ui.widget.MyRecyclerView;
+import com.zhiyu.quanzhu.ui.widget.RecyclerScrollView;
 import com.zhiyu.quanzhu.utils.GlideLoader;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 import com.zhiyu.quanzhu.utils.UploadImageUtils;
@@ -29,7 +37,7 @@ import java.util.Map;
 /**
  * 发布动态
  */
-public class PublishFeedActivity extends BaseActivity implements View.OnClickListener, PublishFeedImagesGridAdapter.OnAddImagesListener {
+public class PublishFeedActivity extends BaseActivity implements View.OnClickListener, PublishFeedImagesGridAdapter.OnAddImagesListener, PublishFeedImagesGridAdapter.OnDeleteImageListener {
     private LinearLayout backLayout, addTagLayout, atquanziLayout, fanweiLayout;
     private TextView titleTextView, tagTextView, atquanziTextView, quanziTextView, fanweiTextView;
     private MyRecyclerView imageGridView;
@@ -38,6 +46,7 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
     private ArrayList<String> mImageList = new ArrayList<>();
     private Map<String, String> map = new HashMap<>();
     private List<String> uploadImgList = new ArrayList<>();
+    private RecyclerScrollView mScrollView;
 
 
     @Override
@@ -51,6 +60,7 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
     }
 
     private void initViews() {
+//        mScrollView = findViewById(R.id.mScrollView);
         backLayout = findViewById(R.id.backLayout);
         backLayout.setOnClickListener(this);
         titleTextView = findViewById(R.id.titleTextView);
@@ -60,10 +70,11 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 3);
         imageGridAdapter.setData(mImageList);
         imageGridAdapter.setOnAddImagesListener(this);
+        imageGridAdapter.setOnDeleteImageListener(this);
         imageGridView.setAdapter(imageGridAdapter);
         imageGridView.setLayoutManager(gridLayoutManager);
         ItemTouchHelperCallback helperCallback = new ItemTouchHelperCallback(imageGridAdapter);
-        helperCallback.setSwipeEnable(true);
+        helperCallback.setSwipeEnable(false);
         helperCallback.setDragEnable(true);
         ItemTouchHelper helper = new ItemTouchHelper(helperCallback);
         helper.attachToRecyclerView(imageGridView);
@@ -82,9 +93,32 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
     }
 
     private AddTagDialog addTagDialog;
-
+    private CircleSelectDialog circleSelectDialog;
+    private WhoCanSeeDialog whoCanSeeDialog;
     private void initDialogs() {
-        addTagDialog = new AddTagDialog(this, R.style.dialog);
+        addTagDialog = new AddTagDialog(this,this, R.style.dialog);
+        deleteImageDialog = new DeleteImageDialog(this, R.style.dialog, new DeleteImageDialog.OnDeleteImageClickListener() {
+            @Override
+            public void onDeleteImage() {
+                mImageList.remove(delete_position);
+                mImageList.remove("add");
+                mImageList.add("add");
+                imageGridAdapter.setData(mImageList);
+            }
+        });
+        circleSelectDialog=new CircleSelectDialog(this,R.style.dialog,new CircleSelectDialog.OnCircleSeletedListener(){
+            @Override
+            public void onCircleSelected(MyCircle circle) {
+                System.out.println(circle);
+            }
+        });
+        whoCanSeeDialog=new WhoCanSeeDialog(this, R.style.dialog, new WhoCanSeeDialog.OnWhoCanSeeListener() {
+            @Override
+            public void onWhoCanSee(WhoCanSee whoCanSee) {
+                System.out.println(whoCanSee);
+            }
+        });
+
     }
 
     @Override
@@ -97,10 +131,10 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
                 addTagDialog.show();
                 break;
             case R.id.atquanziLayout:
-
+                circleSelectDialog.show();
                 break;
             case R.id.fanweiLayout:
-
+                whoCanSeeDialog.show();
                 break;
         }
     }
@@ -109,6 +143,7 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
     public void onAddImages() {
         selectImages();
     }
+
 
     private void selectImages() {
         mImageList.remove("add");
@@ -144,6 +179,18 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
                     }
                 });
             }
+        }
+    }
+
+
+    private DeleteImageDialog deleteImageDialog;
+    private int delete_position = -1;
+
+    @Override
+    public void onDeleteImage(int position) {
+        if (null != deleteImageDialog) {
+            delete_position = position;
+            deleteImageDialog.show();
         }
     }
 }

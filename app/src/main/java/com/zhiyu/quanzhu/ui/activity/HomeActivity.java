@@ -1,14 +1,9 @@
 package com.zhiyu.quanzhu.ui.activity;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.SyncStateContract;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
 import android.text.TextUtils;
@@ -28,13 +23,16 @@ import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseActivity;
 import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.model.bean.AreaProvince;
+import com.zhiyu.quanzhu.model.bean.HobbyDaoChild;
+import com.zhiyu.quanzhu.model.bean.HobbyDaoParent;
 import com.zhiyu.quanzhu.model.bean.IndustryParent;
 import com.zhiyu.quanzhu.model.dao.AreaDao;
 import com.zhiyu.quanzhu.model.dao.ConversationDao;
+import com.zhiyu.quanzhu.model.dao.HobbyDao;
 import com.zhiyu.quanzhu.model.dao.IndustryDao;
-import com.zhiyu.quanzhu.model.data.AreaData;
 import com.zhiyu.quanzhu.model.result.AppVersionResult;
 import com.zhiyu.quanzhu.model.result.AreaResult;
+import com.zhiyu.quanzhu.model.result.HobbyDaoResult;
 import com.zhiyu.quanzhu.model.result.IndustryResult;
 import com.zhiyu.quanzhu.model.result.UserResult;
 import com.zhiyu.quanzhu.ui.adapter.MyFragmentStatePagerAdapter;
@@ -60,9 +58,7 @@ import org.xutils.x;
 
 import java.lang.ref.WeakReference;
 import java.security.MessageDigest;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Random;
 
 import io.rong.imkit.RongIM;
@@ -175,6 +171,7 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
         initDialogs();
         cityList();
         industryList();
+        hobbyList();
     }
 
     @Override
@@ -622,7 +619,7 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("area: "+result);
+                System.out.println("area: " + result);
                 areaResult = GsonUtils.GsonToBean(result, AreaResult.class);
                 AreaDao.getInstance().saveAreaProvince(areaResult.getData().getCitys());
                 for (final AreaProvince p : areaResult.getData().getCitys()) {
@@ -663,7 +660,7 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("industry: "+result);
+                System.out.println("industry: " + result);
                 industryResult = GsonUtils.GsonToBean(result, IndustryResult.class);
                 if (null != industryResult) {
                     IndustryDao.getInstance().saveIndustryParent(industryResult.getData().getList().get(0).getChild());
@@ -676,6 +673,59 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
                         });
                     }
                 }
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
+    private HobbyDaoResult hobbyResult;
+
+    private void hobbyList() {
+        final RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.HOBBY_LIST);
+        params.addBodyParameter("type", "2");
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                System.out.println("hobby: " + result);
+                hobbyResult = GsonUtils.GsonToBean(result, HobbyDaoResult.class);
+                HobbyDao.getInstance().saveHobbyParentList(hobbyResult.getData().getList().get(0).getChild());
+
+                for (HobbyDaoParent parent : hobbyResult.getData().getList().get(0).getChild()) {
+                    HobbyDao.getInstance().saveHobbyChildList(parent.getChild());
+                    System.out.println(parent.getChild().size());
+//                    for (HobbyDaoChild child : parent.getChild()) {
+//                        System.out.println("parent: " + child.getSub_name() + " , child: " + child.getName());
+//                    }
+                }
+
+                HobbyDao.getInstance().hobbyParentList();
+
+//                industryResult = GsonUtils.GsonToBean(result, IndustryResult.class);
+//                if (null != industryResult) {
+//                    IndustryDao.getInstance().saveIndustryParent(industryResult.getData().getList().get(0).getChild());
+//                    for (final IndustryParent parent : industryResult.getData().getList().get(0).getChild()) {
+//                        ThreadPoolUtils.getInstance().init().execute(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                IndustryDao.getInstance().saveIndustryChild(parent.getChild());
+//                            }
+//                        });
+//                    }
+//                }
             }
 
             @Override

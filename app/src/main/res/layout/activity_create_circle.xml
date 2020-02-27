@@ -1,13 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/white"
     android:orientation="vertical"
-    tools:context=".ui.activity.CreateShangQuanActivity">
+    tools:context=".ui.activity.CreateCircleActivity">
 
-    <include layout="@layout/header_create_shangquan" />
+    <include layout="@layout/header_create_circle" />
+
+    <TextView
+        android:id="@+id/jinggaoTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@mipmap/jinggao"
+        android:textColor="#F6152A"
+        android:text="同消息里提示通知一样"
+        android:textSize="12sp"
+        android:background="#F8F8F8"
+        android:paddingLeft="@dimen/dp_15"
+        android:paddingRight="@dimen/dp_15"
+        android:paddingTop="@dimen/dp_8"
+        android:paddingBottom="@dimen/dp_8"
+        android:drawablePadding="@dimen/dp_5"
+        />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -36,21 +52,22 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="商圈名称"
+                        android:text="圈子名称"
                         android:textColor="@color/text_color_grey"
                         android:textSize="14sp" />
 
                     <EditText
-                        android:id="@+id/mingchengTextView"
+                        android:id="@+id/mingchengEditText"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_gravity="center"
                         android:layout_weight="1"
                         android:background="@null"
                         android:gravity="center|right"
-                        android:hint="编辑商圈名称"
+                        android:hint="请填写圈子名称"
                         android:textColor="@color/text_color_black"
-                        android:textSize="13sp" />
+                        android:textColorHint="#BBBBBB"
+                        android:textSize="14sp" />
                 </LinearLayout>
 
                 <TextView
@@ -82,7 +99,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="商圈性质"
+                    android:text="圈子性质"
                     android:textColor="@color/text_color_grey"
                     android:textSize="14sp" />
 
@@ -97,7 +114,8 @@
                     android:layout_height="wrap_content"
                     android:hint="请选择"
                     android:textColor="@color/text_color_black"
-                    android:textSize="13sp" />
+                    android:textColorHint="@color/text_color_gray"
+                    android:textSize="14sp" />
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -142,7 +160,8 @@
                     android:layout_height="wrap_content"
                     android:hint="请选择"
                     android:textColor="@color/text_color_black"
-                    android:textSize="13sp" />
+                    android:textColorHint="@color/text_color_gray"
+                    android:textSize="14sp" />
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -170,6 +189,7 @@
                 android:paddingTop="@dimen/dp_20">
 
                 <TextView
+                    android:id="@+id/industryTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="行业"
@@ -187,14 +207,15 @@
                     android:layout_height="wrap_content"
                     android:hint="请选择"
                     android:textColor="@color/text_color_black"
-                    android:textSize="13sp" />
+                    android:textColorHint="@color/text_color_gray"
+                    android:textSize="14sp" />
 
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginLeft="6.5dp"
-                    android:src="@mipmap/arrow_right_gray_big" />
+                    android:src="@mipmap/arrow_right_gray_small" />
             </LinearLayout>
 
             <View
@@ -225,15 +246,10 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1" />
 
-                <ToggleButton
-                    android:id="@+id/shenheToggleButton"
-                    android:layout_width="@dimen/dp_40"
-                    android:layout_height="22dp"
-                    android:background="@color/transparent"
-                    android:button="@drawable/toggle_button"
-                    android:text=""
-                    android:textOff=""
-                    android:textOn="" />
+                <com.zhiyu.quanzhu.ui.widget.SwitchButton
+                    android:id="@+id/shenheSwitchButton"
+                    android:layout_width="40dp"
+                    android:layout_height="22dp" />
             </LinearLayout>
 
             <View
@@ -264,15 +280,10 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1" />
 
-                <ToggleButton
-                    android:id="@+id/shoufeiToggleButton"
+                <com.zhiyu.quanzhu.ui.widget.SwitchButton
+                    android:id="@+id/shoufeiSwitchButton"
                     android:layout_width="@dimen/dp_40"
-                    android:layout_height="22dp"
-                    android:background="@color/transparent"
-                    android:button="@drawable/toggle_button"
-                    android:text=""
-                    android:textOff=""
-                    android:textOn="" />
+                    android:layout_height="22dp" />
             </LinearLayout>
 
             <View
@@ -283,40 +294,51 @@
                 android:background="#E6E6E6" />
             <!-- 收费金额-->
             <LinearLayout
+                android:id="@+id/moneyLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingBottom="@dimen/dp_20"
-                android:paddingLeft="25dp"
-                android:paddingRight="25dp"
-                android:paddingTop="@dimen/dp_20">
+                android:visibility="gone"
+                android:orientation="vertical">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="收费金额"
-                    android:textColor="@color/text_color_grey"
-                    android:textSize="14sp" />
+                    android:orientation="horizontal"
+                    android:paddingBottom="@dimen/dp_20"
+                    android:paddingLeft="25dp"
+                    android:paddingRight="25dp"
+                    android:paddingTop="@dimen/dp_20"
+                    >
 
-                <EditText
-                    android:id="@+id/jineEditText"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:background="@null"
-                    android:gravity="center|right"
-                    android:hint="单位/元"
-                    android:textColor="@color/text_color_black"
-                    android:textSize="13sp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="收费金额"
+                        android:textColor="@color/text_color_grey"
+                        android:textSize="14sp" />
+
+                    <EditText
+                        android:id="@+id/jineEditText"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        android:background="@null"
+                        android:gravity="center|right"
+                        android:hint="请填写收费金额(单位/元)"
+                        android:inputType="numberDecimal"
+                        android:textColor="@color/text_color_black"
+                        android:textColorHint="#BBBBBB"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:layout_marginLeft="@dimen/dp_15"
+                    android:layout_marginRight="15dp"
+                    android:background="#E6E6E6" />
             </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="0.5dp"
-                android:layout_marginLeft="@dimen/dp_15"
-                android:layout_marginRight="15dp"
-                android:background="#E6E6E6" />
             <!-- 商圈介绍-->
             <LinearLayout
                 android:layout_width="match_parent"
@@ -330,7 +352,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="商圈介绍"
+                    android:text="圈子介绍"
                     android:textColor="@color/text_color_grey"
                     android:textSize="14sp" />
 
@@ -341,9 +363,10 @@
                     android:layout_marginTop="@dimen/dp_10"
                     android:background="@drawable/shape_edit_bg"
                     android:gravity="top"
-                    android:hint="请输入介绍文字"
+                    android:hint="在这儿用文字介绍您创建的圈子..."
                     android:padding="@dimen/dp_10"
                     android:textColor="@color/text_color_black"
+                    android:textColorHint="@color/text_color_gray"
                     android:textSize="13sp" />
             </LinearLayout>
 
@@ -361,36 +384,24 @@
                 android:paddingBottom="@dimen/dp_20"
                 android:paddingLeft="25dp"
                 android:paddingRight="25dp"
+                android:visibility="gone"
                 android:paddingTop="@dimen/dp_20">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="商圈LOGO"
+                    android:text="圈子LOGO"
                     android:textColor="@color/text_color_grey"
                     android:textSize="14sp" />
 
-                <FrameLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/dp_5">
-
-                    <com.zhiyu.quanzhu.ui.widget.RoundImageView
-                        android:id="@+id/logoImageView"
-                        android:layout_width="@dimen/dp_100"
-                        android:layout_height="@dimen/dp_100"
-                        android:layout_marginRight="@dimen/dp_5"
-                        android:layout_marginTop="@dimen/dp_5"
-                        android:scaleType="centerCrop"
-                        android:src="@mipmap/add_image" />
-
-                    <ImageView
-                        android:id="@+id/deleteLogoImagView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="right"
-                        android:src="@mipmap/img_delete" />
-                </FrameLayout>
+                <com.zhiyu.quanzhu.ui.widget.RoundImageView
+                    android:id="@+id/logoImageView"
+                    android:layout_width="@dimen/dp_100"
+                    android:layout_height="@dimen/dp_100"
+                    android:layout_marginRight="@dimen/dp_5"
+                    android:layout_marginTop="@dimen/dp_10"
+                    android:scaleType="centerCrop"
+                    android:src="@mipmap/mingpian_add_img" />
             </LinearLayout>
 
             <View
@@ -398,6 +409,7 @@
                 android:layout_height="0.5dp"
                 android:layout_marginLeft="@dimen/dp_15"
                 android:layout_marginRight="15dp"
+                android:visibility="gone"
                 android:background="#E6E6E6" />
             <!-- 上传封面-->
             <LinearLayout
@@ -417,7 +429,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="上传封面"
+                        android:text="上传封面(0)"
                         android:textColor="@color/text_color_grey"
                         android:textSize="14sp" />
 
@@ -469,23 +481,15 @@
                         android:id="@+id/mVideoView"
                         android:layout_width="match_parent"
                         android:layout_height="100dp"
-                        android:visibility="gone"
-                        />
+                        android:visibility="gone" />
 
-                    <RelativeLayout
-                        android:id="@+id/uploadvideoLayout"
-                        android:layout_width="@dimen/dp_100"
-                        android:layout_height="@dimen/dp_100"
-                        android:background="@drawable/shape_edit_bg"
-                        android:visibility="visible">
 
-                        <ImageView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerInParent="true"
-                            android:src="@mipmap/upload_add_gray" />
-
-                    </RelativeLayout>
+                    <ImageView
+                        android:id="@+id/uploadvideoImageView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:src="@mipmap/mingpian_add_img" />
 
                 </FrameLayout>
             </LinearLayout>
@@ -502,6 +506,7 @@
     </ScrollView>
 
     <TextView
+        android:id="@+id/confirmTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"

@@ -7,7 +7,8 @@
 
     <include layout="@layout/header_left_center_black" />
 
-    <ScrollView
+    <com.zhiyu.quanzhu.ui.widget.RecyclerScrollView
+        android:id="@+id/mScrollView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
@@ -35,8 +36,7 @@
             <com.zhiyu.quanzhu.ui.widget.MyRecyclerView
                 android:id="@+id/imageGridView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                />
+                android:layout_height="wrap_content" />
 
             <View
                 android:layout_width="match_parent"
@@ -46,7 +46,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
                 android:background="#EDEDED" />
-
+            <!-- 添加标签-->
             <LinearLayout
                 android:id="@+id/addTagLayout"
                 android:layout_width="match_parent"
@@ -90,7 +90,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
                 android:background="#EDEDED" />
-
+            <!-- @圈子-->
             <LinearLayout
                 android:id="@+id/atquanziLayout"
                 android:layout_width="match_parent"
@@ -135,7 +135,95 @@
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
                 android:background="#EDEDED" />
+            <!-- 所属行业-->
+            <LinearLayout
+                android:id="@+id/industryLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingBottom="@dimen/dp_20"
+                android:paddingTop="@dimen/dp_20">
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="所属行业"
+                    android:textColor="@color/text_color_grey"
+                    android:textSize="14sp" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/dp_1"
+                    android:layout_weight="1" />
+
+                <TextView
+                    android:id="@+id/industryTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="选择行业"
+                    android:textColor="@color/text_color_gray"
+                    android:textSize="14sp" />
+
+                <View
+                    android:layout_width="@dimen/dp_10"
+                    android:layout_height="@dimen/dp_1" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@mipmap/arrow_right_gray_big" />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="#EDEDED" />
+            <!-- 所属兴趣-->
+            <LinearLayout
+                android:id="@+id/hobbyLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingBottom="@dimen/dp_20"
+                android:paddingTop="@dimen/dp_20">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="所属兴趣"
+                    android:textColor="@color/text_color_grey"
+                    android:textSize="14sp" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/dp_1"
+                    android:layout_weight="1" />
+
+                <TextView
+                    android:id="@+id/hobbyTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="选择兴趣"
+                    android:textColor="@color/text_color_gray"
+                    android:textSize="14sp" />
+
+                <View
+                    android:layout_width="@dimen/dp_10"
+                    android:layout_height="@dimen/dp_1" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@mipmap/arrow_right_gray_big" />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="#EDEDED" />
+            <!-- 谁可以看-->
             <LinearLayout
                 android:id="@+id/fanweiLayout"
                 android:layout_width="match_parent"
@@ -174,9 +262,13 @@
                     android:src="@mipmap/arrow_right_gray_big" />
 
             </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_45" />
         </LinearLayout>
 
-    </ScrollView>
+    </com.zhiyu.quanzhu.ui.widget.RecyclerScrollView>
 
     <TextView
         android:id="@+id/reportTextView"

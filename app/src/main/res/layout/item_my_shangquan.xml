@@ -19,15 +19,56 @@
             android:layout_height="wrap_content">
 
             <ImageView
+                android:id="@+id/thumbImageView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
                 android:src="@mipmap/header" />
 
+            <FrameLayout
+                android:id="@+id/shenheLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:alpha="0.5"
+                    android:background="@color/black" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/shenheImageView"
+                        android:layout_width="75dp"
+                        android:layout_height="75dp"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="@dimen/dp_10"
+                        android:src="@mipmap/circle_shenhezhong" />
+
+                    <TextView
+                        android:id="@+id/shenheTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="圈子审核中，可点击查看详情"
+                        android:textColor="#FFDF80"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+            </FrameLayout>
+
             <LinearLayout
+                android:id="@+id/passLayout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:visibility="gone">
 
                 <View
                     android:layout_width="match_parent"
@@ -58,6 +99,7 @@
                             android:orientation="horizontal">
 
                             <TextView
+                                android:id="@+id/circleNameTextView"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
@@ -77,6 +119,7 @@
                                 android:textSize="11sp" />
 
                             <TextView
+                                android:id="@+id/pnumTextView"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
@@ -93,9 +136,11 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
-                                android:src="@mipmap/quanzi_zhibo" />
+                                android:src="@mipmap/quanzi_zhibo"
+                                android:visibility="gone" />
 
                             <com.zhiyu.quanzhu.ui.widget.CircleImageView
+                                android:id="@+id/avatarImageView"
                                 android:layout_width="20dp"
                                 android:layout_height="20dp"
                                 android:layout_gravity="center"
@@ -104,6 +149,7 @@
                                 android:src="@mipmap/header" />
 
                             <TextView
+                                android:id="@+id/userNameTextView"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
@@ -118,8 +164,8 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="right"
-                            android:layout_marginRight="10.5dp"
+                            android:layout_gravity="left"
+                            android:layout_marginLeft="15dp"
                             android:text="[0条新消息]"
                             android:textColor="@color/white"
                             android:textSize="11sp" />
@@ -134,8 +180,8 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="9.5dp"
                             android:layout_marginLeft="16dp"
-                            android:text="叶枫：今天去海钓拉~~~"
-                            android:textColor="@color/text_color_gold"
+                            android:text="公告"
+                            android:textColor="#FFDF80"
                             android:textSize="12sp" />
 
                     </LinearLayout>

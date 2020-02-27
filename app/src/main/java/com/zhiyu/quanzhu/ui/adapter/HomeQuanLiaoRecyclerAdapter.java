@@ -14,9 +14,12 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.zhiyu.quanzhu.R;
+import com.zhiyu.quanzhu.model.bean.Circle;
 import com.zhiyu.quanzhu.ui.activity.MessageListActivity;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 import com.zhiyu.quanzhu.utils.SharedPreferencesUtils;
+
+import java.util.List;
 
 import io.rong.imkit.RongIM;
 import io.rong.imlib.model.Conversation;
@@ -26,6 +29,7 @@ public class HomeQuanLiaoRecyclerAdapter extends RecyclerView.Adapter<HomeQuanLi
     private int dp_15, screenWidth, layoutHeight, layoutWidth;
     private LinearLayout.LayoutParams ll;
     private float ratio = 0.5768f;
+
 
     public HomeQuanLiaoRecyclerAdapter(Context context) {
         this.context = context;

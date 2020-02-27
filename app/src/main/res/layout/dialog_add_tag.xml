@@ -137,8 +137,12 @@
                     android:layout_height="match_parent"
                     android:layout_gravity="center"
                     android:background="@null"
+                    android:ellipsize="end"
                     android:gravity="center|left"
                     android:hint="搜索并添加标签获得更多互动"
+                    android:imeOptions="actionSearch"
+                    android:inputType="text"
+                    android:maxLines="1"
                     android:textColor="#BBBBBB"
                     android:textSize="12sp" />
 
@@ -170,7 +174,8 @@
             android:id="@+id/selectTagLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="gone">
 
             <!-- 已选标签-->
             <TextView
@@ -184,8 +189,7 @@
             <com.zhy.view.flowlayout.TagFlowLayout
                 android:id="@+id/selectedLayout"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                zhy:max_select="1" />
+                android:layout_height="wrap_content" />
 
             <!-- 历史标签-->
             <LinearLayout
@@ -220,8 +224,7 @@
             <com.zhy.view.flowlayout.TagFlowLayout
                 android:id="@+id/historyLayout"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                zhy:max_select="1" />
+                android:layout_height="wrap_content" />
 
             <!-- 热门标签-->
             <LinearLayout
@@ -250,8 +253,7 @@
             <com.zhy.view.flowlayout.TagFlowLayout
                 android:id="@+id/hotLayout"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                zhy:max_select="1" />
+                android:layout_height="wrap_content" />
 
 
         </LinearLayout>
@@ -262,6 +264,48 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
+            <!-- 创建标签-->
+            <LinearLayout
+                android:id="@+id/craeteTagRootLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/dp_5"
+                    android:text="创建标签"
+                    android:textColor="@color/text_color_grey"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="未搜索到当前标签？点击标签可以立即生成新标签哦~"
+                    android:textColor="@color/text_color_gray"
+                    android:textSize="12sp" />
+
+                <com.zhy.view.flowlayout.TagFlowLayout
+                    android:id="@+id/createLayout"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/dp_5" />
+            </LinearLayout>
+            <!-- 更多标签-->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/dp_10"
+                android:text="更多标签"
+                android:textColor="@color/text_color_grey"
+                android:textSize="14sp" />
+
+            <com.zhy.view.flowlayout.TagFlowLayout
+                android:id="@+id/moreLayout"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" />
         </LinearLayout>
     </FrameLayout>
 

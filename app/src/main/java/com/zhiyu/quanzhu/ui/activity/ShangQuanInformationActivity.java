@@ -20,6 +20,7 @@ import com.zhiyu.quanzhu.ui.popupwindow.ShangQuanInformationRightMenuQuanZhuWind
 import com.zhiyu.quanzhu.ui.popupwindow.ShangQuanInformationRightMenuWeiJiaRuWindow;
 import com.zhiyu.quanzhu.ui.popupwindow.ShangQuanInformationRightMenuYiJiaRuWindow;
 import com.zhiyu.quanzhu.ui.widget.MyScrollView;
+import com.zhiyu.quanzhu.utils.ScreentUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,11 +43,14 @@ public class ShangQuanInformationActivity extends BaseActivity implements MyScro
     private TextView joinShangQuanTextView;
 
     private ShangQuanApplyJoinDialog shangQuanApplyJoinDialog;
+    private long circle_id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shang_quan_information);
+        ScreentUtils.getInstance().setStatusBarLightMode(this,true);
+        circle_id=getIntent().getLongExtra("circle_id",0l);
         initDialogs();
         initViews();
 

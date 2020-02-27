@@ -13,12 +13,21 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.zhiyu.quanzhu.R;
+import com.zhiyu.quanzhu.model.result.CircleResult;
 import com.zhiyu.quanzhu.ui.adapter.HomeQuanLiaoRecyclerAdapter;
+import com.zhiyu.quanzhu.utils.ConstantsUtils;
+import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyPtrHandlerFooter;
 import com.zhiyu.quanzhu.utils.MyPtrHandlerHeader;
 import com.zhiyu.quanzhu.utils.MyPtrRefresherFooter;
 import com.zhiyu.quanzhu.utils.MyPtrRefresherHeader;
+import com.zhiyu.quanzhu.utils.MyRequestParams;
+import com.zhiyu.quanzhu.utils.SharedPreferencesUtils;
 import com.zhiyu.quanzhu.utils.SpaceItemDecoration;
+
+import org.xutils.common.Callback;
+import org.xutils.http.RequestParams;
+import org.xutils.x;
 
 import java.lang.ref.WeakReference;
 
@@ -81,37 +90,45 @@ public class FragmentXiaoXiQuanLiao extends Fragment {
         ptrFrameLayout.setPtrHandler(new PtrDefaultHandler2() {
             @Override
             public void onLoadMoreBegin(PtrFrameLayout frame) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Thread.sleep(2000);
-                            Message message = myHandler.obtainMessage(1);
-                            message.sendToTarget();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }).start();
+                circleList();
 
             }
 
             @Override
             public void onRefreshBegin(PtrFrameLayout frame) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Thread.sleep(2000);
-                            Message message = myHandler.obtainMessage(1);
-                            message.sendToTarget();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }).start();
+                circleList();
             }
         });
         ptrFrameLayout.setMode(PtrFrameLayout.Mode.BOTH);
+    }
+
+    private CircleResult circleResult;
+    private void circleList(){
+        RequestParams params= MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL+ConstantsUtils.CIRCLE_LIST);
+        params.addBodyParameter("uid", SharedPreferencesUtils.getInstance(getContext()).getUserId());
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                circleResult= GsonUtils.GsonToBean(result,CircleResult.class);
+                Message message=myHandler.obtainMessage(1);
+                message.sendToTarget();
+//                System.out.println("circle list: "+circleResult.getData().getList().size());
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
     }
 }
