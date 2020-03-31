@@ -118,6 +118,7 @@
                     android:orientation="vertical">
 
                     <TextView
+                        android:id="@+id/feedCountTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
@@ -144,6 +145,7 @@
                     android:orientation="vertical">
 
                     <TextView
+                        android:id="@+id/fansCountTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
@@ -170,6 +172,7 @@
                     android:orientation="vertical">
 
                     <TextView
+                        android:id="@+id/followCountTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
@@ -196,6 +199,7 @@
                     android:orientation="vertical">
 
                     <TextView
+                        android:id="@+id/priseCountTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
@@ -215,6 +219,51 @@
                 </LinearLayout>
 
             </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/dp_30"
+                android:layout_marginRight="@dimen/dp_30"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="VIP 尊享会员 | 尊享会员特权"
+                    android:textColor="#FFF262"
+                    android:textSize="11sp" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/dp_1"
+                    android:layout_weight="1" />
+
+                <LinearLayout
+                    android:layout_width="62dp"
+                    android:layout_height="18dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/shape_oval_solid_bg_gold"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:drawableRight="@mipmap/arrow_right_black_small"
+                        android:text="立即查看"
+                        android:textSize="11sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="13dp" />
         </LinearLayout>
 
     </FrameLayout>
@@ -267,7 +316,8 @@
                                 android:layout_width="@dimen/dp_5"
                                 android:layout_height="@dimen/dp_5"
                                 android:layout_gravity="top|right"
-                                android:background="@drawable/shape_yuandian" />
+                                android:background="@drawable/shape_yuandian"
+                                android:visibility="gone" />
                         </FrameLayout>
 
                         <TextView
@@ -302,7 +352,8 @@
                                 android:layout_width="@dimen/dp_5"
                                 android:layout_height="@dimen/dp_5"
                                 android:layout_gravity="top|right"
-                                android:background="@drawable/shape_yuandian" />
+                                android:background="@drawable/shape_yuandian"
+                                android:visibility="gone" />
                         </FrameLayout>
 
                         <TextView
@@ -514,9 +565,10 @@
                                         android:layout_gravity="top|right"
                                         android:background="@drawable/shape_yuanquan"
                                         android:gravity="center"
-                                        android:text="15"
+                                        android:text="0"
                                         android:textColor="@color/text_color_yellow"
-                                        android:textSize="@dimen/sp_10" />
+                                        android:textSize="@dimen/sp_10"
+                                        android:visibility="gone" />
                                 </FrameLayout>
 
                                 <TextView
@@ -553,9 +605,10 @@
                                         android:layout_gravity="top|right"
                                         android:background="@drawable/shape_yuanquan"
                                         android:gravity="center"
-                                        android:text="15"
+                                        android:text="0"
                                         android:textColor="@color/text_color_yellow"
-                                        android:textSize="@dimen/sp_10" />
+                                        android:textSize="@dimen/sp_10"
+                                        android:visibility="gone" />
                                 </FrameLayout>
 
                                 <TextView
@@ -592,9 +645,10 @@
                                         android:layout_gravity="top|right"
                                         android:background="@drawable/shape_yuanquan"
                                         android:gravity="center"
-                                        android:text="15"
+                                        android:text="0"
                                         android:textColor="@color/text_color_yellow"
-                                        android:textSize="@dimen/sp_10" />
+                                        android:textSize="@dimen/sp_10"
+                                        android:visibility="gone" />
                                 </FrameLayout>
 
                                 <TextView
@@ -631,9 +685,10 @@
                                         android:layout_gravity="top|right"
                                         android:background="@drawable/shape_yuanquan"
                                         android:gravity="center"
-                                        android:text="15"
+                                        android:text="0"
                                         android:textColor="@color/text_color_yellow"
-                                        android:textSize="@dimen/sp_10" />
+                                        android:textSize="@dimen/sp_10"
+                                        android:visibility="gone" />
                                 </FrameLayout>
 
                                 <TextView
@@ -670,9 +725,10 @@
                                         android:layout_gravity="top|right"
                                         android:background="@drawable/shape_yuanquan"
                                         android:gravity="center"
-                                        android:text="15"
+                                        android:text="0"
                                         android:textColor="@color/text_color_yellow"
-                                        android:textSize="@dimen/sp_10" />
+                                        android:textSize="@dimen/sp_10"
+                                        android:visibility="gone" />
                                 </FrameLayout>
 
                                 <TextView

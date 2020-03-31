@@ -27,12 +27,16 @@ import com.zhiyu.quanzhu.model.bean.HobbyDaoChild;
 import com.zhiyu.quanzhu.model.bean.HobbyDaoParent;
 import com.zhiyu.quanzhu.model.bean.IndustryParent;
 import com.zhiyu.quanzhu.model.dao.AreaDao;
+import com.zhiyu.quanzhu.model.dao.CardFrendDao;
 import com.zhiyu.quanzhu.model.dao.ConversationDao;
 import com.zhiyu.quanzhu.model.dao.HobbyDao;
 import com.zhiyu.quanzhu.model.dao.IndustryDao;
+import com.zhiyu.quanzhu.model.data.HomeBaseData;
 import com.zhiyu.quanzhu.model.result.AppVersionResult;
 import com.zhiyu.quanzhu.model.result.AreaResult;
+import com.zhiyu.quanzhu.model.result.CardFrendResult;
 import com.zhiyu.quanzhu.model.result.HobbyDaoResult;
+import com.zhiyu.quanzhu.model.result.HomeBaseResult;
 import com.zhiyu.quanzhu.model.result.IndustryResult;
 import com.zhiyu.quanzhu.model.result.UserResult;
 import com.zhiyu.quanzhu.ui.adapter.MyFragmentStatePagerAdapter;
@@ -182,9 +186,10 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
         }
         //启动定位
         mLocationClient.startLocation();
-        requestAppVersion();
+//        requestAppVersion();
         if (checkLogin()) {
             requestBase();
+            cardUserList();
         }
     }
 
@@ -239,6 +244,7 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
         viewPager.setScroll(false);
         adapter = new MyFragmentStatePagerAdapter(getSupportFragmentManager(), fragmentArrayList);
         viewPager.setAdapter(adapter);
+        viewPager.setOffscreenPageLimit(5);
         viewPager.setCurrentItem(0);
 
         quanzilayout = findViewById(R.id.quanzilayout);
@@ -457,16 +463,22 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
     }
 
     private UserResult userResult;
+    private HomeBaseResult homeBaseResult;
 
     private void requestBase() {
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.APP_BASE);
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-//                System.out.println("基础信息: " +result);
-                userResult = GsonUtils.GsonToBean(result, UserResult.class);
-                android.os.Message message = myHandler.obtainMessage(2);
-                message.sendToTarget();
+                System.out.println("基础信息: " + result);
+//                userResult = GsonUtils.GsonToBean(result, UserResult.class);
+                homeBaseResult = GsonUtils.GsonToBean(result, HomeBaseResult.class);
+                SharedPreferencesUtils.getInstance(HomeActivity.this).saveUserId(String.valueOf(homeBaseResult.getData().getUid()));
+//                SharedPreferencesUtils.getInstance(HomeActivity.this).saveUserToken(homeBaseResult.getData().getToken());
+                SharedPreferencesUtils.getInstance(HomeActivity.this).saveUserName(homeBaseResult.getData().getUser().getUsername());
+                SharedPreferencesUtils.getInstance(HomeActivity.this).saveUserHeaderPic(homeBaseResult.getData().getUser().getAvatar());
+//                android.os.Message message = myHandler.obtainMessage(2);
+//                message.sendToTarget();
 
             }
 
@@ -596,14 +608,15 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
                     String floor = amapLocation.getFloor();//获取当前室内定位的楼层
                     amapLocation.getGpsAccuracyStatus();//获取GPS的当前状态
 
-                    System.out.println("高德定位结果: " + country + " , " + province + " , " + city + " , " + district + " , " + street + " , " + address + " , " +
-                            buildingId + " , " + floor);
+//                    System.out.println("高德定位结果: " + country + " , " + province + " , " + city + " , " + district + " , " + street + " , " + address + " , " +
+//                            buildingId + " , " + floor);
+                    SharedPreferencesUtils.getInstance(HomeActivity.this).saveLocation(province, city);
                     mLocationClient.stopLocation();//停止定位后，本地定位服务并不会被销毁
                 } else {
                     //定位失败时，可通过ErrCode（错误码）信息来确定失败的原因，errInfo是错误信息，详见错误码表。
-                    Log.e("AmapError", "location Error, ErrCode:"
-                            + amapLocation.getErrorCode() + ", errInfo:"
-                            + amapLocation.getErrorInfo());
+//                    Log.e("AmapError", "location Error, ErrCode:"
+//                            + amapLocation.getErrorCode() + ", errInfo:"
+//                            + amapLocation.getErrorInfo());
                 }
             }
         }
@@ -700,32 +713,12 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("hobby: " + result);
                 hobbyResult = GsonUtils.GsonToBean(result, HobbyDaoResult.class);
+                HobbyDao.getInstance().clearHobby();
                 HobbyDao.getInstance().saveHobbyParentList(hobbyResult.getData().getList().get(0).getChild());
-
                 for (HobbyDaoParent parent : hobbyResult.getData().getList().get(0).getChild()) {
                     HobbyDao.getInstance().saveHobbyChildList(parent.getChild());
-                    System.out.println(parent.getChild().size());
-//                    for (HobbyDaoChild child : parent.getChild()) {
-//                        System.out.println("parent: " + child.getSub_name() + " , child: " + child.getName());
-//                    }
                 }
-
-                HobbyDao.getInstance().hobbyParentList();
-
-//                industryResult = GsonUtils.GsonToBean(result, IndustryResult.class);
-//                if (null != industryResult) {
-//                    IndustryDao.getInstance().saveIndustryParent(industryResult.getData().getList().get(0).getChild());
-//                    for (final IndustryParent parent : industryResult.getData().getList().get(0).getChild()) {
-//                        ThreadPoolUtils.getInstance().init().execute(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                IndustryDao.getInstance().saveIndustryChild(parent.getChild());
-//                            }
-//                        });
-//                    }
-//                }
             }
 
             @Override
@@ -745,4 +738,35 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
         });
     }
 
+    private CardFrendResult cardFrendResult;
+
+    /**
+     * 名片好友列表
+     */
+    private void cardUserList() {
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.CARD_USER_LIST);
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                cardFrendResult = GsonUtils.GsonToBean(result, CardFrendResult.class);
+                CardFrendDao.getDao().saveCardFendList(cardFrendResult.getData().getMy_friends_card());
+                System.out.println("card users: " + cardFrendResult.getData().getMy_friends_card().size());
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+                System.out.println(ex.toString());
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
 }

@@ -11,7 +11,7 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.zhiyu.quanzhu.R;
-import com.zhiyu.quanzhu.ui.activity.PublishArticle1Activity;
+import com.zhiyu.quanzhu.ui.activity.PublishArticleActivity;
 import com.zhiyu.quanzhu.ui.activity.PublishFeedActivity;
 import com.zhiyu.quanzhu.ui.activity.PublishVideoActivity;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
@@ -55,7 +55,7 @@ public class PublishDialog extends Dialog implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.publishArticleTextView:
-                Intent articleIntent = new Intent(getContext(), PublishArticle1Activity.class);
+                Intent articleIntent = new Intent(getContext(), PublishArticleActivity.class);
                 articleIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 getContext().startActivity(articleIntent);
                 dismiss();

@@ -26,8 +26,7 @@
             android:background="@drawable/shape_shangquan_search_bg"
             android:gravity="center"
             android:orientation="horizontal"
-            android:paddingLeft="@dimen/dp_15"
-            android:paddingRight="@dimen/dp_15">
+            android:paddingLeft="@dimen/dp_15">
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -35,20 +34,31 @@
                 android:layout_marginRight="@dimen/dp_5"
                 android:src="@mipmap/search_share_inner" />
 
-            <EditText
+            <TextView
+                android:id="@+id/searchTextView"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="@null"
-                android:hint="iPhone11"
+                android:gravity="center|left"
+                android:hint="搜索商品"
                 android:textColor="@color/text_color_gray"
                 android:textSize="12sp" />
 
-            <ImageView
+            <RelativeLayout
+                android:id="@+id/saoyisaolayout"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/dp_5"
-                android:src="@mipmap/search_in_saoyisao" />
+                android:layout_height="match_parent"
+                android:paddingLeft="@dimen/dp_15"
+                android:paddingRight="@dimen/dp_15">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:layout_marginLeft="@dimen/dp_5"
+                    android:src="@mipmap/search_in_saoyisao" />
+            </RelativeLayout>
         </LinearLayout>
 
         <ImageView

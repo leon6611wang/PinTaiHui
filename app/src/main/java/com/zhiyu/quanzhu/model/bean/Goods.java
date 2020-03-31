@@ -1,25 +1,58 @@
 package com.zhiyu.quanzhu.model.bean;
 
+import android.content.Context;
+import android.view.Gravity;
+import android.widget.LinearLayout;
+
+import com.zhiyu.quanzhu.R;
+import com.zhiyu.quanzhu.utils.ScreentUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Goods {
     private long id;
     private String goods_name;
-    private List<String> img_list;
+    private List<GoodsImg> img_list;
     private GoodsImg img;
-    private ArrayList<String> img_json;
+    private List<GoodsImg> img_json;
     private long goods_price;
     private int goods_stock;
     private int sale_num;
     private long shop_id;
     private String video;
+    private int video_width;
+    private int video_height;
     private String video_thumb;
     private String send_city;
     private List<GoodsTag> tags;
     private long min_price;
     private long max_price;
+    private boolean is_collect;
 
+    public boolean isIs_collect() {
+        return is_collect;
+    }
+
+    public void setIs_collect(boolean is_collect) {
+        this.is_collect = is_collect;
+    }
+
+    public int getVideo_width() {
+        return video_width;
+    }
+
+    public void setVideo_width(int video_width) {
+        this.video_width = video_width;
+    }
+
+    public int getVideo_height() {
+        return video_height;
+    }
+
+    public void setVideo_height(int video_height) {
+        this.video_height = video_height;
+    }
 
     public long getMin_price() {
         return min_price;
@@ -53,11 +86,11 @@ public class Goods {
         this.goods_name = goods_name;
     }
 
-    public List<String> getImg_list() {
+    public List<GoodsImg> getImg_list() {
         return img_list;
     }
 
-    public void setImg_list(List<String> img_list) {
+    public void setImg_list(List<GoodsImg> img_list) {
         this.img_list = img_list;
     }
 
@@ -69,11 +102,11 @@ public class Goods {
         this.img = img;
     }
 
-    public ArrayList<String> getImg_json() {
+    public List<GoodsImg> getImg_json() {
         return img_json;
     }
 
-    public void setImg_json(ArrayList<String> img_json) {
+    public void setImg_json(List<GoodsImg> img_json) {
         this.img_json = img_json;
     }
 

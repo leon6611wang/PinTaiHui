@@ -9,9 +9,53 @@ public class CartShop {
     private String name;
     private String shop_id;
     private String icon;
+    private int status;
+    private int business_status;
+    private int goods_num;
+    private int all_price;
+    private int freight;
     private List<CartGoods> list;
     private boolean isSelected;
 
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public int getBusiness_status() {
+        return business_status;
+    }
+
+    public void setBusiness_status(int business_status) {
+        this.business_status = business_status;
+    }
+
+    public int getGoods_num() {
+        return goods_num;
+    }
+
+    public void setGoods_num(int goods_num) {
+        this.goods_num = goods_num;
+    }
+
+    public int getAll_price() {
+        return all_price;
+    }
+
+    public void setAll_price(int all_price) {
+        this.all_price = all_price;
+    }
+
+    public int getFreight() {
+        return freight;
+    }
+
+    public void setFreight(int freight) {
+        this.freight = freight;
+    }
 
     public boolean isSelected() {
         return isSelected;

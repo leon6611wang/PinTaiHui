@@ -29,6 +29,9 @@ public class SharedPreferencesUtils {
                 app_update_sp = context.getSharedPreferences(APP_UPDATE_SP, Context.MODE_PRIVATE);
                 app_update_editor = app_update_sp.edit();
 
+                location_sp = context.getSharedPreferences(LOCATION_SP, Context.MODE_PRIVATE);
+                location_editor = location_sp.edit();
+
             }
         }
 
@@ -44,7 +47,7 @@ public class SharedPreferencesUtils {
         user_editor.commit();
     }
 
-    public void clearUser(){
+    public void clearUser() {
         user_editor.putString(USER_ID, "");
         user_editor.putString(USER_NAME, "");
         user_editor.putString(USER_PHONE_NUMBER, "");
@@ -101,6 +104,9 @@ public class SharedPreferencesUtils {
 
     public String getUserToken() {
         String token = user_sp.getString(USER_TOKEN, null);
+        if (null!=token&&!token.contains("bearer")) {
+            token = "bearer " + token;
+        }
         return token;
     }
 
@@ -138,7 +144,7 @@ public class SharedPreferencesUtils {
     public void saveAppVersion(String version, boolean necessary) {
         app_update_editor.putString(APP_VERSION, version);
         app_update_editor.putBoolean(APP_NECESSARY, necessary);
-        app_update_editor.putBoolean(APP_NEGLECT,false);
+        app_update_editor.putBoolean(APP_NEGLECT, false);
         app_update_editor.commit();
     }
 
@@ -162,4 +168,27 @@ public class SharedPreferencesUtils {
         return neglect;
     }
 
+
+    /**
+     * 定位信息
+     */
+    private static final String LOCATION_SP = "location_sp";
+    private static final String LOCATION_PROVINCE = "location_province";
+    private static final String LOCATION_CITY = "location_city";
+    private static SharedPreferences location_sp;
+    private static SharedPreferences.Editor location_editor;
+
+    public void saveLocation(String province, String city) {
+        location_editor.putString(LOCATION_PROVINCE, province);
+        location_editor.putString(LOCATION_CITY, city);
+        location_editor.commit();
+    }
+
+    public String getLocationProvince() {
+        return location_sp.getString(LOCATION_PROVINCE, null);
+    }
+
+    public String getLocationCity() {
+        return location_sp.getString(LOCATION_CITY, null);
+    }
 }

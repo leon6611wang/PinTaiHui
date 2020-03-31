@@ -10,15 +10,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.zhiyu.quanzhu.R;
+import com.zhiyu.quanzhu.model.bean.QuanZiTuiJianDaoHang;
 
 import java.util.List;
 
 public class QuanZiTuiJianWoDeLabelRecyclerAdapter extends RecyclerView.Adapter<QuanZiTuiJianWoDeLabelRecyclerAdapter.ViewHolder> {
     private Context context;
     private boolean isEdit = false;
-    private List<String> list;
+    private List<QuanZiTuiJianDaoHang> list;
 
-    public void setList(List<String> label_list) {
+    public void setList(List<QuanZiTuiJianDaoHang> label_list) {
         this.list = label_list;
         notifyDataSetChanged();
     }
@@ -51,8 +52,8 @@ public class QuanZiTuiJianWoDeLabelRecyclerAdapter extends RecyclerView.Adapter<
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.labelTextView.setText(list.get(position));
-        if (position < 3) {
+        holder.labelTextView.setText(list.get(position).getName());
+        if (position < 4) {
             holder.labelTextView.setBackground(context.getResources().getDrawable(R.drawable.shape_quanzi_tuijian_label_bg_white));
             holder.closeImageView.setVisibility(View.GONE);
             holder.labelTextView.setClickable(true);
@@ -126,4 +127,5 @@ public class QuanZiTuiJianWoDeLabelRecyclerAdapter extends RecyclerView.Adapter<
     public int getItemCount() {
         return null == list ? 0 : list.size();
     }
+
 }

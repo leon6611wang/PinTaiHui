@@ -4,7 +4,7 @@ package com.zhiyu.quanzhu.model.bean;
  * 购物车商品
  */
 public class CartGoods {
-    private long id;
+    private long id;//购物车id
     private int num;
     private long nid;
     private int goods_feight;
@@ -12,11 +12,20 @@ public class CartGoods {
     private String goods_name;
     private int goods_status;
     private String norms_name;
+    private String norms_id;
     private int stock;
     private long price;
     private String img;
     private int currentNum;//当前选择的商品数量
     private boolean isSelected;//当前商品是否选中
+
+    public String getNorms_id() {
+        return norms_id;
+    }
+
+    public void setNorms_id(String norms_id) {
+        this.norms_id = norms_id;
+    }
 
     public int getCurrentNum() {
         return currentNum;

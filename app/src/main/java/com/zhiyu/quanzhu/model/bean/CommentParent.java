@@ -24,7 +24,7 @@ public class CommentParent {
     private boolean is_own;
     private List<CommentChild> reply;
 
-    private DongTaiInformation information;
+    private FeedInformation information;
     private int adapter_type;
 
 
@@ -52,11 +52,11 @@ public class CommentParent {
         this.is_own = is_own;
     }
 
-    public DongTaiInformation getInformation() {
+    public FeedInformation getInformation() {
         return information;
     }
 
-    public void setInformation(DongTaiInformation information) {
+    public void setInformation(FeedInformation information) {
         this.information = information;
     }
 

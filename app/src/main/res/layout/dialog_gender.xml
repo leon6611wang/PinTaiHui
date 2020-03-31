@@ -6,12 +6,13 @@
     android:orientation="vertical">
 
     <TextView
+        android:id="@+id/femaleTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginBottom="18dp"
-        android:layout_marginTop="18dp"
         android:gravity="center"
+        android:paddingBottom="@dimen/dp_15"
+        android:paddingTop="@dimen/dp_15"
         android:text="女"
         android:textColor="#333333"
         android:textSize="14sp" />
@@ -24,12 +25,13 @@
         android:background="#EDEDED" />
 
     <TextView
+        android:id="@+id/maleTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginBottom="18dp"
-        android:layout_marginTop="18dp"
         android:gravity="center"
+        android:paddingBottom="@dimen/dp_15"
+        android:paddingTop="@dimen/dp_15"
         android:text="男"
         android:textColor="#333333"
         android:textSize="14sp" />
@@ -42,12 +44,13 @@
         android:background="#EDEDED" />
 
     <TextView
+        android:id="@+id/cancelTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginBottom="18dp"
-        android:layout_marginTop="18dp"
         android:gravity="center"
+        android:paddingBottom="@dimen/dp_15"
+        android:paddingTop="@dimen/dp_15"
         android:text="取消"
         android:textColor="#333333"
         android:textSize="14sp" />

@@ -25,6 +25,7 @@ import com.zhiyu.quanzhu.model.bean.QuanZiTuiJianDaoHang;
 import com.zhiyu.quanzhu.model.result.QuanZiTuiJianDaoHangResult;
 import com.zhiyu.quanzhu.model.result.QuanZiTuiJianQuanZiResult;
 import com.zhiyu.quanzhu.model.result.QuanZiTuiJianResult;
+import com.zhiyu.quanzhu.ui.adapter.CircleTuiJianAdapter;
 import com.zhiyu.quanzhu.ui.adapter.QuanZiTuiJianAdapter;
 import com.zhiyu.quanzhu.ui.adapter.QuanZiTuiJianTitleRecyclerAdapter;
 import com.zhiyu.quanzhu.ui.dialog.QuanZiTuiJianLabelDialog;
@@ -33,6 +34,7 @@ import com.zhiyu.quanzhu.utils.CenterLayoutManager;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
+import com.zhiyu.quanzhu.utils.SharedPreferencesUtils;
 import com.zhiyu.quanzhu.utils.VideoCacheUtils;
 
 import org.xutils.common.Callback;
@@ -52,14 +54,15 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
     private MyRecyclerView mRecyclerView;
     private RefreshLayout refreshLayout;
     private QuanZiTuiJianAdapter adapter;
+    private CircleTuiJianAdapter circleTuiJianAdapter;
     private MyRecyclerView titleRecyclerView;
     private QuanZiTuiJianTitleRecyclerAdapter titleRecyclerAdapter;
-    private List<QuanZiTuiJianDaoHang> list;
+    private List<QuanZiTuiJianDaoHang> daoHangList;
     private CenterLayoutManager centerLayoutManager;
     private ImageView addLabelImageView;
     private QuanZiTuiJianLabelDialog quanZiTuiJianLabelDialog;
     private List<QuanZiTuiJian> tuiJianList = new ArrayList<>();
-    private QuanZiTuiJianResult result;
+    private QuanZiTuiJianResult quanziTuijianResult;
     private int contentHeight;
     private MyHandler myHandler = new MyHandler(this);
 
@@ -76,11 +79,12 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
             switch (msg.what) {
                 case 1:
                     fragment.refreshLayout.finishRefresh();
-                    fragment.adapter.setData(fragment.tuiJianList);
+//                    fragment.adapter.setData(fragment.tuiJianList);
+                    fragment.circleTuiJianAdapter.setList(fragment.tuiJianList);
                     break;
                 case 2:
                     fragment.refreshLayout.finishLoadMore();
-                    fragment.adapter.setData(fragment.tuiJianList);
+                    fragment.circleTuiJianAdapter.setList(fragment.tuiJianList);
                     break;
                 case 3:
                     fragment.refreshLayout.finishRefresh();
@@ -89,19 +93,19 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
                 case 4://感兴趣的圈子推荐
                     int position = (Integer) msg.obj;
                     fragment.tuiJianList.get(position).setQuanzi(fragment.quanZiTuiJianQuanZiResult.getData().getCirclelist());
-                    fragment.adapter.notifyItemChanged(position);
+                    fragment.circleTuiJianAdapter.notifyItemChanged(position);
                     break;
                 case 5:
                     Bundle b = (Bundle) msg.obj;
                     int po = b.getInt("position");
                     String pa = b.getString("path");
                     fragment.tuiJianList.get(po).getContent().setVideo_url(pa);
-                    fragment.adapter.notifyItemChanged(po);
+                    fragment.circleTuiJianAdapter.notifyItemChanged(po);
 //                    System.out.println("position: " + po + " , path: " + pa);
                     break;
                 case 6:
-                    fragment.list.get(0).setChoose(true);
-                    fragment.titleRecyclerAdapter.setData(fragment.list);
+                    fragment.daoHangList.get(0).setChoose(true);
+                    fragment.titleRecyclerAdapter.setData(fragment.daoHangList);
                     break;
             }
         }
@@ -115,8 +119,13 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
         card_height = contentHeight - dp_60;
         float width = (9f / 16f) * card_height;
         card_width = Math.round(width);
+        try {
+            cityName=SharedPreferencesUtils.getInstance(getContext()).getLocationCity();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         requestDaoHangList();
-        requestTuiJianList();
+        tuijianFeedList();
         initRefreshLayout();
         initViews();
         initDialogs();
@@ -124,7 +133,13 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
     }
 
     private void initDialogs() {
-        quanZiTuiJianLabelDialog = new QuanZiTuiJianLabelDialog(getActivity(), R.style.dialog);
+        quanZiTuiJianLabelDialog = new QuanZiTuiJianLabelDialog(getActivity(), R.style.dialog, new QuanZiTuiJianLabelDialog.OnDaoHangCallbackListener() {
+            @Override
+            public void onDaoHangCallback(List<QuanZiTuiJianDaoHang> list) {
+                daoHangList=list;
+                titleRecyclerAdapter.setData(daoHangList);
+            }
+        });
     }
 
     private void initRefreshLayout() {
@@ -150,10 +165,12 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
         mRecyclerView.setItemViewCacheSize(10);
         LinearSnapHelper mLinearSnapHelper = new LinearSnapHelper();
         mLinearSnapHelper.attachToRecyclerView(mRecyclerView);
-        adapter = new QuanZiTuiJianAdapter(getActivity());
-        adapter.setOnChangeXingQuListener(this);
-        mRecyclerView.setAdapter(adapter);
-        adapter.setWidthHeight(card_width, card_height);
+//        adapter = new QuanZiTuiJianAdapter(getActivity());
+//        adapter.setOnChangeXingQuListener(this);
+//        mRecyclerView.setAdapter(adapter);
+//        adapter.setWidthHeight(card_width, card_height);
+        circleTuiJianAdapter = new CircleTuiJianAdapter(getContext(), card_width, card_height);
+        mRecyclerView.setAdapter(circleTuiJianAdapter);
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -164,13 +181,13 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
                     } else {
                         currentPosition = ((RecyclerView.LayoutParams) mRecyclerView.getChildAt(1).getLayoutParams()).getViewAdapterPosition();
                     }
-                    tuiJianList.get(currentPosition).setPlay(true);
+//                    tuiJianList.get(currentPosition).setPlay(true);
 //                    System.out.println("currentPosition: " + currentPosition);
-                    adapter.notifyItemChanged(currentPosition);
+                    circleTuiJianAdapter.notifyItemChanged(currentPosition);
                 } else {//滑动
                     if (currentPosition > -1) {
                         tuiJianList.get(currentPosition).setPlay(false);
-                        adapter.notifyItemChanged(currentPosition);
+                        circleTuiJianAdapter.notifyItemChanged(currentPosition);
                     }
 
                 }
@@ -201,18 +218,39 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
         switch (v.getId()) {
             case R.id.addLabelImageView:
                 quanZiTuiJianLabelDialog.show();
+                quanZiTuiJianLabelDialog.setCityName(cityName);
                 break;
         }
     }
 
     @Override
     public void onTitleClick(int position) {
-        for (QuanZiTuiJianDaoHang tuiJianTitle : list) {
+        for (QuanZiTuiJianDaoHang tuiJianTitle : daoHangList) {
             tuiJianTitle.setChoose(false);
         }
-        list.get(position).setChoose(true);
-        titleRecyclerAdapter.setData(list);
+        daoHangList.get(position).setChoose(true);
+        titleRecyclerAdapter.setData(daoHangList);
         centerLayoutManager.smoothScrollToPosition(titleRecyclerView, new RecyclerView.State(), position);
+//        tuiJianList.clear();
+//        circleTuiJianAdapter.notifyDataSetChanged();
+        switch (daoHangList.get(position).getType()) {
+
+            case 1:
+                tuijianFeedList();
+                break;
+            case 2:
+                videoFeedList();
+                break;
+            case 3:
+                feedList();
+                break;
+            case 4:
+                districtFeedList();
+                break;
+            default:
+                tagFeedList(daoHangList.get(position).getName());
+                break;
+        }
 //        titleRecyclerView.scrollToPosition(position);
 //        Log.i("onTitleClick", "position: " + position);
     }
@@ -226,14 +264,14 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
     public void onLoadMore(@NonNull RefreshLayout refreshLayout) {
         isRefresh = false;
         page++;
-        requestTuiJianList();
+        tuijianFeedList();
     }
 
     @Override
     public void onRefresh(@NonNull RefreshLayout refreshLayout) {
         isRefresh = true;
         page = 1;
-        requestTuiJianList();
+        tuijianFeedList();
 
     }
 
@@ -242,88 +280,95 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
     private boolean isInitScale = true;
 
     private void scaleRecyclerViewItem() {
-        View currentView = null, leftView = null, rightView = null;
-        int currentPosition = ((RecyclerView.LayoutParams) mRecyclerView.getChildAt(1).getLayoutParams()).getViewAdapterPosition();
-        int count = tuiJianList.size();
-        currentView = mRecyclerView.getLayoutManager().findViewByPosition(currentPosition);
-        currentView.setScaleY(1.0f);
-        if (currentPosition > 0 && currentPosition < count) {
-            leftView = mRecyclerView.getLayoutManager().findViewByPosition(currentPosition - 1);
-            rightView = mRecyclerView.getLayoutManager().findViewByPosition(currentPosition + 1);
-        }
+        if (null != tuiJianList && tuiJianList.size() > 0) {
+            View currentView = null, leftView = null, rightView = null;
+            int currentPosition = ((RecyclerView.LayoutParams) mRecyclerView.getChildAt(1).getLayoutParams()).getViewAdapterPosition();
+            int count = tuiJianList.size();
+            currentView = mRecyclerView.getLayoutManager().findViewByPosition(currentPosition);
+            currentView.setScaleY(1.0f);
+            if (currentPosition > 0 && currentPosition < count) {
+                leftView = mRecyclerView.getLayoutManager().findViewByPosition(currentPosition - 1);
+                rightView = mRecyclerView.getLayoutManager().findViewByPosition(currentPosition + 1);
+            }
 
-        if (isInitScale) {
-            if (null != leftView) {
-                leftView.setScaleY(mScale);
+            if (isInitScale) {
+                if (null != leftView) {
+                    leftView.setScaleY(mScale);
+                }
+                if (null != rightView) {
+                    rightView.setScaleY(mScale);
+                }
+                isInitScale = false;
             }
-            if (null != rightView) {
-                rightView.setScaleY(mScale);
-            }
-            isInitScale = false;
-        }
-        currentX = (int) ((currentPosition) * (card_width + getContext().getResources().getDimension(R.dimen.dp_10)));
-        float offset = (Math.abs(disX) - currentX);
-        float layout_width = (card_width + getContext().getResources().getDimension(R.dimen.dp_10));
+            currentX = (int) ((currentPosition) * (card_width + getContext().getResources().getDimension(R.dimen.dp_10)));
+            float offset = (Math.abs(disX) - currentX);
+            float layout_width = (card_width + getContext().getResources().getDimension(R.dimen.dp_10));
 //        layout_width=layout_width/2;
 //        System.out.println("offset: " + offset + " , layout_width: " + layout_width);
-        float percent = (float) Math.max(Math.abs(offset) * 1.0 / layout_width, 0.0001);
+            float percent = (float) Math.max(Math.abs(offset) * 1.0 / layout_width, 0.0001);
 //        System.out.println("percent: " + percent);
-        if (leftView != null) {
-            float left_scale = (1 - mScale) * percent + mScale;
-            if (left_scale > 1.0f) {
-                left_scale = 1.0f;
-            }
+            if (leftView != null) {
+                float left_scale = (1 - mScale) * percent + mScale;
+                if (left_scale > 1.0f) {
+                    left_scale = 1.0f;
+                }
 //            System.out.println("left_scale: " + left_scale);
-            if (left_scale > mScale * 1.1f)
-                leftView.setScaleY(left_scale);
-        }
-        if (currentView != null) {
-            float current_scale = (mScale - 1) * percent + 1;
-            current_scale = current_scale * 1.1f;//后面为校正系数
-            if (current_scale > 1.0f) {
-                current_scale = 1.0f;
+                if (left_scale > mScale * 1.1f)
+                    leftView.setScaleY(left_scale);
             }
+            if (currentView != null) {
+                float current_scale = (mScale - 1) * percent + 1;
+                current_scale = current_scale * 1.1f;//后面为校正系数
+                if (current_scale > 1.0f) {
+                    current_scale = 1.0f;
+                }
 //            System.out.println("current_scale: " + current_scale);
-            currentView.setScaleY(current_scale);
-        }
-        if (rightView != null) {
-            float right_scale = (1 - mScale) * percent + mScale;
-            if (right_scale > 1.0f) {
-                right_scale = 1.0f;
+                currentView.setScaleY(current_scale);
             }
+            if (rightView != null) {
+                float right_scale = (1 - mScale) * percent + mScale;
+                if (right_scale > 1.0f) {
+                    right_scale = 1.0f;
+                }
 //            System.out.println("right_scale: " + right_scale);
-            if (right_scale > mScale * 1.1f)
-                rightView.setScaleY(right_scale);
+                if (right_scale > mScale * 1.1f)
+                    rightView.setScaleY(right_scale);
+            }
         }
+    }
+
+    private String cityName="";
+    public void setCity(String city){
+        cityName=city;
+        page=1;
+        isRefresh=true;
+        tuijianFeedList();
+        requestDaoHangList();
     }
 
     private int page = 1;
     private boolean isRefresh = true;
 
-    private void requestTuiJianList() {
+    private void tuijianFeedList() {
         RequestParams params = new RequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.HOME_QUANZI_TUIJIAN_LIST);
-        params.addBodyParameter("city_name", "马鞍山市");
+        params.addBodyParameter("city_name", cityName);
         params.addBodyParameter("page", String.valueOf(page));
-//        System.out.println("请求开始时间: " + new Date().getTime());
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String res) {
-//                System.out.println("回调成功时间: " + new Date().getTime());
-//                System.out.println(res);
-                result = GsonUtils.GsonToBean(res, QuanZiTuiJianResult.class);
+                System.out.println("圈子-推荐列表: " + res);
+                quanziTuijianResult = GsonUtils.GsonToBean(res, QuanZiTuiJianResult.class);
                 if (isRefresh) {
                     tuiJianList.clear();
-                    tuiJianList = result.getData().getList();
+                    tuiJianList = quanziTuijianResult.getData().getList();
                     Message message = myHandler.obtainMessage(1);
                     message.sendToTarget();
                 } else {
-                    tuiJianList.addAll(result.getData().getList());
+                    tuiJianList.addAll(quanziTuijianResult.getData().getList());
                     Message message = myHandler.obtainMessage(2);
                     message.sendToTarget();
                 }
-                cachedVideo();
-
-
+//                cachedVideo();
             }
 
             @Override
@@ -381,11 +426,12 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
 
     private void requestDaoHangList() {
         RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.HOME_QUANZI_TUIJIAN_DAOHANG_LIST);
+        params.addBodyParameter("city_name", cityName);
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
                 daoHangResult = GsonUtils.GsonToBean(result, QuanZiTuiJianDaoHangResult.class);
-                list = daoHangResult.getData().getList();
+                daoHangList = daoHangResult.getData().getList();
                 Message message = myHandler.obtainMessage(6);
                 message.sendToTarget();
             }
@@ -423,4 +469,160 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
         });
     }
 
+
+    private void videoFeedList() {
+        RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.HOME_QUANZI_TUIJIAN_DAOHANG_SHIPIN);
+        params.addBodyParameter("city_name", SharedPreferencesUtils.getInstance(getContext()).getLocationCity());
+        params.addBodyParameter("page", String.valueOf(page));
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                System.out.println("视频: " + result);
+                quanziTuijianResult = GsonUtils.GsonToBean(result, QuanZiTuiJianResult.class);
+                if (null != quanziTuijianResult && null != quanziTuijianResult.getData() && null != quanziTuijianResult.getData().getList())
+                    if (isRefresh) {
+                        tuiJianList.clear();
+                        tuiJianList = quanziTuijianResult.getData().getList();
+                        Message message = myHandler.obtainMessage(1);
+                        message.sendToTarget();
+                    } else {
+                        tuiJianList.addAll(quanziTuijianResult.getData().getList());
+                        Message message = myHandler.obtainMessage(2);
+                        message.sendToTarget();
+                    }
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
+    private void feedList() {
+        RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.HOME_QUANZI_TUIJIAN_DAOHANG_DONGTAI);
+        params.addBodyParameter("city_name", SharedPreferencesUtils.getInstance(getContext()).getLocationCity());
+        params.addBodyParameter("page", String.valueOf(page));
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                System.out.println("动态: " + result);
+                quanziTuijianResult = GsonUtils.GsonToBean(result, QuanZiTuiJianResult.class);
+                if (null != quanziTuijianResult && null != quanziTuijianResult.getData() && null != quanziTuijianResult.getData().getList())
+                    if (isRefresh) {
+                        tuiJianList.clear();
+                        tuiJianList = quanziTuijianResult.getData().getList();
+                        Message message = myHandler.obtainMessage(1);
+                        message.sendToTarget();
+                    } else {
+                        tuiJianList.addAll(quanziTuijianResult.getData().getList());
+                        Message message = myHandler.obtainMessage(2);
+                        message.sendToTarget();
+                    }
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
+    private void districtFeedList() {
+        RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.HOME_QUANZI_TUIJIAN_DAOHANG_DIQU);
+        params.addBodyParameter("city_name", SharedPreferencesUtils.getInstance(getContext()).getLocationCity());
+        params.addBodyParameter("page", String.valueOf(page));
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                System.out.println("城市: " + result);
+                quanziTuijianResult = GsonUtils.GsonToBean(result, QuanZiTuiJianResult.class);
+                if (null != quanziTuijianResult && null != quanziTuijianResult.getData() && null != quanziTuijianResult.getData().getList())
+                    if (isRefresh) {
+                        tuiJianList.clear();
+                        tuiJianList = quanziTuijianResult.getData().getList();
+                        Message message = myHandler.obtainMessage(1);
+                        message.sendToTarget();
+                    } else {
+                        tuiJianList.addAll(quanziTuijianResult.getData().getList());
+                        Message message = myHandler.obtainMessage(2);
+                        message.sendToTarget();
+                    }
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
+    private void tagFeedList(String tag_name) {
+        RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.HOME_QUAN_ZI_TUIJIAN_TAG);
+        params.addBodyParameter("city_name", SharedPreferencesUtils.getInstance(getContext()).getLocationCity());
+        params.addBodyParameter("tag_name", tag_name);
+        params.addBodyParameter("page", String.valueOf(page));
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                quanziTuijianResult = GsonUtils.GsonToBean(result, QuanZiTuiJianResult.class);
+                if (null != quanziTuijianResult && null != quanziTuijianResult.getData() && null != quanziTuijianResult.getData().getList())
+                    if (isRefresh) {
+                        tuiJianList.clear();
+                        tuiJianList = quanziTuijianResult.getData().getList();
+                        Message message = myHandler.obtainMessage(1);
+                        message.sendToTarget();
+                    } else {
+                        tuiJianList.addAll(quanziTuijianResult.getData().getList());
+                        Message message = myHandler.obtainMessage(2);
+                        message.sendToTarget();
+                    }
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
 }

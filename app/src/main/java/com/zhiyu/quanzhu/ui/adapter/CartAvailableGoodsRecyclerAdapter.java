@@ -14,8 +14,20 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.zhiyu.quanzhu.R;
+import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.CartGoods;
+import com.zhiyu.quanzhu.ui.dialog.CartGoodsNormsSelectDialog;
+import com.zhiyu.quanzhu.ui.dialog.GoodsNormsDialog;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.RoundImageView;
+import com.zhiyu.quanzhu.utils.ConstantsUtils;
+import com.zhiyu.quanzhu.utils.GsonUtils;
+import com.zhiyu.quanzhu.utils.MyRequestParams;
+import com.zhiyu.quanzhu.utils.PriceParseUtils;
+
+import org.xutils.common.Callback;
+import org.xutils.http.RequestParams;
+import org.xutils.x;
 
 import java.util.List;
 
@@ -23,9 +35,11 @@ public class CartAvailableGoodsRecyclerAdapter extends RecyclerView.Adapter<Cart
     private List<CartGoods> list;
     private Context context;
     private int itemIndex;
+    private CartGoodsNormsSelectDialog cartGoodsNormsSelectDialog;
 
     public CartAvailableGoodsRecyclerAdapter(Context context) {
         this.context = context;
+        cartGoodsNormsSelectDialog = new CartGoodsNormsSelectDialog(context, R.style.dialog);
     }
 
     public void setData(List<CartGoods> gouWuCheItemItemList, int index) {
@@ -65,7 +79,7 @@ public class CartAvailableGoodsRecyclerAdapter extends RecyclerView.Adapter<Cart
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
         if (list.get(position).isSelected()) {
             holder.itemItemSelectedImageView.setImageDrawable(context.getDrawable(R.mipmap.gouwuche_selected));
         } else {
@@ -78,20 +92,17 @@ public class CartAvailableGoodsRecyclerAdapter extends RecyclerView.Adapter<Cart
         Glide.with(context).load(list.get(position).getImg())
                 .error(R.mipmap.img_error)
                 .into(holder.goodsImgImageView);
-        holder.goodsNameTextView.setText(list.get(position).getStock() + " - " + list.get(position).getGoods_name());
+        holder.goodsNameTextView.setText(list.get(position).getGoods_name());
         holder.goodsNormsTextView.setText(list.get(position).getNorms_name());
-        long zhengshuPrice = list.get(position).getPrice() / 100;
-        holder.zhengshuPriceTextView.setText(String.valueOf(zhengshuPrice));
-        long xiaoshu = list.get(position).getPrice() % 100;
-        String xiaoshuStr = null;
-        if (xiaoshu == 0) {
-            xiaoshuStr = ".00";
-        } else if (xiaoshu > 0 && xiaoshu < 10) {
-            xiaoshuStr = ".0" + xiaoshu;
-        } else if (xiaoshu > 10) {
-            xiaoshuStr = "." + xiaoshu;
-        }
-        holder.xiaoshuPriceTextView.setText(xiaoshuStr);
+        holder.goodsNormsTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cartGoodsNormsSelectDialog.show();
+                cartGoodsNormsSelectDialog.setGoods(list.get(position));
+            }
+        });
+        holder.zhengshuPriceTextView.setText(PriceParseUtils.getInstance().getZhengShu(list.get(position).getPrice()));
+        holder.xiaoshuPriceTextView.setText(PriceParseUtils.getInstance().getXiaoShu(list.get(position).getPrice()));
         holder.numberTextView.setText(String.valueOf(list.get(position).getNum()));
         list.get(position).setCurrentNum(list.get(position).getNum());
 
@@ -126,7 +137,7 @@ public class CartAvailableGoodsRecyclerAdapter extends RecyclerView.Adapter<Cart
             if (!TextUtils.isEmpty(numberstr))
                 currentNumber = Integer.parseInt(numberstr);
             if (list.get(position).getStock() == 0 || list.get(position).getStock() < currentNumber) {
-                Toast.makeText(context, "库存不足，无法选定.", Toast.LENGTH_SHORT).show();
+                MessageToast.getInstance(context).show("库存不足，无法选定");
             } else {
                 boolean selected = list.get(position).isSelected();
                 list.get(position).setSelected(!selected);
@@ -160,6 +171,7 @@ public class CartAvailableGoodsRecyclerAdapter extends RecyclerView.Adapter<Cart
                 currentNumber--;
                 numberTextView.setText(String.valueOf(currentNumber));
                 list.get(position).setCurrentNum(currentNumber);
+                editCartGoods(position);
             }
             if (currentNumber > 1) {
                 jianTextView.setBackground(context.getResources().getDrawable(R.drawable.shape_buy_count_usable));
@@ -196,6 +208,7 @@ public class CartAvailableGoodsRecyclerAdapter extends RecyclerView.Adapter<Cart
                 currentNumber++;
                 numberTextView.setText(String.valueOf(currentNumber));
                 list.get(position).setCurrentNum(currentNumber);
+                editCartGoods(position);
                 if (currentNumber > 1) {
                     jianTextView.setBackground(context.getResources().getDrawable(R.drawable.shape_buy_count_usable));
                 } else {
@@ -208,7 +221,7 @@ public class CartAvailableGoodsRecyclerAdapter extends RecyclerView.Adapter<Cart
                     jiaTextView.setBackground(context.getResources().getDrawable(R.drawable.shape_buy_count_unusable));
                 }
             } else {
-                Toast.makeText(context, "库存不足", Toast.LENGTH_SHORT).show();
+                MessageToast.getInstance(context).show("库存不足");
             }
         }
     }
@@ -228,5 +241,38 @@ public class CartAvailableGoodsRecyclerAdapter extends RecyclerView.Adapter<Cart
         void onItemItemSelected(int parentPosition, int childPosition, boolean selected);
     }
 
+    private BaseResult baseResult;
+
+    //更改购物车商品
+    private void editCartGoods(int position) {
+
+        RequestParams params = MyRequestParams.getInstance(context).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.CART_GOODS_EDIT);
+        params.addBodyParameter("id", String.valueOf(list.get(position).getId()));
+        params.addBodyParameter("norms_id", list.get(position).getNorms_id());
+        params.addBodyParameter("num", String.valueOf(list.get(position).getCurrentNum()));
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                System.out.println("edit cart goods: " + result);
+                baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
+                System.out.println("edit cart goods: " + baseResult.getMsg());
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+                System.out.println("edit cart goods: " + ex.toString());
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
 
 }

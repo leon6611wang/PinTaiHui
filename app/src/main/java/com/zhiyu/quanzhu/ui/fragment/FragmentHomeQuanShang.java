@@ -97,10 +97,16 @@ public class FragmentHomeQuanShang extends Fragment {
         view = inflater.inflate(R.layout.fragment_home_quanshang, null);
         initPtr();
         requestMallHomeAd();
-        requestMallHomeAdGoods();
         return view;
     }
 
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if(isVisibleToUser){
+            requestMallHomeAdGoods();
+        }
+    }
 
     private void initViews() {
         mRecyclerView = view.findViewById(R.id.mRecyclerView);
@@ -258,6 +264,7 @@ public class FragmentHomeQuanShang extends Fragment {
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
+                System.out.println("ad: " + result);
                 mallAdResult = GsonUtils.GsonToBean(result, MallAdResult.class);
                 for (MallAdImg img : mallAdResult.getData().getList().get(0).getContent().getAd_imgs()) {
                     imageUrl.add(img.getImg());
@@ -268,6 +275,7 @@ public class FragmentHomeQuanShang extends Fragment {
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
+
             }
 
             @Override
@@ -294,18 +302,17 @@ public class FragmentHomeQuanShang extends Fragment {
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
+                System.out.println("ad goods: " + result);
                 mallAdGoodsResult = GsonUtils.GsonToBean(result, MallAdGoodsResult.class);
-                if (mallAdGoodsResult.getCode() == 200) {
-                    list = mallAdGoodsResult.getData().getGoods_list();
-                }
+                list.addAll(mallAdGoodsResult.getData().getGoods_list());
+                System.out.println("ad goods: " + list.size());
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
-
             }
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-
+                System.out.println("ad goods: " + ex.toString());
             }
 
             @Override

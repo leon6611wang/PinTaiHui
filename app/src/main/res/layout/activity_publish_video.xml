@@ -39,17 +39,18 @@
                     android:layout_height="@dimen/dp_1" />
 
                 <EditText
-                    android:id="@+id/introductionEditText"
+                    android:id="@+id/videoDescEditText"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:background="@null"
                     android:gravity="center|right"
-                    android:hint="请输入文章标题"
-                    android:textColor="@color/text_color_black"
-                    android:textColorHint="@color/text_color_grey"
-                    android:paddingTop="@dimen/dp_5"
+                    android:hint="请输入视频简介..."
+                    android:textStyle="bold"
                     android:paddingBottom="@dimen/dp_5"
+                    android:paddingTop="@dimen/dp_5"
+                    android:textColor="@color/text_color_black"
+                    android:textColorHint="@color/text_color_gray"
                     android:textSize="13sp" />
 
             </LinearLayout>
@@ -107,19 +108,21 @@
 
             <!-- 上传视频-->
             <FrameLayout
-                android:id="@+id/addVideoLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:layout_marginLeft="@dimen/dp_15"
                 android:layout_marginRight="@dimen/dp_15"
                 android:layout_marginTop="@dimen/dp_25">
 
                 <LinearLayout
+                    android:id="@+id/addVideoLayout"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/shape_add_video_bg"
+                    android:layout_height="@dimen/dp_240"
                     android:layout_gravity="center"
+                    android:background="@drawable/shape_add_video_bg"
                     android:gravity="center"
+                    android:visibility="visible"
                     android:orientation="vertical">
 
                     <ImageView
@@ -138,6 +141,14 @@
                         android:textColor="@color/text_color_gray"
                         android:textSize="15sp" />
                 </LinearLayout>
+
+                <com.zhiyu.quanzhu.ui.widget.RoundImageView
+                    android:id="@+id/videoImageView"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dp_240"
+                    android:visibility="gone"
+                    android:layout_gravity="center"
+                    />
 
             </FrameLayout>
 

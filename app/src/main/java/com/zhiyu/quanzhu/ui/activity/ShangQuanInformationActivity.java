@@ -16,9 +16,9 @@ import com.zhiyu.quanzhu.ui.adapter.ShangQuanDongTaiRecyclerAdapter;
 import com.zhiyu.quanzhu.ui.adapter.ShangQuanShangPinListAdapter;
 import com.zhiyu.quanzhu.ui.adapter.ShangQuanTuiJianRecyclerViewAdapter;
 import com.zhiyu.quanzhu.ui.dialog.ShangQuanApplyJoinDialog;
-import com.zhiyu.quanzhu.ui.popupwindow.ShangQuanInformationRightMenuQuanZhuWindow;
-import com.zhiyu.quanzhu.ui.popupwindow.ShangQuanInformationRightMenuWeiJiaRuWindow;
-import com.zhiyu.quanzhu.ui.popupwindow.ShangQuanInformationRightMenuYiJiaRuWindow;
+import com.zhiyu.quanzhu.ui.popupwindow.CircleInfoCirclerWindow;
+import com.zhiyu.quanzhu.ui.popupwindow.CircleInfoUnjoinWindow;
+import com.zhiyu.quanzhu.ui.popupwindow.CircleInfoJoinedWindow;
 import com.zhiyu.quanzhu.ui.widget.MyScrollView;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 
@@ -49,7 +49,7 @@ public class ShangQuanInformationActivity extends BaseActivity implements MyScro
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shang_quan_information);
-        ScreentUtils.getInstance().setStatusBarLightMode(this,true);
+        ScreentUtils.getInstance().setStatusBarLightMode(this,false);
         circle_id=getIntent().getLongExtra("circle_id",0l);
         initDialogs();
         initViews();
@@ -120,13 +120,18 @@ public class ShangQuanInformationActivity extends BaseActivity implements MyScro
                 int member_shangquan_type=2;
                 switch (member_shangquan_type){
                     case 0:
-                        new ShangQuanInformationRightMenuWeiJiaRuWindow(this).showAtBottom(menuLayout);
+                        new CircleInfoUnjoinWindow(this).showAtBottom(menuLayout);
                         break;
                     case 1:
-                        new ShangQuanInformationRightMenuYiJiaRuWindow(this).showAtBottom(menuLayout);
+                        new CircleInfoJoinedWindow(this, new CircleInfoJoinedWindow.OnMenuSelectListener() {
+                            @Override
+                            public void onMenuSelect(int index, String menu) {
+
+                            }
+                        }).showAtBottom(menuLayout);
                         break;
                     case 2:
-                        new ShangQuanInformationRightMenuQuanZhuWindow(this).showAtBottom(menuLayout);
+//                        new CircleInfoCirclerWindow(this).showAtBottom(menuLayout);
                         break;
                 }
                 break;

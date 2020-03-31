@@ -2,7 +2,9 @@ package com.zhiyu.quanzhu.model.bean;
 
 public class FeedsTag {
     private int id;
-    private String name;
+    private String tag_name;
+    private int feeds_id;
+    private int tag_id;
 
     public int getId() {
         return id;
@@ -12,11 +14,27 @@ public class FeedsTag {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getTag_name() {
+        return tag_name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTag_name(String tag_name) {
+        this.tag_name = tag_name;
+    }
+
+    public int getFeeds_id() {
+        return feeds_id;
+    }
+
+    public void setFeeds_id(int feeds_id) {
+        this.feeds_id = feeds_id;
+    }
+
+    public int getTag_id() {
+        return tag_id;
+    }
+
+    public void setTag_id(int tag_id) {
+        this.tag_id = tag_id;
     }
 }

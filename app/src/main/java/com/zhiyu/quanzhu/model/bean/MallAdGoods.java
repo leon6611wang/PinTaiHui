@@ -5,7 +5,7 @@ package com.zhiyu.quanzhu.model.bean;
  */
 public class MallAdGoods {
     private long id;
-    private String img;
+    private GoodsImg img;
     private String goods_name;
     private int goods_stock;
     private long goods_price;
@@ -19,11 +19,11 @@ public class MallAdGoods {
         this.id = id;
     }
 
-    public String getImg() {
+    public GoodsImg getImg() {
         return img;
     }
 
-    public void setImg(String img) {
+    public void setImg(GoodsImg img) {
         this.img = img;
     }
 

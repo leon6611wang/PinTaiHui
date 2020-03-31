@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        >
+    <com.leon.myvideoplaerlibrary.view.VideoPlayerTrackView
+        android:id="@+id/videoPlayer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:video_autoSetCoverController="true"
+        app:video_autoSetVideoController="true"
+        />
+    </RelativeLayout>
+    <TextView
+        android:layout_width="@dimen/dp_100"
+        android:layout_height="@dimen/dp_35"
+        android:text="操作按钮"
+        android:textSize="13sp"
+        android:textColor="@color/text_color_yellow"
+        android:background="@drawable/shape_oval_bg_yellow"
+        android:layout_gravity="center"
+        android:gravity="center"
+        />
+
+</LinearLayout>

@@ -62,8 +62,12 @@ public class PublishFeedImagesGridAdapter extends RecyclerView.Adapter<PublishFe
              */
             notifyItemMoved(fromPosition, toPosition);
         }
-
     }
+
+    public List<String> getList(){
+        return list;
+    }
+
 
     @Override
     public void onSwipe(int position) {

@@ -24,13 +24,15 @@
                 android:layout_height="@dimen/dp_5" />
 
             <EditText
+                android:id="@+id/contentEditText"
                 android:layout_width="match_parent"
                 android:layout_height="140dp"
                 android:layout_gravity="center"
                 android:background="@null"
                 android:gravity="top"
                 android:hint="随心一笔，记录生活，分享美好..."
-                android:textColor="@color/text_color_gray"
+                android:textColor="@color/text_color_black"
+                android:textColorHint="@color/text_color_gray"
                 android:textSize="14sp" />
 
             <com.zhiyu.quanzhu.ui.widget.MyRecyclerView
@@ -71,8 +73,9 @@
                     android:id="@+id/tagTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="点击添加"
-                    android:textColor="@color/text_color_gray"
+                    android:hint="点击添加"
+                    android:textColor="@color/text_color_black"
+                    android:textColorHint="@color/text_color_gray"
                     android:textSize="14sp" />
 
                 <View
@@ -116,8 +119,9 @@
                     android:id="@+id/quanziTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="选择圈子"
-                    android:textColor="@color/text_color_gray"
+                    android:hint="未选择"
+                    android:textColor="@color/text_color_black"
+                    android:textColorHint="@color/text_color_gray"
                     android:textSize="14sp" />
 
                 <View
@@ -160,8 +164,9 @@
                     android:id="@+id/industryTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="选择行业"
-                    android:textColor="@color/text_color_gray"
+                    android:hint="点击添加"
+                    android:textColor="@color/text_color_black"
+                    android:textColorHint="@color/text_color_gray"
                     android:textSize="14sp" />
 
                 <View
@@ -204,8 +209,9 @@
                     android:id="@+id/hobbyTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="选择兴趣"
-                    android:textColor="@color/text_color_gray"
+                    android:hint="点击添加"
+                    android:textColor="@color/text_color_black"
+                    android:textColorHint="@color/text_color_gray"
                     android:textSize="14sp" />
 
                 <View
@@ -248,8 +254,9 @@
                     android:id="@+id/fanweiTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="选择范围"
-                    android:textColor="@color/text_color_gray"
+                    android:hint="未选择"
+                    android:textColor="@color/text_color_black"
+                    android:textColorHint="@color/text_color_gray"
                     android:textSize="14sp" />
 
                 <View
@@ -271,7 +278,7 @@
     </com.zhiyu.quanzhu.ui.widget.RecyclerScrollView>
 
     <TextView
-        android:id="@+id/reportTextView"
+        android:id="@+id/publishTextView"
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:layout_gravity="center"

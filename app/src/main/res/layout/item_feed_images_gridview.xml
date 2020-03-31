@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.zhiyu.quanzhu.ui.widget.NiceImageView
+        android:id="@+id/feedImageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:corner_radius="@dimen/dp_2"
+        android:src="@mipmap/img_h"
+        android:scaleType="centerCrop"
+        android:layout_centerInParent="true"
+        />
+
+</RelativeLayout>

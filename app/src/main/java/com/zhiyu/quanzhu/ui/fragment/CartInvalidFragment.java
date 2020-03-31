@@ -1,6 +1,5 @@
 package com.zhiyu.quanzhu.ui.fragment;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -12,18 +11,14 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.model.bean.CartGoods;
 import com.zhiyu.quanzhu.model.bean.CartShop;
 import com.zhiyu.quanzhu.model.result.CartResult;
-import com.zhiyu.quanzhu.ui.activity.GouWuCheJieSuanActivity;
-import com.zhiyu.quanzhu.ui.adapter.CartAvailableShopRecyclerAdapter;
 import com.zhiyu.quanzhu.ui.adapter.CartInvalidShopRecyclerAdapter;
 import com.zhiyu.quanzhu.ui.dialog.YNDialog;
+import com.zhiyu.quanzhu.ui.toast.FailureToast;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyPtrHandlerFooter;
@@ -46,15 +41,15 @@ import in.srain.cube.views.ptr.PtrFrameLayout;
 /**
  * 购物车-无效的
  */
-public class CartInvalidFragment extends Fragment implements View.OnClickListener {
+public class CartInvalidFragment extends Fragment {
     private View view;
     private PtrFrameLayout ptrFrameLayout;
     private RecyclerView mRecyclerView;
     private CartInvalidShopRecyclerAdapter adapter;
     private YNDialog qingkongDialog, deleteDialog;
-    private ImageView quanxuanImageView;
-    private TextView deleteQuanXuanTextView, zhengshuTextView, xiaoshuTextView, jiesuanTextView;
-    private LinearLayout quanxuanLayout;
+    //    private ImageView quanxuanImageView;
+//    private TextView deleteQuanXuanTextView, zhengshuTextView, xiaoshuTextView, jiesuanTextView;
+//    private LinearLayout quanxuanLayout;
     private List<CartShop> list;
     private MyHandler myHandler = new MyHandler(this);
 
@@ -73,6 +68,10 @@ public class CartInvalidFragment extends Fragment implements View.OnClickListene
                     fragment.ptrFrameLayout.refreshComplete();
                     fragment.adapter.setData(fragment.list);
                     break;
+                case 2:
+                    fragment.ptrFrameLayout.refreshComplete();
+                    FailureToast.getInstance(fragment.getContext()).show();
+                    break;
             }
         }
     }
@@ -90,15 +89,6 @@ public class CartInvalidFragment extends Fragment implements View.OnClickListene
 
     private void initViews() {
         initPtr();
-        quanxuanImageView = view.findViewById(R.id.quanxuanImageView);
-        quanxuanLayout = view.findViewById(R.id.quanxuanLayout);
-        quanxuanLayout.setOnClickListener(this);
-        deleteQuanXuanTextView = view.findViewById(R.id.deleteQuanXuanTextView);
-        deleteQuanXuanTextView.setOnClickListener(this);
-        zhengshuTextView = view.findViewById(R.id.zhengshuTextView);
-        xiaoshuTextView = view.findViewById(R.id.xiaoshuTextView);
-        jiesuanTextView = view.findViewById(R.id.jiesuanTextView);
-        jiesuanTextView.setOnClickListener(this);
         mRecyclerView = view.findViewById(R.id.mRecyclerView);
         adapter = new CartInvalidShopRecyclerAdapter(getContext());
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
@@ -110,42 +100,34 @@ public class CartInvalidFragment extends Fragment implements View.OnClickListene
 
     }
 
-    private boolean isAllSelected = false;
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.quanxuanLayout:
-                if (isAllSelected) {
-                    isAllSelected = false;
-                    quanxuanImageView.setImageDrawable(getResources().getDrawable(R.mipmap.gouwuche_unselect));
-                    for (CartShop gouWuCheItem : list) {
-                        gouWuCheItem.setSelected(false);
-                        for (CartGoods gouWuCheItemItem : gouWuCheItem.getList()) {
-                            gouWuCheItemItem.setSelected(false);
-                        }
-                    }
-                } else {
-                    isAllSelected = true;
-                    quanxuanImageView.setImageDrawable(getResources().getDrawable(R.mipmap.gouwuche_selected));
-                    for (CartShop gouWuCheItem : list) {
-                        gouWuCheItem.setSelected(true);
-                        for (CartGoods gouWuCheItemItem : gouWuCheItem.getList()) {
-                            gouWuCheItemItem.setSelected(true);
-                        }
-                    }
+    public void allSelect(boolean isAllSelected) {
+        if (!isAllSelected) {
+            for (CartShop gouWuCheItem : list) {
+                gouWuCheItem.setSelected(false);
+                for (CartGoods gouWuCheItemItem : gouWuCheItem.getList()) {
+                    gouWuCheItemItem.setSelected(false);
                 }
-                adapter.setData(list);
-                break;
-            case R.id.deleteQuanXuanTextView:
-                deleteDialog.show();
-                deleteDialog.setTitle("确定删除选中商品？");
-                break;
-            case R.id.jiesuanTextView:
-                Intent jiesuanIntent = new Intent(getActivity(), GouWuCheJieSuanActivity.class);
-                startActivity(jiesuanIntent);
-                break;
+            }
+        } else {
+            for (CartShop gouWuCheItem : list) {
+                gouWuCheItem.setSelected(true);
+                for (CartGoods gouWuCheItemItem : gouWuCheItem.getList()) {
+                    gouWuCheItemItem.setSelected(true);
+                }
+            }
         }
+        adapter.setData(list);
+    }
+
+    public List<CartShop> getList() {
+        return adapter.getList();
+    }
+
+    public void refreshCart() {
+        isRefresh = true;
+        page = 1;
+        cartList();
     }
 
     private void initPtr() {
@@ -166,9 +148,6 @@ public class CartInvalidFragment extends Fragment implements View.OnClickListene
             public void onRefreshBegin(PtrFrameLayout frame) {
                 isRefresh = true;
                 page = 1;
-                if (null != list && list.size() > 0) {
-                    list.clear();
-                }
                 cartList();
             }
         });
@@ -218,6 +197,7 @@ public class CartInvalidFragment extends Fragment implements View.OnClickListene
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
+                System.out.println("购物车-失效: " + result);
                 cartResult = GsonUtils.GsonToBean(result, CartResult.class);
                 if (null != cartResult.getData()) {
                     if (isRefresh) {
@@ -232,7 +212,8 @@ public class CartInvalidFragment extends Fragment implements View.OnClickListene
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-
+                Message message = myHandler.obtainMessage(2);
+                message.sendToTarget();
             }
 
             @Override

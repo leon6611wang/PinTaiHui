@@ -12,9 +12,14 @@ import android.view.ViewGroup;
 
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.model.bean.DongTaiGuanZhu;
+import com.zhiyu.quanzhu.model.bean.Feed;
 import com.zhiyu.quanzhu.model.bean.QuanZiGuanZhu;
+import com.zhiyu.quanzhu.model.bean.QuanZiGuanZhuUser;
+import com.zhiyu.quanzhu.model.result.FeedResult;
+import com.zhiyu.quanzhu.model.result.FullSearchFeedResult;
 import com.zhiyu.quanzhu.model.result.QuanZiGuanZhuResult;
 import com.zhiyu.quanzhu.model.result.QuanZiGuanZhuUserResult;
+import com.zhiyu.quanzhu.ui.adapter.CircleGuanZhuAdapter;
 import com.zhiyu.quanzhu.ui.adapter.QuanZiGuanZhuAdapter;
 import com.zhiyu.quanzhu.ui.adapter.QuanZiGuanZhuHeaderRecyclerAdapter;
 import com.zhiyu.quanzhu.ui.widget.MyRecyclerView;
@@ -25,6 +30,7 @@ import com.zhiyu.quanzhu.utils.MyPtrHandlerHeader;
 import com.zhiyu.quanzhu.utils.MyPtrRefresherFooter;
 import com.zhiyu.quanzhu.utils.MyPtrRefresherHeader;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
+import com.zhiyu.quanzhu.utils.SharedPreferencesUtils;
 import com.zhiyu.quanzhu.utils.SpaceItemDecoration;
 
 import org.xutils.common.Callback;
@@ -44,8 +50,8 @@ import in.srain.cube.views.ptr.PtrFrameLayout;
 public class FragmentQuanZiGuanZhu extends Fragment {
     private View view;
     private QuanZiGuanZhuAdapter adapter;
+    private CircleGuanZhuAdapter circleGuanZhuAdapter;
     private MyRecyclerView recyclerView;
-    private List<QuanZiGuanZhu> list = new ArrayList<>();
     private PtrFrameLayout ptrFrameLayout;
     private RecyclerView headerRecyclerView;
     private QuanZiGuanZhuHeaderRecyclerAdapter headerAdapter;
@@ -64,7 +70,8 @@ public class FragmentQuanZiGuanZhu extends Fragment {
             switch (msg.what) {
                 case 1:
                     fragment.ptrFrameLayout.refreshComplete();
-                    fragment.adapter.setData(fragment.list);
+//                    fragment.adapter.setData(fragment.list);
+                    fragment.circleGuanZhuAdapter.setList(fragment.feedList);
                     break;
                 case 2:
                     fragment.headerAdapter.setList(fragment.userResult.getData().getList());
@@ -103,6 +110,7 @@ public class FragmentQuanZiGuanZhu extends Fragment {
                 isRefresh = true;
                 page = 1;
                 requestGuanZhuDongTaiList();
+                requestMyFollows();
             }
         });
         ptrFrameLayout.setMode(PtrFrameLayout.Mode.BOTH);
@@ -119,40 +127,40 @@ public class FragmentQuanZiGuanZhu extends Fragment {
 
         recyclerView = view.findViewById(R.id.recyclerView);
         adapter = new QuanZiGuanZhuAdapter(getContext());
+        circleGuanZhuAdapter = new CircleGuanZhuAdapter(getActivity(), getContext());
         LinearLayoutManager ms = new LinearLayoutManager(getContext());
         ms.setOrientation(LinearLayoutManager.VERTICAL);
-        SpaceItemDecoration decoration = new SpaceItemDecoration((int) getContext().getResources().getDimension(R.dimen.dp_15));
-        recyclerView.addItemDecoration(decoration);
+//        SpaceItemDecoration decoration = new SpaceItemDecoration((int) getContext().getResources().getDimension(R.dimen.dp_15));
+//        recyclerView.addItemDecoration(decoration);
         recyclerView.setLayoutManager(ms);
-        recyclerView.setAdapter(adapter);
+        recyclerView.setAdapter(circleGuanZhuAdapter);
     }
 
     private int page = 1;
     private boolean isRefresh = true;
     private QuanZiGuanZhuResult guanZhuResult;
+    private FeedResult feedResult;
+    private List<Feed> feedList;
 
     private void requestGuanZhuDongTaiList() {
-        RequestParams params = new RequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.HOME_QUANZI_GUANZHU_LIST);
+        RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.HOME_QUANZI_GUANZHU_LIST);
         params.addBodyParameter("page", String.valueOf(page));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("圈子-关注 result: " + result);
-                guanZhuResult = GsonUtils.GsonToBean(result, QuanZiGuanZhuResult.class);
+                feedResult = GsonUtils.GsonToBean(result, FeedResult.class);
                 if (isRefresh) {
-                    list.clear();
-                    list = guanZhuResult.getData().getMycircles();
+                    feedList = feedResult.getData().getMycircles();
                 } else {
-                    list.addAll(guanZhuResult.getData().getMycircles());
+                    feedList.addAll(feedResult.getData().getMycircles());
                 }
-                System.out.println("list size: " + list.size());
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
             }
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-
+                System.out.println(ex.toString());
             }
 
             @Override
@@ -177,9 +185,9 @@ public class FragmentQuanZiGuanZhu extends Fragment {
             @Override
             public void onSuccess(String result) {
                 userResult = GsonUtils.GsonToBean(result, QuanZiGuanZhuUserResult.class);
+                System.out.println("我的关注列表:"+result);
                 Message message = myHandler.obtainMessage(2);
                 message.sendToTarget();
-                System.out.println("我关注的人列表: " + userResult.getData().getList().get(0).getUsername());
             }
 
             @Override

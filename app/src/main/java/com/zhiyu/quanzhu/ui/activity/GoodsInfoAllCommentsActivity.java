@@ -6,6 +6,7 @@ import android.os.Message;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.zhiyu.quanzhu.R;
@@ -13,6 +14,7 @@ import com.zhiyu.quanzhu.base.BaseActivity;
 import com.zhiyu.quanzhu.model.bean.GoodsComment;
 import com.zhiyu.quanzhu.model.result.GoodsCommentResult;
 import com.zhiyu.quanzhu.ui.adapter.GoodsInfoAllCommentsRecyclerAdapter;
+import com.zhiyu.quanzhu.ui.toast.FailureToast;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyPtrHandlerFooter;
@@ -35,6 +37,8 @@ import in.srain.cube.views.ptr.PtrFrameLayout;
  * 商品详情-全部评价
  */
 public class GoodsInfoAllCommentsActivity extends BaseActivity implements View.OnClickListener {
+    private LinearLayout backLayout;
+    private TextView titleTextView;
     private RecyclerView mRecyclerView;
     private GoodsInfoAllCommentsRecyclerAdapter adapter;
     private MyHandler myHandler = new MyHandler(this);
@@ -57,10 +61,13 @@ public class GoodsInfoAllCommentsActivity extends BaseActivity implements View.O
             GoodsInfoAllCommentsActivity activity = allCommentsActivityWeakReference.get();
             switch (msg.what) {
                 case 1:
+                    activity.ptrFrameLayout.refreshComplete();
                     activity.allCommentsTextView.setText("全部(" + activity.commentResult.getData().getAllnum() + ")");
                     activity.hasImageTextView.setText("有图(" + activity.commentResult.getData().getImgnum() + ")");
-                    activity.ptrFrameLayout.refreshComplete();
                     activity.adapter.setList(activity.list);
+                    break;
+                case 2:
+                    FailureToast.getInstance(activity).show();
                     break;
             }
         }
@@ -78,6 +85,10 @@ public class GoodsInfoAllCommentsActivity extends BaseActivity implements View.O
     }
 
     private void initViews() {
+        backLayout = findViewById(R.id.backLayout);
+        backLayout.setOnClickListener(this);
+        titleTextView = findViewById(R.id.titleTextView);
+        titleTextView.setText("全部评价");
         mRecyclerView = findViewById(R.id.mRecyclerView);
         adapter = new GoodsInfoAllCommentsRecyclerAdapter(this);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
@@ -98,6 +109,9 @@ public class GoodsInfoAllCommentsActivity extends BaseActivity implements View.O
                 break;
             case R.id.hasImageTextView:
                 barChange(1);
+                break;
+            case R.id.backLayout:
+                finish();
                 break;
         }
     }
@@ -120,9 +134,6 @@ public class GoodsInfoAllCommentsActivity extends BaseActivity implements View.O
         comments_type = position;
         page = 1;
         isRefresh = true;
-        if (null != list) {
-            list.clear();
-        }
         goodsInfoAllComments();
     }
 
@@ -145,9 +156,6 @@ public class GoodsInfoAllCommentsActivity extends BaseActivity implements View.O
             public void onRefreshBegin(PtrFrameLayout frame) {
                 page = 1;
                 isRefresh = true;
-                if (null != list) {
-                    list.clear();
-                }
                 goodsInfoAllComments();
             }
         });
@@ -167,7 +175,7 @@ public class GoodsInfoAllCommentsActivity extends BaseActivity implements View.O
             @Override
             public void onSuccess(String result) {
                 commentResult = GsonUtils.GsonToBean(result, GoodsCommentResult.class);
-                System.out.println("all comments: " + commentResult.getData().getList().size());
+                System.out.println("all comments: " + result);
                 if (isRefresh) {
                     list = commentResult.getData().getList();
                 } else {
@@ -181,7 +189,8 @@ public class GoodsInfoAllCommentsActivity extends BaseActivity implements View.O
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-
+                Message message = myHandler.obtainMessage(2);
+                message.sendToTarget();
             }
 
             @Override

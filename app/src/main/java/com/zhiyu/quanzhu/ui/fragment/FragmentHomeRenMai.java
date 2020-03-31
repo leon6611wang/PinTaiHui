@@ -55,13 +55,16 @@ public class FragmentHomeRenMai extends Fragment {
             FragmentHomeRenMai fragment=fragmentHomeRenMaiWeakReference.get();
             switch (msg.what){
                 case 1:
-                    Glide.with(fragment.getContext()).load(fragment.cardResult.getData().getDetail().getCard_thumb()).into(fragment.headerImageView);
-                    fragment.nameTextView.setText(fragment.cardResult.getData().getDetail().getCard_name());
-                    fragment.positionTextView.setText(fragment.cardResult.getData().getDetail().getOccupation());
-                    fragment.companyTextView.setText(fragment.cardResult.getData().getDetail().getCompany());
-                    fragment.viewCountTextView.setText(String.valueOf(fragment.cardResult.getData().getDetail().getView()));
-                    fragment.priseCountTextView.setText(String.valueOf(fragment.cardResult.getData().getDetail().getPrise()));
-                    fragment.collectCountTextView.setText(String.valueOf(fragment.cardResult.getData().getDetail().getCollect()));
+                    if(null!=fragment.cardResult.getData().getDetail()){
+                        Glide.with(fragment.getContext()).load(fragment.cardResult.getData().getDetail().getCard_thumb()).into(fragment.headerImageView);
+                        fragment.nameTextView.setText(fragment.cardResult.getData().getDetail().getCard_name());
+                        fragment.positionTextView.setText(fragment.cardResult.getData().getDetail().getOccupation());
+                        fragment.companyTextView.setText(fragment.cardResult.getData().getDetail().getCompany());
+                        fragment.viewCountTextView.setText(String.valueOf(fragment.cardResult.getData().getDetail().getView()));
+                        fragment.priseCountTextView.setText(String.valueOf(fragment.cardResult.getData().getDetail().getPrise()));
+                        fragment.collectCountTextView.setText(String.valueOf(fragment.cardResult.getData().getDetail().getCollect()));
+                    }
+
                     break;
             }
         }
@@ -203,7 +206,7 @@ public class FragmentHomeRenMai extends Fragment {
     }
 
     private void cardFrends(){
-        RequestParams params=MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL+ConstantsUtils.CARD_USER_CARDS);
+        RequestParams params=MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL+ConstantsUtils.CARD_USER_LIST);
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {

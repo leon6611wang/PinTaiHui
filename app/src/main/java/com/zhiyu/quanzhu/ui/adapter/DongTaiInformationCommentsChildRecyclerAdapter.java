@@ -191,7 +191,7 @@ public class DongTaiInformationCommentsChildRecyclerAdapter extends RecyclerView
     private BaseResult baseResult;
 
     private void dongtai_comment(String content, int comment_id) {
-        RequestParams params = MyRequestParams.getInstance(context).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.DONGTAI_COMMENT);
+        RequestParams params = MyRequestParams.getInstance(context).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.FEED_COMMENT);
         params.addBodyParameter("feeds_id", "25");
         params.addBodyParameter("content", content);
         params.addBodyParameter("comment_id", String.valueOf(comment_id));

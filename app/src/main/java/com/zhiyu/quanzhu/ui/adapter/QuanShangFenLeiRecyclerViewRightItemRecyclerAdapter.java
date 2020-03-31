@@ -15,7 +15,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.model.bean.GoodsFenLei;
-import com.zhiyu.quanzhu.ui.activity.ShangPinSearchListActivity;
+import com.zhiyu.quanzhu.ui.activity.GoodsSearchActivity;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 
 import java.util.List;
@@ -89,7 +89,7 @@ public class QuanShangFenLeiRecyclerViewRightItemRecyclerAdapter extends Recycle
 
         @Override
         public void onClick(View v) {
-            Intent intent = new Intent(context, ShangPinSearchListActivity.class);
+            Intent intent = new Intent(context, GoodsSearchActivity.class);
             intent.putExtra("keyword", fenlei);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);

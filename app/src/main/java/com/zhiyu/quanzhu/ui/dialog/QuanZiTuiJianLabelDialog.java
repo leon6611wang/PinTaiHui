@@ -3,6 +3,8 @@ package com.zhiyu.quanzhu.ui.dialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,10 +17,22 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.zhiyu.quanzhu.R;
+import com.zhiyu.quanzhu.base.BaseResult;
+import com.zhiyu.quanzhu.model.bean.QuanZiTuiJianDaoHang;
+import com.zhiyu.quanzhu.model.result.QuanZiTuiJianDaoHangResult;
 import com.zhiyu.quanzhu.ui.adapter.QuanZiTuiJianTuiJianLabelRecyclerAdapter;
 import com.zhiyu.quanzhu.ui.adapter.QuanZiTuiJianWoDeLabelRecyclerAdapter;
+import com.zhiyu.quanzhu.utils.ConstantsUtils;
+import com.zhiyu.quanzhu.utils.GsonUtils;
+import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
+import com.zhiyu.quanzhu.utils.SharedPreferencesUtils;
 
+import org.xutils.common.Callback;
+import org.xutils.http.RequestParams;
+import org.xutils.x;
+
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,10 +46,60 @@ public class QuanZiTuiJianLabelDialog extends Dialog implements View.OnClickList
     private List<String> wodelabel_list = new ArrayList<>();
     private List<String> tuijianlabel_list = new ArrayList<>();
     private TextView editButtonTextView;
+    private String cityName;
 
-    public QuanZiTuiJianLabelDialog(@NonNull Context context, int themeResId) {
+    public QuanZiTuiJianLabelDialog(@NonNull Context context, int themeResId, OnDaoHangCallbackListener listener) {
         super(context, themeResId);
         this.context = context;
+        this.onDaoHangCallbackListener = listener;
+        cityName = SharedPreferencesUtils.getInstance(context).getLocationCity();
+    }
+
+    public void setCityName(String city_name) {
+        this.cityName = city_name;
+        allDaoHangList();
+        myDaoHangList();
+    }
+
+    private MyHandler myHandler = new MyHandler(this);
+
+    private static class MyHandler extends Handler {
+        WeakReference<QuanZiTuiJianLabelDialog> dialogWeakReference;
+
+        public MyHandler(QuanZiTuiJianLabelDialog dialog) {
+            dialogWeakReference = new WeakReference<>(dialog);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            QuanZiTuiJianLabelDialog dialog = dialogWeakReference.get();
+            switch (msg.what) {
+                case 1:
+                    dialog.tuijianAdapter.setList(dialog.allList);
+                    break;
+                case 2:
+                    dialog.wodeAdapter.setList(dialog.myList);
+                    break;
+                case 3:
+                    Toast.makeText(dialog.context, dialog.baseResult.getMsg(), Toast.LENGTH_SHORT).show();
+                    if (dialog.baseResult.getCode() == 200) {
+                        dialog.myList.add(dialog.daoHang);
+                        dialog.wodeAdapter.setList(dialog.myList);
+                        dialog.allList.remove(dialog.daoHang);
+                        dialog.tuijianAdapter.setList(dialog.allList);
+                    }
+                    break;
+                case 4:
+                    Toast.makeText(dialog.context, dialog.baseResult.getMsg(), Toast.LENGTH_SHORT).show();
+                    if (dialog.baseResult.getCode() == 200) {
+                        dialog.myList.remove(dialog.daoHang);
+                        dialog.wodeAdapter.setList(dialog.myList);
+                        dialog.allList.add(dialog.daoHang);
+                        dialog.tuijianAdapter.setList(dialog.allList);
+                    }
+                    break;
+            }
+        }
     }
 
     @Override
@@ -49,36 +113,25 @@ public class QuanZiTuiJianLabelDialog extends Dialog implements View.OnClickList
         getWindow().setGravity(Gravity.BOTTOM);
         getWindow().setWindowAnimations(R.style.dialogBottomShow);
         getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        initDatas();
         initViews();
-    }
-
-    private void initDatas() {
-        wodelabel_list.add("关注");
-        wodelabel_list.add("推荐");
-        wodelabel_list.add("视频");
-        wodelabel_list.add("娱乐");
-        wodelabel_list.add("财经");
-        wodelabel_list.add("科技");
-        wodelabel_list.add("汽车");
-        wodelabel_list.add("体育");
-
-        tuijianlabel_list.add("公开课");
-        tuijianlabel_list.add("段子");
-        tuijianlabel_list.add("讲讲");
-        tuijianlabel_list.add("体育");
-        tuijianlabel_list.add("房产");
-        tuijianlabel_list.add("时尚");
-        tuijianlabel_list.add("图片");
-        tuijianlabel_list.add("科技");
-        tuijianlabel_list.add("美容");
-        tuijianlabel_list.add("信息");
-        tuijianlabel_list.add("互联网");
-        tuijianlabel_list.add("野外生存");
-        tuijianlabel_list.add("抖音");
-        tuijianlabel_list.add("新时代");
 
     }
+
+    @Override
+    public void show() {
+        super.show();
+    }
+
+
+
+    @Override
+    public void dismiss() {
+        super.dismiss();
+        if (null != onDaoHangCallbackListener) {
+            onDaoHangCallbackListener.onDaoHangCallback(myList);
+        }
+    }
+
 
     private void initViews() {
         closeLayout = findViewById(R.id.closeLayout);
@@ -86,11 +139,9 @@ public class QuanZiTuiJianLabelDialog extends Dialog implements View.OnClickList
         wodeRecyclerView = findViewById(R.id.wodeRecyclerView);
         tuijianRecyclerView = findViewById(R.id.tuijianRecyclerView);
         wodeAdapter = new QuanZiTuiJianWoDeLabelRecyclerAdapter(context);
-        wodeAdapter.setList(wodelabel_list);
         wodeAdapter.setOnLabelDeleteListener(this);
         wodeAdapter.setOnLabelGoToListener(this);
         tuijianAdapter = new QuanZiTuiJianTuiJianLabelRecyclerAdapter();
-        tuijianAdapter.setList(tuijianlabel_list);
         tuijianAdapter.setOnLabelAddListener(this);
         GridLayoutManager wodeGridManager = new GridLayoutManager(context, 4);
         GridLayoutManager tuijianGridManager = new GridLayoutManager(context, 4);
@@ -114,11 +165,11 @@ public class QuanZiTuiJianLabelDialog extends Dialog implements View.OnClickList
                 if (!isEdit) {
                     isEdit = true;
                     wodeAdapter.setIsEdit(true);
-                    editButtonTextView.setText("编辑");
+                    editButtonTextView.setText("确定");
                 } else {
                     isEdit = false;
                     wodeAdapter.setIsEdit(false);
-                    editButtonTextView.setText("确定");
+                    editButtonTextView.setText("编辑");
                 }
                 break;
         }
@@ -127,11 +178,8 @@ public class QuanZiTuiJianLabelDialog extends Dialog implements View.OnClickList
 
     @Override
     public void onLabelDelete(int position) {
-        tuijianlabel_list.add(wodelabel_list.get(position));
-        wodelabel_list.remove(position);
-        wodeAdapter.setList(wodelabel_list);
-        tuijianAdapter.setList(tuijianlabel_list);
-        Log.i("TuiJianLabel", "delete position: " + position);
+        daoHang = myList.get(position);
+        deleteDaoHang(daoHang);
     }
 
     @Override
@@ -139,17 +187,156 @@ public class QuanZiTuiJianLabelDialog extends Dialog implements View.OnClickList
         Log.i("TuiJianLabel", "goto position: " + position);
     }
 
+    private QuanZiTuiJianDaoHang daoHang;
+
     @Override
     public void onLabelAdd(int position) {
-        String label = tuijianlabel_list.get(position);
-        if (!wodelabel_list.contains(label)) {
-            wodelabel_list.add(label);
-            wodeAdapter.setList(wodelabel_list);
-            tuijianlabel_list.remove(position);
-            tuijianAdapter.setList(tuijianlabel_list);
-        }else{
-            Toast.makeText(context,label+" 已关注",Toast.LENGTH_SHORT).show();
+        daoHang = allList.get(position);
+        addDaoHang(daoHang);
+    }
+
+
+    private QuanZiTuiJianDaoHangResult daoHangResult;
+    private List<QuanZiTuiJianDaoHang> allList;
+
+    private void allDaoHangList() {
+        if (null != allList) {
+            allList.clear();
         }
-        Log.i("TuiJianLabel", "add position: " + position);
+        RequestParams params = MyRequestParams.getInstance(context).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.ALL_DAO_HANG_LIST);
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                daoHangResult = GsonUtils.GsonToBean(result, QuanZiTuiJianDaoHangResult.class);
+                if (null != daoHangResult && null != daoHangResult.getData() && null != daoHangResult.getData().getList()) {
+                    allList = daoHangResult.getData().getList();
+                }
+                Message message = myHandler.obtainMessage(1);
+                message.sendToTarget();
+                System.out.println("all daohang allList: " + daoHangResult.getData().getList().size());
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
+    private QuanZiTuiJianDaoHangResult daoHangResult2;
+    private List<QuanZiTuiJianDaoHang> myList;
+
+    private void myDaoHangList() {
+        if (null != myList) {
+            myList.clear();
+        }
+        RequestParams params = MyRequestParams.getInstance(context).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.MY_DAO_HANG_LIST);
+        params.addBodyParameter("city_name", cityName);
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                daoHangResult2 = GsonUtils.GsonToBean(result, QuanZiTuiJianDaoHangResult.class);
+                if (null != daoHangResult2 && null != daoHangResult2.getData() && null != daoHangResult2.getData().getList()) {
+                    myList = daoHangResult2.getData().getList();
+                }
+                Message message = myHandler.obtainMessage(2);
+                message.sendToTarget();
+                System.out.println("我的导航列表: " + result);
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
+    private BaseResult baseResult;
+
+    private void addDaoHang(QuanZiTuiJianDaoHang daoHang) {
+        RequestParams params = MyRequestParams.getInstance(context).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.ADD_DAO_HANG);
+        params.addBodyParameter("id", String.valueOf(daoHang.getId()));
+        params.addBodyParameter("name", daoHang.getName());
+        params.addBodyParameter("parent_id", String.valueOf(daoHang.getParent_id()));
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
+                Message message = myHandler.obtainMessage(3);
+                message.sendToTarget();
+                System.out.println("add daohang: " + result);
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
+    private void deleteDaoHang(QuanZiTuiJianDaoHang daoHang) {
+        System.out.println("id: " + daoHang.getId());
+        RequestParams params = MyRequestParams.getInstance(context).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.DELETE_DAO_HANG);
+        params.addBodyParameter("id", String.valueOf(daoHang.getId()));
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
+                Message message = myHandler.obtainMessage(4);
+                message.sendToTarget();
+                System.out.println("delete daohang: " + result);
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
+    private OnDaoHangCallbackListener onDaoHangCallbackListener;
+
+    public interface OnDaoHangCallbackListener {
+        void onDaoHangCallback(List<QuanZiTuiJianDaoHang> list);
     }
 }

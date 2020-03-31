@@ -15,6 +15,7 @@ import com.bumptech.glide.Glide;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.model.bean.MallAdGoods;
 import com.zhiyu.quanzhu.ui.activity.GoodsInformationActivity;
+import com.zhiyu.quanzhu.utils.PriceParseUtils;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 
 public class HomeQuanShangRecyclerAdapter extends BaseRecyclerAdapter<MallAdGoods> {
@@ -66,22 +67,14 @@ public class HomeQuanShangRecyclerAdapter extends BaseRecyclerAdapter<MallAdGood
                 ll.bottomMargin = dp_5;
             }
             holder.rootLayout.setLayoutParams(ll);
-            Glide.with(context).load(goods.getImg())
-                    //异常时候显示的图片
-                    .error(R.mipmap.img_h)
-                    //加载成功前显示的图片
-                    .placeholder(R.mipmap.img_h)
-                    //url为空的时候,显示的图片
-                    .fallback(R.mipmap.img_h)
+            Glide.with(context).load(goods.getImg().getUrl())
+                    .error(R.drawable.image_error)
                     .into(holder.goodsImageImageView);
-            System.out.println(goods.getGoods_name());
             holder.mingchengTextView.setText(goods.getGoods_name());
-            int priceZhengShu = (int) (goods.getGoods_price() / 100);
-            int priceXiaoShu = (int) (goods.getGoods_price() % 100);
-            holder.priceZhengShuTextView.setText("" + priceZhengShu);
-            holder.priceXiaoShuTextView.setText("." + priceXiaoShu);
-            holder.xiaoliangTextView.setText("" + goods.getSale_num());
-            holder.rootLayout.setOnClickListener(new OnItemClick(RealPosition));
+            holder.priceZhengShuTextView.setText(PriceParseUtils.getInstance().getZhengShu(goods.getGoods_price()));
+            holder.priceXiaoShuTextView.setText(PriceParseUtils.getInstance().getXiaoShu(goods.getGoods_price()));
+            holder.xiaoliangTextView.setText(String.valueOf(goods.getSale_num()));
+            holder.rootLayout.setOnClickListener(new OnItemClick((int) goods.getId()));
         }
     }
 
@@ -104,16 +97,17 @@ public class HomeQuanShangRecyclerAdapter extends BaseRecyclerAdapter<MallAdGood
     }
 
     class OnItemClick implements View.OnClickListener {
-        private int position;
+        private int goods_id;
 
-        public OnItemClick(int position) {
-            this.position = position;
+        public OnItemClick(int goods_id) {
+            this.goods_id = goods_id;
         }
 
         @Override
         public void onClick(View v) {
             Intent infoIntent = new Intent(context, GoodsInformationActivity.class);
             infoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            infoIntent.putExtra("goods_id", goods_id);
             context.startActivity(infoIntent);
         }
     }

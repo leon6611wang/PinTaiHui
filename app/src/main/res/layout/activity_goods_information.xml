@@ -49,7 +49,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom"
                     android:layout_marginRight="@dimen/dp_10"
-                    android:text="549.9"
+                    android:text="0.00"
                     android:textColor="#D90000"
                     android:textSize="27sp" />
 
@@ -83,7 +83,7 @@
                 android:layout_marginRight="@dimen/dp_15"
                 android:ellipsize="end"
                 android:maxLines="2"
-                android:text="3D环绕音智能蓝牙运动耳机全面环绕耳机"
+                android:text="标题"
                 android:textColor="@color/text_color_black"
                 android:textSize="17sp"
                 android:textStyle="bold" />
@@ -391,6 +391,216 @@
                 android:layout_width="match_parent"
                 android:layout_height="5dp"
                 android:background="#F5F5F5" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:orientation="vertical"
+                android:paddingBottom="@dimen/dp_8"
+                android:paddingLeft="@dimen/dp_25"
+                android:paddingRight="@dimen/dp_25"
+                android:paddingTop="@dimen/dp_15">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <com.zhiyu.quanzhu.ui.widget.CircleImageView
+                        android:id="@+id/circleUserAvatarImageView"
+                        android:layout_width="@dimen/dp_20"
+                        android:layout_height="@dimen/dp_20"
+                        android:layout_marginRight="@dimen/dp_5"
+                        android:src="@mipmap/no_avatar" />
+
+                    <TextView
+                        android:id="@+id/circleUserNameTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="nickName"
+                        android:textColor="@color/text_color_black"
+                        android:textSize="13sp" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/dp_1"
+                        android:layout_weight="1" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="创建"
+                        android:textColor="@color/text_color_gray"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/circleCreateTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="1"
+                        android:textColor="@color/text_color_gray"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="天"
+                        android:textColor="@color/text_color_gray"
+                        android:textSize="12sp" />
+
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/dp_10"
+                    android:orientation="horizontal">
+
+                    <com.zhiyu.quanzhu.ui.widget.NiceImageView
+                        android:id="@+id/circleIconImageView"
+                        android:layout_width="110dp"
+                        android:layout_height="88dp"
+                        android:layout_marginRight="@dimen/dp_10"
+                        android:scaleType="centerCrop"
+                        app:corner_radius="@dimen/dp_5" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/circleNameTextView"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            android:text="苹苔汇官方圈主交流商圈"
+                            android:textColor="@color/text_color_black"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/circleDescTextView"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_gravity="center"
+                            android:layout_weight="1"
+                            android:ellipsize="end"
+                            android:gravity="center|left"
+                            android:maxLines="2"
+                            android:text="圈主是基于我们APP上的一个重要组成 部分，通过圈主可以吸引粉丝进入我..."
+                            android:textColor="#707070" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="0.5dp"
+                            android:layout_marginBottom="@dimen/dp_8"
+                            android:background="#EDEDED" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/circleCityTextView"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginRight="5.5dp"
+                                android:background="@drawable/shape_corner_yellow"
+                                android:paddingBottom="1dp"
+                                android:paddingLeft="6.5dp"
+                                android:paddingRight="6.5dp"
+                                android:paddingTop="1dp"
+                                android:text="城市"
+                                android:textColor="@color/text_color_yellow"
+                                android:textSize="11sp" />
+
+                            <TextView
+                                android:id="@+id/circleIndustryTextView"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/shape_corner_yellow"
+                                android:paddingBottom="1dp"
+                                android:paddingLeft="6.5dp"
+                                android:paddingRight="6.5dp"
+                                android:paddingTop="1dp"
+                                android:text="行业"
+                                android:textColor="@color/text_color_yellow"
+                                android:textSize="11sp" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+                
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:background="#EDEDED"
+                    android:layout_marginTop="@dimen/dp_10"
+                    android:layout_marginBottom="7dp"
+                    />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    >
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/dp_1"
+                        android:layout_weight="1"
+                        />
+
+                    <TextView
+                        android:id="@+id/chengyuanTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:drawableLeft="@mipmap/chengyuan_gray"
+                        android:drawablePadding="4dp"
+                        android:text="1"
+                        android:textSize="12sp"
+                        android:textColor="@color/text_color_grey"
+                        android:layout_marginRight="@dimen/dp_10"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        />
+
+                    <TextView
+                        android:id="@+id/dongtaiTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:drawableLeft="@mipmap/dongtai_gray"
+                        android:drawablePadding="4dp"
+                        android:text="1"
+                        android:textSize="12sp"
+                        android:textColor="@color/text_color_grey"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        />
+
+                </LinearLayout>
+
+
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="5dp"
+                android:background="#F5F5F5" />
+
             <!-- 商品详情-->
             <LinearLayout
                 android:layout_width="match_parent"
@@ -406,22 +616,18 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/dp_15"
-                    android:text="商品详情"
+                    android:text="宝贝详情"
                     android:textColor="@color/text_color_black"
                     android:textSize="17sp"
                     android:textStyle="bold" />
 
-                <com.zhiyu.quanzhu.ui.widget.MaxRecyclerView
-                    android:id="@+id/goodsImgsRecyclerView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-
-                <LinearLayout
-                    android:id="@+id/goodsImgsLayout"
+                <com.zhiyu.quanzhu.ui.widget.ListViewForScrollView
+                    android:id="@+id/mGoodsImgListView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:visibility="gone" />
+                    android:divider="@color/white"
+                    android:dividerHeight="0dp"
+                    android:visibility="visible" />
 
 
             </LinearLayout>
@@ -435,15 +641,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/dp_15"
-                android:layout_marginLeft="@dimen/dp_15"
-                android:layout_marginRight="@dimen/dp_15"
                 android:layout_marginTop="@dimen/dp_15"
                 android:orientation="vertical">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/dp_15"
+                    android:layout_marginLeft="@dimen/dp_15"
+                    android:layout_marginRight="@dimen/dp_15"
                     android:text="猜你喜欢"
                     android:textColor="@color/text_color_black"
                     android:textSize="17sp" />
@@ -463,7 +668,7 @@
 
             <View
                 android:layout_width="match_parent"
-                android:layout_height="86.5dp" />
+                android:layout_height="60dp" />
 
         </LinearLayout>
     </ScrollView>
@@ -499,6 +704,7 @@
                 android:orientation="horizontal">
 
                 <TextView
+                    android:id="@+id/bottomShopTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -514,6 +720,7 @@
                     android:layout_height="match_parent" />
 
                 <TextView
+                    android:id="@+id/bottomKeFuTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -529,6 +736,7 @@
                     android:layout_height="match_parent" />
 
                 <TextView
+                    android:id="@+id/bottomShareTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -546,6 +754,7 @@
                 android:layout_height="match_parent" />
 
             <TextView
+                android:id="@+id/bottomAddCartTextView"
                 android:layout_width="0dp"
                 android:layout_height="42dp"
                 android:layout_weight="1"
@@ -560,6 +769,7 @@
                 android:layout_height="match_parent" />
 
             <TextView
+                android:id="@+id/bottomBuyTextView"
                 android:layout_width="0dp"
                 android:layout_height="42dp"
                 android:layout_weight="1"

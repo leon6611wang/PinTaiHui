@@ -8,13 +8,14 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.zhiyu.quanzhu.R;
+import com.zhiyu.quanzhu.model.bean.QuanZiTuiJianDaoHang;
 
 import java.util.List;
 
 public class QuanZiTuiJianTuiJianLabelRecyclerAdapter extends RecyclerView.Adapter<QuanZiTuiJianTuiJianLabelRecyclerAdapter.ViewHolder> {
-    private List<String> list;
+    private List<QuanZiTuiJianDaoHang> list;
 
-    public void setList(List<String> label_list) {
+    public void setList(List<QuanZiTuiJianDaoHang> label_list) {
         this.list = label_list;
         notifyDataSetChanged();
     }
@@ -36,7 +37,7 @@ public class QuanZiTuiJianTuiJianLabelRecyclerAdapter extends RecyclerView.Adapt
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.labelTextView.setText(list.get(position));
+        holder.labelTextView.setText(list.get(position).getName());
         holder.labelTextView.setOnClickListener(new OnAddLabelListener(position));
     }
 

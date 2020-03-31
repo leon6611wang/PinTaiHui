@@ -70,12 +70,18 @@ dependencies {
     api 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:+'
     implementation 'com.amap.api:location:latest.integration'
     implementation files('libs/open_sdk_r2973327_lite.jar')
-    implementation(name: 'adapay-1.0.3', ext: 'aar')
+    implementation(name: 'alipaySdk-15.7.4-20200228192259', ext: 'aar')
+//    implementation(name: 'adapay-1.0.3', ext: 'aar')
     implementation 'com.alibaba:fastjson:1.2.58'
     implementation 'com.google.zxing:core:3.3.0'
     implementation 'com.squareup.okhttp3:okhttp:3.12.1'
     implementation 'cn.bingoogolapple:bga-qrcodecore:1.1.7@aar'
     implementation 'cn.bingoogolapple:bga-zxing:1.1.7@aar'
-    implementation  'com.qiniu:qiniu-android-sdk:7.5.0'
+    implementation 'com.qiniu:qiniu-android-sdk:7.5.0'
+    //图片选择器
     implementation 'com.lcw.library:imagepicker:2.2.0'
+    //图片裁剪器
+//    implementation 'com.linchaolong.android:imagepicker:1.5'
+    implementation 'org.sufficientlysecure:html-textview:3.9'
+    implementation project(':MyVideoPlaerLibrary')
 }

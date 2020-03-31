@@ -15,6 +15,7 @@ import com.bumptech.glide.Glide;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.model.bean.Goods;
 import com.zhiyu.quanzhu.ui.activity.GoodsInformationActivity;
+import com.zhiyu.quanzhu.utils.PriceParseUtils;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 
 import java.util.List;
@@ -56,35 +57,16 @@ public class GoodsInfoLikeGoodsAdapter extends RecyclerView.Adapter<GoodsInfoLik
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        if (position % 2 == 0) {
-            holder.mingchengTextView.setText("第2列");
-            ll.leftMargin = dp_8;
-//            ll.rightMargin = dp_15;
-            ll.topMargin = dp_5;
-            ll.bottomMargin = dp_5;
-        } else {
-            holder.mingchengTextView.setText("第1列");
-//            ll.leftMargin = dp_15;
-            ll.rightMargin = dp_8;
-            ll.topMargin = dp_5;
-            ll.bottomMargin = dp_5;
-        }
         Goods goods = list.get(position);
         holder.rootLayout.setLayoutParams(ll);
-        Glide.with(context).load(goods.getImg())
+        Glide.with(context).load(goods.getImg().getUrl())
                 //异常时候显示的图片
-                .error(R.mipmap.img_h)
-                //加载成功前显示的图片
-                .placeholder(R.mipmap.img_h)
-                //url为空的时候,显示的图片
-                .fallback(R.mipmap.img_h)
+                .error(R.drawable.image_error)
                 .into(holder.goodsImageImageView);
         holder.mingchengTextView.setText(goods.getGoods_name());
-        int priceZhengShu = (int) (goods.getGoods_price() / 100);
-        int priceXiaoShu = (int) (goods.getGoods_price() % 100);
-        holder.priceZhengShuTextView.setText("" + priceZhengShu);
-        holder.priceXiaoShuTextView.setText("." + priceXiaoShu);
-        holder.xiaoliangTextView.setText("" + goods.getSale_num());
+        holder.priceZhengShuTextView.setText(PriceParseUtils.getInstance().getZhengShu(list.get(position).getGoods_price()));
+        holder.priceXiaoShuTextView.setText(PriceParseUtils.getInstance().getXiaoShu(list.get(position).getGoods_price()));
+        holder.xiaoliangTextView.setText(String.valueOf(goods.getSale_num()));
         holder.rootLayout.setOnClickListener(new OnItemClick(position));
     }
 
@@ -116,6 +98,7 @@ public class GoodsInfoLikeGoodsAdapter extends RecyclerView.Adapter<GoodsInfoLik
         @Override
         public void onClick(View v) {
             Intent infoIntent = new Intent(context, GoodsInformationActivity.class);
+            infoIntent.putExtra("goods_id", list.get(position).getId());
             infoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(infoIntent);
         }

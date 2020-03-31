@@ -23,11 +23,45 @@ public class PriceParseUtils {
         } else if (xiaoshu > 0 && xiaoshu < 10) {
             xiaoshuStr = ".0" + xiaoshu;
         } else if (xiaoshu > 10) {
-            xiaoshuStr ="."+xiaoshu;
+            xiaoshuStr = "." + xiaoshu;
         }
         priceStr = zhengshuStr + xiaoshuStr;
         return priceStr;
     }
 
+
+    public String getZhengShu(long price) {
+        long zhengshu = price / 100;
+        long xiaoshu = price % 100;
+        String priceStr = null;
+        String zhengshuStr = null, xiaoshuStr = null;
+        zhengshuStr = String.valueOf(zhengshu);
+        if (xiaoshu == 0) {
+            xiaoshuStr = ".00";
+        } else if (xiaoshu > 0 && xiaoshu < 10) {
+            xiaoshuStr = ".0" + xiaoshu;
+        } else if (xiaoshu >= 10) {
+            xiaoshuStr = "." + xiaoshu;
+        }
+        priceStr = zhengshuStr + xiaoshuStr;
+        return zhengshuStr;
+    }
+
+    public String getXiaoShu(long price) {
+        long zhengshu = price / 100;
+        long xiaoshu = price % 100;
+        String priceStr = null;
+        String zhengshuStr = null, xiaoshuStr = null;
+        zhengshuStr = String.valueOf(zhengshu);
+        if (xiaoshu == 0) {
+            xiaoshuStr = ".00";
+        } else if (xiaoshu > 0 && xiaoshu < 10) {
+            xiaoshuStr = ".0" + xiaoshu;
+        } else if (xiaoshu >= 10) {
+            xiaoshuStr = "." + xiaoshu;
+        }
+        priceStr = zhengshuStr + xiaoshuStr;
+        return xiaoshuStr;
+    }
 
 }

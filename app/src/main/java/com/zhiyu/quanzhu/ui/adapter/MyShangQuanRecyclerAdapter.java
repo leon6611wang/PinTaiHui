@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.model.bean.Circle;
+import com.zhiyu.quanzhu.ui.activity.CircleInfoActivity;
 import com.zhiyu.quanzhu.ui.activity.CreateCircleActivity;
 import com.zhiyu.quanzhu.ui.activity.ShangQuanInformationActivity;
 import com.zhiyu.quanzhu.ui.dialog.DeleteImageDialog;
@@ -198,7 +199,7 @@ public class MyShangQuanRecyclerAdapter extends RecyclerView.Adapter<MyShangQuan
 
         @Override
         public void onClick(View v) {
-            Intent circleInfoIntent=new Intent(context, ShangQuanInformationActivity.class);
+            Intent circleInfoIntent=new Intent(context, CircleInfoActivity.class);
             circleInfoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             circleInfoIntent.putExtra("circle_id",list.get(position).getId());
             context.startActivity(circleInfoIntent);

@@ -9,14 +9,10 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
-import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,7 +20,7 @@ import com.bumptech.glide.Glide;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.model.bean.QuanZiGuanZhu;
-import com.zhiyu.quanzhu.ui.activity.DongTaiInformationActivity;
+import com.zhiyu.quanzhu.ui.activity.FeedInformationActivity;
 import com.zhiyu.quanzhu.ui.widget.CircleImageView;
 import com.zhiyu.quanzhu.ui.widget.MyRecyclerView;
 import com.zhiyu.quanzhu.ui.widget.MyGridView;
@@ -466,7 +462,7 @@ public class QuanZiGuanZhuAdapter extends RecyclerView.Adapter<RecyclerView.View
 
         @Override
         public void onClick(View v) {
-            Intent infoIntent=new Intent(context, DongTaiInformationActivity.class);
+            Intent infoIntent=new Intent(context, FeedInformationActivity.class);
             infoIntent.putExtra("feed_id",list.get(position).getContent().getFeed_id());
             infoIntent.putExtra("feed_type",type);
             infoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

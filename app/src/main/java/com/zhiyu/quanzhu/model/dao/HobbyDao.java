@@ -88,5 +88,45 @@ public class HobbyDao {
         return list;
     }
 
+    public HobbyDaoParent getHobbyParent(String name){
+        HobbyDaoParent parent=null;
+        try {
+            parent=BaseApplication.db.selector(HobbyDaoParent.class).where("name","=",name).findFirst();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return  parent;
+    }
+
+    public HobbyDaoChild getHobbyChild(String name){
+        HobbyDaoChild child=null;
+        try {
+            child=BaseApplication.db.selector(HobbyDaoChild.class).where("name","=",name).findFirst();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return child;
+    }
+
+    private void clearHobbyParent(){
+        try {
+            BaseApplication.db.delete(HobbyDaoParent.class);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private void clearHobbyChild(){
+        try {
+            BaseApplication.db.delete(HobbyDaoChild.class);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public void clearHobby(){
+        clearHobbyParent();
+        clearHobbyChild();
+    }
 
 }

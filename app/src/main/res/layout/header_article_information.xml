@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:orientation="vertical">
+
+    <View
+        android:id="@+id/statusHeightView"
+        android:layout_width="match_parent"
+        android:layout_height="26dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:id="@+id/backLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center|left"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/dp_15"
+                android:src="@mipmap/back_black" />
+
+            <View
+                android:layout_width="@dimen/dp_20"
+                android:layout_height="@dimen/dp_1" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="5"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <com.zhiyu.quanzhu.ui.widget.CircleImageView
+                android:id="@+id/avatarImageView"
+                android:layout_width="@dimen/dp_25"
+                android:layout_height="@dimen/dp_25"
+                android:layout_marginRight="@dimen/dp_10"
+                android:src="@mipmap/no_avatar" />
+
+            <TextView
+                android:id="@+id/userNameTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="name"
+                android:textColor="@color/text_color_black"
+                android:textSize="16sp" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="@dimen/dp_1"
+                android:layout_weight="1"
+                />
+
+            <LinearLayout
+                android:id="@+id/followLayout"
+                android:layout_width="53dp"
+                android:layout_height="21dp"
+                android:layout_gravity="center"
+                android:background="@drawable/shape_oval_solid_bg_ededed_gray"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/followImageView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@mipmap/guanzhu_yellow"
+                    android:layout_marginRight="@dimen/dp_5"
+                    android:visibility="gone"
+                    />
+
+
+                <TextView
+                    android:id="@+id/followTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="已关注"
+                    android:textColor="@color/text_color_gray"
+                    android:textSize="12sp" />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="@dimen/dp_15"
+                android:layout_height="@dimen/dp_1"
+                />
+
+            <ImageView
+                android:id="@+id/shareImageView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/dp_15"
+                android:src="@mipmap/mymingpian_menu_share" />
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="@dimen/dp_10"
+        android:background="#E6E6E6" />
+
+</LinearLayout>

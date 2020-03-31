@@ -16,12 +16,16 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.VideoView;
 
 import com.bumptech.glide.Glide;
+import com.leon.myvideoplaerlibrary.view.VideoPlayerTrackView;
 import com.zhiyu.quanzhu.R;
+import com.zhiyu.quanzhu.base.BaseApplication;
+import com.zhiyu.quanzhu.model.bean.GoodsImg;
 import com.zhiyu.quanzhu.ui.activity.LargeImageListActivity;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 
@@ -34,16 +38,14 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class GoodsInfoBannerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private List<String> list;
+    private List<GoodsImg> list;
     private final int VIDEO = 1;
     private final int IMG = 2;
     private Context context;
+    private int screenWidth;
     private LinearLayout.LayoutParams ll;
-    private FrameLayout.LayoutParams fl;
-    private SimpleDateFormat sdf = new SimpleDateFormat("mm:ss");
-    private AudioManager mAudioManager;
 
-    public void setList(List<String> list) {
+    public void setList(List<GoodsImg> list) {
         this.list = list;
         notifyDataSetChanged();
     }
@@ -51,97 +53,40 @@ public class GoodsInfoBannerAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
     public GoodsInfoBannerAdapter(Context context) {
         this.context = context;
+        screenWidth = ScreentUtils.getInstance().getScreenWidth(context);
         int screenWidth = ScreentUtils.getInstance().getScreenWidth(context);
         ll = new LinearLayout.LayoutParams(screenWidth, screenWidth);
-        fl = new FrameLayout.LayoutParams(screenWidth, screenWidth);
-        mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
     }
 
     class ImgViewHolder extends RecyclerView.ViewHolder {
         ImageView mImageView;
+        LinearLayout imageLayout;
 
         public ImgViewHolder(View itemView) {
             super(itemView);
             mImageView = itemView.findViewById(R.id.mImageView);
-            mImageView.setLayoutParams(ll);
+            imageLayout = itemView.findViewById(R.id.imageLayout);
+            imageLayout.setLayoutParams(ll);
         }
     }
 
     class VideoViewHolder extends RecyclerView.ViewHolder {
-        VideoView mVideoView;
-        FrameLayout videoLayout;
-        ImageView playPauseImageView;
-        SeekBar seekBar;
-        TextView currentTimeTextView, totalTimeTextView;
-        ImageView videoVoiceImageView;
-        private Timer timer;
-        private TimerTask task;
-        private MyHandler myHandler = new MyHandler(this);
-        private int count = 0;
-
-        class MyHandler extends Handler {
-            WeakReference<VideoViewHolder> holderWeakReference;
-
-            public MyHandler(VideoViewHolder holder) {
-                holderWeakReference = new WeakReference<>(holder);
-            }
-
-            @Override
-            public void handleMessage(Message msg) {
-                VideoViewHolder holder = holderWeakReference.get();
-                switch (msg.what) {
-                    case 0:
-                        count++;
-                        int size = mVideoView.getCurrentPosition();
-                        currentTimeTextView.setText(sdf.format(size));
-                        if (mVideoView.isPlaying()) {
-                            long mMax = holder.mVideoView.getDuration();
-                            totalTimeTextView.setText(sdf.format(mMax));
-                            int sMax = seekBar.getMax();
-                            seekBar.setProgress((int) (size * sMax / mMax));
-                        }
-
-                        if (currentTimeTextView.getVisibility() == View.VISIBLE && count == 5 && mVideoView.isPlaying()) {
-                            currentTimeTextView.setVisibility(View.GONE);
-                            seekBar.setVisibility(View.GONE);
-                            totalTimeTextView.setVisibility(View.GONE);
-                            playPauseImageView.setVisibility(View.GONE);
-                            videoVoiceImageView.setVisibility(View.GONE);
-                            count = 0;
-                        }
-                        break;
-                }
-            }
-        }
+        LinearLayout videoLayout;
+        VideoPlayerTrackView videoPlayer;
 
         public VideoViewHolder(View itemView) {
             super(itemView);
-            mVideoView = itemView.findViewById(R.id.mVideoView);
+            videoPlayer = itemView.findViewById(R.id.videoPlayer);
             videoLayout = itemView.findViewById(R.id.videoLayout);
-            videoLayout.setLayoutParams(fl);
-            playPauseImageView = itemView.findViewById(R.id.playPauseImageView);
-            seekBar = itemView.findViewById(R.id.seekBar);
-            currentTimeTextView = itemView.findViewById(R.id.currentTimeTextView);
-            totalTimeTextView = itemView.findViewById(R.id.totalTimeTextView);
-            videoVoiceImageView = itemView.findViewById(R.id.videoVoiceImageView);
-            if (null == timer) {
-                timer = new Timer();
-            }
-            if (null == task) {
-                task = new TimerTask() {
-                    @Override
-                    public void run() {
-                        Message message = myHandler.obtainMessage(0);
-                        message.sendToTarget();
-                    }
-                };
-            }
+            videoLayout.setLayoutParams(ll);
         }
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (list.get(position).endsWith(".jpg") || list.get(position).endsWith(".JPG") || list.get(position).endsWith(".jpeg") || list.get(position).endsWith(".JPEG") || list.get(position).endsWith(".png") || list.get(position).endsWith(".PNG")) {
+        if (list.get(position).getUrl().endsWith(".jpg") || list.get(position).getUrl().endsWith(".JPG") || list.get(position).getUrl().endsWith(".jpeg")
+                || list.get(position).getUrl().endsWith(".JPEG") || list.get(position).getUrl().endsWith(".png") || list.get(position).getUrl().endsWith(".PNG")
+                || list.get(position).getUrl().endsWith(".gif") || list.get(position).getUrl().endsWith(".GIF")) {
             return IMG;
         } else {
             return VIDEO;
@@ -167,7 +112,8 @@ public class GoodsInfoBannerAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         if (holder instanceof ImgViewHolder) {
             ImgViewHolder myHolder = (ImgViewHolder) holder;
             myHolder.mImageView.setOnClickListener(new OnImageClick(position));
-            Glide.with(context).load(list.get(position))
+            myHolder.mImageView.setLayoutParams(list.get(position).getLayoutParams(screenWidth));
+            Glide.with(context).load(list.get(position).getUrl())
                     //异常时候显示的图片
                     .error(R.mipmap.img_error)
                     //加载成功前显示的图片
@@ -176,100 +122,10 @@ public class GoodsInfoBannerAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                     .fallback(R.mipmap.img_error)
                     .into(myHolder.mImageView);
         } else if (holder instanceof VideoViewHolder) {
-            final VideoViewHolder myHolder = (VideoViewHolder) holder;
-            Field field;
-            try {
-                field = TimerTask.class.getDeclaredField("state");
-                field.setAccessible(true);
-                field.set(myHolder.task, 0);
-            } catch (NoSuchFieldException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            myHolder.timer.schedule(myHolder.task, 0, 1000);
-            myHolder.mVideoView.setVideoPath(list.get(position));
-            myHolder.playPauseImageView.setVisibility(View.VISIBLE);
-            myHolder.currentTimeTextView.setVisibility(View.VISIBLE);
-            myHolder.totalTimeTextView.setVisibility(View.VISIBLE);
-            myHolder.seekBar.setVisibility(View.VISIBLE);
-            myHolder.videoVoiceImageView.setVisibility(View.VISIBLE);
-            myHolder.mVideoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(MediaPlayer mp) {
-                    mp.start();
-                    myHolder.playPauseImageView.setVisibility(View.GONE);
-                    myHolder.currentTimeTextView.setVisibility(View.GONE);
-                    myHolder.totalTimeTextView.setVisibility(View.GONE);
-                    myHolder.seekBar.setVisibility(View.GONE);
-                    myHolder.videoVoiceImageView.setVisibility(View.GONE);
-                }
-            });
-            /**
-             * 视频播放完成时回调
-             */
-            myHolder.mVideoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mp) {
-                    myHolder.playPauseImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.goods_info_pause));
-                    myHolder.playPauseImageView.setVisibility(View.VISIBLE);
-                }
-            });
-
-            myHolder.playPauseImageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (myHolder.mVideoView.isPlaying()) {
-                        myHolder.playPauseImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.goods_info_pause));
-                        myHolder.mVideoView.pause();
-                    } else {
-                        myHolder.mVideoView.start();
-                        myHolder.playPauseImageView.setVisibility(View.GONE);
-                        myHolder.currentTimeTextView.setVisibility(View.GONE);
-                        myHolder.totalTimeTextView.setVisibility(View.GONE);
-                        myHolder.seekBar.setVisibility(View.GONE);
-                        myHolder.videoVoiceImageView.setVisibility(View.GONE);
-                    }
-                }
-            });
-            myHolder.mVideoView.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    if (myHolder.mVideoView.isPlaying()) {
-                        myHolder.playPauseImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.goods_info_play));
-                    } else {
-                        myHolder.playPauseImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.goods_info_pause));
-                    }
-                    myHolder.playPauseImageView.setVisibility(View.VISIBLE);
-                    myHolder.currentTimeTextView.setVisibility(View.VISIBLE);
-                    myHolder.totalTimeTextView.setVisibility(View.VISIBLE);
-                    myHolder.seekBar.setVisibility(View.VISIBLE);
-                    myHolder.videoVoiceImageView.setVisibility(View.VISIBLE);
-                    return false;
-                }
-            });
-
-            myHolder.videoVoiceImageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //获取当前音乐多媒体是否静音
-                    boolean muteFlag = mAudioManager.isStreamMute(AudioManager.STREAM_MUSIC);
-                    if (muteFlag) {
-                        mAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_UNMUTE, 0);//设为静音
-                        myHolder.videoVoiceImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.goods_info_voice));
-                    } else {
-                        mAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0);//取消静音
-                        myHolder.videoVoiceImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.goods_info_unvoice));
-                    }
-                }
-            });
-            myHolder.mVideoView.setOnErrorListener(new MediaPlayer.OnErrorListener() {
-                @Override
-                public boolean onError(MediaPlayer mp, int what, int extra) {
-                    myHolder.mVideoView.stopPlayback(); //播放异常，则停止播放，防止弹窗使界面阻塞
-                    return true;
-                }
-            });
+            VideoViewHolder myHolder = (VideoViewHolder) holder;
+            myHolder.videoPlayer.setLayoutParams(list.get(position).getLayoutParams(screenWidth));
+            myHolder.videoPlayer.setDataSource(list.get(position).getUrl(), "");
+            Glide.with(context).load(list.get(position).getUrl()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(myHolder.videoPlayer.getCoverController().getVideoCover());
         }
     }
 
@@ -291,9 +147,12 @@ public class GoodsInfoBannerAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             Intent intent = new Intent(context, LargeImageListActivity.class);
             ArrayList<String> imgList = new ArrayList<>();
             boolean has_video = false;
-            for (String url : list) {
-                if (url.endsWith(".jpg") || url.endsWith(".JPG") || url.endsWith(".jpeg") || url.endsWith(".JPEG") || url.endsWith(".png") || url.endsWith(".PNG")) {
-                    imgList.add(url);
+            for (GoodsImg img : list) {
+                if (img.getUrl().endsWith(".jpg") || img.getUrl().endsWith(".JPG") ||
+                        img.getUrl().endsWith(".jpeg") || img.getUrl().endsWith(".JPEG") ||
+                        img.getUrl().endsWith(".png") || img.getUrl().endsWith(".PNG") ||
+                        img.getUrl().endsWith(".gif") || img.getUrl().endsWith(".GIF")) {
+                    imgList.add(img.getUrl());
                 } else {
                     has_video = true;
                 }

@@ -1,5 +1,8 @@
 package com.zhiyu.quanzhu.model.data;
 
+import android.content.Context;
+import android.widget.LinearLayout;
+
 import com.zhiyu.quanzhu.model.bean.Goods;
 import com.zhiyu.quanzhu.model.bean.GoodsCircle;
 import com.zhiyu.quanzhu.model.bean.GoodsCoupon;

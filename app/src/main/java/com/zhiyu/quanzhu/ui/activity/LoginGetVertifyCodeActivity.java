@@ -15,10 +15,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.chinapnr.android.adapay.AdaPay;
-import com.chinapnr.android.adapay.PayCallback;
-import com.chinapnr.android.adapay.bean.PayResult;
-import com.google.gson.Gson;
 import com.tencent.connect.UserInfo;
 import com.tencent.connect.auth.QQToken;
 import com.tencent.connect.common.Constants;
@@ -397,15 +393,15 @@ public class LoginGetVertifyCodeActivity extends BaseActivity implements View.On
     /**
      * 第三方支付
      */
-    private void pay() {
-        AdaPay.doPay(this, payment, new PayCallback() {
-            @Override
-            public void onPayment(PayResult payResult) {
-                //处理支付结果
-                Log.i("payment", payResult.getResultCode() + " , " + payResult.getResultMsg() + " , " + payResult.getOrderNo());
-            }
-        });
-    }
+//    private void pay() {
+//        AdaPay.doPay(this, payment, new PayCallback() {
+//            @Override
+//            public void onPayment(PayResult payResult) {
+//                //处理支付结果
+//                Log.i("payment", payResult.getResultCode() + " , " + payResult.getResultMsg() + " , " + payResult.getOrderNo());
+//            }
+//        });
+//    }
 
 
     private LoginTokenResult loginTokenResult;

@@ -28,7 +28,7 @@ import com.zhiyu.quanzhu.model.bean.MallAdGoods;
 import com.zhiyu.quanzhu.model.result.MallAdGoodsResult;
 import com.zhiyu.quanzhu.model.result.ShopResult;
 import com.zhiyu.quanzhu.ui.adapter.HomeQuanShangRecyclerAdapter;
-import com.zhiyu.quanzhu.ui.dialog.ShangPinInformationYouHuiQuanDialog;
+import com.zhiyu.quanzhu.ui.dialog.GoodsCouponsDialog;
 import com.zhiyu.quanzhu.ui.widget.CircleImageView;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
@@ -73,7 +73,7 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
     private LinearLayout starLayout, followBtnLayout;
     private ImageView followBtnImageView;
     private LinearLayout gouwucheLayout, shareLayout;
-    private ShangPinInformationYouHuiQuanDialog youHuiQuanDialog;
+    private GoodsCouponsDialog youHuiQuanDialog;
     private TextView getCouponTextView;
     private static class MyHandler extends Handler {
         WeakReference<ShopInformationActivity> activityWeakReference;
@@ -149,7 +149,7 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
     }
 
     private void initDialogs(){
-        youHuiQuanDialog=new ShangPinInformationYouHuiQuanDialog(this,R.style.dialog);
+        youHuiQuanDialog=new GoodsCouponsDialog(this,R.style.dialog);
     }
 
     private void initViews() {

@@ -7,6 +7,10 @@ public class QuanZiGuanZhuUser {
     private boolean is_all;
     private int fans;
 
+    public QuanZiGuanZhuUser(String avatar) {
+        this.avatar = avatar;
+    }
+
     public int getId() {
         return id;
     }

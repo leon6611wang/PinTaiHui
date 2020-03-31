@@ -4,7 +4,7 @@ package com.zhiyu.quanzhu.utils;
  * 常量
  */
 public class ConstantsUtils {
-    //    public static final String BASE_URL = "http://app.pintaihui.test/";
+    //        public static final String BASE_URL = "http://app.pintaihui.test/";
     public static final String BASE_URL = "http://192.168.1.200:8090/";
     //首页-圈子-关注列表
     public static final String HOME_QUANZI_GUANZHU_LIST = "api/v1/index/followcircles";
@@ -20,6 +20,10 @@ public class ConstantsUtils {
     public static final String HOME_QUANZI_TUIJIAN_DAOHANG_DONGTAI = "api/v1/index/list/feeds";
     //首页-圈子-推荐列表-头部导航-地区
     public static final String HOME_QUANZI_TUIJIAN_DAOHANG_DIQU = "api/v1/index/list/district";
+    //首页-圈子-搜圈
+    public static final String SEARCH_CIRCLE = "/api/v1/index/circle/search";
+    //首页-圈子-推荐列表-头部导航-标签
+    public static final String HOME_QUAN_ZI_TUIJIAN_TAG = "api/v1/index/list/tag";
     //获取验证码
     public static final String GET_VERTIFY_CODE = "api/v1/sendcode";
     //验证码登录/注册/校验
@@ -81,7 +85,7 @@ public class ConstantsUtils {
     //人脉首页
     public static final String CARD_INDEX = "api/v1/cards/index";
     //我的好友名片
-    public static final String CARD_USER_CARDS = "api/v1/cards/usercards";
+    public static final String CARD_USER_LIST = "api/v1/cards/usercards";
     //创建名片
     public static final String CARD_ADD = "api/v1/cards/add";
     //编辑名片
@@ -117,13 +121,15 @@ public class ConstantsUtils {
     //动态详情
     public static final String DONGTAI_INFORMATION = "api/v1/circle/feeds/detail";
     //动态详情-一级评论列表
-    public static final String DONGTAI_COMMENTS_LIST = "api/v1/circle/feeds/getcomment";
+    public static final String FEEDS_COMMENTS_LIST = "api/v1/circle/feeds/getcomment";
     //动态详情-二级评论列表
-    public static final String DONGTAI_COMMENTS_CHILD_LIST = "api/v1/circle/feeds/replycomment";
+    public static final String REPLY_COMMENT = "api/v1/circle/feeds/replycomment";
     //动态评论
-    public static final String DONGTAI_COMMENT = "api/v1/circle/feeds/comment";
+    public static final String FEED_COMMENT = "api/v1/circle/feeds/comment";
     //删除评论
     public static final String DELETE_COMMENT = "api/v1/circle/feeds/delcomment";
+    //评论详情
+    public static final String COMMENT_DETAIL = "/api/v1/circle/feeds/comment/detail";
 
     //点赞-通用
     public static final String PRISE = "api/v1/common/prise";
@@ -138,10 +144,87 @@ public class ConstantsUtils {
     //生成标签
     public static final String ADD_TAG = "api/v1/common/addtags";
     //搜索与我相关的圈子
-    public static final String SEARCH_MY_CIRCLE="api/v1/circle/searchmycircle";
+    public static final String SEARCH_MY_CIRCLE = "api/v1/circle/feeds/searchmycircle";
     //创建圈子
-    public static final String ADD_CIRCLE="api/v1/circle/add";
+    public static final String ADD_CIRCLE = "api/v1/circle/add";
     //圈子详情
-    public static final String CIRCLE_DETAIL="api/v1/circle/detail";
+    public static final String CIRCLE_DETAIL = "api/v1/circle/detail";
+    //圈子基础信息
+    public static final String CIRCLE_BASE = "/api/v1/circle/base";
+    //圈子详情-商店列表
+    public static final String CIRCLE_INFO_SHOP_LIST = "/api/v1/circle/stores";
+    //全局搜索
+    public static final String FULL_SEARCH = "api/v1/index/search";
+    //圈子详情-动态列表
+    public static final String CIRCLE_INFO_FEED_LIST = "api/v1/circle/feeds";
+    //圈子的成员列表
+    public static final String CIRCLE_USER_LIST = "api/v1/circle/users";
+    //圈子-用户列表-操作
+    public static final String CIRCLE_USER_LIST_OPERATION = "api/v1/circle/operation";
+    //编辑圈子资料
+    public static final String EDIT_CIRCLE_PROFILE = "api/v1/circle/update";
+    //文章、视频、动态详情
+    public static final String FEEDS_INFO = "/api/v1/circle/feeds/base";
 
+    //所有导航列表
+    public static final String ALL_DAO_HANG_LIST = "api/v1/index/industry/list";
+
+    //我添加的导航列表
+    public static final String MY_DAO_HANG_LIST = "api/v1/index/myindustry";
+    //添加导航
+    public static final String ADD_DAO_HANG = "api/v1/index/industry/add";
+    //删除导航
+    public static final String DELETE_DAO_HANG = "api/v1/index/industry/del";
+    //发布动态
+    public static final String PUBLISH_FEED = "api/v1/circle/feeds/add";
+
+    //用户详情
+    public static final String USER_HOME = "api/v1/user/home";
+    //我的店铺列表
+    public static final String MY_SHOP_LIST = "api/v1/circle/feeds/mystore";
+    //所搜店铺商品
+    public static final String SEARCH_SHOP_GOODS = "/api/v1/circle/feeds/searchgoods";
+    //新增动态
+    public static final String ADD_FEED = "/api/v1/circle/feeds/add";
+    //更新动态
+    public static final String UPDATE_FEED = "/api/v1/circle/feeds/update";
+    //动态关联商品
+    public static final String RELATION_GOODS = "/api/v1/circle/feeds/relation_goods";
+    //我选择过商品的店铺
+    public static final String SEARCH_GOODS_SHOP = "/api/v1/circle/feeds/searchgoodsstore";
+    //动态详情-商品列表
+    public static final String ARTICLE_INFORMATON_GOODS_LIST = "/api/v1/circle/feeds/goods";
+
+    //我的粉丝列表
+    public static final String MY_FANS = "/api/v1/user/fans";
+    //我的关注列表
+    public static final String MY_FOLLOW = "/api/v1/user/follow";
+    //加入购物车
+    public static final String ADD_CART = "api/v1/mall/cart/add";
+
+    public static final String DELETE_CART = "api/v1/mall/cart/del";
+    //商品结算
+    public static final String GOODS_SETTLEMENT = "api/v1/mall/shop/settlement";
+    //购物车结算
+    public static final String CART_SETTLEMENT = "api/v1/mall/cart/settlement";
+
+    //收货地址列表
+    public static final String ADDRESS_LIST = "api/v1/user/address";
+    //新增收货地址
+    public static final String ADDRESS_ADD = "/api/v1/user/address/add";
+    //删除收货地址
+    public static final String ADDRESS_DELETE = "/api/v1/user/address/del";
+    //收货地址详情
+    public static final String ADDRESS_DETAIL = "/api/v1/user/address/detail";
+    //修改收货地址
+    public static final String ADDRESS_UPDATE = "/api/v1/user/address/update";
+
+    //购物车结算下单支付
+    public static final String CART_ORDER_ADD = "/api/v1/mall/cartorder/add";
+    //更改购物车商品数据
+    public static final String CART_GOODS_EDIT = "api/v1/mall/cart/edit";
+    //用户详情
+    public static final String USER_PROFILE="api/v1/user/detail";
+    //更新用户信息
+    public static final String UPDATE_USER_PROFILE="api/v1/user/update";
 }

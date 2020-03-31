@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:gravity="center"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <com.zhiyu.quanzhu.ui.widget.CircleImageView
+            android:id="@+id/avatarImageView"
+            android:layout_width="@dimen/dp_50"
+            android:layout_height="@dimen/dp_50"
+            android:layout_gravity="center"
+            android:scaleType="centerCrop"
+            android:src="@mipmap/conversation_group_menu" />
+
+        <View
+            android:layout_width="@dimen/dp_1"
+            android:layout_height="@dimen/dp_10" />
+
+        <TextView
+            android:id="@+id/nameTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:maxLines="1"
+            android:text="更多"
+            android:textColor="@color/text_color_gray"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="@dimen/dp_8"
+        android:layout_height="@dimen/dp_1"
+        android:layout_gravity="center" />
+</LinearLayout>

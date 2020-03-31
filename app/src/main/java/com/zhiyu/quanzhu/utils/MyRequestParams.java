@@ -45,6 +45,7 @@ public class MyRequestParams {
         params.addHeader("device_id", device_id);
         params.addHeader("user_agent", user_agent);
         params.addHeader("Authorization", user_token);
+//        System.out.println(user_token);
         return params;
     }
 }

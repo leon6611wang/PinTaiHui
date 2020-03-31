@@ -19,6 +19,7 @@ import com.zhiyu.quanzhu.model.bean.AreaCity;
 import com.zhiyu.quanzhu.model.bean.AreaProvince;
 import com.zhiyu.quanzhu.model.dao.AreaDao;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
+import com.zhiyu.quanzhu.utils.SharedPreferencesUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,11 +35,14 @@ public class ProvinceCityDialog extends Dialog implements View.OnClickListener {
     private TextView cancelTextView, confirmTextView;
     private AreaProvince areaProvince;
     private AreaCity areaCity;
+    private int provinceIndex, cityIndex;
 
     public ProvinceCityDialog(@NonNull Context context, int themeResId, OnCityChooseListener listener) {
         super(context, themeResId);
         this.mContext = context;
         this.onCityChooseListener = listener;
+        province = SharedPreferencesUtils.getInstance(mContext).getLocationProvince();
+        city = SharedPreferencesUtils.getInstance(mContext).getLocationCity();
     }
 
     @Override
@@ -59,17 +63,31 @@ public class ProvinceCityDialog extends Dialog implements View.OnClickListener {
     private void initData() {
         areaProvinceList = AreaDao.getInstance().provinceList();
         if (null != areaProvinceList && areaProvinceList.size() > 0) {
-            areaProvince=areaProvinceList.get(0);
-            for (AreaProvince p : areaProvinceList) {
-                provinceList.add(p.getName());
+            areaProvince = areaProvinceList.get(0);
+            for (int i = 0; i < areaProvinceList.size(); i++) {
+                provinceList.add(areaProvinceList.get(i).getName());
+                if (areaProvinceList.get(i).getName().equals(province) ||
+                        areaProvinceList.get(i).getName().contains(province) ||
+                        province.contains(areaProvinceList.get(i).getName())) {
+                    areaProvince = areaProvinceList.get(i);
+                    provinceIndex = i;
+                }
             }
         }
 
-        areaCityList = AreaDao.getInstance().cityList(areaProvinceList.get(0).getCode());
+
+        areaCityList = AreaDao.getInstance().cityList(areaProvince.getCode());
         if (null != areaCityList && areaCityList.size() > 0) {
-            areaCity=areaCityList.get(0);
-            for (AreaCity c : areaCityList) {
-                cityList.add(c.getName());
+            areaCity = areaCityList.get(0);
+            for (int i = 0; i < areaCityList.size(); i++) {
+                cityList.add(areaCityList.get(i).getName());
+                if (city.equals(areaCityList.get(i).getName()) ||
+                        city.contains(areaCityList.get(i).getName()) ||
+                        areaCityList.get(i).getName().contains(city)
+                        ) {
+                    cityIndex = i;
+                    areaCity = areaCityList.get(i);
+                }
             }
         }
     }
@@ -80,7 +98,7 @@ public class ProvinceCityDialog extends Dialog implements View.OnClickListener {
         cityView = findViewById(R.id.cityView);
         cityView.setNotLoop();
         provinceView.setItems(provinceList);
-        provinceView.setInitPosition(0);
+        provinceView.setInitPosition(provinceIndex);
         provinceView.setListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(int index) {
@@ -103,9 +121,8 @@ public class ProvinceCityDialog extends Dialog implements View.OnClickListener {
                 }
             }
         });
-        province = provinceList.get(provinceView.getSelectedItem());
         cityView.setItems(cityList);
-        cityView.setInitPosition(0);
+        cityView.setInitPosition(cityIndex);
         cityView.setListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(int index) {
@@ -115,7 +132,6 @@ public class ProvinceCityDialog extends Dialog implements View.OnClickListener {
                 }
             }
         });
-        city = cityList.get(cityView.getSelectedItem());
         cancelTextView = findViewById(R.id.cancelTextView);
         cancelTextView.setOnClickListener(this);
         confirmTextView = findViewById(R.id.confirmTextView);

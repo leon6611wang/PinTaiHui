@@ -14,6 +14,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.zhiyu.quanzhu.R;
+import com.zhiyu.quanzhu.model.bean.GoodsImg;
 import com.zhiyu.quanzhu.ui.adapter.GoodsInfoBannerAdapter;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
@@ -33,7 +34,7 @@ public class GoodsInfoBanner extends FrameLayout {
     private FrameLayout.LayoutParams layoutParams;
     private MaxRecyclerView mRecyclerView;
     private GoodsInfoBannerAdapter adapter;
-    private List<String> list = new ArrayList<>();
+    private List<GoodsImg> list = new ArrayList<>();
     private MyHandler myHandler = new MyHandler(this);
     private TextView indicatorTextView;
     private int currentPosition = 0;
@@ -68,7 +69,7 @@ public class GoodsInfoBanner extends FrameLayout {
     }
 
 
-    public void setList(List<String> urlList) {
+    public void setList(List<GoodsImg> urlList) {
         this.list = urlList;
         adapter.setList(list);
         indicatorTextView.setText((currentPosition + 1) + "/" + list.size());

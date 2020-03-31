@@ -36,12 +36,15 @@ import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseActivity;
 import com.zhiyu.quanzhu.model.bean.AreaCity;
 import com.zhiyu.quanzhu.model.bean.AreaProvince;
+import com.zhiyu.quanzhu.model.bean.HobbyDaoChild;
+import com.zhiyu.quanzhu.model.bean.HobbyDaoParent;
 import com.zhiyu.quanzhu.model.bean.IndustryChild;
 import com.zhiyu.quanzhu.model.bean.IndustryParent;
 import com.zhiyu.quanzhu.model.result.CircleDetailResult;
 import com.zhiyu.quanzhu.ui.adapter.ImageGridRecyclerAdapter;
 import com.zhiyu.quanzhu.ui.dialog.ChoosePhotoDialog;
 import com.zhiyu.quanzhu.ui.dialog.CircleTypeDialog;
+import com.zhiyu.quanzhu.ui.dialog.HobbyDialog;
 import com.zhiyu.quanzhu.ui.dialog.IndustryDialog;
 import com.zhiyu.quanzhu.ui.dialog.ProvinceCityDialog;
 import com.zhiyu.quanzhu.ui.widget.MyMediaController;
@@ -98,6 +101,7 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
     private CircleTypeDialog circleTypeDialog;
     private ProvinceCityDialog cityDialog;
     private IndustryDialog industryDialog;
+    private HobbyDialog hobbyDialog;
     private int circleType = 1;
     private long circle_id;
     private String name, province_name, city_name, descirption, logo, thumb, two_industry, three_industry, video;
@@ -232,11 +236,11 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
         });
         circleTypeDialog = new CircleTypeDialog(this, R.style.dialog, new CircleTypeDialog.OnCircleTypeListener() {
             @Override
-            public void onCircleType(int type, String desc) {
-                circleType = type;
+            public void onCircleType(int t, String desc) {
+                circleType = t;
+                type=t;
                 xingzhiTextView.setText(desc);
                 industryTextView.setText(desc);
-                System.out.println(desc);
             }
         });
         cityDialog = new ProvinceCityDialog(this, R.style.dialog, new ProvinceCityDialog.OnCityChooseListener() {
@@ -252,6 +256,14 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
         industryDialog = new IndustryDialog(this, R.style.dialog, new IndustryDialog.OnHangYeChooseListener() {
             @Override
             public void onHangYeChoose(IndustryParent parent, IndustryChild child) {
+                two_industry = parent.getName();
+                three_industry = child.getName();
+                hangyeTextView.setText(parent.getName() + "/" + child.getName());
+            }
+        });
+        hobbyDialog=new HobbyDialog(this, R.style.dialog, new HobbyDialog.OnChooseHobbyListener() {
+            @Override
+            public void onChooseHobby(HobbyDaoParent parent, HobbyDaoChild child) {
                 two_industry = parent.getName();
                 three_industry = child.getName();
                 hangyeTextView.setText(parent.getName() + "/" + child.getName());
@@ -332,7 +344,14 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
                 cityDialog.show();
                 break;
             case R.id.hangyeLayout:
-                industryDialog.show();
+                switch (type){
+                    case 1:
+                        industryDialog.show();
+                        break;
+                    case 2:
+                        hobbyDialog.show();
+                        break;
+                }
                 break;
             case R.id.uploadvideoImageView:
                 getVideo();

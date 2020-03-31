@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.zhiyu.quanzhu.R;
@@ -31,11 +32,12 @@ public class QuanZiGuanZhuHeaderRecyclerAdapter extends RecyclerView.Adapter<Qua
     class Holder extends RecyclerView.ViewHolder {
         ImageView addImageView;
         CircleImageView avatarImageView;
-
+        TextView nameTextView;
         public Holder(View itemView) {
             super(itemView);
             avatarImageView = itemView.findViewById(R.id.avatarImageView);
             addImageView = itemView.findViewById(R.id.addImageView);
+            nameTextView=itemView.findViewById(R.id.nameTextView);
         }
     }
 
@@ -52,7 +54,9 @@ public class QuanZiGuanZhuHeaderRecyclerAdapter extends RecyclerView.Adapter<Qua
         } else {
             holder.addImageView.setVisibility(View.GONE);
         }
-        Glide.with(context).load(list.get(position).getAvatar()).into(holder.avatarImageView);
+        Glide.with(context).load(list.get(position).getAvatar()).error(R.mipmap.no_avatar).into(holder.avatarImageView);
+        holder.nameTextView.setText(list.get(position).getUsername());
+
     }
 
     @Override

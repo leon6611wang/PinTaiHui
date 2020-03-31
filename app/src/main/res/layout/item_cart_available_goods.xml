@@ -15,7 +15,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
+            android:paddingTop="@dimen/dp_15"
+            android:paddingBottom="@dimen/dp_15"
             android:orientation="vertical">
+
 
             <ImageView
                 android:id="@+id/itemItemSelectedImageView"

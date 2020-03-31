@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tagTextView"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:background="@drawable/shape_oval_solid_bg_ededed_gray"
+    android:gravity="center"
+    android:paddingBottom="4.5dp"
+    android:paddingLeft="8.5dp"
+    android:paddingRight="8.5dp"
+    android:paddingTop="4.5dp"
+    android:text="#上海"
+    android:textColor="@color/text_color_black"
+    android:textSize="12sp" />

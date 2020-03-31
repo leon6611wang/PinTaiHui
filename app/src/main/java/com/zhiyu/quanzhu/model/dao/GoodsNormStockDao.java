@@ -6,6 +6,9 @@ import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.model.bean.GoodsNorm;
 import com.zhiyu.quanzhu.model.bean.GoodsNormGroup;
 import com.zhiyu.quanzhu.model.bean.GoodsStock;
+import com.zhiyu.quanzhu.utils.GsonUtils;
+
+import org.xutils.db.sqlite.WhereBuilder;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,14 +39,11 @@ public class GoodsNormStockDao {
             for (GoodsStock stock : list) {
                 try {
                     BaseApplication.db.saveBindingId(stock);
-                    System.out.println(stock);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         }
-
-        selectStockList();
     }
 
     private void selectStockList() {
@@ -52,39 +52,85 @@ public class GoodsNormStockDao {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
     }
 
     private List<Integer> selectStocks(List<GoodsNorm> list) {
-        Set<Integer> idSet = new HashSet<>();
-        if (null != list && list.size() > 0) {
-            String sql = "select * from goods_stock where ";
-            for (int i = 0; i < list.size(); i++) {
-                String id = "id" + list.get(i).getP_id();
-                sql += id + " = " + list.get(i).getNorms_id();
-                if (i < (list.size() - 1)) {
-                    sql += " and ";
-                }
-            }
-            try {
-                Cursor cursor = BaseApplication.db.execQuery(sql);
-                while (cursor.moveToNext()) {
-//                    GoodsStock stock = new GoodsStock();
-                    for (int i = 1; i < 10; i++) {
-                        long _id = cursor.getLong(cursor.getColumnIndex("id" + i));
-                        if (_id > 0)
-                            idSet.add((int) _id);
+        Set<Integer> set = new HashSet<>();
+        try {
+            for (GoodsNorm norm : list) {
+                List<GoodsStock> stockList = BaseApplication.db.selector(GoodsStock.class).
+                        where("id1", "=", norm.getNorms_id()).
+                        or("id2", "=", norm.getNorms_id()).
+                        or("id3", "=", norm.getNorms_id()).
+                        or("id4", "=", norm.getNorms_id()).
+                        or("id5", "=", norm.getNorms_id()).
+                        or("id6", "=", norm.getNorms_id()).
+                        or("id7", "=", norm.getNorms_id()).
+                        or("id8", "=", norm.getNorms_id()).
+                        or("id9", "=", norm.getNorms_id()).
+                        or("id10", "=", norm.getNorms_id()).findAll();
+
+                if (null != list && list.size() > 0) {
+                    for (GoodsStock stock : stockList) {
+                        if (stock.getId1() > 0)
+                            set.add((int) stock.getId1());
+                        if (stock.getId2() > 0)
+                            set.add((int) stock.getId2());
+                        if (stock.getId3() > 0)
+                            set.add((int) stock.getId3());
+                        if (stock.getId4() > 0)
+                            set.add((int) stock.getId4());
+                        if (stock.getId5() > 0)
+                            set.add((int) stock.getId5());
+                        if (stock.getId6() > 0)
+                            set.add((int) stock.getId6());
+                        if (stock.getId7() > 0)
+                            set.add((int) stock.getId7());
+                        if (stock.getId8() > 0)
+                            set.add((int) stock.getId8());
+                        if (stock.getId9() > 0)
+                            set.add((int) stock.getId9());
+                        if (stock.getId10() > 0)
+                            set.add((int) stock.getId10());
                     }
-//                    int _stock = cursor.getInt(cursor.getColumnIndex("stock"));
-//                    String _img = cursor.getString(cursor.getColumnIndex("img"));
-//                    stock.setStock(_stock);
-//                    stock.setImg(_img);
-//                    System.out.println("查询到的库存为 " + _stock);
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        List<Integer> idList = new ArrayList<>(idSet);
+
+
+//        if (null != list && list.size() > 0) {
+//            String sql = "select * from goods_stock where ";
+//            for (int i = 0; i < list.size(); i++) {
+//                String id = "id" + list.get(i).getP_id();
+//                sql += id + " = " + list.get(i).getNorms_id();
+//                if (i < (list.size() - 1)) {
+//                    sql += " and ";
+//                }
+//            }
+//            System.out.println("sql: " + sql);
+//            try {
+//                Cursor cursor = BaseApplication.db.execQuery(sql);
+//                while (cursor.moveToNext()) {
+////                    GoodsStock stock = new GoodsStock();
+//                    for (int i = 1; i < 10; i++) {
+//                        long _id = cursor.getLong(cursor.getColumnIndex("id" + i));
+//                        if (_id > 0)
+//                            idSet.add((int) _id);
+//                    }
+////                    int _stock = cursor.getInt(cursor.getColumnIndex("stock"));
+////                    String _img = cursor.getString(cursor.getColumnIndex("img"));
+////                    stock.setStock(_stock);
+////                    stock.setImg(_img);
+////                    System.out.println("查询到的库存为 " + _stock);
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+        List<Integer> idList = new ArrayList<>(set);
         return idList;
     }
 
@@ -122,7 +168,7 @@ public class GoodsNormStockDao {
 
     private void clearStocks() {
         try {
-            BaseApplication.db.delete(GoodsStock.class);
+            BaseApplication.db.dropTable(GoodsStock.class);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -329,6 +375,143 @@ public class GoodsNormStockDao {
 //            }
         }
         return list;
+    }
+
+    private List<GoodsNormGroup> selectedList = new ArrayList<>();
+
+    /**
+     * 匹配商品规格
+     */
+    public void matchNorms(List<GoodsNormGroup> groupList, int parentPosition, int childPosition) {
+        try {
+            GoodsNorm norm = groupList.get(parentPosition).getList().get(childPosition);
+//            List<GoodsStock> allGoodsStockList = BaseApplication.db.findAll(GoodsStock.class);
+//            Map<String, Integer> map = new HashMap<>();
+            List<GoodsStock> list = BaseApplication.db.selector(GoodsStock.class).
+                    where("id1", "=", norm.getNorms_id()).
+                    or("id2", "=", norm.getNorms_id()).
+                    or("id3", "=", norm.getNorms_id()).
+                    or("id4", "=", norm.getNorms_id()).
+                    or("id5", "=", norm.getNorms_id()).
+                    or("id6", "=", norm.getNorms_id()).
+                    or("id7", "=", norm.getNorms_id()).
+                    or("id8", "=", norm.getNorms_id()).
+                    or("id9", "=", norm.getNorms_id()).
+                    or("id10", "=", norm.getNorms_id()).findAll();
+            Set<Integer> set = new HashSet<>();
+            if (null != list && list.size() > 0) {
+                for (GoodsStock stock : list) {
+                    if (stock.getId1() > 0)
+                        set.add((int) stock.getId1());
+                    if (stock.getId2() > 0)
+                        set.add((int) stock.getId2());
+                    if (stock.getId3() > 0)
+                        set.add((int) stock.getId3());
+                    if (stock.getId4() > 0)
+                        set.add((int) stock.getId4());
+                    if (stock.getId5() > 0)
+                        set.add((int) stock.getId5());
+                    if (stock.getId6() > 0)
+                        set.add((int) stock.getId6());
+                    if (stock.getId7() > 0)
+                        set.add((int) stock.getId7());
+                    if (stock.getId8() > 0)
+                        set.add((int) stock.getId8());
+                    if (stock.getId9() > 0)
+                        set.add((int) stock.getId9());
+                    if (stock.getId10() > 0)
+                        set.add((int) stock.getId10());
+                }
+            }
+            List<Integer> idXList = new ArrayList<>(set);
+            System.out.println("idXList: " + idXList.toString());
+            for (GoodsNormGroup group : groupList) {
+                for (GoodsNorm goodsNorm : group.getList()) {
+                    boolean hasStock = false;
+                    for (Integer idx : idXList) {
+                        if (goodsNorm.getNorms_id() == idx) {
+                            hasStock = true;
+                        }
+                    }
+                    goodsNorm.setSelectable(hasStock);
+                }
+            }
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+//        String sql = "select * from goods_stock where ";
+//        for (int i = 1; i < 11; i++) {
+//            String id = "id" + i;
+//            if (i < 10) {
+//                sql += " or ";
+//            }
+//        }
+
+//        try {
+//            Cursor cursor = BaseApplication.db.execQuery(sql);
+//            while (cursor.moveToNext()) {
+//                GoodsStock stock = new GoodsStock();
+//                int _stock = cursor.getInt(cursor.getColumnIndex("stock"));
+//                String _img = cursor.getString(cursor.getColumnIndex("img"));
+//                stock.setStock(_stock);
+//                stock.setImg(_img);
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+    }
+
+    public GoodsStock getSelectedStock(List<GoodsNorm> list) {
+        GoodsStock stock = new GoodsStock();
+        try {
+            String sql = "select * from goods_stock where ";
+            for (int j = 0; j < list.size(); j++) {
+                if (j == 0) {
+                    sql += " ( ";
+                }
+                for (int i = 0; i < 10; i++) {
+                    if (i == 0) {
+                        sql += " ( ";
+                    }
+                    sql += "id" + (i + 1) + " = " + list.get(j).getNorms_id();
+                    if (i < 9) {
+                        sql += " or ";
+                    } else {
+                        sql += " ) ";
+                    }
+                }
+                if (j < list.size() - 1) {
+                    sql += " and ";
+                } else {
+                    sql += " ) ";
+                }
+            }
+//            System.out.println("sql: " + sql);
+            Cursor cursor = BaseApplication.db.execQuery(sql);
+            while (cursor.moveToNext()) {
+                int _stock = cursor.getInt(cursor.getColumnIndex("stock"));
+                String _img = cursor.getString(cursor.getColumnIndex("img"));
+                int _price = cursor.getInt(cursor.getColumnIndex("price"));
+                int _id = cursor.getInt(cursor.getColumnIndex("id"));
+                String _normas_id_str = cursor.getString(cursor.getColumnIndex("normas_id_str"));
+                stock.setStock(_stock);
+                stock.setImg(_img);
+                stock.setPrice(_price);
+                stock.setId(_id);
+                if (null != _normas_id_str) {
+                    List<String> _normas_id = GsonUtils.GsonToList(_normas_id_str, String.class);
+                    stock.setNormas_id(_normas_id);
+                }
+//                System.out.println("查询到的库存为 " + _normas_id_str);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return stock;
     }
 
 }

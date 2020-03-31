@@ -27,7 +27,7 @@ public class QuanZiGuanZhuPopupWindow extends PopupWindow implements View.OnClic
 
     private void initalize() {
         LayoutInflater inflater = LayoutInflater.from(context);
-        View view = inflater.inflate(R.layout.popupwindow_shangquan_information_rightmenu_quanzhu, null);
+        View view = inflater.inflate(R.layout.popupwindow_circle_info_circler, null);
         setContentView(view);
         initWindow();
     }

@@ -167,7 +167,7 @@ public class ComplaintActivity extends BaseActivity implements View.OnClickListe
                 .setTitle("图片选择")//设置标题
                 .showCamera(true)//设置是否显示拍照按钮
                 .showImage(true)//设置是否展示图片
-                .showVideo(true)//设置是否展示视频
+                .showVideo(false)//设置是否展示视频
                 .setSingleType(true)//设置图片视频不能同时选择
                 .setMaxCount(9)//设置最大选择图片数目(默认为1，单选)
                 .setImagePaths(mImageList)//保存上一次选择图片的状态，如果不需要可以忽略
@@ -210,13 +210,15 @@ public class ComplaintActivity extends BaseActivity implements View.OnClickListe
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                baseResult = GsonUtils.GsonToBean(reason, BaseResult.class);
+                System.out.println("投诉/举报: "+result);
+                baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
             }
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
+                System.out.println("投诉/举报: "+ex.toString());
             }
 
             @Override

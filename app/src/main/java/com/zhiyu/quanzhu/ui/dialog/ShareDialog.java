@@ -38,6 +38,12 @@ public class ShareDialog extends Dialog implements View.OnClickListener {
         this.onShareListener = listener;
     }
 
+    public ShareDialog(Activity activity, Context context, int themeResId) {
+        super(context, themeResId);
+        this.context = context;
+        this.activity = activity;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/shape_video_information_top"
+    android:orientation="vertical">
+
+    <View
+        android:id="@+id/statusHeightView"
+        android:layout_width="match_parent"
+        android:layout_height="26dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:id="@+id/backLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/dp_15"
+                android:layout_marginRight="@dimen/dp_10"
+                android:src="@mipmap/back_white" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:gravity="center|left"
+            android:orientation="horizontal">
+
+            <com.zhiyu.quanzhu.ui.widget.CircleImageView
+                android:id="@+id/avatarImageView"
+                android:layout_width="@dimen/dp_25"
+                android:layout_height="@dimen/dp_25"
+                android:src="@mipmap/no_avatar"
+                android:layout_gravity="center"
+                android:layout_marginRight="@dimen/dp_8"
+                />
+
+            <TextView
+                android:id="@+id/nameTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="昵称"
+                android:textSize="12sp"
+                android:textColor="@color/white"
+                />
+
+            <TextView
+                android:id="@+id/followTextView"
+                android:layout_width="26dp"
+                android:layout_height="18dp"
+                android:text="＋"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:background="@drawable/shape_oval_solid_bg_yellow"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:layout_marginLeft="@dimen/dp_8"
+                />
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_30"
+        />
+
+</LinearLayout>

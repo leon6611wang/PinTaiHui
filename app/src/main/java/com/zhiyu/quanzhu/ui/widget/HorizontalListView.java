@@ -12,6 +12,8 @@ import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.Scroller;
 
+import com.zhiyu.quanzhu.utils.ScreentUtils;
+
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -114,8 +116,10 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
         requestLayout();
     }
 
+
     @Override
     public void setSelection(int position) {
+
     }
 
     private void addAndMeasureChild(final View child, int viewPos) {
@@ -259,6 +263,24 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
         requestLayout();
     }
 
+    public void fling() {
+        System.out.println("fling");
+        mScroller.startScroll(0,0,-180,0);
+        requestLayout();
+    }
+
+    public void scrollToPosition(int position) {
+        int w = Math.round(ScreentUtils.getInstance().getScreenWidth(getContext()) / 6);
+        int sx = 0, dx = 0;
+        if (position > 5) {
+            dx = ((position + 1) - 6) * w;
+            System.out.println("dx: " + dx);
+            mScroller.startScroll(sx, 0, dx, 0);
+            sx = dx;
+            requestLayout();
+        }
+    }
+
 
     /**
      * 上下滑动需要拦截，
@@ -281,18 +303,27 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
                 int dx = (int) (endX - startX);
                 int dy = (int) (endY - startY);
 
-                if (Math.abs(dx) + 50 > Math.abs(dy)) {
-
+                if (Math.abs(dx) + 10 > Math.abs(dy)) {
+                    if (null != onParentNoScrollListener) {
+                        onParentNoScrollListener.onParentNoScroll(false);
+                    }
                 } else {
+                    if (null != onParentNoScrollListener) {
+                        onParentNoScrollListener.onParentNoScroll(true);
+                    }
                     // 上下滑动,需要拦截
                     getParent().requestDisallowInterceptTouchEvent(false);
                 }
                 break;
             case MotionEvent.ACTION_UP:
+                if (null != onParentNoScrollListener) {
+                    onParentNoScrollListener.onParentNoScroll(true);
+                }
                 break;
         }
         return handled | super.dispatchTouchEvent(ev);
     }
+
 
     protected boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
                               float velocityY) {
@@ -402,5 +433,15 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
                 break;
         }
         return super.onInterceptTouchEvent(ev);
+    }
+
+    private static OnParentNoScrollListener onParentNoScrollListener;
+
+    public static void setOnParentNoScrollListener(OnParentNoScrollListener listener) {
+        onParentNoScrollListener = listener;
+    }
+
+    public interface OnParentNoScrollListener {
+        void onParentNoScroll(boolean noScroll);
     }
 }

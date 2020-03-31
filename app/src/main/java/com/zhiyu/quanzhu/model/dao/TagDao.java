@@ -20,6 +20,7 @@ public class TagDao {
     }
 
     public void saveTags(List<Tag> list) {
+        clearTags();
         if (null != list && list.size() > 0) {
             for (Tag tag : list) {
                 try {

@@ -3,11 +3,19 @@ package com.zhiyu.quanzhu.base;
 import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 
+import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
+import com.bumptech.glide.load.resource.bitmap.BitmapTransformation;
+import com.bumptech.glide.request.RequestOptions;
 import com.orm.SugarContext;
+import com.leon.myvideoplaerlibrary.manager.VideoPlayerManager;
+import com.zhiyu.quanzhu.ui.activity.VideoPlayerActivity;
 import com.zhiyu.quanzhu.ui.widget.rongfrend.FrendMessage;
 import com.zhiyu.quanzhu.ui.widget.rongmingpian.MingPianMessage;
 import com.zhiyu.quanzhu.ui.widget.rongmingpian.MingPianMessageItemProvider;
@@ -21,6 +29,7 @@ import org.xutils.DbManager;
 import org.xutils.db.table.TableEntity;
 import org.xutils.x;
 
+import java.security.MessageDigest;
 import java.util.List;
 
 import io.rong.imkit.DefaultExtensionModule;
@@ -31,7 +40,8 @@ import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.UserInfo;
-import io.rong.message.TextMessage;
+
+import static com.bumptech.glide.load.resource.bitmap.VideoDecoder.FRAME_OPTION;
 
 
 public class BaseApplication extends Application implements BaseActivity.OnExternalStorageListener {
@@ -52,6 +62,12 @@ public class BaseApplication extends Application implements BaseActivity.OnExter
     @Override
     public void onCreate() {
         super.onCreate();
+        //视频播放器初始化
+        VideoPlayerManager.getInstance()
+                //循环模式
+                .setLoop(false)
+                //悬浮窗中打开播放器的绝对路径
+                .setPlayerActivityClassName(VideoPlayerActivity.class.getCanonicalName());
         applicationContext = this;
         x.Ext.init(this);                   //xUtils 初始化
         x.Ext.setDebug(true);               //xUtils日志输出
@@ -221,6 +237,30 @@ public class BaseApplication extends Application implements BaseActivity.OnExter
 
     public void setMediaPlayer(MediaPlayer mediaPlayer) {
         this.mediaPlayer = mediaPlayer;
+    }
+
+    private RequestOptions requestOptions;
+    public RequestOptions getVideoCoverImageOption() {
+        if(null==requestOptions){
+            requestOptions = RequestOptions.frameOf(0);
+            requestOptions.set(FRAME_OPTION, MediaMetadataRetriever.OPTION_CLOSEST);
+            requestOptions.transform(new BitmapTransformation() {
+                @Override
+                protected Bitmap transform(@NonNull BitmapPool pool, @NonNull Bitmap toTransform, int outWidth, int outHeight) {
+                    return toTransform;
+                }
+
+                @Override
+                public void updateDiskCacheKey(MessageDigest messageDigest) {
+                    try {
+                        messageDigest.update((getApplicationContext().getPackageName() + "RotateTransform").getBytes("utf-8"));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
+        return requestOptions;
     }
 
 }

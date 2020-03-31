@@ -16,12 +16,16 @@ public class H5PageActivity extends BaseActivity implements View.OnClickListener
     private LinearLayout backLayout;
     private TextView titleTextView;
     private WebView mWebView;
+    private String url;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_h5page);
-        ScreentUtils.getInstance().setStatusBarLightMode(this,true);
+        ScreentUtils.getInstance().setStatusBarLightMode(this, true);
+        url = getIntent().getStringExtra("url");
+        url="https://www.baidu.com/";
+        System.out.println("h5page url: "+url);
         initViews();
     }
 
@@ -30,7 +34,7 @@ public class H5PageActivity extends BaseActivity implements View.OnClickListener
         backLayout.setOnClickListener(this);
         titleTextView = findViewById(R.id.titleTextView);
         mWebView = findViewById(R.id.mWebView);
-        mWebView.loadUrl("https://news.163.com/19/1119/13/EUBMBF9S0001875N.html");
+        mWebView.loadUrl(url);
         mWebView.getSettings().setJavaScriptEnabled(true);
         mWebView.setWebViewClient(new WebViewClient() {
             @Override

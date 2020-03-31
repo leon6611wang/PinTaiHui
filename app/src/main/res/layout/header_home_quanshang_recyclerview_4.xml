@@ -35,7 +35,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:scaleType="fitXY"
-                    android:src="@mipmap/timg" />
+                    android:background="@color/text_color_gray"/>
 
             </android.support.v7.widget.CardView>
 
@@ -57,7 +57,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:scaleType="fitXY"
-                    android:src="@mipmap/timg" />
+                    android:background="@color/text_color_gray" />
 
             </android.support.v7.widget.CardView>
 
@@ -87,7 +87,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:scaleType="fitXY"
-                    android:src="@mipmap/timg" />
+                    android:background="@color/text_color_gray" />
 
             </android.support.v7.widget.CardView>
 
@@ -110,7 +110,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:scaleType="fitXY"
-                    android:src="@mipmap/timg" />
+                    android:background="@color/text_color_gray" />
 
             </android.support.v7.widget.CardView>
 

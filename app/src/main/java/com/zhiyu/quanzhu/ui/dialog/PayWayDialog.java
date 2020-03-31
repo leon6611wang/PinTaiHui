@@ -11,17 +11,9 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.chinapnr.android.adapay.AdaPay;
-import com.chinapnr.android.adapay.PayCallback;
-import com.chinapnr.android.adapay.bean.PayResult;
-import com.weigan.loopview.LoopView;
-import com.weigan.loopview.OnItemSelectedListener;
 import com.zhiyu.quanzhu.R;
-import com.zhiyu.quanzhu.utils.CalendarUtils;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 支付方式
@@ -109,12 +101,4 @@ public class PayWayDialog extends Dialog implements View.OnClickListener{
         void onPayWay(int payWay,String payWayStr);
     }
 
-//    private void pay(){
-//        AdaPay.doPay(getContext(), "payment json string", new PayCallback() {
-//            @Override
-//            public void onPayment(PayResult payResult) {
-//                //处理支付结果
-//            }
-//        });
-//    }
 }

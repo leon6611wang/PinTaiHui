@@ -12,6 +12,7 @@
     <color name="color_f8">#F8F8F8</color>
     <drawable name="hobby_selected">#F8F8F8</drawable>
     <drawable name="hobby_unselected">#FFFFFF</drawable>
+    <drawable name="image_error">#BBBBBB</drawable>
 
     <color name="text_color_black">#333333</color>
     <color name="text_color_gray">#999999</color>
@@ -22,6 +23,8 @@
     <color name="text_color_yilingqu">#BBBBBB</color>
     <color name="text_color_gold">#FFDF80</color>
     <color name="text_color_red_2">#F6152A</color>
+    <color name="color_dfdfdf">#DFDFDF</color>
+    <color name="color_bbbbbb">#BBBBBB</color>
 
 
     <color name="transparent">#00000000</color>

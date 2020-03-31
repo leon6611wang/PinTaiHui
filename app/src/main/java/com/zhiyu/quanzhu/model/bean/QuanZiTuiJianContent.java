@@ -23,6 +23,34 @@ public class QuanZiTuiJianContent {
     private int comment_num;
     private String link_url;
     private boolean is_follow;
+    private int id;
+    private int feed_id;
+
+    private ArticleThumb thumb;
+
+    public ArticleThumb getThumb() {
+        return thumb;
+    }
+
+    public void setThumb(ArticleThumb thumb) {
+        this.thumb = thumb;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getFeed_id() {
+        return feed_id;
+    }
+
+    public void setFeed_id(int feed_id) {
+        this.feed_id = feed_id;
+    }
 
     public String getVideo_thumb() {
         return video_thumb;

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/text_color_yellow"
+    >
+
+    <LinearLayout
+        android:id="@+id/videoLayout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_240"
+        android:layout_gravity="top"
+        android:background="@color/black">
+
+        <com.leon.myvideoplaerlibrary.view.VideoPlayerTrackView
+            android:id="@+id/videoPlayer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:video_autoSetCoverController="true"
+            app:video_autoSetVideoController="true" />
+
+    </LinearLayout>
+
+    <com.zhiyu.quanzhu.ui.widget.MyCommentLayout
+        android:id="@+id/commentLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/white"
+        android:orientation="vertical">
+
+        <ListView
+            android:id="@+id/listView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            android:clickable="true"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="comment"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:clickable="true"
+            android:visibility="visible"
+            />
+
+    </com.zhiyu.quanzhu.ui.widget.MyCommentLayout>
+</FrameLayout>

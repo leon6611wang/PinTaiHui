@@ -6,6 +6,7 @@
     android:orientation="vertical">
 
     <android.support.v7.widget.CardView
+        android:id="@+id/mCardView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -27,11 +28,14 @@
                 android:orientation="horizontal">
 
                 <com.zhiyu.quanzhu.ui.widget.CircleImageView
+                    android:id="@+id/avatarImageView"
                     android:layout_width="@dimen/dp_20"
                     android:layout_height="@dimen/dp_20"
+                    android:layout_marginRight="5.5dp"
                     android:src="@mipmap/header" />
 
                 <TextView
+                    android:id="@+id/nameTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="老猫不吃鱼"
@@ -44,6 +48,7 @@
                     android:layout_weight="1" />
 
                 <TextView
+                    android:id="@+id/timeTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="创建1天"
@@ -57,11 +62,13 @@
                 android:layout_margin="@dimen/dp_10"
                 android:orientation="horizontal">
 
-                <com.zhiyu.quanzhu.ui.widget.RoundImageView
+                <com.zhiyu.quanzhu.ui.widget.NiceImageView
+                    android:id="@+id/circleImageView"
                     android:layout_width="120dp"
                     android:layout_height="95dp"
                     android:layout_marginRight="@dimen/dp_10"
                     android:scaleType="centerCrop"
+                    app:corner_radius="5dp"
                     android:src="@mipmap/header" />
 
                 <LinearLayout
@@ -71,6 +78,7 @@
                     android:orientation="vertical">
 
                     <TextView
+                        android:id="@+id/circleNameTextView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:ellipsize="end"
@@ -81,24 +89,61 @@
                         android:textStyle="bold" />
 
                     <TextView
+                        android:id="@+id/descriptionTextView"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
                         android:ellipsize="end"
                         android:maxLines="2"
                         android:text="圈主是基于我们APP上的一个重要组 成部分，通过圈主可以吸引粉丝入们APP上的一个重要组 们APP上的一个重要组 "
+                        android:layout_gravity="center"
+                        android:gravity="center|left"
                         android:textColor="#999999"
                         android:textSize="12sp" />
 
+
                     <View
                         android:layout_width="match_parent"
-                        android:layout_height="@dimen/dp_1"
-                        android:layout_marginTop="@dimen/dp_5"
-                        android:background="#EEEEEE" />
+                        android:layout_height="0.5dp"
+                        android:background="#EEEEEE"
+                        android:layout_marginBottom="@dimen/dp_8"
+                        />
 
-                    <com.zhiyu.quanzhu.ui.widget.MyRecyclerView
-                        android:id="@+id/typeRecyclerView"
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        >
+                        <TextView
+                            android:id="@+id/cityTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/shape_corner_yellow"
+                            android:text="city"
+                            android:textColor="@color/text_color_yellow"
+                            android:textSize="11sp"
+                            android:paddingLeft="7.5dp"
+                            android:paddingRight="7.5dp"
+                            android:paddingTop="3dp"
+                            android:paddingBottom="3dp"
+                            android:layout_marginRight="@dimen/dp_5"
+                            />
+
+                        <TextView
+                            android:id="@+id/industryTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/shape_corner_yellow"
+                            android:text="city"
+                            android:textColor="@color/text_color_yellow"
+                            android:textSize="11sp"
+                            android:paddingLeft="7.5dp"
+                            android:paddingRight="7.5dp"
+                            android:paddingTop="3dp"
+                            android:paddingBottom="3dp"
+                            />
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
@@ -123,6 +168,7 @@
                     android:layout_weight="1" />
 
                 <TextView
+                    android:id="@+id/chengyuanTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawableLeft="@mipmap/chengyuan_gray"
@@ -136,6 +182,7 @@
                     android:layout_height="match_parent" />
 
                 <TextView
+                    android:id="@+id/dongtaiTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawableLeft="@mipmap/dongtai_gray"

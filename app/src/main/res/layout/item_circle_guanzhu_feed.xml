@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/itemRootLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/dp_8"
+    android:paddingLeft="@dimen/dp_15"
+    android:paddingRight="@dimen/dp_15"
+    android:paddingTop="@dimen/dp_8">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="@dimen/dp_10"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <com.zhiyu.quanzhu.ui.widget.CircleImageView
+            android:id="@+id/avatarImageView"
+            android:layout_width="@dimen/dp_30"
+            android:layout_height="@dimen/dp_30"
+            android:src="@mipmap/no_avatar" />
+
+        <View
+            android:layout_width="@dimen/dp_10"
+            android:layout_height="@dimen/dp_1" />
+
+        <TextView
+            android:id="@+id/nameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="昵称"
+            android:textColor="@color/text_color_black"
+            android:textSize="12sp" />
+
+        <View
+            android:layout_width="@dimen/dp_10"
+            android:layout_height="@dimen/dp_1" />
+
+        <TextView
+            android:id="@+id/timeTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="发布时间"
+            android:textColor="@color/text_color_gray"
+            android:textSize="12sp" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dp_1"
+            android:layout_weight="1" />
+
+        <RelativeLayout
+            android:id="@+id/closeLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            >
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/close_gray"
+                android:layout_centerInParent="true"
+                android:layout_marginLeft="@dimen/dp_10"
+                android:layout_marginRight="@dimen/dp_10"
+                />
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <cn.carbs.android.expandabletextview.library.ExpandableTextView
+        android:id="@+id/mTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dp_10"
+        android:textColor="#333333"
+        android:textSize="13sp"
+        app:etv_MaxLinesOnShrink="5"
+        app:etv_ToExpandHint="全文" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.zhiyu.quanzhu.ui.widget.NiceImageView
+            android:id="@+id/feedImageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleType="centerInside"
+            android:visibility="visible"
+            app:corner_radius="@dimen/dp_2" />
+
+        <com.zhiyu.quanzhu.ui.widget.MyGridView
+            android:id="@+id/imageGridView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:horizontalSpacing="5dip"
+            android:numColumns="3"
+            android:stretchMode="columnWidth"
+            android:verticalSpacing="5dip"
+            android:visibility="gone" />
+
+        <com.leon.myvideoplaerlibrary.view.VideoPlayerTrackView
+            android:id="@+id/videoPlayer"
+            android:layout_width="@dimen/dp_240"
+            android:layout_height="@dimen/dp_240"
+            android:background="@color/white"
+            android:visibility="gone"
+            app:video_autoSetCoverController="true"
+            app:video_autoSetVideoController="true" />
+
+    </FrameLayout>
+
+
+    <com.zhiyu.quanzhu.ui.widget.HorizontalListView
+        android:id="@+id/tagListView"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_25"
+        android:layout_marginTop="@dimen/dp_10" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_10"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="来源："
+            android:textColor="@color/text_color_black"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/sourceTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="上海酿酒圈"
+            android:textColor="#009DE0"
+            android:textSize="12sp" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dp_1"
+            android:layout_weight="1" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="@dimen/dp_15"
+        android:layout_marginTop="@dimen/dp_15"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/collectImageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/shoucang_gray" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dp_1"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/shareTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@mipmap/fenxiang_gray"
+            android:drawablePadding="@dimen/dp_5"
+            android:gravity="center"
+            android:text="0" />
+
+        <View
+            android:layout_width="@dimen/dp_15"
+            android:layout_height="@dimen/dp_1" />
+
+        <TextView
+            android:id="@+id/commentTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@mipmap/pinglun_gray"
+            android:drawablePadding="@dimen/dp_5"
+            android:gravity="center"
+            android:text="0" />
+
+        <View
+            android:layout_width="@dimen/dp_15"
+            android:layout_height="@dimen/dp_1" />
+
+        <LinearLayout
+            android:id="@+id/priseLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/priseImageView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/dianzan_gray" />
+
+            <TextView
+                android:id="@+id/priseNumTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/dp_5"
+                android:gravity="center"
+                android:text="0" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="#EDEDED" />
+
+</LinearLayout>

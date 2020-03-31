@@ -1,5 +1,6 @@
 package com.zhiyu.quanzhu.ui.fragment;
 
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -15,13 +16,18 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.zhiyu.quanzhu.R;
+import com.zhiyu.quanzhu.model.bean.AreaCity;
+import com.zhiyu.quanzhu.model.bean.AreaProvince;
+import com.zhiyu.quanzhu.ui.activity.FullSearchActivity;
 import com.zhiyu.quanzhu.ui.adapter.MyFragmentPagerAdapter;
 import com.zhiyu.quanzhu.ui.adapter.MyFragmentStatePagerAdapter;
 import com.zhiyu.quanzhu.ui.adapter.ViewPagerAdapter;
+import com.zhiyu.quanzhu.ui.dialog.ProvinceCityDialog;
 import com.zhiyu.quanzhu.ui.dialog.PublishDialog;
 import com.zhiyu.quanzhu.ui.widget.NoScrollHorizontallyViewPager;
 import com.zhiyu.quanzhu.ui.widget.NoScrollViewPager;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
+import com.zhiyu.quanzhu.utils.SharedPreferencesUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -35,12 +41,15 @@ public class FragmentHomeQuanZi extends Fragment implements View.OnClickListener
     private MyFragmentStatePagerAdapter adapter;
     private ArrayList<Fragment> fragmentArrayList = new ArrayList<>();
     private TextView guanzhutextview, tuijiantextview, souquantextview;
-    private ImageView publishMenuImageView;
+    private ImageView publishMenuImageView, searchImageView;
     private FrameLayout topBarLayout;
     private int topBarWidth, topBarHeight;
     private int bottomBarHeight;
     private int contentHeight;
     private PublishDialog publishDialog;
+    private LinearLayout cityLayout;
+    private TextView cityTextView;
+    private ProvinceCityDialog cityDialog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -69,10 +78,20 @@ public class FragmentHomeQuanZi extends Fragment implements View.OnClickListener
 
     private void initDialogs() {
         publishDialog = new PublishDialog(getContext(), R.style.dialog);
+        cityDialog = new ProvinceCityDialog(getContext(), R.style.dialog, new ProvinceCityDialog.OnCityChooseListener() {
+            @Override
+            public void onCityChoose(AreaProvince province, AreaCity city) {
+                System.out.println("城市: "+city.getName());
+                cityTextView.setText(city.getName());
+                fragmentQuanZiTuiJian.setCity(city.getName());
+            }
+        });
     }
 
+    private FragmentQuanZiTuiJian fragmentQuanZiTuiJian;
+
     private void initDatas() {
-        FragmentQuanZiTuiJian fragmentQuanZiTuiJian = new FragmentQuanZiTuiJian();
+        fragmentQuanZiTuiJian = new FragmentQuanZiTuiJian();
         Bundle bundle = new Bundle();
         int screenHeight = ScreentUtils.getInstance().getScreenHeight(getContext());
         contentHeight = screenHeight - topBarHeight - bottomBarHeight;
@@ -87,10 +106,16 @@ public class FragmentHomeQuanZi extends Fragment implements View.OnClickListener
     }
 
     private void initViews() {
+        cityLayout = view.findViewById(R.id.cityLayout);
+        cityLayout.setOnClickListener(this);
+        cityTextView = view.findViewById(R.id.cityTextView);
+        cityTextView.setText(SharedPreferencesUtils.getInstance(getContext()).getLocationCity());
         guanzhutextview = view.findViewById(R.id.guanzhutextview);
         tuijiantextview = view.findViewById(R.id.tuijiantextview);
         souquantextview = view.findViewById(R.id.souquantextview);
         publishMenuImageView = view.findViewById(R.id.publishMenuImageView);
+        searchImageView = view.findViewById(R.id.searchImageView);
+        searchImageView.setOnClickListener(this);
         guanzhutextview.setOnClickListener(this);
         tuijiantextview.setOnClickListener(this);
         souquantextview.setOnClickListener(this);
@@ -116,6 +141,14 @@ public class FragmentHomeQuanZi extends Fragment implements View.OnClickListener
                 break;
             case R.id.publishMenuImageView:
                 publishDialog.show();
+                break;
+            case R.id.searchImageView:
+                Intent fullSearchIntent = new Intent(getActivity(), FullSearchActivity.class);
+                fullSearchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                getContext().startActivity(fullSearchIntent);
+                break;
+            case R.id.cityLayout:
+                cityDialog.show();
                 break;
         }
     }

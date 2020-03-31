@@ -29,7 +29,7 @@
             android:layout_marginTop="18dp"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="行业选择"
+            android:text="兴趣选择"
             android:textColor="#333333"
             android:textSize="14sp" />
 

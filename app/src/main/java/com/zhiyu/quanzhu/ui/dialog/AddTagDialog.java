@@ -6,7 +6,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -39,6 +38,7 @@ import org.xutils.x;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -67,35 +67,32 @@ public class AddTagDialog extends Dialog implements View.OnClickListener {
             AddTagDialog dialog = dialogWeakReference.get();
             switch (msg.what) {
                 case 1:
-                    if (dialog.is_hot == 1) {
-                        dialog.createHotTagViews();
-                    } else if (dialog.is_hot == 0) {
-                        dialog.createMoreTagViews();
+                    int isHot = (Integer) msg.obj;
+                    switch (isHot) {
+                        case 0:
+                            dialog.createMoreTagViews();
+                            break;
+                        case 1:
+                            dialog.createHotTagViews();
+                            dialog.createHistoryTagViews();
+                            break;
                     }
-
                     break;
                 case 2:
-                    if (null == dialog.tagResult2 || null == dialog.tagResult2.getData() || dialog.tagResult2.getData().size() == 0) {
-                        dialog.craeteTagRootLayout.setVisibility(View.VISIBLE);
-                        dialog.createCreateTagViews();
-                    } else {
-                        dialog.craeteTagRootLayout.setVisibility(View.GONE);
-                    }
+
                     break;
                 case 3:
-                    Toast.makeText(dialog.getContext(), dialog.addTagResult.getMsg(), Toast.LENGTH_SHORT).show();
-                    if (dialog.addTagResult.getCode() == 200) {
-                        TagDao.getInstance().saveTag(dialog.addTagResult.getData().getData());
-                        dialog.dismiss();
-                    }
+
                     break;
             }
         }
     }
 
-    public AddTagDialog(Activity aty, Context context, int themeResId) {
+    public AddTagDialog(Activity aty, Context context, int themeResId, OnTagsSelectedListener listener) {
         super(context, themeResId);
         this.activity = aty;
+        this.onTagsSelectedListener = listener;
+
     }
 
 
@@ -111,10 +108,25 @@ public class AddTagDialog extends Dialog implements View.OnClickListener {
         getWindow().setGravity(Gravity.BOTTOM);
         getWindow().setWindowAnimations(R.style.dialogBottomShow);
         getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        hotTag();
+//        createSelectedTagViews();
+//        createHistoryTagViews();
+//        createHotTagViews();
+//        createAddTagViews();
+//        createMoreTagViews();
+        historyTagList = TagDao.getInstance().tagList();
+
+        tagList(0);
+        tagList(1);
 
     }
 
+    @Override
+    public void dismiss() {
+        super.dismiss();
+        if (null != onTagsSelectedListener) {
+            onTagsSelectedListener.onTagsSelected(selectedTagList);
+        }
+    }
 
     private void initViews() {
         cancelTextView = findViewById(R.id.cancelTextView);
@@ -144,10 +156,8 @@ public class AddTagDialog extends Dialog implements View.OnClickListener {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                     //关闭软键盘
                     SoftKeyboardUtil.hideSoftKeyboard(activity);
-                    is_hot = 0;
                     tag_name = searchEditText.getText().toString().trim();
                     searchTag();
-                    searchTags();
                     return true;
                 }
                 return false;
@@ -173,7 +183,20 @@ public class AddTagDialog extends Dialog implements View.OnClickListener {
                 contentChange(1);
                 break;
             case R.id.deleteHistoryImageView:
-
+                hotTagList.addAll(historyTagList);
+                TagDao.getInstance().clearTags();
+                historyTagList.clear();
+                createHistoryTagViews();
+                createHotTagViews();
+                Set<Integer> selectedSet = new HashSet<>();
+                for (Tag tag : selectedTagList) {
+                    for (int i = 0; i < hotTagList.size(); i++) {
+                        if (tag.getId() == hotTagList.get(i).getId()) {
+                            selectedSet.add(i);
+                        }
+                    }
+                }
+                hotAdapter.setSelectedList(selectedSet);
                 break;
         }
     }
@@ -198,10 +221,13 @@ public class AddTagDialog extends Dialog implements View.OnClickListener {
 
 
     private String tag_name;
-    private int is_hot = 1, page = 1;
+    private int page = 1;
     private TagResult tagResult;
 
-    private void searchTags() {
+    /**
+     * 热门标签列表
+     */
+    private void tagList(final int is_hot) {
         RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.SEARCH_TAGS);
         params.addBodyParameter("tag_name", tag_name);
         params.addBodyParameter("is_hot", String.valueOf(is_hot));
@@ -209,10 +235,34 @@ public class AddTagDialog extends Dialog implements View.OnClickListener {
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
+                System.out.println("tagList: " + result);
                 tagResult = GsonUtils.GsonToBean(result, TagResult.class);
+                switch (is_hot) {
+                    case 0:
+                        moreTagList = tagResult.getData();
+                        break;
+                    case 1:
+                        hotTagList = tagResult.getData();
+                        List<Tag> list = new ArrayList<>();
+                        if (null != hotTagList && null != historyTagList) {
+                            for (int i = 0; i < hotTagList.size(); i++) {
+                                Tag hotTag = hotTagList.get(i);
+                                for (int j = 0; j < historyTagList.size(); j++) {
+                                    Tag historyTag = historyTagList.get(j);
+                                    if (hotTag.getId() == historyTag.getId()) {
+                                        list.add(hotTag);
+                                    }
+                                }
+                            }
+
+                            for (Tag tag : list)
+                                hotTagList.remove(tag);
+                        }
+                        break;
+                }
                 Message message = myHandler.obtainMessage(1);
+                message.obj = is_hot;
                 message.sendToTarget();
-                System.out.println("标签: " + tagResult.getData().size());
             }
 
             @Override
@@ -266,6 +316,9 @@ public class AddTagDialog extends Dialog implements View.OnClickListener {
 
     private AddTagResult addTagResult;
 
+    /**
+     * 添加标签
+     */
     private void addTag() {
         RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.ADD_TAG);
         params.addBodyParameter("tag_name", tag_name);
@@ -296,24 +349,15 @@ public class AddTagDialog extends Dialog implements View.OnClickListener {
 
     }
 
-    private void search() {
-        tag_name = searchEditText.getText().toString().trim();
-        if (!TextUtils.isEmpty(tag_name)) {
-            is_hot = 1;
-            page = 1;
-            searchTags();
-        }
-    }
+    private TagAdapter hotAdapter;
+    private List<Tag> hotTagList;
+    private List<Integer> selectedList;
 
-    private void hotTag() {
-        tag_name = null;
-        is_hot = 1;
-        page = 1;
-        searchTags();
-    }
-
+    /**
+     * 创建热门标签
+     */
     private void createHotTagViews() {
-        TagAdapter tagAdapter1 = new TagAdapter<Tag>(tagResult.getData()) {
+        hotAdapter = new TagAdapter<Tag>(hotTagList) {
             @Override
             public View getView(FlowLayout parent, int position, Tag tag) {
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_tag, parent, false);
@@ -322,18 +366,97 @@ public class AddTagDialog extends Dialog implements View.OnClickListener {
                 return tagTextView;
             }
         };
-        hotLayout.setAdapter(tagAdapter1);
-        hotLayout.setOnSelectListener(new TagFlowLayout.OnSelectListener() {
+        hotLayout.setMaxSelectCount(5);
+        hotLayout.setAdapter(hotAdapter);
+        hotLayout.setOnTagClickListener(new TagFlowLayout.OnTagClickListener() {
             @Override
-            public void onSelected(Set<Integer> selectPosSet) {
-                selectedList = new ArrayList<>(selectPosSet);
-                addSelectedTagViews();
+            public boolean onTagClick(View view, int position, FlowLayout parent) {
+                boolean clickable = false;
+                hotTagList.get(position).setSelected(!hotTagList.get(position).isSelected());
+                if (!hotTagList.get(position).isSelected()&&selectedTagList.size()>0) {
+                    clickable = true;
+                    selectedTagList.remove(hotTagList.get(position));
+                    createSelectedTagViews();
+                } else {
+                    if (selectedTagList.size() < 5) {
+
+                        if (null != selectedTagList && selectedTagList.size() > 0) {
+                            if (hotTagList.get(position).isSelected()) {
+                                selectedTagList.add(hotTagList.get(position));
+                            } else {
+                                selectedTagList.remove(hotTagList.get(position));
+                            }
+                        } else {
+                            selectedTagList.add(hotTagList.get(position));
+                        }
+                        createSelectedTagViews();
+
+                        if (hotTagList.get(position).isSelected()) {
+                            TagDao.getInstance().saveTag(hotTagList.get(position));
+                            historyTagList.add(hotTagList.get(position));
+                            if (null != historyTagList && historyTagList.size() > 0) {
+                                boolean has = false;
+                                for (Tag tag : historyTagList) {
+                                    if (tag.getId() == hotTagList.get(position).getId()) {
+                                        has = true;
+                                    }
+                                }
+                                if (!has) {
+                                    historyTagList.add(hotTagList.get(position));
+                                }
+                            } else {
+                                historyTagList.add(hotTagList.get(position));
+                            }
+                            createHistoryTagViews();
+                            Set<Integer> selectedSet = new HashSet<>();
+                            for (Tag tag : selectedTagList) {
+                                for (int i = 0; i < historyTagList.size(); i++) {
+                                    if (tag.getId() == historyTagList.get(i).getId()) {
+                                        selectedSet.add(i);
+                                    }
+                                }
+                            }
+                            historyAdapter.setSelectedList(selectedSet);
+
+                        }
+
+                        System.out.println("position: " + position);
+                        if (hotTagList.get(position).isSelected()) {
+                            hotTagList.remove(position);
+                            createHotTagViews();
+                        }
+
+                        clickable = false;
+                    } else {
+                        clickable = true;
+                        Toast.makeText(getContext(), "最多可选五个标签", Toast.LENGTH_SHORT).show();
+                        Set<Integer> selectedSet = new HashSet<>();
+                        for (Tag tag : selectedTagList) {
+                            for (int i = 0; i < hotTagList.size(); i++) {
+                                if (tag.getId() == hotTagList.get(i).getId()) {
+                                    selectedSet.add(i);
+                                }
+                            }
+                        }
+                        hotAdapter.setSelectedList(selectedSet);
+                    }
+
+                }
+
+                return clickable;
             }
         });
     }
 
-    private void createMoreTagViews() {
-        TagAdapter tagAdapter1 = new TagAdapter<Tag>(tagResult.getData()) {
+
+    private TagAdapter historyAdapter;
+    private List<Tag> historyTagList = new ArrayList<>();
+
+    /**
+     * 创建历史标签
+     */
+    private void createHistoryTagViews() {
+        historyAdapter = new TagAdapter<Tag>(historyTagList) {
             @Override
             public View getView(FlowLayout parent, int position, Tag tag) {
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_tag, parent, false);
@@ -342,22 +465,88 @@ public class AddTagDialog extends Dialog implements View.OnClickListener {
                 return tagTextView;
             }
         };
-        moreLayout.setAdapter(tagAdapter1);
+        historyLayout.setOnTagClickListener(new TagFlowLayout.OnTagClickListener() {
+            @Override
+            public boolean onTagClick(View view, int position, FlowLayout parent) {
+                historyTagList.get(position).setSelected(!historyTagList.get(position).isSelected());
+                boolean clickable;
+                if (!historyTagList.get(position).isSelected()&&selectedTagList.size()>0) {
+                    clickable = true;
+                    selectedTagList.remove(historyTagList.get(position));
+                    createSelectedTagViews();
+                } else {
+                    if (selectedTagList.size() < 5 && historyTagList.get(position).isSelected()) {
+                        if (null != selectedTagList && selectedTagList.size() > 0) {
+                            if (historyTagList.get(position).isSelected()) {
+                                selectedTagList.add(historyTagList.get(position));
+                            } else {
+                                selectedTagList.remove(historyTagList.get(position));
+                            }
+                        } else {
+                            selectedTagList.add(historyTagList.get(position));
+                        }
+                        createSelectedTagViews();
+
+
+                        clickable = false;
+                    } else {
+                        Toast.makeText(getContext(), "最多可选五个标签", Toast.LENGTH_SHORT).show();
+                        Set<Integer> selectedSet = new HashSet<>();
+                        for (Tag tag : selectedTagList) {
+                            for (int i = 0; i < historyTagList.size(); i++) {
+                                if (tag.getId() == historyTagList.get(i).getId()) {
+                                    selectedSet.add(i);
+                                }
+                            }
+                        }
+                        historyAdapter.setSelectedList(selectedSet);
+                        clickable = true;
+                    }
+
+                }
+
+
+                return clickable;
+            }
+        });
+        historyLayout.setAdapter(historyAdapter);
+    }
+
+    private TagAdapter moreAdapter;
+    private List<Tag> moreTagList;
+
+    /**
+     * 创建更多标签
+     */
+    private void createMoreTagViews() {
+        moreAdapter = new TagAdapter<Tag>(moreTagList) {
+            @Override
+            public View getView(FlowLayout parent, int position, Tag tag) {
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_tag, parent, false);
+                TextView tagTextView = view.findViewById(R.id.labelTextView);
+                tagTextView.setText("#" + tag.getName());
+                return tagTextView;
+            }
+        };
+        moreLayout.setAdapter(moreAdapter);
         moreLayout.setOnSelectListener(new TagFlowLayout.OnSelectListener() {
             @Override
             public void onSelected(Set<Integer> selectPosSet) {
 //                selectedList = new ArrayList<>(selectPosSet);
-//                addSelectedTagViews();
+//                createSelectedTagViews();
             }
         });
     }
 
-    private void createCreateTagViews() {
-        List<Tag> tagList = new ArrayList<>();
-        Tag tag = new Tag();
-        tag.setName(tag_name);
-        tagList.add(tag);
-        TagAdapter tagAdapter1 = new TagAdapter<Tag>(tagList) {
+
+    private TagAdapter addAdapter;
+    private List<Tag> addTagList;
+
+    /**
+     * 创建新建标签
+     */
+    private void createAddTagViews() {
+        addAdapter = new TagAdapter<Tag>(addTagList) {
             @Override
             public View getView(FlowLayout parent, int position, Tag tag) {
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_tag, parent, false);
@@ -366,27 +555,17 @@ public class AddTagDialog extends Dialog implements View.OnClickListener {
                 return tagTextView;
             }
         };
-        createLayout.setAdapter(tagAdapter1);
-        createLayout.setOnSelectListener(new TagFlowLayout.OnSelectListener() {
-            @Override
-            public void onSelected(Set<Integer> selectPosSet) {
-//                selectedList = new ArrayList<>(selectPosSet);
-//                addSelectedTagViews();
-                addTag();
-            }
-        });
+        createLayout.setAdapter(addAdapter);
     }
 
-    private List<Integer> selectedList;
+    private List<Tag> selectedTagList = new ArrayList<>();
+    private TagAdapter selectedAdapter;
 
-    private void addSelectedTagViews() {
-        List<Tag> selectedTagList = new ArrayList<>();
-        for (Integer integer : selectedList) {
-            selectedTagList.add(tagResult.getData().get(integer));
-            TagDao.getInstance().saveTag(tagResult.getData().get(integer));
-        }
-
-        TagAdapter tagAdapter = new TagAdapter<Tag>(selectedTagList) {
+    /**
+     * 创建已选标签
+     */
+    private void createSelectedTagViews() {
+        selectedAdapter = new TagAdapter<Tag>(selectedTagList) {
             @Override
             public View getView(FlowLayout parent, int position, Tag tag) {
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_tag_selected, parent, false);
@@ -395,42 +574,33 @@ public class AddTagDialog extends Dialog implements View.OnClickListener {
                 return tagTextView;
             }
         };
-        selectedLayout.setAdapter(tagAdapter);
-        selectedLayout.setOnSelectListener(new TagFlowLayout.OnSelectListener() {
+        selectedLayout.setAdapter(selectedAdapter);
+        selectedLayout.setOnTagClickListener(new TagFlowLayout.OnTagClickListener() {
             @Override
-            public void onSelected(Set<Integer> selectPosSet) {
-                List<Integer> selectedList = new ArrayList<>(selectPosSet);
-                removeSelectedTagViews(selectedList);
-                System.out.println(selectedList.toString());
+            public boolean onTagClick(View view, int position, FlowLayout parent) {
+                selectedTagList.remove(position);
+                createSelectedTagViews();
+
+                Set<Integer> selectedSet = new HashSet<>();
+                for (Tag tag : selectedTagList) {
+                    for (int i = 0; i < historyTagList.size(); i++) {
+                        if (tag.getId() == historyTagList.get(i).getId()) {
+                            selectedSet.add(i);
+                        }
+                    }
+                }
+                System.out.println("set size: " + selectedSet.size());
+                historyAdapter.setSelectedList(selectedSet);
+
+                return false;
             }
         });
     }
 
-    private void removeSelectedTagViews(List<Integer> removedList) {
-        List<Tag> selectedTagList = new ArrayList<>();
-        for (Integer integer : removedList) {
-            selectedList.remove(integer);
-        }
-        for (Integer integer : selectedList) {
-            selectedTagList.add(tagResult.getData().get(integer));
-        }
-        TagAdapter tagAdapter = new TagAdapter<Tag>(selectedTagList) {
-            @Override
-            public View getView(FlowLayout parent, int position, Tag tag) {
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_tag_selected, parent, false);
-                TextView tagTextView = view.findViewById(R.id.labelTextView);
-                tagTextView.setText("#" + tag.getName());
-                return tagTextView;
-            }
-        };
-        selectedLayout.setAdapter(tagAdapter);
-        selectedLayout.setOnSelectListener(new TagFlowLayout.OnSelectListener() {
-            @Override
-            public void onSelected(Set<Integer> selectPosSet) {
-                List<Integer> selectedList = new ArrayList<>(selectPosSet);
-                removeSelectedTagViews(selectedList);
-                System.out.println(selectedList.toString());
-            }
-        });
+
+    private OnTagsSelectedListener onTagsSelectedListener;
+
+    public interface OnTagsSelectedListener {
+        void onTagsSelected(List<Tag> list);
     }
 }

@@ -19,13 +19,13 @@ public class GouWuCheJieSuanRecyclerAdapter extends RecyclerView.Adapter<GouWuCh
 
     class ViewHolder extends RecyclerView.ViewHolder {
         RecyclerView mRecyclerView;
-        GouWuCheJieSuanItemRecyclerAdapter adapter;
+        OrderConfirmItemRecyclerAdapter adapter;
         LinearLayoutManager linearLayoutManager;
 
         public ViewHolder(View itemView) {
             super(itemView);
             mRecyclerView = itemView.findViewById(R.id.mRecyclerView);
-            adapter = new GouWuCheJieSuanItemRecyclerAdapter();
+            adapter = new OrderConfirmItemRecyclerAdapter(context);
             linearLayoutManager = new LinearLayoutManager(context);
             linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         }
@@ -34,7 +34,7 @@ public class GouWuCheJieSuanRecyclerAdapter extends RecyclerView.Adapter<GouWuCh
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_gouwuche_jiesuan, parent,false));
+        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_gouwuche_jiesuan, parent, false));
     }
 
     @Override

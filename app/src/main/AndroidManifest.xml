@@ -27,7 +27,12 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <!--用于申请调用A-GPS模块-->
     <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
-
+    <!--锁屏工作，防止休眠-->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!--悬浮窗-->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <!--启用通知栏需使用-->
+    <uses-permission android:name="android.permission.GET_TASKS" />
     <application
         android:name=".base.BaseApplication"
         android:allowBackup="true"
@@ -55,7 +60,7 @@
         <activity android:name=".ui.activity.LoginInputVertifyCodeActivity" />
         <activity android:name=".ui.activity.LoginByPwdActivity" />
         <activity android:name=".ui.activity.CityListActivity" />
-        <activity android:name=".ui.activity.DongTaiInformationActivity" />
+        <activity android:name=".ui.activity.FeedInformationActivity" />
         <activity android:name=".ui.activity.ShangQuanSettingActivity" />
         <activity android:name=".ui.activity.ComplaintActivity" />
         <activity
@@ -95,9 +100,13 @@
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity android:name=".ui.activity.QianDaoActivity" />
         <activity android:name=".ui.activity.H5PageActivity" />
-        <activity android:name=".ui.activity.GeRenXinXiActivity" />
-        <activity android:name=".ui.activity.ShouHuoDiZhiGuanLiActivity" />
-        <activity android:name=".ui.activity.AddEditShouHuoDiZhiActivity" />
+        <activity android:name=".ui.activity.MyProfileActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden"
+            />
+        <activity android:name=".ui.activity.AddressActivity" />
+        <activity android:name=".ui.activity.AddEditAddressActivity" />
         <activity android:name=".ui.activity.QianBaoActivity" />
         <activity android:name=".ui.activity.HuiYuanDuiHuanJiLuActivity" />
         <activity android:name=".ui.activity.BankCardListActivity" />
@@ -127,7 +136,7 @@
         <activity android:name=".ui.activity.QuanShangFenLeiActivity" />
         <activity android:name=".ui.activity.GoodsInformationActivity" />
         <activity android:name=".ui.activity.CartActivity" />
-        <activity android:name=".ui.activity.GouWuCheJieSuanActivity" />
+        <activity android:name=".ui.activity.OrderConfirmActivity" />
         <activity android:name=".ui.activity.MyShangQuanActivity" />
         <activity android:name=".ui.activity.MessageListActivity" />
         <activity android:name=".ui.activity.ConversationPrivateSettingActivity" />
@@ -156,13 +165,13 @@
         <activity android:name=".ui.activity.MyQRCodeActivity" />
         <activity android:name=".ui.activity.ScanActivity" />
         <activity
-            android:name=".ui.activity.ShangPinSearchListActivity"
+            android:name=".ui.activity.GoodsSearchActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <!--<activity android:name=".ui.activity.ShopInformationActivity"/>-->
         <activity android:name=".ui.activity.LargeImageListActivity" />
         <activity android:name=".ui.activity.GoodsInfoAllCommentsActivity" />
         <activity
-            android:name=".ui.activity.PublishArticle1Activity"
+            android:name=".ui.activity.PublishArticleActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".ui.activity.PublishVideoActivity"
@@ -171,11 +180,82 @@
             android:name=".ui.activity.PublishArticle2Activity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
 
-        <activity android:name=".ui.activity.PublishParamSettingActivity"/>
-        <activity android:name=".ui.activity.PublishChooseGoodsActivity"/>
-        <activity android:name=".ui.activity.ShangQuanInformationActivity"/>
+        <activity android:name=".ui.activity.PublishParamSettingActivity" />
+        <activity
+            android:name=".ui.activity.PublishChooseGoodsActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity android:name=".ui.activity.ShangQuanInformationActivity" />
+        <activity android:name=".ui.activity.CircleInfoActivity" />
+        <activity android:name=".ui.activity.CircleSettingActivity" />
+        <activity
+            android:name=".ui.activity.FullSearchActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".ui.activity.VideoPlayerActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.CircleMemberManageActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".ui.activity.CircleMemberManageAddFrendActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity android:name=".ui.activity.ShopInformationActivity" />
+        <activity android:name=".ui.activity.ArticleInformationActivity" />
+        <activity android:name=".ui.activity.FullScreenVideoPlayerActivity" />
+        <activity
+            android:name=".ui.activity.CommentInformationActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".ui.activity.VideoInformationActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity android:name=".ui.activity.MyPublishListActivity" />
+        <activity
+            android:name=".ui.activity.PublishChooseGoodsRelationActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".ui.activity.PublishArticleContentEditActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity android:name=".ui.activity.MyFansActivity" />
+        <activity android:name=".ui.activity.MyFollowActivity" />
+
+        <activity android:name=".ui.widget.imagepicker.cropper.CropImageActivity"
+            />
 
 
+        <!-- 支付宝支付start-->
+        <activity
+            android:name="com.alipay.sdk.app.H5PayActivity"
+            android:configChanges="orientation|keyboardHidden|navigation|screenSize"
+            android:exported="false"
+            android:screenOrientation="behind"
+            android:windowSoftInputMode="adjustResize|stateHidden" >
+        </activity>
+        <!--<activity-->
+            <!--android:name="com.alipay.sdk.app.H5AuthActivity"-->
+            <!--android:configChanges="orientation|keyboardHidden|navigation"-->
+            <!--android:exported="false"-->
+            <!--android:screenOrientation="behind"-->
+            <!--android:windowSoftInputMode="adjustResize|stateHidden" >-->
+        <!--</activity>-->
+
+        <!-- 支付宝支付end-->
 
         <provider
             android:name="com.zhiyu.quanzhu.utils.MyFileProvider"

@@ -6,8 +6,17 @@ package com.zhiyu.quanzhu.model.bean;
 public class QuanZiTuiJianDaoHang {
     private int id;
     private String name;
+    private int parent_id;
     private int type;
     private boolean isChoose;
+
+    public int getParent_id() {
+        return parent_id;
+    }
+
+    public void setParent_id(int parent_id) {
+        this.parent_id = parent_id;
+    }
 
     public boolean isChoose() {
         return isChoose;

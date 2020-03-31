@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_20"
+        android:layout_marginRight="@dimen/dp_20"
+        android:orientation="horizontal"
+        android:paddingBottom="@dimen/dp_15"
+        android:paddingTop="@dimen/dp_15">
+
+        <com.zhiyu.quanzhu.ui.widget.CircleImageView
+            android:id="@+id/avatarImageView"
+            android:layout_width="@dimen/dp_30"
+            android:layout_height="@dimen/dp_30"
+            android:layout_gravity="center"
+            android:layout_marginRight="@dimen/dp_10"
+            android:src="@mipmap/no_avatar" />
+
+        <TextView
+            android:id="@+id/nameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginRight="@dimen/dp_10"
+            android:gravity="center"
+            android:text="name"
+            android:textColor="@color/text_color_grey"
+            android:textSize="14sp" />
+
+        <FrameLayout
+            android:id="@+id/roleLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/circlerTextView"
+                android:layout_width="@dimen/dp_40"
+                android:layout_height="16dp"
+                android:layout_gravity="center"
+                android:background="@mipmap/circler"
+                android:gravity="center"
+                android:text="圈主"
+                android:textColor="@color/white"
+                android:textSize="11sp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/managerTextView"
+                android:layout_width="40dp"
+                android:layout_height="16dp"
+                android:layout_gravity="center"
+                android:background="@drawable/shape_corner_yellow"
+                android:gravity="center"
+                android:text="管理员"
+                android:textColor="@color/text_color_yellow"
+                android:textSize="11sp" />
+
+        </FrameLayout>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dp_1"
+            android:layout_gravity="center"
+            android:layout_weight="1" />
+
+        <RelativeLayout
+            android:id="@+id/menuLayout"
+            android:layout_width="@dimen/dp_30"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:src="@mipmap/two_dot_menu" />
+
+        </RelativeLayout>
+
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginLeft="@dimen/dp_15"
+        android:layout_marginRight="@dimen/dp_15"
+        android:background="#EDEDED" />
+
+</LinearLayout>
