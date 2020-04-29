@@ -74,7 +74,7 @@ public class FragmentHomeXiaoXi extends Fragment implements View.OnClickListener
                         getContext().startActivity(shangquanIntent);
                         break;
                 }
-                System.out.println("position: "+position+" , desc: "+desc);
+//                System.out.println("position: "+position+" , desc: "+desc);
             }
         });
     }
@@ -107,7 +107,7 @@ public class FragmentHomeXiaoXi extends Fragment implements View.OnClickListener
                         int menu_height = menuImageView.getHeight(); // 获取高度
 //                        menuY=menu_y+menu_height;
                         menuY=menu_y-menu_height+20;
-                        System.out.println("menu_height: " + menu_height+" , menu_y: "+menu_y);
+//                        System.out.println("menu_height: " + menu_height+" , menu_y: "+menu_y);
                         return true;
                     }
                 });

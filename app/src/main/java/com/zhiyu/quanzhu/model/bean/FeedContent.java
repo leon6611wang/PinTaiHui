@@ -31,7 +31,7 @@ public class FeedContent {
     private ArticleThumb thumb;
     private String circle_name;
     private String video_thumb;
-
+    private boolean is_publish;
 
 
     private FrameLayout.LayoutParams layoutParams = null;
@@ -82,6 +82,14 @@ public class FeedContent {
             }
         }
         return videoParams;
+    }
+
+    public boolean isIs_publish() {
+        return is_publish;
+    }
+
+    public void setIs_publish(boolean is_publish) {
+        this.is_publish = is_publish;
     }
 
     public List<String> getCircle_tags() {

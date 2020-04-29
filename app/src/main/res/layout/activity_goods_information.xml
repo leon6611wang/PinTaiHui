@@ -21,7 +21,8 @@
             <com.zhiyu.quanzhu.ui.widget.GoodsInfoBanner
                 android:id="@+id/goodsInfoBanner"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                />
 
             <!-- 价格，满减、折扣 -->
             <LinearLayout
@@ -675,7 +676,7 @@
 
     <include
         android:id="@+id/headerLayout"
-        layout="@layout/header_shangpin_information" />
+        layout="@layout/header_goods_information" />
 
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"

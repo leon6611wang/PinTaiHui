@@ -118,6 +118,10 @@ public class ProvinceCityDialog extends Dialog implements View.OnClickListener {
                         }
                     }
                     cityView.setItems(cityList);
+                    int cityPosition = cityView.getSelectedItem();
+                    city = cityList.get(cityView.getSelectedItem());
+                    areaCity = areaCityList.get(cityPosition);
+
                 }
             }
         });

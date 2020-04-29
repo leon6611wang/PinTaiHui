@@ -32,6 +32,7 @@ import org.xutils.x;
 import java.security.MessageDigest;
 import java.util.List;
 
+import cn.jpush.android.api.JPushInterface;
 import io.rong.imkit.DefaultExtensionModule;
 import io.rong.imkit.IExtensionModule;
 import io.rong.imkit.RongExtensionManager;
@@ -62,6 +63,8 @@ public class BaseApplication extends Application implements BaseActivity.OnExter
     @Override
     public void onCreate() {
         super.onCreate();
+        JPushInterface.setDebugMode(true);
+        JPushInterface.init(this);
         //视频播放器初始化
         VideoPlayerManager.getInstance()
                 //循环模式

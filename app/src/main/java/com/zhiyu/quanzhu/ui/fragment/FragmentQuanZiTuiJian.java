@@ -35,6 +35,7 @@ import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.SharedPreferencesUtils;
+import com.zhiyu.quanzhu.utils.ThreadPoolUtils;
 import com.zhiyu.quanzhu.utils.VideoCacheUtils;
 
 import org.xutils.common.Callback;
@@ -124,8 +125,14 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
         }catch (Exception e){
             e.printStackTrace();
         }
-        requestDaoHangList();
-        tuijianFeedList();
+        ThreadPoolUtils.getInstance().init().execute(new Runnable() {
+            @Override
+            public void run() {
+                requestDaoHangList();
+                tuijianFeedList();
+            }
+        });
+
         initRefreshLayout();
         initViews();
         initDialogs();

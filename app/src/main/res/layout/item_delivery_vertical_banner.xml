@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/deliveryRootLayut"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="@dimen/dp_10"
+    android:layout_marginRight="@dimen/dp_10"
+    android:layout_gravity="center"
+    android:gravity="center"
+    android:orientation="horizontal">
+
+    <com.zhiyu.quanzhu.ui.widget.NiceImageView
+        android:id="@+id/orderImageView"
+        android:layout_width="33dp"
+        android:layout_height="33dp"
+        android:src="@mipmap/header"
+        android:scaleType="centerCrop"
+        app:corner_radius="@dimen/dp_2" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:layout_marginLeft="7dp"
+        android:layout_weight="1"
+        android:gravity="center|left"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/statusDescTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@mipmap/dui"
+            android:drawablePadding="2.5dp"
+            android:text="已发货"
+            android:textColor="@color/text_color_yellow"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/deliveryContextTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="[广州市]快件离开广州集散中心，正发往芜湖中转部"
+            android:textColor="@color/text_color_gray"
+            android:textSize="11.5sp" />
+
+    </LinearLayout>
+
+</LinearLayout>

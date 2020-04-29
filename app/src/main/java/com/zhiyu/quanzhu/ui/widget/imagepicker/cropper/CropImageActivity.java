@@ -31,6 +31,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.zhiyu.quanzhu.R;
+import com.zhiyu.quanzhu.utils.ScreentUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -62,6 +63,7 @@ public class CropImageActivity extends AppCompatActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.crop_image_activity);
+        ScreentUtils.getInstance().setStatusBarLightMode(this,true);
 
         mCropImageView = (CropImageView) findViewById(R.id.cropImageView);
 

@@ -25,7 +25,24 @@ public class Card {
     private String video_intro;
     private String city_name;
     private String industry;
+    private boolean is_follow;
+    private boolean isSelected;
 
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
+    }
+
+    public boolean isIs_follow() {
+        return is_follow;
+    }
+
+    public void setIs_follow(boolean is_follow) {
+        this.is_follow = is_follow;
+    }
 
     public int getIs_open() {
         return is_open;

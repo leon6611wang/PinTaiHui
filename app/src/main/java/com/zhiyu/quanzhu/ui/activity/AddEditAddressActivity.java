@@ -63,15 +63,14 @@ public class AddEditAddressActivity extends BaseActivity implements View.OnClick
             switch (msg.what) {
                 case 1:
                     activity.loadingDialog.dismiss();
+                    MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
                     if (activity.baseResult.getCode() == 200) {
                         SuccessToast.getInstance(activity).show();
                         activity.finish();
-                    } else {
-                        FailureToast.getInstance(activity).show();
                     }
                     break;
                 case 2:
-                    FailureToast.getInstance(activity).show();
+                    MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
                     break;
                 case 3:
                     if (activity.detailResult.getCode() == 200) {
@@ -87,7 +86,8 @@ public class AddEditAddressActivity extends BaseActivity implements View.OnClick
                         activity.areaCity.setCode(activity.detailResult.getData().getAddress().getCity_id());
                         activity.areaCity.setName(activity.detailResult.getData().getAddress().getCity_name());
                         activity.is_def = activity.detailResult.getData().getAddress().getIs_def();
-                        if (activity.detailResult.getData().getAddress().getIs_def() == 1) {
+                        System.out.println("activity id_def: "+activity.is_def);
+                        if (activity.is_def == 1) {
                             activity.defaultAddressSwitchButton.open();
                         } else {
                             activity.defaultAddressSwitchButton.close();
@@ -97,11 +97,10 @@ public class AddEditAddressActivity extends BaseActivity implements View.OnClick
                     }
                     break;
                 case 4:
+                    MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
                     if (activity.baseResult.getCode() == 200) {
                         SuccessToast.getInstance(activity).show();
                         activity.finish();
-                    } else {
-                        FailureToast.getInstance(activity).show();
                     }
                     break;
             }
@@ -267,6 +266,7 @@ public class AddEditAddressActivity extends BaseActivity implements View.OnClick
     }
 
     private void editAddress() {
+        System.out.println("id_def: "+is_def);
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.ADDRESS_UPDATE);
         params.addBodyParameter("id", detailResult.getData().getAddress().get_id());
         params.addBodyParameter("province_id", String.valueOf(areaProvince.getCode()));

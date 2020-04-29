@@ -49,17 +49,19 @@ public class UploadImageUtils {
     }
 
     public void uploadFile(final String imageType, final String path, final OnUploadCallback onUploadCallback) {
+        System.out.println("上传图片 path: " +path);
         RequestParams params = new RequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.QI_NIU_TOKEN);
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
+                System.out.println("上传图片: " +result);
                 qiNiuTokenResult = GsonUtils.GsonToBean(result, QiNiuTokenResult.class);
                 upload(imageType, path, onUploadCallback);
             }
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-
+                System.out.println("上传图片: " + ex.toString());
             }
 
             @Override
@@ -91,15 +93,14 @@ public class UploadImageUtils {
                     public void complete(String key, ResponseInfo info, JSONObject res) {
                         //res包含hash、key等信息，具体字段取决于上传策略的设置
                         if (info.isOK()) {
-                            Log.i("qiniu", "七牛上传成功");
+                            System.out.println("七牛上传成功");
                             if (null != onUploadCallback) {
                                 onUploadCallback.onUploadSuccess(qiNiuTokenResult.getData().getDomain() + key);
                             }
                         } else {
-                            Log.i("qiniu", "七牛上传失败");
+                            System.out.println("七牛上传失败");
                             //如果失败，这里可以把info信息上报自己的服务器，便于后面分析上传错误原因
                         }
-                        Log.i("qiniu", key + ",\r\n " + info + ",\r\n " + res);
                     }
                 }, null);
     }

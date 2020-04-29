@@ -23,7 +23,6 @@ public class ImageUtils {
     }
 
     public UploadImage getUploadImage(String path, String url) {
-        System.out.println("path: " + path + " , url: " + url);
         UploadImage image = new UploadImage();
         BitmapFactory.Options options = new BitmapFactory.Options();
         /**
@@ -37,7 +36,6 @@ public class ImageUtils {
         image.setFile(url);
         image.setWidth(width);
         image.setHeight(height);
-        System.out.println(image.toString());
         return image;
     }
 

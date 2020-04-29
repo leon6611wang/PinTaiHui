@@ -3,7 +3,12 @@ package com.zhiyu.quanzhu.ui.activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -16,6 +21,7 @@ import com.zhiyu.quanzhu.ui.fragment.FragmentOrderDaiFuKuan;
 import com.zhiyu.quanzhu.ui.fragment.FragmentOrderDaiPingJia;
 import com.zhiyu.quanzhu.ui.fragment.FragmentOrderDaiShouHuo;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
+import com.zhiyu.quanzhu.utils.SoftKeyboardUtil;
 import com.zhiyu.quanzhu.utils.StatusBarUtils;
 
 import java.util.ArrayList;
@@ -32,17 +38,53 @@ public class MyOrderActivity extends BaseActivity implements View.OnClickListene
     private LinearLayout alllayout, daifukuanlayout, daifahuolayout, daishouhuolayout, daipingjialayout;
     private TextView alltextview, daifukuantextview, daishouhuotextview, daifahuotextview, daipingjiatextview;
     private View allview, daifukuanview, daifahuoview, daishouhuoview, daipingjiaview;
+    private LinearLayout backLayout;
+    private TextView titleTextView, cancelTextView;
+    private EditText searchEditText;
+    private FrameLayout rightLayout;
+    private ImageView searchImageView;
+    private boolean isSearchModel;//是否搜索模式
+    private FragmentOrderAll orderAll;
+    private FragmentOrderDaiFuKuan orderDaiFuKuan;
+    private FragmentOrderDaiFaHuo orderDaiFaHuo;
+    private FragmentOrderDaiShouHuo orderDaiShouHuo;
+    private FragmentOrderDaiPingJia orderDaiPingJia;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_order);
         ScreentUtils.getInstance().setStatusBarLightMode(this, true);
-        position = (Integer) getIntent().getExtras().get("position");
+        position = getIntent().getIntExtra("position", 0);
         initViews();
     }
 
     private void initViews() {
+        backLayout = findViewById(R.id.backLayout);
+        backLayout.setOnClickListener(this);
+        titleTextView = findViewById(R.id.titleTextView);
+        searchEditText = findViewById(R.id.searchEditText);
+        searchEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    String search = searchEditText.getText().toString().trim();
+                    SoftKeyboardUtil.hideSoftKeyBoard(getWindow());
+                    orderAll.searchOrder(search);
+                    orderDaiFuKuan.searchOrder(search);
+                    orderDaiFaHuo.searchOrder(search);
+                    orderDaiFaHuo.searchOrder(search);
+                    orderDaiShouHuo.searchOrder(search);
+                    orderDaiPingJia.searchOrder(search);
+
+                }
+                return false;
+            }
+        });
+        rightLayout = findViewById(R.id.rightLayout);
+        rightLayout.setOnClickListener(this);
+        searchImageView = findViewById(R.id.searchImageView);
+        cancelTextView = findViewById(R.id.cancelTextView);
         alllayout = findViewById(R.id.alllayout);
         daifukuanlayout = findViewById(R.id.daifukuanlayout);
         daifahuolayout = findViewById(R.id.daifahuolayout);
@@ -63,15 +105,21 @@ public class MyOrderActivity extends BaseActivity implements View.OnClickListene
         daifahuoview = findViewById(R.id.daifahuoview);
         daishouhuoview = findViewById(R.id.daishouhuoview);
         daipingjiaview = findViewById(R.id.daipingjiaview);
-        fragmentList.add(new FragmentOrderAll());
-        fragmentList.add(new FragmentOrderDaiFuKuan());
-        fragmentList.add(new FragmentOrderDaiFaHuo());
-        fragmentList.add(new FragmentOrderDaiShouHuo());
-        fragmentList.add(new FragmentOrderDaiPingJia());
+        orderAll = new FragmentOrderAll();
+        orderDaiFuKuan = new FragmentOrderDaiFuKuan();
+        orderDaiFaHuo = new FragmentOrderDaiFaHuo();
+        orderDaiShouHuo = new FragmentOrderDaiShouHuo();
+        orderDaiPingJia = new FragmentOrderDaiPingJia();
+        fragmentList.add(orderAll);
+        fragmentList.add(orderDaiFuKuan);
+        fragmentList.add(orderDaiFaHuo);
+        fragmentList.add(orderDaiShouHuo);
+        fragmentList.add(orderDaiPingJia);
         mViewPager = findViewById(R.id.mViewPager);
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), fragmentList);
         mViewPager.setAdapter(viewPagerAdapter);
-        mViewPager.setCurrentItem(position);
+        mViewPager.setOffscreenPageLimit(5);
+        barChange(position);
     }
 
     @Override
@@ -92,7 +140,28 @@ public class MyOrderActivity extends BaseActivity implements View.OnClickListene
             case R.id.daipingjialayout:
                 barChange(4);
                 break;
+            case R.id.backLayout:
+                finish();
+                break;
+            case R.id.rightLayout:
+                searchModelChange();
+                break;
+        }
+    }
 
+    //搜索模式切换
+    private void searchModelChange() {
+        isSearchModel = !isSearchModel;
+        if (isSearchModel) {
+            titleTextView.setVisibility(View.INVISIBLE);
+            searchEditText.setVisibility(View.VISIBLE);
+            searchImageView.setVisibility(View.GONE);
+            cancelTextView.setVisibility(View.VISIBLE);
+        } else {
+            titleTextView.setVisibility(View.VISIBLE);
+            searchEditText.setVisibility(View.INVISIBLE);
+            searchImageView.setVisibility(View.VISIBLE);
+            cancelTextView.setVisibility(View.GONE);
         }
     }
 

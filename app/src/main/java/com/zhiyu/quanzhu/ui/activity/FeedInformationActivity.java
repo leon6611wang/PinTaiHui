@@ -52,9 +52,9 @@ public class FeedInformationActivity extends BaseActivity implements View.OnClic
     private boolean isRefresh = true;
     private boolean isHasHeader = false;
     private boolean isHasList = false;
-    private int feed_id;
-    private String feed_type;
-    private int feed_header_type;//1.image,2.video
+    private int feed_id,myCommentId;
+//    private String feed_type;
+//    private int feed_header_type;//1.image,2.video
     private ImageView collectImageView, priseImageView;
     private TextView collectNumTextView, priseNumTextView;
 
@@ -78,7 +78,7 @@ public class FeedInformationActivity extends BaseActivity implements View.OnClic
                         }
                         if (activity.isRefresh) {
                             CommentParent parent = new CommentParent();
-                            parent.setAdapter_type(activity.feed_header_type);
+//                            parent.setAdapter_type(activity.feed_header_type);
                             parent.setInformation(activity.feedInfoResult.getData().getDetail());
                             activity.list.add(0, parent);
                         }
@@ -117,7 +117,7 @@ public class FeedInformationActivity extends BaseActivity implements View.OnClic
                                 activity.list = new ArrayList<>();
                             }
                             CommentParent parent = new CommentParent();
-                            parent.setAdapter_type(activity.feed_header_type);
+//                            parent.setAdapter_type(activity.feed_header_type);
                             parent.setInformation(activity.feedInfoResult.getData().getDetail());
                             activity.list.add(0, parent);
                             activity.adapter.setList(activity.list, activity.commentResult.getData().getTotal());
@@ -192,14 +192,15 @@ public class FeedInformationActivity extends BaseActivity implements View.OnClic
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feed_information);
         feed_id = getIntent().getIntExtra("feed_id", 0);
-        feed_type = getIntent().getStringExtra("feed_type");
-        if (feed_type.equals("image")) {
-            feed_header_type = 1;
-        } else if (feed_type.equals("video")) {
-            feed_header_type = 2;
-        }else{
-            feed_header_type=4;
-        }
+//        feed_type = getIntent().getStringExtra("feed_type");
+        myCommentId=getIntent().getIntExtra("myCommentId",0);
+//        if (feed_type.equals("image")) {
+//            feed_header_type = 1;
+//        } else if (feed_type.equals("video")) {
+//            feed_header_type = 2;
+//        }else{
+//            feed_header_type=4;
+//        }
         ScreentUtils.getInstance().setStatusBarLightMode(this, true);
         initPtr();
         initViews();
@@ -339,8 +340,9 @@ public class FeedInformationActivity extends BaseActivity implements View.OnClic
 
     private void feedInformation() {
         System.out.println("feedInformation feed_id: " + feed_id);
-        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.DONGTAI_INFORMATION);
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.FEEDS_INFO);
         params.addBodyParameter("feeds_id", String.valueOf(feed_id));
+        params.addBodyParameter("comment_id",String.valueOf(myCommentId));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {

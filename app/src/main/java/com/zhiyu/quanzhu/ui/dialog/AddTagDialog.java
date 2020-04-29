@@ -23,6 +23,7 @@ import com.zhiyu.quanzhu.model.bean.Tag;
 import com.zhiyu.quanzhu.model.dao.TagDao;
 import com.zhiyu.quanzhu.model.result.AddTagResult;
 import com.zhiyu.quanzhu.model.result.TagResult;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
@@ -75,6 +76,7 @@ public class AddTagDialog extends Dialog implements View.OnClickListener {
                         case 1:
                             dialog.createHotTagViews();
                             dialog.createHistoryTagViews();
+                            dialog.setSelectTagList(dialog.mTagList);
                             break;
                     }
                     break;
@@ -92,9 +94,48 @@ public class AddTagDialog extends Dialog implements View.OnClickListener {
         super(context, themeResId);
         this.activity = aty;
         this.onTagsSelectedListener = listener;
-
     }
 
+    private List<Tag> mTagList;
+
+    public void setTagList(List<Tag> list) {
+        this.mTagList = list;
+        if (null != hotTagList && hotTagList.size() > 0) {
+            setSelectTagList(mTagList);
+        }
+    }
+
+    private void setSelectTagList(List<Tag> list) {
+        if (null != list && list.size() > 0) {
+            for (Tag tag : list) {
+                int historyIndex = -1, hotIndex = -1;
+                if (null != historyTagList && historyTagList.size() > 0) {
+                    for (int i = 0; i < historyTagList.size(); i++) {
+                        if (historyTagList.get(i).getName().equals(tag.getName())) {
+                            historyIndex = i;
+                            break;
+                        }
+                    }
+                }
+
+                if (null != hotTagList && hotTagList.size() > 0) {
+                    for (int i = 0; i < hotTagList.size(); i++) {
+                        if (hotTagList.get(i).getName().equals(tag.getName())) {
+                            hotIndex = i;
+                            break;
+                        }
+                    }
+                }
+
+                if (historyIndex > -1) {
+                    historyLayout.getChildAt(historyIndex).performClick();
+                }
+                if (hotIndex > -1) {
+                    hotLayout.getChildAt(hotIndex).performClick();
+                }
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,13 +149,7 @@ public class AddTagDialog extends Dialog implements View.OnClickListener {
         getWindow().setGravity(Gravity.BOTTOM);
         getWindow().setWindowAnimations(R.style.dialogBottomShow);
         getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-//        createSelectedTagViews();
-//        createHistoryTagViews();
-//        createHotTagViews();
-//        createAddTagViews();
-//        createMoreTagViews();
         historyTagList = TagDao.getInstance().tagList();
-
         tagList(0);
         tagList(1);
 
@@ -372,80 +407,82 @@ public class AddTagDialog extends Dialog implements View.OnClickListener {
             @Override
             public boolean onTagClick(View view, int position, FlowLayout parent) {
                 boolean clickable = false;
-                hotTagList.get(position).setSelected(!hotTagList.get(position).isSelected());
-                if (!hotTagList.get(position).isSelected()&&selectedTagList.size()>0) {
-                    clickable = true;
-                    selectedTagList.remove(hotTagList.get(position));
-                    createSelectedTagViews();
-                } else {
-                    if (selectedTagList.size() < 5) {
-
-                        if (null != selectedTagList && selectedTagList.size() > 0) {
-                            if (hotTagList.get(position).isSelected()) {
-                                selectedTagList.add(hotTagList.get(position));
-                            } else {
-                                selectedTagList.remove(hotTagList.get(position));
-                            }
-                        } else {
-                            selectedTagList.add(hotTagList.get(position));
-                        }
-                        createSelectedTagViews();
-
-                        if (hotTagList.get(position).isSelected()) {
-                            TagDao.getInstance().saveTag(hotTagList.get(position));
-                            historyTagList.add(hotTagList.get(position));
-                            if (null != historyTagList && historyTagList.size() > 0) {
-                                boolean has = false;
-                                for (Tag tag : historyTagList) {
-                                    if (tag.getId() == hotTagList.get(position).getId()) {
-                                        has = true;
-                                    }
-                                }
-                                if (!has) {
-                                    historyTagList.add(hotTagList.get(position));
-                                }
-                            } else {
-                                historyTagList.add(hotTagList.get(position));
-                            }
-                            createHistoryTagViews();
-                            Set<Integer> selectedSet = new HashSet<>();
-                            for (Tag tag : selectedTagList) {
-                                for (int i = 0; i < historyTagList.size(); i++) {
-                                    if (tag.getId() == historyTagList.get(i).getId()) {
-                                        selectedSet.add(i);
-                                    }
-                                }
-                            }
-                            historyAdapter.setSelectedList(selectedSet);
-
-                        }
-
-                        System.out.println("position: " + position);
-                        if (hotTagList.get(position).isSelected()) {
-                            hotTagList.remove(position);
-                            createHotTagViews();
-                        }
-
-                        clickable = false;
-                    } else {
-                        clickable = true;
-                        Toast.makeText(getContext(), "最多可选五个标签", Toast.LENGTH_SHORT).show();
-                        Set<Integer> selectedSet = new HashSet<>();
-                        for (Tag tag : selectedTagList) {
-                            for (int i = 0; i < hotTagList.size(); i++) {
-                                if (tag.getId() == hotTagList.get(i).getId()) {
-                                    selectedSet.add(i);
-                                }
-                            }
-                        }
-                        hotAdapter.setSelectedList(selectedSet);
-                    }
-
-                }
-
+                hotTagClick(position, clickable);
                 return clickable;
             }
         });
+    }
+
+    private void hotTagClick(int position, boolean clickable) {
+        hotTagList.get(position).setSelected(!hotTagList.get(position).isSelected());
+        if (!hotTagList.get(position).isSelected() && selectedTagList.size() > 0) {
+            clickable = true;
+            selectedTagList.remove(hotTagList.get(position));
+            createSelectedTagViews();
+        } else {
+            if (selectedTagList.size() < 5) {
+                if (null != selectedTagList && selectedTagList.size() > 0) {
+                    if (hotTagList.get(position).isSelected()) {
+                        selectedTagList.add(hotTagList.get(position));
+                    } else {
+                        selectedTagList.remove(hotTagList.get(position));
+                    }
+                } else {
+                    selectedTagList.add(hotTagList.get(position));
+                }
+                createSelectedTagViews();
+
+                if (hotTagList.get(position).isSelected()) {
+                    TagDao.getInstance().saveTag(hotTagList.get(position));
+                    if (null != hotTagList && hotTagList.size() > 0)
+                        historyTagList.add(hotTagList.get(position));
+                    if (null != historyTagList && historyTagList.size() > 0) {
+                        boolean has = false;
+                        for (Tag tag : historyTagList) {
+                            if (tag.getId() == hotTagList.get(position).getId()) {
+                                has = true;
+                            }
+                        }
+                        if (!has) {
+                            historyTagList.add(hotTagList.get(position));
+                        }
+                    } else {
+                        historyTagList.add(hotTagList.get(position));
+                    }
+                    createHistoryTagViews();
+                    Set<Integer> selectedSet = new HashSet<>();
+                    for (Tag tag : selectedTagList) {
+                        for (int i = 0; i < historyTagList.size(); i++) {
+                            if (tag.getId() == historyTagList.get(i).getId()) {
+                                selectedSet.add(i);
+                            }
+                        }
+                    }
+                    historyAdapter.setSelectedList(selectedSet);
+
+                }
+
+                System.out.println("position: " + position);
+                if (hotTagList.get(position).isSelected()) {
+                    hotTagList.remove(position);
+                    createHotTagViews();
+                }
+
+                clickable = false;
+            } else {
+                clickable = true;
+                Toast.makeText(getContext(), "最多可选五个标签", Toast.LENGTH_SHORT).show();
+                Set<Integer> selectedSet = new HashSet<>();
+                for (Tag tag : selectedTagList) {
+                    for (int i = 0; i < hotTagList.size(); i++) {
+                        if (tag.getId() == hotTagList.get(i).getId()) {
+                            selectedSet.add(i);
+                        }
+                    }
+                }
+                hotAdapter.setSelectedList(selectedSet);
+            }
+        }
     }
 
 
@@ -465,51 +502,51 @@ public class AddTagDialog extends Dialog implements View.OnClickListener {
                 return tagTextView;
             }
         };
+
         historyLayout.setOnTagClickListener(new TagFlowLayout.OnTagClickListener() {
             @Override
             public boolean onTagClick(View view, int position, FlowLayout parent) {
-                historyTagList.get(position).setSelected(!historyTagList.get(position).isSelected());
-                boolean clickable;
-                if (!historyTagList.get(position).isSelected()&&selectedTagList.size()>0) {
-                    clickable = true;
-                    selectedTagList.remove(historyTagList.get(position));
-                    createSelectedTagViews();
-                } else {
-                    if (selectedTagList.size() < 5 && historyTagList.get(position).isSelected()) {
-                        if (null != selectedTagList && selectedTagList.size() > 0) {
-                            if (historyTagList.get(position).isSelected()) {
-                                selectedTagList.add(historyTagList.get(position));
-                            } else {
-                                selectedTagList.remove(historyTagList.get(position));
-                            }
-                        } else {
-                            selectedTagList.add(historyTagList.get(position));
-                        }
-                        createSelectedTagViews();
-
-
-                        clickable = false;
-                    } else {
-                        Toast.makeText(getContext(), "最多可选五个标签", Toast.LENGTH_SHORT).show();
-                        Set<Integer> selectedSet = new HashSet<>();
-                        for (Tag tag : selectedTagList) {
-                            for (int i = 0; i < historyTagList.size(); i++) {
-                                if (tag.getId() == historyTagList.get(i).getId()) {
-                                    selectedSet.add(i);
-                                }
-                            }
-                        }
-                        historyAdapter.setSelectedList(selectedSet);
-                        clickable = true;
-                    }
-
-                }
-
-
+                boolean clickable = false;
+                historyTagClick(position, clickable);
                 return clickable;
             }
         });
         historyLayout.setAdapter(historyAdapter);
+    }
+
+    private void historyTagClick(int position, boolean clickable) {
+        historyTagList.get(position).setSelected(!historyTagList.get(position).isSelected());
+        if (!historyTagList.get(position).isSelected() && selectedTagList.size() > 0) {
+            clickable = true;
+            selectedTagList.remove(historyTagList.get(position));
+            createSelectedTagViews();
+        } else {
+            if (selectedTagList.size() < 5 && historyTagList.get(position).isSelected()) {
+                if (null != selectedTagList && selectedTagList.size() > 0) {
+                    if (historyTagList.get(position).isSelected()) {
+                        selectedTagList.add(historyTagList.get(position));
+                    } else {
+                        selectedTagList.remove(historyTagList.get(position));
+                    }
+                } else {
+                    selectedTagList.add(historyTagList.get(position));
+                }
+                createSelectedTagViews();
+                clickable = false;
+            } else {
+                MessageToast.getInstance(getContext()).show("最多可选五个标签");
+                Set<Integer> selectedSet = new HashSet<>();
+                for (Tag tag : selectedTagList) {
+                    for (int i = 0; i < historyTagList.size(); i++) {
+                        if (tag.getId() == historyTagList.get(i).getId()) {
+                            selectedSet.add(i);
+                        }
+                    }
+                }
+                historyAdapter.setSelectedList(selectedSet);
+                clickable = true;
+            }
+        }
     }
 
     private TagAdapter moreAdapter;

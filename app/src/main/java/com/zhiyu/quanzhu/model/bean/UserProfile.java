@@ -15,15 +15,40 @@ public class UserProfile {
     private int city;
     private String city_name;
     private String industry;
-    //认证状态 0未认证 1审核中 2审核不通过 3已认证
+    //认证状态 -1未认证 0审核中 1审核通过 2审核失败
     private int is_rz;
     private String vertify_desc;
 
     public String getSex_desc() {
+        switch (sex) {
+            case 0:
+                this.sex_desc = null;
+                break;
+            case 1:
+                this.sex_desc = "男";
+                break;
+            case 2:
+                this.sex_desc = "女";
+                break;
+        }
         return sex_desc;
     }
 
     public String getVertify_desc() {
+        switch (this.is_rz) {
+            case -1:
+                this.vertify_desc = null;
+                break;
+            case 0:
+                this.vertify_desc = "审核中";
+                break;
+            case 1:
+                this.vertify_desc = "审核通过";
+                break;
+            case 2:
+                this.vertify_desc = "审核失败";
+                break;
+        }
         return vertify_desc;
     }
 
@@ -57,17 +82,6 @@ public class UserProfile {
 
     public void setSex(int sex) {
         this.sex = sex;
-        switch (sex) {
-            case 0:
-                this.sex_desc = "未选择";
-                break;
-            case 1:
-                this.sex_desc = "男";
-                break;
-            case 2:
-                this.sex_desc = "女";
-                break;
-        }
     }
 
     public int getProvince_id() {
@@ -116,19 +130,5 @@ public class UserProfile {
 
     public void setIs_rz(int is_rz) {
         this.is_rz = is_rz;
-        switch (this.is_rz) {
-            case 0:
-                this.vertify_desc = "未认证";
-                break;
-            case 1:
-                this.vertify_desc = "审核中";
-                break;
-            case 2:
-                this.vertify_desc = "审核不通过";
-                break;
-            case 3:
-                this.vertify_desc = "已认证";
-                break;
-        }
     }
 }

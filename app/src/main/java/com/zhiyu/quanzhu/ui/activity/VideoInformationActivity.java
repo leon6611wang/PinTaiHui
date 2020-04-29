@@ -69,7 +69,7 @@ public class VideoInformationActivity extends BaseActivity implements View.OnCli
     private String videoUrl1 = "https://flv3.bn.netease.com/51e2c823f07b06ce988e8625fb6ece1a5c056467358d35585638a508eb04cbce0930f987af8e90d939b33df3b64f2a1218119904be4b4d3fd8ad8f6e16841358620d2c056d9de8388bfb7dc1be3a5c69be8bc7d8392ca4aae11f980d094409ed9d392f3bdcb69f20973dfd1f7cedfe907538d5a89d53db39.mp4";
     private String videoUrl2 = "https://flv3.bn.netease.com/51e2c823f07b06ce52dd6ec0a6c8f02bf8c8a82ca2df65fb9120ff2145ec501ef1b2bce7d0452e01843b0b62ad288bf47a3d1c8117227421e9f875a458abf91b5acb6e74c596403bcf77c8092f34ed85910d493006db2282baea8f2eea4f906f541d4e9d144c2d9026880971649ea00a27fda5ba486a512a.mp4";
     private String videoUrl = videoUrl2;
-    private int feeds_id, comment_id;
+    private int feeds_id, comment_id,myCommentId;
     private String commentContent;
     private ShareDialog shareDialog;
 
@@ -118,6 +118,7 @@ public class VideoInformationActivity extends BaseActivity implements View.OnCli
         setContentView(R.layout.activity_video_information);
         ScreentUtils.getInstance().setStatusBarLightMode(this, false);
         feeds_id = getIntent().getIntExtra("feeds_id", 0);
+        myCommentId=getIntent().getIntExtra("myCommentId",0);
         screenWidth = ScreentUtils.getInstance().getScreenWidth(this);
         screenHeight = ScreentUtils.getInstance().getScreenHeight(this);
         dp_200 = (int) getResources().getDimension(R.dimen.dp_200);
@@ -391,6 +392,7 @@ public class VideoInformationActivity extends BaseActivity implements View.OnCli
     private void videoInfo() {
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.FEEDS_INFO);
         params.addBodyParameter("feeds_id", String.valueOf(feeds_id));
+        params.addBodyParameter("comment_id",String.valueOf(myCommentId));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {

@@ -81,7 +81,6 @@ public class FragmentHomeQuanZi extends Fragment implements View.OnClickListener
         cityDialog = new ProvinceCityDialog(getContext(), R.style.dialog, new ProvinceCityDialog.OnCityChooseListener() {
             @Override
             public void onCityChoose(AreaProvince province, AreaCity city) {
-                System.out.println("城市: "+city.getName());
                 cityTextView.setText(city.getName());
                 fragmentQuanZiTuiJian.setCity(city.getName());
             }
@@ -98,7 +97,6 @@ public class FragmentHomeQuanZi extends Fragment implements View.OnClickListener
         bundle.putInt("contentHeight", contentHeight);
         fragmentQuanZiTuiJian.setArguments(bundle);
 //        if (null == fragmentArrayList && fragmentArrayList.size() == 0) {
-        System.out.println("初始化圈子fragment");
         fragmentArrayList.add(new FragmentQuanZiGuanZhu());
         fragmentArrayList.add(fragmentQuanZiTuiJian);
         fragmentArrayList.add(new FragmentQuanZiSouQuan());

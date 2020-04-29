@@ -18,7 +18,25 @@ public class FullSearchShop {
     private int business_status;
     private String created_at;
     private List<FullSearchGoods> goods_list;
+    private List<FullSearchGoods> goods;
+    private boolean isSelected;
 
+
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
+    }
+
+    public List<FullSearchGoods> getGoods() {
+        return goods;
+    }
+
+    public void setGoods(List<FullSearchGoods> goods) {
+        this.goods = goods;
+    }
 
     public int getId() {
         return id;

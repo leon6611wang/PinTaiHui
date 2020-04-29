@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.model.bean.MyCircle;
 import com.zhiyu.quanzhu.model.result.MyCircleResult;
@@ -69,6 +70,23 @@ public class CircleSelectDialog extends Dialog implements View.OnClickListener {
     public CircleSelectDialog(@NonNull Context context, int themeResId, OnCircleSeletedListener listener) {
         super(context, themeResId);
         this.onCircleSeletedListener = listener;
+    }
+
+    private String circle_name;
+
+    public void setCircleName(String circleName) {
+        this.circle_name = circleName;
+        if (null != list && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                list.get(i).setSelected(false);
+            }
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).getName().equals(circleName)) {
+                    list.get(i).setSelected(true);
+                }
+            }
+            adapter.setList(list);
+        }
     }
 
     @Override
@@ -156,6 +174,18 @@ public class CircleSelectDialog extends Dialog implements View.OnClickListener {
                     list = myCircleResult.getData().getCircle_list();
                 } else {
                     list.addAll(myCircleResult.getData().getCircle_list());
+                }
+                if (!StringUtils.isNullOrEmpty(circle_name) && null != list && list.size() > 0) {
+                    for (int i = 0; i < list.size(); i++) {
+                        list.get(i).setSelected(false);
+                    }
+
+                    for (int i = 0; i < list.size(); i++) {
+                        if (list.get(i).getName().equals(circle_name)) {
+                            list.get(i).setSelected(true);
+                        }
+                    }
+                    adapter.setList(list);
                 }
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();

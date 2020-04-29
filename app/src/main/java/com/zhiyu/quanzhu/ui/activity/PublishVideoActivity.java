@@ -11,21 +11,24 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.lcw.library.imagepicker.ImagePicker;
 import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseActivity;
+import com.zhiyu.quanzhu.base.BaseResult;
+import com.zhiyu.quanzhu.model.bean.FeedsTag;
 import com.zhiyu.quanzhu.model.bean.Tag;
 import com.zhiyu.quanzhu.model.result.AddFeedResult;
+import com.zhiyu.quanzhu.model.result.ArticleInformationResult;
+import com.zhiyu.quanzhu.model.result.VideoInfoResult;
 import com.zhiyu.quanzhu.ui.dialog.AddTagDialog;
 import com.zhiyu.quanzhu.ui.dialog.DeleteImageDialog;
 import com.zhiyu.quanzhu.ui.dialog.DrafDialog;
 import com.zhiyu.quanzhu.ui.dialog.LoadingDialog;
 import com.zhiyu.quanzhu.ui.dialog.WaitDialog;
-import com.zhiyu.quanzhu.ui.dialog.YNDialog;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.RoundImageView;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GlideLoader;
@@ -84,12 +87,43 @@ public class PublishVideoActivity extends BaseActivity implements View.OnClickLi
         public void handleMessage(Message msg) {
             PublishVideoActivity activity = activityWeakReference.get();
             switch (msg.what) {
+                case 0:
+                    if (200 == activity.videoInfoResult.getCode()) {
+                        activity.videoDescEditText.setText(activity.videoInfoResult.getData().getDetail().getContent());
+                        Glide.with(activity).load(activity.videoInfoResult.getData().getDetail().getVideo_thumb()).into(activity.videoImageView);
+                        activity.video_url = activity.videoInfoResult.getData().getDetail().getVideo_url();
+                        activity.video_width = activity.videoInfoResult.getData().getDetail().getVideo_width();
+                        activity.video_height = activity.videoInfoResult.getData().getDetail().getVideo_height();
+                        activity.videoImageView.setVisibility(View.VISIBLE);
+                        activity.addVideoLayout.setVisibility(View.GONE);
+                        if (null != activity.videoInfoResult.getData().getDetail().getFeeds_tags() &&
+                                activity.videoInfoResult.getData().getDetail().getFeeds_tags().size() > 0) {
+                            for (FeedsTag feedsTag : activity.videoInfoResult.getData().getDetail().getFeeds_tags()) {
+                                Tag tag = new Tag();
+                                tag.setTag_id(feedsTag.getTag_id());
+                                tag.setName(feedsTag.getTag_name());
+                                activity.tagList.add(tag);
+                            }
+                            if (activity.tagList.size() > 0) {
+                                for (int i = 0; i < activity.tagList.size(); i++) {
+                                    activity.tags += activity.tagList.get(i).getName();
+                                    activity.tagIds += activity.tagList.get(i).getId();
+                                    if (i < activity.tagList.size() - 1) {
+                                        activity.tags += ",";
+                                        activity.tagIds += ",";
+                                    }
+                                }
+                                activity.tagTextView.setText(activity.tags);
+                            }
+                        }
+                    }
+                    break;
                 case 1:
                     activity.loadingDialog.dismiss();
                     break;
                 case 2:
                     activity.waitDialog.dismiss();
-                    Toast.makeText(activity, activity.addFeedResult.getMsg(), Toast.LENGTH_SHORT).show();
+                    MessageToast.getInstance(activity).show(activity.addFeedResult.getMsg());
                     if (activity.addFeedResult.getCode() == 200) {
                         activity.feeds_id = activity.addFeedResult.getData().getFeeds_id();
                         if (activity.is_draf == 0) {
@@ -100,6 +134,12 @@ public class PublishVideoActivity extends BaseActivity implements View.OnClickLi
                     }
 
                     break;
+                case 3:
+                    MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
+                    if (200 == activity.baseResult.getCode()) {
+                        activity.goToPublishSetting();
+                    }
+                    break;
             }
         }
     }
@@ -109,9 +149,13 @@ public class PublishVideoActivity extends BaseActivity implements View.OnClickLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_publish_video);
         ScreentUtils.getInstance().setStatusBarLightMode(this, true);
+        feeds_id = getIntent().getIntExtra("feeds_id", 0);
         PublishParamSettingActivity.setOnPublishFinishListener(this);
         initViews();
         initDialogs();
+        if (feeds_id > 0) {
+            videoInformation();
+        }
     }
 
     private void initDialogs() {
@@ -200,13 +244,25 @@ public class PublishVideoActivity extends BaseActivity implements View.OnClickLi
                 break;
             case R.id.tagLayout:
                 addTagDialog.show();
+                if (null != tagList && tagList.size() > 0) {
+                    addTagDialog.setTagList(tagList);
+                }
                 break;
             case R.id.nextButton:
                 if (StringUtils.isNullOrEmpty(video_url)) {
-                    Toast.makeText(PublishVideoActivity.this, "请选择视频", Toast.LENGTH_SHORT).show();
+                    MessageToast.getInstance(this).show("请选择视频");
+                    break;
+                }
+                if (StringUtils.isNullOrEmpty(videoDescEditText.getText().toString().trim())) {
+                    MessageToast.getInstance(this).show("视频简介不能为空");
+                    break;
+                }
+                if (feeds_id > 0) {
+                    updateFeed();
                 } else {
                     addFeed();
                 }
+
                 break;
             case R.id.addVideoLayout:
                 selectVideo();
@@ -219,7 +275,7 @@ public class PublishVideoActivity extends BaseActivity implements View.OnClickLi
 
     private void goToPublishSetting() {
         Intent paramsIntent = new Intent(PublishVideoActivity.this, PublishParamSettingActivity.class);
-        paramsIntent.putExtra("feeds_id", addFeedResult.getData().getFeeds_id());
+        paramsIntent.putExtra("feeds_id", feeds_id);
         paramsIntent.putExtra("publishType", 2);
         if (tagList.size() > 0) {
             Bundle bundle = new Bundle();
@@ -255,7 +311,6 @@ public class PublishVideoActivity extends BaseActivity implements View.OnClickLi
                 @Override
                 public void onUploadSuccess(String name) {
                     video_url = name;
-                    System.out.println("视频上传video_url回调: " + video_url);
                     ThreadPoolUtils.getInstance().init().execute(new Runnable() {
                         @Override
                         public void run() {
@@ -280,7 +335,6 @@ public class PublishVideoActivity extends BaseActivity implements View.OnClickLi
     private AddFeedResult addFeedResult;
 
     private void addFeed() {
-//        loadingDialog.show();
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.ADD_FEED);
         params.addBodyParameter("type", "2");
         params.addBodyParameter("is_draf", String.valueOf(is_draf));
@@ -295,7 +349,43 @@ public class PublishVideoActivity extends BaseActivity implements View.OnClickLi
                 addFeedResult = GsonUtils.GsonToBean(result, AddFeedResult.class);
                 Message message = myHandler.obtainMessage(2);
                 message.sendToTarget();
-                System.out.println("add feed: " + result);
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
+    private BaseResult baseResult;
+
+    private void updateFeed() {
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.UPDATE_FEED);
+        params.addBodyParameter("type", "2");
+        params.addBodyParameter("is_draf", String.valueOf(is_draf));
+        params.addBodyParameter("content", videoDescEditText.getText().toString().trim());
+        params.addBodyParameter("video_url", video_url);
+        params.addBodyParameter("video_width", String.valueOf(video_width));
+        params.addBodyParameter("video_height", String.valueOf(video_height));
+        params.addBodyParameter("tags", tagIds);
+        params.addBodyParameter("feeds_id", String.valueOf(feeds_id));
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
+                Message message = myHandler.obtainMessage(3);
+                message.sendToTarget();
             }
 
             @Override
@@ -333,5 +423,35 @@ public class PublishVideoActivity extends BaseActivity implements View.OnClickLi
     @Override
     public void onPublishFinish() {
         finish();
+    }
+
+    private VideoInfoResult videoInfoResult;
+
+    private void videoInformation() {
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.FEEDS_INFO);
+        params.addBodyParameter("feeds_id", String.valueOf(feeds_id));
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                System.out.println("videoInfo: " + result);
+                videoInfoResult = GsonUtils.GsonToBean(result, VideoInfoResult.class);
+                Message message = myHandler.obtainMessage(0);
+                message.sendToTarget();
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
     }
 }

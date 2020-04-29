@@ -21,12 +21,12 @@
 
             <TextView
                 android:id="@+id/shangquantextview"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="60dp"
+                android:layout_height="28dp"
                 android:layout_gravity="center"
                 android:background="@drawable/shape_type_bg"
                 android:gravity="center"
-                android:text="商圈"
+                android:text="圈子"
                 android:textColor="@color/text_color_yellow"
                 android:textSize="14sp" />
         </LinearLayout>
@@ -41,8 +41,8 @@
 
             <TextView
                 android:id="@+id/wenzhangtextview"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="60dp"
+                android:layout_height="28dp"
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:text="文章"
@@ -60,8 +60,8 @@
 
             <TextView
                 android:id="@+id/shangpintextview"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="60dp"
+                android:layout_height="28dp"
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:text="商品"

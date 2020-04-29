@@ -11,6 +11,16 @@ public class FullSearchGoods {
     private FullSearchGoodsImage img;
     private boolean is_relation;
 
+    private boolean isSelected;
+
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
+    }
+
     public boolean isIs_relation() {
         return is_relation;
     }

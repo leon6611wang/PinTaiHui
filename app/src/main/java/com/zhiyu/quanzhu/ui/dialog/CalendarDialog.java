@@ -7,7 +7,9 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import com.weigan.loopview.LoopView;
 import com.weigan.loopview.OnItemSelectedListener;
@@ -20,27 +22,33 @@ import java.util.List;
 
 /**
  * 日历
+ * 年月日
  */
-public class CalendarDialog extends Dialog {
+public class CalendarDialog extends Dialog implements View.OnClickListener{
     private Context mContext;
+    private TextView cancelTextView, confirmTextView;
     private LoopView yearView, monthView, dayView;
     private List<String> yearList = new ArrayList<>();
     private List<String> monthList = new ArrayList<>();
     private List<String> dayList = new ArrayList<>();
     private int currentYear, currentMonth, currentDay, yearIndex, monthIndex, dayIndex, selectYear, selectMonth, selectDay;
-    private boolean isFirst = true;
 
-    public CalendarDialog(@NonNull Context context, int themeResId,OnCalendarListener listener) {
+    public CalendarDialog(@NonNull Context context, int themeResId, boolean isFirstDay, OnCalendarListener listener) {
         super(context, themeResId);
         this.mContext = context;
-        this.onCalendarListener=listener;
+        this.onCalendarListener = listener;
         currentYear = CalendarUtils.getInstance().getCurrentYear();
         currentMonth = CalendarUtils.getInstance().getCurrentMonth();
-        currentDay = CalendarUtils.getInstance().getCurrentDay();
+        if (isFirstDay) {
+            currentDay = 1;
+        } else {
+            currentDay = CalendarUtils.getInstance().getCurrentDay();
+        }
         selectYear = currentYear;
         selectMonth = currentMonth;
         selectDay = currentDay;
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,9 +64,9 @@ public class CalendarDialog extends Dialog {
         initData();
         initViews();
         setDayView(currentYear, currentMonth);
-        setCurrentDate();
-        if(null!=onCalendarListener){
-            onCalendarListener.onCalendar(selectYear,selectMonth,selectDay);
+
+        if (null != onCalendarListener) {
+            onCalendarListener.onCalendar(selectYear, selectMonth, selectDay);
         }
     }
 
@@ -70,7 +78,6 @@ public class CalendarDialog extends Dialog {
             }
         }
 
-
         for (int i = 1; i < 12 + 1; i++) {
             monthList.add(String.valueOf(i));
             if (i == currentMonth) {
@@ -80,7 +87,12 @@ public class CalendarDialog extends Dialog {
 
     }
 
+
     private void initViews() {
+        cancelTextView = findViewById(R.id.cancelTextView);
+        cancelTextView.setOnClickListener(this);
+        confirmTextView = findViewById(R.id.confirmTextView);
+        confirmTextView.setOnClickListener(this);
         yearView = findViewById(R.id.yearView);
         monthView = findViewById(R.id.monthView);
         dayView = findViewById(R.id.dayView);
@@ -92,8 +104,8 @@ public class CalendarDialog extends Dialog {
                     selectYear = Integer.parseInt(yearList.get(index));
                     setDayView(selectYear, selectMonth);
                 }
-                if(null!=onCalendarListener){
-                    onCalendarListener.onCalendar(selectYear,selectMonth,selectDay);
+                if (null != onCalendarListener) {
+                    onCalendarListener.onCalendar(selectYear, selectMonth, selectDay);
                 }
             }
         });
@@ -105,8 +117,8 @@ public class CalendarDialog extends Dialog {
                     selectMonth = Integer.parseInt(monthList.get(index));
                     setDayView(selectYear, selectMonth);
                 }
-                if(null!=onCalendarListener){
-                    onCalendarListener.onCalendar(selectYear,selectMonth,selectDay);
+                if (null != onCalendarListener) {
+                    onCalendarListener.onCalendar(selectYear, selectMonth, selectDay);
                 }
             }
         });
@@ -117,28 +129,49 @@ public class CalendarDialog extends Dialog {
             dayList.clear();
         }
         int days = CalendarUtils.getInstance().getDaysByYearMonth(year, month);
+
         for (int i = 1; i < days + 1; i++) {
             dayList.add(String.valueOf(i));
             if (i == currentDay) {
                 dayIndex = i - 1;
             }
         }
+
+        dayView.setCurrentPosition(dayIndex);
         dayView.setItems(dayList);
-        if (!isFirst) {
-            isFirst = false;
-            dayView.setCurrentPosition(0);
-        }
         dayView.setListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(int index) {
                 if (!TextUtils.isEmpty(dayList.get(index))) {
                     selectDay = Integer.parseInt(dayList.get(index));
                 }
-                if(null!=onCalendarListener){
-                    onCalendarListener.onCalendar(selectYear,selectMonth,selectDay);
+                if (null != onCalendarListener) {
+                    onCalendarListener.onCalendar(selectYear, selectMonth, selectDay);
                 }
             }
         });
+    }
+
+    @Override
+    public void show() {
+        super.show();
+        System.out.println("currentDay: "+currentDay+" , dayIndex: "+dayIndex);
+        setCurrentDate();
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.cancelTextView:
+                dismiss();
+                break;
+            case R.id.confirmTextView:
+                if (null != onCalendarListener) {
+                    onCalendarListener.onCalendar(selectYear, selectMonth, selectDay);
+                }
+                dismiss();
+                break;
+        }
     }
 
     private void setCurrentDate() {
@@ -148,7 +181,8 @@ public class CalendarDialog extends Dialog {
     }
 
     private OnCalendarListener onCalendarListener;
-    public interface OnCalendarListener{
-        void onCalendar(int year,int month,int day);
+
+    public interface OnCalendarListener {
+        void onCalendar(int year, int month, int day);
     }
 }

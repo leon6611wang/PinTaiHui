@@ -12,6 +12,7 @@ import com.bumptech.glide.Glide;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.model.bean.FeedImage;
 import com.zhiyu.quanzhu.ui.activity.LargeImageActivity;
+import com.zhiyu.quanzhu.ui.activity.PublishFeedActivity;
 import com.zhiyu.quanzhu.ui.widget.NiceImageView;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 
@@ -23,6 +24,12 @@ public class FullSearchFeedImagesGridAdapter extends BaseAdapter {
     private Context context;
     private int screenWidth,dp_15,dp_5,width;
     private RelativeLayout.LayoutParams params;
+    private boolean editFeed;
+    private int feeds_id;
+    public void setEditFeed(boolean edit,int id){
+        this.editFeed=edit;
+        this.feeds_id=id;
+    }
 
     public FullSearchFeedImagesGridAdapter(Context context) {
         this.context=context;
@@ -85,10 +92,18 @@ public class FullSearchFeedImagesGridAdapter extends BaseAdapter {
 
         @Override
         public void onClick(View v) {
-            Intent largeIntent = new Intent(context, LargeImageActivity.class);
-            largeIntent.putExtra("imgUrl", imageUrl);
-            largeIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(largeIntent);
+            if(!editFeed){
+                Intent largeIntent = new Intent(context, LargeImageActivity.class);
+                largeIntent.putExtra("imgUrl", imageUrl);
+                largeIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(largeIntent);
+            }else{
+                Intent videoInfoIntent = new Intent(context, PublishFeedActivity.class);
+                videoInfoIntent.putExtra("feeds_id", feeds_id);
+                videoInfoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(videoInfoIntent);
+            }
+
         }
     }
 }

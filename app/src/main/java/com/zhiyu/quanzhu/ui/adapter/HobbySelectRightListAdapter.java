@@ -49,6 +49,35 @@ public class HobbySelectRightListAdapter extends BaseExpandableListAdapter {
         notifyDataSetChanged();
     }
 
+    private boolean currentSelected = false;//当前是否选中
+
+    public void childSelect(int groupPosition, int childPosition) {
+        currentSelected = list.get(groupPosition).getChild().get(childPosition).isIs_choose();
+//        for (int i = 0; i < list.get(groupPosition).getChild().size(); i++) {
+//            list.get(groupPosition).getChild().get(i).setIs_choose(false);
+//        }
+        list.get(groupPosition).getChild().get(childPosition).setIs_choose(!currentSelected);
+
+        boolean groupHasChoose = false;
+        for (Hobby hobby : list.get(groupPosition).getChild()) {
+            if (hobby.isIs_choose()) {
+                groupHasChoose = true;
+            }
+        }
+
+        if (groupHasChoose) {
+            list.get(groupPosition).setIs_choose(true);
+        } else {
+            list.get(groupPosition).setIs_choose(false);
+        }
+        notifyDataSetChanged();
+    }
+
+    public List<Hobby> getHobbyList() {
+        return list;
+    }
+
+
     @Override
     public int getGroupCount() {
         return null == list ? 0 : list.size();
@@ -101,10 +130,10 @@ public class HobbySelectRightListAdapter extends BaseExpandableListAdapter {
         notifyDataSetChanged();
     }
 
-    public void setChildCurrentPosition(int position) {
-        this.childCurrentPosition = position;
-        notifyDataSetChanged();
-    }
+//    public void setChildCurrentPosition(int position) {
+//        this.childCurrentPosition = position;
+//        notifyDataSetChanged();
+//    }
 
     private class ParentViewHolder {
         TextView contentTextView, subConTextTextView, dingYiTextView;
@@ -131,7 +160,12 @@ public class HobbySelectRightListAdapter extends BaseExpandableListAdapter {
             holder = (ParentViewHolder) convertView.getTag();
         }
 
-        if (parentCurrentPosition == groupPosition) {
+//        if (parentCurrentPosition == groupPosition) {
+//            holder.selectedImageView.setVisibility(View.VISIBLE);
+//        } else {
+//            holder.selectedImageView.setVisibility(View.INVISIBLE);
+//        }
+        if (list.get(groupPosition).isIs_choose()) {
             holder.selectedImageView.setVisibility(View.VISIBLE);
         } else {
             holder.selectedImageView.setVisibility(View.INVISIBLE);
@@ -187,13 +221,12 @@ public class HobbySelectRightListAdapter extends BaseExpandableListAdapter {
             });
         } else {
             holder.deleteImageView.setVisibility(View.GONE);
-            if (parentCurrentPosition == groupPosition && childCurrentPosition == childPosition) {
-                holder.selectedImageView.setVisibility(View.VISIBLE);
-            } else {
-                holder.selectedImageView.setVisibility(View.GONE);
-            }
         }
-
+        if (list.get(groupPosition).getChild().get(childPosition).isIs_choose()) {
+            holder.selectedImageView.setVisibility(View.VISIBLE);
+        } else {
+            holder.selectedImageView.setVisibility(View.INVISIBLE);
+        }
         holder.contentTextView.setText(list.get(groupPosition).getChild().get(childPosition).getName());
 
         return convertView;

@@ -55,7 +55,7 @@ import static com.zhiyu.quanzhu.utils.WXUtils.WECHAT_FRIEND;
 
 public class LoginGetVertifyCodeActivity extends BaseActivity implements View.OnClickListener, WXEntryActivity.OnWxLoginSuccessListener {
 
-    private TextView getVertifyCodeTextView, loginByPwdTextView;
+    private TextView getVertifyCodeTextView, loginByPwdTextView,yoonghuxieyiTextView,yinsizhengceTextView;
     private EditText phoneNumberEdit;
     private ImageView closeImageView, wxLoginImageView, qqLoginImageView;
     private RelativeLayout clearPhoneNumberLayout;
@@ -161,6 +161,10 @@ public class LoginGetVertifyCodeActivity extends BaseActivity implements View.On
         wxLoginImageView.setOnClickListener(this);
         qqLoginImageView = findViewById(R.id.qqLoginImageView);
         qqLoginImageView.setOnClickListener(this);
+        yoonghuxieyiTextView=findViewById(R.id.yoonghuxieyiTextView);
+        yoonghuxieyiTextView.setOnClickListener(this);
+        yinsizhengceTextView=findViewById(R.id.yinsizhengceTextView);
+        yinsizhengceTextView.setOnClickListener(this);
     }
 
     private void initTimerTask() {
@@ -238,6 +242,12 @@ public class LoginGetVertifyCodeActivity extends BaseActivity implements View.On
 //                pay();
                 qqLogin();
 //                shareDialog.show();
+                break;
+            case R.id.yoonghuxieyiTextView:
+
+                break;
+            case R.id.yinsizhengceTextView:
+
                 break;
         }
     }

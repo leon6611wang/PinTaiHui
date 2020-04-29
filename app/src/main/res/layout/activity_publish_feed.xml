@@ -167,6 +167,9 @@
                     android:hint="点击添加"
                     android:textColor="@color/text_color_black"
                     android:textColorHint="@color/text_color_gray"
+                    android:maxEms="10"
+                    android:singleLine="true"
+                    android:ellipsize="end"
                     android:textSize="14sp" />
 
                 <View

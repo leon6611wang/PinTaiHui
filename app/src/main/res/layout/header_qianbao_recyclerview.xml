@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/white"
     android:orientation="vertical">
+
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -12,7 +14,7 @@
 
         <ImageView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="244dp"
             android:background="@color/white"
             android:scaleType="fitXY"
             android:src="@mipmap/qianbao_bg" />
@@ -24,181 +26,244 @@
 
             <include
                 android:id="@+id/headerlayout"
-                layout="@layout/header_qianbao" />
+                layout="@layout/header_my_wallet" />
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1" />
 
-            <LinearLayout
+            <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="143dp"
+                android:layout_height="200dp"
+                android:layout_marginBottom="@dimen/dp_3"
                 android:layout_marginLeft="@dimen/dp_15"
                 android:layout_marginRight="@dimen/dp_15"
-                android:background="@drawable/shape_dialog_topleft_topright_corners_bg"
-                android:orientation="vertical">
+                android:layout_marginTop="@dimen/dp_3"
+                android:elevation="@dimen/dp_2"
+                app:cardCornerRadius="@dimen/dp_10"
+                app:cardElevation="@dimen/dp_2">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginLeft="22dp"
-                    android:layout_marginRight="@dimen/dp_15"
-                    android:layout_marginTop="22dp"
-                    android:gravity="center"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="@dimen/dp_15"
-                        android:text="余额"
-                        android:textColor="#333333"
-                        android:textSize="16sp" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="5,376,200.00"
-                        android:textColor="#333333"
-                        android:textSize="24sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tixianTextView"
-                        android:layout_width="80dp"
-                        android:layout_height="30dp"
-                        android:layout_gravity="center"
-                        android:background="@mipmap/tixian_btn_bg"
-                        android:gravity="center"
-                        android:text="提现"
-                        android:textColor="@color/white"
-                        android:textSize="13sp" />
-
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="22dp"
-                    android:layout_marginRight="@dimen/dp_15"
-                    android:layout_marginBottom="22dp"
-                    android:orientation="horizontal">
+                    android:orientation="vertical">
 
                     <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_weight="3"
-                        android:gravity="center"
+                        android:layout_width="match_parent"
+                        android:layout_height="143dp"
                         android:orientation="vertical">
 
-                        <TextView
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="近三十天支出"
-                            android:textColor="#333333"
-                            android:textSize="14sp" />
+                            android:layout_gravity="center"
+                            android:layout_marginLeft="22dp"
+                            android:layout_marginRight="@dimen/dp_15"
+                            android:layout_marginTop="22dp"
+                            android:gravity="center"
+                            android:orientation="horizontal">
 
-                        <TextView
-                            android:layout_width="wrap_content"
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginRight="@dimen/dp_15"
+                                android:text="总收入"
+                                android:textColor="#333333"
+                                android:textSize="16sp" />
+
+                            <TextView
+                                android:id="@+id/allMoneyTextView"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="0.00"
+                                android:textColor="#333333"
+                                android:textSize="24sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tixianTextView"
+                                android:layout_width="80dp"
+                                android:layout_height="30dp"
+                                android:layout_gravity="center"
+                                android:background="@mipmap/tixian_btn_bg"
+                                android:gravity="center"
+                                android:text="提现"
+                                android:textColor="@color/white"
+                                android:textSize="13sp" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="23669.85"
-                            android:textColor="#333333"
-                            android:textSize="14sp" />
+                            android:layout_gravity="center"
+                            android:gravity="center|left"
+                            android:orientation="horizontal"
+                            android:paddingLeft="22dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="冻结收入 ("
+                                android:textColor="@color/text_color_grey"
+                                android:textSize="12sp" />
+
+                            <TextView
+                                android:id="@+id/frozenMoneyTextView"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0.00"
+                                android:textColor="@color/text_color_grey"
+                                android:textSize="12sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text=")"
+                                android:textColor="@color/text_color_grey"
+                                android:textSize="12sp" />
+
+                            <ImageView
+                                android:id="@+id/notificationImageView"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="@dimen/dp_3"
+                                android:src="@mipmap/my_wallet_notification" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="22dp"
+                            android:layout_marginLeft="22dp"
+                            android:layout_marginRight="@dimen/dp_15"
+                            android:orientation="horizontal">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_weight="3"
+                                android:gravity="center|left"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="近三十天支出"
+                                    android:textColor="#333333"
+                                    android:textSize="14sp" />
+
+                                <TextView
+                                    android:id="@+id/outMoneyTextView"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="0.00"
+                                    android:textColor="#333333"
+                                    android:textStyle="bold"
+                                    android:textSize="14sp" />
+                            </LinearLayout>
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="2" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_weight="3"
+                                android:gravity="center|left"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="近三十天收入"
+                                    android:textColor="#333333"
+                                    android:textSize="14sp" />
+
+                                <TextView
+                                    android:id="@+id/inMoneyTextView"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="0.00"
+                                    android:textColor="#D90000"
+                                    android:textStyle="bold"
+                                    android:textSize="14sp" />
+                            </LinearLayout>
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="2" />
+                        </LinearLayout>
                     </LinearLayout>
-
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="2" />
 
                     <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_weight="3"
-                        android:gravity="center"
-                        android:orientation="vertical">
+                        android:layout_width="match_parent"
+                        android:layout_height="58dp"
+                        android:background="#F4F1F2"
+                        android:orientation="horizontal">
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="2" />
 
                         <TextView
+                            android:id="@+id/startDateTextView"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="近三十天收入"
-                            android:textColor="#333333"
-                            android:textSize="14sp" />
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center"
+                            android:drawablePadding="@dimen/dp_10"
+                            android:drawableRight="@mipmap/sanjiao_gray_xia"
+                            android:gravity="center"
+                            android:text="01月01日 2000"
+                            android:textColor="#666666"
+                            android:textSize="12sp" />
 
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1" />
+                        <View
+                            android:layout_width="0.5dp"
+                            android:layout_height="20dp"
+                            android:background="#DFDFDF"
+                            android:layout_gravity="center"
+                            />
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1" />
                         <TextView
+                            android:id="@+id/endDateTextView"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="13699.38"
-                            android:textColor="#D90000"
-                            android:textSize="14sp" />
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center"
+                            android:drawablePadding="@dimen/dp_10"
+                            android:drawableRight="@mipmap/sanjiao_gray_xia"
+                            android:gravity="center"
+                            android:text="01月01日 2000"
+                            android:textColor="#666666"
+                            android:textSize="12sp" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="2" />
                     </LinearLayout>
-
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="2" />
                 </LinearLayout>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="58dp"
-                android:layout_marginLeft="@dimen/dp_15"
-                android:layout_marginRight="@dimen/dp_15"
-                android:background="@drawable/shape_gray_bottomleft_bottomright_corners_bg"
-                android:orientation="horizontal">
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1" />
-
-                <TextView
-                    android:id="@+id/startDateTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center"
-                    android:drawablePadding="@dimen/dp_10"
-                    android:drawableRight="@mipmap/sanjiao_gray_xia"
-                    android:gravity="center"
-                    android:text="10月1日 2019"
-                    android:textColor="#666666"
-                    android:textSize="12sp" />
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1" />
-
-                <TextView
-                    android:id="@+id/endDateTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center"
-                    android:drawablePadding="@dimen/dp_10"
-                    android:drawableRight="@mipmap/sanjiao_gray_xia"
-                    android:gravity="center"
-                    android:text="10月1日 2019"
-                    android:textColor="#666666"
-                    android:textSize="12sp" />
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1" />
-            </LinearLayout>
-
+            </android.support.v7.widget.CardView>
 
         </LinearLayout>
     </FrameLayout>
@@ -242,6 +307,7 @@
                 android:background="@color/text_color_yellow"
                 android:visibility="visible" />
         </LinearLayout>
+
 
         <LinearLayout
             android:id="@+id/shouruLayout"

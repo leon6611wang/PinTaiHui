@@ -64,7 +64,6 @@ public class HobbyDao {
             list = BaseApplication.db.selector(HobbyDaoChild.class).where("pid", "=", String.valueOf(pid)).findAll();
             if (null != list && list.size() > 0) {
                 for (HobbyDaoChild child : list) {
-                    System.out.println("hobbyChild: " + child.getName());
                 }
             }
         } catch (Exception e) {

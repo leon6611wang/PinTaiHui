@@ -24,6 +24,7 @@ import com.zhiyu.quanzhu.ui.widget.MyRecyclerView;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
+import com.zhiyu.quanzhu.utils.ThreadPoolUtils;
 
 import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
@@ -75,8 +76,14 @@ public class FragmentHomeRenMai extends Fragment {
         view = inflater.inflate(R.layout.fragment_home_renmai, container, false);
         initDatas();
         initViews();
-        cardIndex();
-        cardFrends();
+        ThreadPoolUtils.getInstance().init().execute(new Runnable() {
+            @Override
+            public void run() {
+                cardIndex();
+                cardFrends();
+            }
+        });
+
         return view;
     }
 

@@ -1,9 +1,11 @@
 package com.zhiyu.quanzhu.model.bean;
 
+import java.io.Serializable;
+
 /**
  * 文章文字-图片内容
  */
-public class ArticleContent {
+public class ArticleContent implements Serializable{
     private int id;//主键id
     private int index;//顺序下标
     private String content;//文字内容或图片url

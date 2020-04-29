@@ -5,6 +5,15 @@ public class Feed {
     private int feeds_type;
     private int type;
     private FeedContent content;
+    private boolean isSelected;
+
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
+    }
 
     public int getFeeds_type() {
         return feeds_type;

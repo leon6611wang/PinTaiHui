@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scaleType="fitXY"
+        android:src="@mipmap/appraise_bg" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/shape_appraise_us_bg"
+        android:paddingLeft="@dimen/dp_20"
+        android:paddingRight="@dimen/dp_20"
+        android:paddingBottom="27dp"
+        android:paddingTop="27dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="Hi~ 感谢使用圈助"
+            android:textColor="@color/text_color_grey"
+            android:textSize="14sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text=" 你的好评鼓励是我们继续开发的动力！"
+            android:textColor="@color/text_color_grey"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/goodTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="好评鼓励"
+            android:textSize="14sp"
+            android:textColor="@color/white"
+            android:background="@mipmap/appraise_good"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_marginTop="27dp"
+            />
+
+        <TextView
+            android:id="@+id/adviseTextView"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:text="我有建议"
+            android:textSize="14sp"
+            android:textColor="@color/text_color_yellow"
+            android:background="@drawable/shape_oval_bg_yellow"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_marginTop="@dimen/dp_10"
+            />
+
+        <TextView
+            android:id="@+id/refuseTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="婉拒(╥﹏╥)"
+            android:textSize="14sp"
+            android:textColor="@color/text_color_gray"
+            android:background="@mipmap/appraise_refuse"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_marginTop="10dp"
+            />
+
+    </LinearLayout>
+
+</LinearLayout>

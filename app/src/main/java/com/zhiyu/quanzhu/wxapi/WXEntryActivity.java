@@ -115,13 +115,19 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
                     }
                     if (jsonObject.has("openid")) {
                         openId = jsonObject.getString("openid");
+
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                //获取个人信息
-                String getUserInfo = "https://api.weixin.qq.com/sns/userinfo?access_token=" + access + "&openid=" + openId + "";
-                getWxUserInfo(getUserInfo);
+                if (null != onWxBondListener) {
+                    onWxBondListener.onWxBondListener(openId);
+                } else {
+                    //获取个人信息
+                    String getUserInfo = "https://api.weixin.qq.com/sns/userinfo?access_token=" + access + "&openid=" + openId + "";
+                    getWxUserInfo(getUserInfo);
+                }
+
             }
 
             @Override
@@ -203,7 +209,12 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
                     if (jsonObject.has("unionid")) {
                         unionid = jsonObject.getString("unionid");
                     }
-                    wxLogin(openid, unionid, headimgurl, nickname);
+                    if (null != onBondWechatAcountListener) {
+                        onBondWechatAcountListener.onBondWechatAccount(openid, unionid, nickname, headimgurl);
+                    } else {
+                        wxLogin(openid, unionid, headimgurl, nickname);
+                    }
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -230,7 +241,7 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
     private LoginTokenResult loginTokenResult;
 
     private void wxLogin(String openid, String unionid, String avatar, String nickname) {
-        System.out.println("openid: "+openid+" , unionid: "+unionid+" , avatar: "+avatar+" , nickname: "+nickname);
+        System.out.println("openid: " + openid + " , unionid: " + unionid + " , avatar: " + avatar + " , nickname: " + nickname);
         RequestParams params = new RequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.WX_LOGIN);
         params.addBodyParameter("openid", openid);
         params.addBodyParameter("unionid", unionid);
@@ -244,7 +255,7 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
                 System.out.println("wxlogin token: " + loginTokenResult.getData().getToken());
                 if (loginTokenResult.getCode() == 200) {
                     SharedPreferencesUtils.getInstance(BaseApplication.applicationContext).saveUserToken(loginTokenResult.getData().getToken());
-                    if(null!=onWxLoginSuccessListener){
+                    if (null != onWxLoginSuccessListener) {
                         onWxLoginSuccessListener.onWxLoginSuccess();
                     }
                 }
@@ -253,7 +264,7 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                    System.out.println("服务器-微信登录: "+ex.toString());
+                System.out.println("服务器-微信登录: " + ex.toString());
             }
 
             @Override
@@ -269,13 +280,32 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
     }
 
     private static OnWxLoginSuccessListener onWxLoginSuccessListener;
-    public static void setOnWxLoginSuccessListener(OnWxLoginSuccessListener loginSuccessListener){
-        onWxLoginSuccessListener=loginSuccessListener;
+
+    public static void setOnWxLoginSuccessListener(OnWxLoginSuccessListener loginSuccessListener) {
+        onWxLoginSuccessListener = loginSuccessListener;
     }
-    public interface OnWxLoginSuccessListener{
+
+    public interface OnWxLoginSuccessListener {
         void onWxLoginSuccess();
     }
 
+    private static OnWxBondListener onWxBondListener;
 
+    public static void setOnWxBondListener(OnWxBondListener listener) {
+        onWxBondListener = listener;
+    }
 
+    public interface OnWxBondListener {
+        void onWxBondListener(String open_id);
+    }
+
+    private static OnBondWechatAcountListener onBondWechatAcountListener;
+
+    public static void setOnBondWechatAcountListener(OnBondWechatAcountListener listener) {
+        onBondWechatAcountListener = listener;
+    }
+
+    public interface OnBondWechatAcountListener {
+        void onBondWechatAccount(String openid, String unionid, String nickname, String avatar);
+    }
 }

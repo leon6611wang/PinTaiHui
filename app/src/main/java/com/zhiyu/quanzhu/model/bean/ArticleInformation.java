@@ -25,8 +25,16 @@ public class ArticleInformation {
     private int comment_num;
     private String circle_name;
     private boolean is_report;
-
+    private List<FeedsTag> feeds_tags;
     private ArticleInformationCircle circle;
+
+    public List<FeedsTag> getFeeds_tags() {
+        return feeds_tags;
+    }
+
+    public void setFeeds_tags(List<FeedsTag> feeds_tags) {
+        this.feeds_tags = feeds_tags;
+    }
 
     public ArticleInformationCircle getCircle() {
         return circle;

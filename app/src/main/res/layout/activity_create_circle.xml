@@ -13,17 +13,16 @@
         android:id="@+id/jinggaoTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:drawableLeft="@mipmap/jinggao"
-        android:textColor="#F6152A"
-        android:text="同消息里提示通知一样"
-        android:textSize="12sp"
         android:background="#F8F8F8"
+        android:drawableLeft="@mipmap/jinggao"
+        android:drawablePadding="@dimen/dp_5"
+        android:paddingBottom="@dimen/dp_8"
         android:paddingLeft="@dimen/dp_15"
         android:paddingRight="@dimen/dp_15"
         android:paddingTop="@dimen/dp_8"
-        android:paddingBottom="@dimen/dp_8"
-        android:drawablePadding="@dimen/dp_5"
-        />
+        android:text="同消息里提示通知一样"
+        android:textColor="#F6152A"
+        android:textSize="12sp" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -42,7 +41,7 @@
                 android:paddingBottom="@dimen/dp_10"
                 android:paddingLeft="25dp"
                 android:paddingRight="25dp"
-                android:paddingTop="@dimen/dp_20">
+                android:paddingTop="@dimen/dp_15">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -66,7 +65,7 @@
                         android:gravity="center|right"
                         android:hint="请填写圈子名称"
                         android:textColor="@color/text_color_black"
-                        android:textColorHint="#BBBBBB"
+                        android:textColorHint="@color/text_color_gray"
                         android:textSize="14sp" />
                 </LinearLayout>
 
@@ -84,17 +83,17 @@
                 android:layout_height="0.5dp"
                 android:layout_marginLeft="@dimen/dp_15"
                 android:layout_marginRight="15dp"
-                android:background="#E6E6E6" />
+                android:background="#E5E5E5" />
             <!-- 商圈性质-->
             <LinearLayout
                 android:id="@+id/xingzhiLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingBottom="@dimen/dp_20"
+                android:paddingBottom="@dimen/dp_15"
                 android:paddingLeft="25dp"
                 android:paddingRight="25dp"
-                android:paddingTop="@dimen/dp_20">
+                android:paddingTop="@dimen/dp_15">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -130,17 +129,17 @@
                 android:layout_height="0.5dp"
                 android:layout_marginLeft="@dimen/dp_15"
                 android:layout_marginRight="15dp"
-                android:background="#E6E6E6" />
+                android:background="#E5E5E5" />
             <!-- 城市-->
             <LinearLayout
                 android:id="@+id/chengshiLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingBottom="@dimen/dp_20"
+                android:paddingBottom="@dimen/dp_15"
                 android:paddingLeft="25dp"
                 android:paddingRight="25dp"
-                android:paddingTop="@dimen/dp_20">
+                android:paddingTop="@dimen/dp_15">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -176,17 +175,17 @@
                 android:layout_height="0.5dp"
                 android:layout_marginLeft="@dimen/dp_15"
                 android:layout_marginRight="15dp"
-                android:background="#E6E6E6" />
+                android:background="#E5E5E5" />
             <!-- 行业-->
             <LinearLayout
                 android:id="@+id/hangyeLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingBottom="@dimen/dp_20"
+                android:paddingBottom="@dimen/dp_15"
                 android:paddingLeft="25dp"
                 android:paddingRight="25dp"
-                android:paddingTop="@dimen/dp_20">
+                android:paddingTop="@dimen/dp_15">
 
                 <TextView
                     android:id="@+id/industryTextView"
@@ -223,16 +222,16 @@
                 android:layout_height="0.5dp"
                 android:layout_marginLeft="@dimen/dp_15"
                 android:layout_marginRight="15dp"
-                android:background="#E6E6E6" />
+                android:background="#E5E5E5" />
             <!-- 入圈审核-->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingBottom="@dimen/dp_20"
+                android:paddingBottom="@dimen/dp_15"
                 android:paddingLeft="25dp"
                 android:paddingRight="25dp"
-                android:paddingTop="@dimen/dp_20">
+                android:paddingTop="@dimen/dp_15">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -257,16 +256,16 @@
                 android:layout_height="0.5dp"
                 android:layout_marginLeft="@dimen/dp_15"
                 android:layout_marginRight="15dp"
-                android:background="#E6E6E6" />
+                android:background="#E5E5E5" />
             <!-- 入圈收费-->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingBottom="@dimen/dp_20"
+                android:paddingBottom="@dimen/dp_15"
                 android:paddingLeft="25dp"
                 android:paddingRight="25dp"
-                android:paddingTop="@dimen/dp_20">
+                android:paddingTop="@dimen/dp_15">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -291,24 +290,23 @@
                 android:layout_height="0.5dp"
                 android:layout_marginLeft="@dimen/dp_15"
                 android:layout_marginRight="15dp"
-                android:background="#E6E6E6" />
+                android:background="#E5E5E5" />
             <!-- 收费金额-->
             <LinearLayout
                 android:id="@+id/moneyLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:visibility="gone">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:paddingBottom="@dimen/dp_20"
+                    android:paddingBottom="@dimen/dp_15"
                     android:paddingLeft="25dp"
                     android:paddingRight="25dp"
-                    android:paddingTop="@dimen/dp_20"
-                    >
+                    android:paddingTop="@dimen/dp_15">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -337,7 +335,7 @@
                     android:layout_height="0.5dp"
                     android:layout_marginLeft="@dimen/dp_15"
                     android:layout_marginRight="15dp"
-                    android:background="#E6E6E6" />
+                    android:background="#E5E5E5" />
             </LinearLayout>
             <!-- 商圈介绍-->
             <LinearLayout
@@ -375,7 +373,7 @@
                 android:layout_height="0.5dp"
                 android:layout_marginLeft="@dimen/dp_15"
                 android:layout_marginRight="15dp"
-                android:background="#E6E6E6" />
+                android:background="#E5E5E5" />
             <!-- 商圈LOGO-->
             <LinearLayout
                 android:layout_width="match_parent"
@@ -384,8 +382,8 @@
                 android:paddingBottom="@dimen/dp_20"
                 android:paddingLeft="25dp"
                 android:paddingRight="25dp"
-                android:visibility="gone"
-                android:paddingTop="@dimen/dp_20">
+                android:paddingTop="@dimen/dp_20"
+                android:visibility="gone">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -409,8 +407,8 @@
                 android:layout_height="0.5dp"
                 android:layout_marginLeft="@dimen/dp_15"
                 android:layout_marginRight="15dp"
-                android:visibility="gone"
-                android:background="#E6E6E6" />
+                android:background="#E5E5E5"
+                android:visibility="gone" />
             <!-- 上传封面-->
             <LinearLayout
                 android:layout_width="match_parent"
@@ -454,7 +452,7 @@
                 android:layout_height="0.5dp"
                 android:layout_marginLeft="@dimen/dp_15"
                 android:layout_marginRight="15dp"
-                android:background="#E6E6E6" />
+                android:background="#E5E5E5" />
             <!-- 添加视频-->
             <LinearLayout
                 android:layout_width="match_parent"
@@ -472,26 +470,12 @@
                     android:textColor="@color/text_color_grey"
                     android:textSize="14sp" />
 
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/dp_10">
-
-                    <io.vov.vitamio.widget.VideoView
-                        android:id="@+id/mVideoView"
-                        android:layout_width="match_parent"
-                        android:layout_height="100dp"
-                        android:visibility="gone" />
-
-
-                    <ImageView
-                        android:id="@+id/uploadvideoImageView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerInParent="true"
-                        android:src="@mipmap/mingpian_add_img" />
-
-                </FrameLayout>
+                <ImageView
+                    android:id="@+id/uploadvideoImageView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/dp_100"
+                    android:layout_marginTop="@dimen/dp_10"
+                    android:src="@mipmap/add_circle_img" />
             </LinearLayout>
 
             <View
@@ -499,7 +483,7 @@
                 android:layout_height="0.5dp"
                 android:layout_marginLeft="@dimen/dp_15"
                 android:layout_marginRight="15dp"
-                android:background="#E6E6E6" />
+                android:background="#E5E5E5" />
 
 
         </LinearLayout>

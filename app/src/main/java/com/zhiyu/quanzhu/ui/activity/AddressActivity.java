@@ -102,7 +102,7 @@ public class AddressActivity extends BaseActivity implements View.OnClickListene
                 addressList();
             }
         });
-        ptrFrameLayout.setMode(PtrFrameLayout.Mode.BOTH);
+        ptrFrameLayout.setMode(PtrFrameLayout.Mode.NONE);
 
         mRecyclerView = findViewById(R.id.mRecyclerView);
         adapter = new AddressRecyclerAdapter(this);

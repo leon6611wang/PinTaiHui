@@ -5,6 +5,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -58,8 +60,10 @@ public class MyProfileActivity extends BaseActivity implements View.OnClickListe
     private LoadingDialog loadingDialog;
     private MyHandler myHandler = new MyHandler(this);
     private final int REQUEST_SELECT_IMAGES_CODE = 10022;
+    private final int REQUEST_CROP_IMAGES_CODE = 10023;
     private AreaProvince province = new AreaProvince();
     private AreaCity city = new AreaCity();
+    private MyImagePicker imagePicker = new MyImagePicker();
 
     private static class MyHandler extends Handler {
         WeakReference<MyProfileActivity> activityWeakReference;
@@ -79,8 +83,11 @@ public class MyProfileActivity extends BaseActivity implements View.OnClickListe
                 case 1:
                     activity.loadingDialog.dismiss();
                     if (200 == activity.profileResult.getCode()) {
+                        activity.avatarUrl = activity.profileResult.getData().getUser().getAvatar();
+                        activity.sex = activity.profileResult.getData().getUser().getSex();
                         Glide.with(activity).load(activity.profileResult.getData().getUser().getAvatar()).error(R.drawable.image_error).into(activity.avatarImageView);
                         activity.nicknameEditText.setText(activity.profileResult.getData().getUser().getUsername());
+                        activity.nicknameEditText.setSelection(activity.profileResult.getData().getUser().getUsername().length());
                         activity.genderTextView.setText(activity.profileResult.getData().getUser().getSex_desc());
                         activity.province.setCode(activity.profileResult.getData().getUser().getProvince_id());
                         activity.province.setName(activity.profileResult.getData().getUser().getProvince_name());
@@ -93,9 +100,9 @@ public class MyProfileActivity extends BaseActivity implements View.OnClickListe
                             activity.cityTextView.setText("未选择");
                         }
 
-
                         activity.industryTextView.setText(StringUtils.isNullOrEmpty(activity.profileResult.getData().getUser().getIndustry()) ?
-                                "未选择" : activity.profileResult.getData().getUser().getIndustry());
+                                null : activity.profileResult.getData().getUser().getIndustry());
+                        activity.vertifyTextView.setText(activity.profileResult.getData().getUser().getVertify_desc());
                     }
                     break;
                 case 2:
@@ -111,11 +118,20 @@ public class MyProfileActivity extends BaseActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_profile);
         ScreentUtils.getInstance().setStatusBarLightMode(this, true);
+        // 设置标题
+        imagePicker.setTitle("设置头像");
+        // 设置是否裁剪图片
+        imagePicker.setCropImage(true);
         initDialogs();
         initViews();
-        userProfile();
+
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        userProfile();
+    }
 
     private int sex;
 
@@ -124,6 +140,8 @@ public class MyProfileActivity extends BaseActivity implements View.OnClickListe
             @Override
             public void onGenderSelect(int index, String gender) {
                 sex = index;
+                genderTextView.setText(gender);
+                updateUserProfile();
             }
         });
         provinceCityDialog = new ProvinceCityDialog(this, R.style.dialog, new ProvinceCityDialog.OnCityChooseListener() {
@@ -132,6 +150,7 @@ public class MyProfileActivity extends BaseActivity implements View.OnClickListe
                 province = p;
                 city = c;
                 cityTextView.setText(province.getName() + " " + city.getName());
+                updateUserProfile();
             }
         });
         loadingDialog = new LoadingDialog(this, R.style.dialog);
@@ -159,6 +178,22 @@ public class MyProfileActivity extends BaseActivity implements View.OnClickListe
         vertifyLayout = findViewById(R.id.vertifyLayout);
         vertifyLayout.setOnClickListener(this);
         nicknameEditText = findViewById(R.id.nicknameEditText);
+        nicknameEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                updateUserProfile();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
     }
 
     @Override
@@ -178,14 +213,17 @@ public class MyProfileActivity extends BaseActivity implements View.OnClickListe
                 startActivity(dizhiIntent);
                 break;
             case R.id.avatarImageView:
-//                selectImage();
-                imagePicker();
+                selectImage();
+//                imagePicker();
                 break;
             case R.id.industryLayout:
-
+                Intent industryIntent = new Intent(this, HobbySelectActivity.class);
+                industryIntent.putExtra("loadType", 1);
+                startActivity(industryIntent);
                 break;
             case R.id.vertifyLayout:
-
+                Intent vertifyIntent = new Intent(this, UserVertifyActivity.class);
+                startActivity(vertifyIntent);
                 break;
         }
     }
@@ -206,11 +244,6 @@ public class MyProfileActivity extends BaseActivity implements View.OnClickListe
     }
 
     private void imagePicker() {
-        MyImagePicker imagePicker = new MyImagePicker();
-        // 设置标题
-        imagePicker.setTitle("设置头像");
-        // 设置是否裁剪图片
-        imagePicker.setCropImage(true);
         // 启动图片选择器
         imagePicker.startChooser(this, new MyImagePicker.Callback() {
             // 选择图片回调
@@ -251,12 +284,19 @@ public class MyProfileActivity extends BaseActivity implements View.OnClickListe
         });
     }
 
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_SELECT_IMAGES_CODE && resultCode == RESULT_OK) {
             imgList = data.getStringArrayListExtra(ImagePicker.EXTRA_SELECT_IMAGES);
-            Glide.with(this).load(imgList.get(0)).into(avatarImageView);
-            uploadAvatar();
+            cropImage(imgList.get(0));
+//            Glide.with(this).load(imgList.get(0)).into(avatarImageView);
+//            uploadAvatar();
+        } else if (requestCode == REQUEST_CROP_IMAGES_CODE) {
+            String cropImagePath = data.getStringExtra("cropImagePath");
+            uploadAvatar(cropImagePath);
+            Glide.with(this).load(cropImagePath).into(avatarImageView);
+            System.out.println("cropImagePath: " + cropImagePath);
         }
     }
 
@@ -265,8 +305,8 @@ public class MyProfileActivity extends BaseActivity implements View.OnClickListe
     /**
      * 上传头像
      */
-    private void uploadAvatar() {
-        UploadImageUtils.getInstance().uploadFile(UploadImageUtils.CIRCLEFEES, imgList.get(0), new UploadImageUtils.OnUploadCallback() {
+    private void uploadAvatar(String imagePath) {
+        UploadImageUtils.getInstance().uploadFile(UploadImageUtils.CIRCLEFEES, imagePath, new UploadImageUtils.OnUploadCallback() {
             @Override
             public void onUploadSuccess(String name) {
                 avatarUrl = name;
@@ -286,6 +326,7 @@ public class MyProfileActivity extends BaseActivity implements View.OnClickListe
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
+                System.out.println("user detail: " + result);
                 profileResult = GsonUtils.GsonToBean(result, UserProfileResult.class);
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
@@ -313,6 +354,8 @@ public class MyProfileActivity extends BaseActivity implements View.OnClickListe
 
     //更新用户信息
     private void updateUserProfile() {
+        System.out.println("avatar: " + avatarUrl + " , username: " + nicknameEditText.getText().toString().trim() + " , sex: " + sex + " , province: " +
+                province.getCode() + " , province_name: " + province.getName() + " , city: " + city.getCode() + " , city_name: " + city.getName());
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.UPDATE_USER_PROFILE);
         params.addBodyParameter("avatar", avatarUrl);
         params.addBodyParameter("username", nicknameEditText.getText().toString().trim());
@@ -325,8 +368,10 @@ public class MyProfileActivity extends BaseActivity implements View.OnClickListe
             @Override
             public void onSuccess(String result) {
                 baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
-                Message message = myHandler.obtainMessage(2);
-                message.sendToTarget();
+                if (baseResult.getCode() != 200) {
+                    Message message = myHandler.obtainMessage(2);
+                    message.sendToTarget();
+                }
             }
 
             @Override
@@ -345,6 +390,13 @@ public class MyProfileActivity extends BaseActivity implements View.OnClickListe
 
             }
         });
+    }
+
+
+    private void cropImage(String imagePath) {
+        Intent intent = new Intent(this, CropImageActivity.class);
+        intent.putExtra("imagePath", imagePath);
+        startActivityForResult(intent, REQUEST_CROP_IMAGES_CODE);
     }
 
 }

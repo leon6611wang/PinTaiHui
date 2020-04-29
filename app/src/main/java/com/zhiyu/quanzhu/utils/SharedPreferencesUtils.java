@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import io.rong.imlib.model.Conversation;
 
 public class SharedPreferencesUtils {
+    private static Context ctxt;
     private static final String USER_ID = "user_id";
     private static final String USER_NAME = "user_name";
     private static final String USER_PHONE_NUMBER = "user_phone_number";
@@ -17,6 +18,7 @@ public class SharedPreferencesUtils {
     private static SharedPreferencesUtils utils;
 
     public static SharedPreferencesUtils getInstance(Context context) {
+        ctxt = context;
         if (null == utils) {
             synchronized (SharedPreferencesUtils.class) {
                 utils = new SharedPreferencesUtils();
@@ -103,8 +105,12 @@ public class SharedPreferencesUtils {
     }
 
     public String getUserToken() {
+        if (null == user_sp) {
+            user_sp = ctxt.getSharedPreferences(USER_SP, Context.MODE_PRIVATE);
+            user_editor = user_sp.edit();
+        }
         String token = user_sp.getString(USER_TOKEN, null);
-        if (null!=token&&!token.contains("bearer")) {
+        if (null != token && !token.contains("bearer")) {
             token = "bearer " + token;
         }
         return token;

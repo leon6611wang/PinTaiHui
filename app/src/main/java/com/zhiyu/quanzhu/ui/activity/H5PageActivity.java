@@ -24,7 +24,7 @@ public class H5PageActivity extends BaseActivity implements View.OnClickListener
         setContentView(R.layout.activity_h5page);
         ScreentUtils.getInstance().setStatusBarLightMode(this, true);
         url = getIntent().getStringExtra("url");
-        url="https://www.baidu.com/";
+//        url="https://www.baidu.com/";
         System.out.println("h5page url: "+url);
         initViews();
     }

@@ -23,7 +23,7 @@ import com.zhiyu.quanzhu.model.result.MallAdGoodsResult;
 import com.zhiyu.quanzhu.model.result.MallAdResult;
 import com.zhiyu.quanzhu.ui.activity.CartActivity;
 import com.zhiyu.quanzhu.ui.activity.H5PageActivity;
-import com.zhiyu.quanzhu.ui.activity.QuanShangFenLeiActivity;
+import com.zhiyu.quanzhu.ui.activity.MallGoodsTypeActivity;
 import com.zhiyu.quanzhu.ui.adapter.HomeQuanShangRecyclerAdapter;
 import com.zhiyu.quanzhu.ui.widget.HomeQuanShangRecyclerViewHeaderView;
 import com.zhiyu.quanzhu.ui.widget.Indicator;
@@ -35,6 +35,7 @@ import com.zhiyu.quanzhu.utils.MyPtrHandlerFooter;
 import com.zhiyu.quanzhu.utils.MyPtrHandlerHeader;
 import com.zhiyu.quanzhu.utils.MyPtrRefresherFooter;
 import com.zhiyu.quanzhu.utils.MyPtrRefresherHeader;
+import com.zhiyu.quanzhu.utils.ThreadPoolUtils;
 
 import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
@@ -96,7 +97,13 @@ public class FragmentHomeQuanShang extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_home_quanshang, null);
         initPtr();
-        requestMallHomeAd();
+        ThreadPoolUtils.getInstance().init().execute(new Runnable() {
+            @Override
+            public void run() {
+                requestMallHomeAd();
+            }
+        });
+
         return view;
     }
 
@@ -104,7 +111,13 @@ public class FragmentHomeQuanShang extends Fragment {
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         if(isVisibleToUser){
-            requestMallHomeAdGoods();
+            ThreadPoolUtils.getInstance().init().execute(new Runnable() {
+                @Override
+                public void run() {
+                    requestMallHomeAdGoods();
+                }
+            });
+
         }
     }
 
@@ -123,7 +136,7 @@ public class FragmentHomeQuanShang extends Fragment {
         fenleiImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent fenleiIntent = new Intent(getActivity(), QuanShangFenLeiActivity.class);
+                Intent fenleiIntent = new Intent(getActivity(), MallGoodsTypeActivity.class);
                 startActivity(fenleiIntent);
 
             }
@@ -144,7 +157,7 @@ public class FragmentHomeQuanShang extends Fragment {
         headerFenleiImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent fenleiIntent = new Intent(getActivity(), QuanShangFenLeiActivity.class);
+                Intent fenleiIntent = new Intent(getActivity(), MallGoodsTypeActivity.class);
                 startActivity(fenleiIntent);
             }
         });

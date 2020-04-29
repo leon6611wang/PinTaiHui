@@ -22,6 +22,7 @@ import com.zhiyu.quanzhu.model.bean.Tag;
 import com.zhiyu.quanzhu.ui.dialog.CircleSelectDialog;
 import com.zhiyu.quanzhu.ui.dialog.HobbyDialog;
 import com.zhiyu.quanzhu.ui.dialog.IndustryDialog;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.SwitchButton;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
@@ -71,9 +72,9 @@ public class PublishParamSettingActivity extends BaseActivity implements View.On
             PublishParamSettingActivity activity = activityWeakReference.get();
             switch (msg.what) {
                 case 1:
-                    Toast.makeText(activity, activity.baseResult.getMsg(), Toast.LENGTH_SHORT).show();
+                    MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
                     if (activity.baseResult.getCode() == 200) {
-                        if(null!=onPublishFinishListener){
+                        if (null != onPublishFinishListener) {
                             onPublishFinishListener.onPublishFinish();
                         }
                         activity.finish();
@@ -115,7 +116,7 @@ public class PublishParamSettingActivity extends BaseActivity implements View.On
         circleSelectDialog = new CircleSelectDialog(this, R.style.dialog, new CircleSelectDialog.OnCircleSeletedListener() {
             @Override
             public void onCircleSelected(MyCircle circle) {
-                System.out.println("圈子选择: "+circle.getId()+" , "+circle.getName());
+                System.out.println("圈子选择: " + circle.getId() + " , " + circle.getName());
                 circle_id = circle.getId();
                 circleTextView.setText(circle.getName());
             }
@@ -237,6 +238,7 @@ public class PublishParamSettingActivity extends BaseActivity implements View.On
      * 发布动态
      */
     private void updateFeed() {
+        System.out.println("updateFeed feeds_id: "+feeds_id);
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.UPDATE_FEED);
         params.addBodyParameter("type", String.valueOf(publishType));
         params.addBodyParameter("circle_id", String.valueOf(circle_id));
@@ -251,6 +253,7 @@ public class PublishParamSettingActivity extends BaseActivity implements View.On
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
+                System.out.println("updateFeed: "+result);
                 baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
@@ -276,14 +279,16 @@ public class PublishParamSettingActivity extends BaseActivity implements View.On
 
     @Override
     public void onChooseGoods(Set<Integer> idSet) {
-        goodsTextView.setText("已选择 "+(null==idSet?0:idSet.size())+"件");
+        goodsTextView.setText("已选择 " + (null == idSet ? 0 : idSet.size()) + "件");
     }
 
     private static OnPublishFinishListener onPublishFinishListener;
-    public static void setOnPublishFinishListener(OnPublishFinishListener listener){
-        onPublishFinishListener=listener;
+
+    public static void setOnPublishFinishListener(OnPublishFinishListener listener) {
+        onPublishFinishListener = listener;
     }
-    public interface OnPublishFinishListener{
+
+    public interface OnPublishFinishListener {
         void onPublishFinish();
     }
 }

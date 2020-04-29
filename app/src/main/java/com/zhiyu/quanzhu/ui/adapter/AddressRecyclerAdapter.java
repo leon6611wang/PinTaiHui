@@ -51,6 +51,10 @@ public class AddressRecyclerAdapter extends RecyclerView.Adapter<AddressRecycler
             switch (msg.what) {
                 case 1:
                     MessageToast.getInstance(adapter.context).show(adapter.baseResult.getMsg());
+                    if (adapter.baseResult.getCode() == 200) {
+                        adapter.list.remove(adapter.deletePosition);
+                        adapter.notifyDataSetChanged();
+                    }
                     break;
                 case 2:
                     FailureToast.getInstance(adapter.context).show();
@@ -91,7 +95,7 @@ public class AddressRecyclerAdapter extends RecyclerView.Adapter<AddressRecycler
             editImageView = itemView.findViewById(R.id.editImageView);
             deleteImageView = itemView.findViewById(R.id.deleteImageView);
             defaultTextView = itemView.findViewById(R.id.defaultTextView);
-            addressCardView=itemView.findViewById(R.id.addressCardView);
+            addressCardView = itemView.findViewById(R.id.addressCardView);
         }
     }
 
@@ -182,7 +186,7 @@ public class AddressRecyclerAdapter extends RecyclerView.Adapter<AddressRecycler
         });
     }
 
-    private class OnSelectAddressClickListener implements View.OnClickListener{
+    private class OnSelectAddressClickListener implements View.OnClickListener {
         private int position;
 
         public OnSelectAddressClickListener(int position) {
@@ -191,17 +195,19 @@ public class AddressRecyclerAdapter extends RecyclerView.Adapter<AddressRecycler
 
         @Override
         public void onClick(View v) {
-            if(null!=onSelectAddressListener){
+            if (null != onSelectAddressListener) {
                 onSelectAddressListener.onSelectAddress(list.get(position));
             }
         }
     }
 
     private OnSelectAddressListener onSelectAddressListener;
-    public void setOnSelectAddressListener(OnSelectAddressListener listener){
-        this.onSelectAddressListener=listener;
+
+    public void setOnSelectAddressListener(OnSelectAddressListener listener) {
+        this.onSelectAddressListener = listener;
     }
-    public interface OnSelectAddressListener{
+
+    public interface OnSelectAddressListener {
         void onSelectAddress(Address address);
     }
 

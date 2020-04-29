@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8F8F8"
+    android:orientation="vertical">
+
+    <include layout="@layout/header_left_center_black" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/dp_15"
+        android:text="常见问题"
+        android:textColor="@color/text_color_black"
+        android:textSize="15sp" />
+
+    <ListView
+        android:id="@+id/mListView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="302"
+        android:background="@color/white"
+        android:dividerHeight="0dp"
+        android:divider="@color/white"
+        />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#F8F8F8"
+        android:padding="@dimen/dp_15"
+        android:text="其他问题"
+        android:textColor="@color/text_color_black"
+        android:textSize="15sp" />
+    
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="160"
+        android:background="@drawable/shape_edit_corner_white_bg"
+        android:layout_marginLeft="@dimen/dp_15"
+        android:layout_marginRight="@dimen/dp_15"
+        android:hint="请描述您遇到的问题，客服将在24小时内回复您"
+        android:textSize="13sp"
+        android:textColorHint="#BBBBBB"
+        android:textColor="@color/text_color_black"
+        android:padding="@dimen/dp_10"
+        android:layout_gravity="center"
+        android:gravity="left|top"
+        />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="40"
+        android:background="@drawable/shape_edit_corner_white_bg"
+        android:layout_marginLeft="@dimen/dp_15"
+        android:layout_marginRight="@dimen/dp_15"
+        android:layout_marginTop="@dimen/dp_10"
+        android:hint="请留下您的联系方式"
+        android:textSize="13sp"
+        android:textColorHint="#BBBBBB"
+        android:textColor="@color/text_color_black"
+        android:layout_gravity="center"
+        android:paddingLeft="@dimen/dp_10"
+        />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="60"
+        />
+
+    <TextView
+        android:id="@+id/callServiceTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@mipmap/call_customer_service"
+        android:text="拨打24小时客服热线"
+        android:textColor="@color/text_color_yellow"
+        android:textSize="13sp"
+        android:drawablePadding="@dimen/dp_5"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:layout_marginBottom="@dimen/dp_15"
+        />
+
+</LinearLayout>

@@ -52,7 +52,6 @@ public class ImageGridRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.
 
     class AddViewHolder extends RecyclerView.ViewHolder {
         LinearLayout mLinearLayout;
-
         public AddViewHolder(View itemView) {
             super(itemView);
             mLinearLayout = itemView.findViewById(R.id.mLinearLayout);

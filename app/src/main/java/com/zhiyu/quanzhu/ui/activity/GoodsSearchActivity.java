@@ -47,6 +47,7 @@ public class GoodsSearchActivity extends BaseActivity implements View.OnClickLis
     private PtrFrameLayout ptrFrameLayout;
     private RecyclerView mRecyclerView;
     private String keyword = null;
+    private int goods_type_id;
     private LinearLayout backLayout;
     private EditText searchEditText;
     private TextView zongheOrderTextView, xiaoliangOrderTextView, jiageOrderTextView;
@@ -82,6 +83,7 @@ public class GoodsSearchActivity extends BaseActivity implements View.OnClickLis
         setContentView(R.layout.activity_shangpin_searchlist);
         ScreentUtils.getInstance().setStatusBarLightMode(this, true);
         keyword = getIntent().getStringExtra("keyword");
+        goods_type_id = getIntent().getIntExtra("goods_type_id", 0);
         initPtr();
         initViews();
         initDialogs();
@@ -250,6 +252,7 @@ public class GoodsSearchActivity extends BaseActivity implements View.OnClickLis
         params.addBodyParameter("page", String.valueOf(page));
         params.addBodyParameter("sort", sort);
         params.addBodyParameter("sort_type", sort_type);
+        params.addBodyParameter("goods_category_id", String.valueOf(goods_type_id));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {

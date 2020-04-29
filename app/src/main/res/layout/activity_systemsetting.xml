@@ -10,23 +10,25 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/dp_20"
-        android:layout_marginRight="@dimen/dp_20"
+        android:layout_marginLeft="@dimen/dp_15"
+        android:layout_marginRight="@dimen/dp_15"
         android:orientation="vertical">
 
         <LinearLayout
             android:id="@+id/zhanghaoanquanlayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_marginLeft="7dp"
+            android:layout_marginRight="7dp"
+            android:orientation="horizontal"
+            android:paddingBottom="16.5dp"
+            android:paddingTop="16.5dp">
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginBottom="@dimen/dp_20"
-                android:layout_marginRight="@dimen/dp_15"
-                android:layout_marginTop="@dimen/dp_20"
+                android:layout_marginRight="8.5dp"
                 android:src="@mipmap/zhanghaoanquan" />
 
             <TextView
@@ -37,26 +39,39 @@
                 android:text="账号与安全"
                 android:textColor="#333333"
                 android:textSize="15sp" />
-        </LinearLayout>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#E6E6E6" />
-
-        <LinearLayout
-            android:id="@+id/xiaoxitongzhilayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginBottom="@dimen/dp_20"
-                android:layout_marginRight="@dimen/dp_15"
-                android:layout_marginTop="@dimen/dp_20"
+                android:src="@mipmap/arrow_gray_right" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="#EDEDED" />
+
+        <LinearLayout
+            android:id="@+id/xiaoxitongzhilayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="7dp"
+            android:layout_marginRight="7dp"
+            android:orientation="horizontal"
+            android:paddingBottom="16.5dp"
+            android:paddingTop="16.5dp">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginRight="8.5dp"
                 android:src="@mipmap/xiaoxitongzhi" />
 
             <TextView
@@ -82,23 +97,25 @@
 
         <View
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#E6E6E6" />
+            android:layout_height="0.5dp"
+            android:background="#EDEDED" />
 
         <LinearLayout
             android:id="@+id/yinsilayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_marginLeft="7dp"
+            android:layout_marginRight="7dp"
+            android:orientation="horizontal"
+            android:paddingBottom="16.5dp"
+            android:paddingTop="16.5dp">
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginBottom="@dimen/dp_20"
-                android:layout_marginRight="@dimen/dp_15"
-                android:layout_marginTop="@dimen/dp_20"
-                android:src="@mipmap/xiaoxitongzhi" />
+                android:layout_marginRight="8.5dp"
+                android:src="@mipmap/yinsi" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -123,23 +140,25 @@
 
         <View
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#E6E6E6" />
+            android:layout_height="0.5dp"
+            android:background="#EDEDED" />
 
         <LinearLayout
             android:id="@+id/qingchuhuancunlayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_marginLeft="7dp"
+            android:layout_marginRight="7dp"
+            android:orientation="horizontal"
+            android:paddingBottom="16.5dp"
+            android:paddingTop="16.5dp">
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginBottom="@dimen/dp_20"
-                android:layout_marginRight="@dimen/dp_15"
-                android:layout_marginTop="@dimen/dp_20"
-                android:src="@mipmap/xiaoxitongzhi" />
+                android:layout_marginRight="8.5dp"
+                android:src="@mipmap/qingchu" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -156,14 +175,14 @@
                 android:layout_weight="1" />
 
             <TextView
+                android:id="@+id/cacheSizeTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="286.32M"
-                android:textSize="15sp"
-                android:textColor="#999999"
                 android:layout_gravity="center"
                 android:gravity="center"
-                />
+                android:text="0.0M"
+                android:textColor="#999999"
+                android:textSize="15sp" />
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -175,22 +194,24 @@
 
         <View
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#E6E6E6" />
+            android:layout_height="0.5dp"
+            android:background="#EDEDED" />
 
         <LinearLayout
             android:id="@+id/guanyuwomenlayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_marginLeft="7dp"
+            android:layout_marginRight="7dp"
+            android:orientation="horizontal"
+            android:paddingBottom="16.5dp"
+            android:paddingTop="16.5dp">
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginBottom="@dimen/dp_20"
-                android:layout_marginRight="@dimen/dp_15"
-                android:layout_marginTop="@dimen/dp_20"
+                android:layout_marginRight="8.5dp"
                 android:src="@mipmap/guanyu" />
 
             <TextView
@@ -216,22 +237,24 @@
 
         <View
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#E6E6E6" />
+            android:layout_height="0.5dp"
+            android:background="#EDEDED" />
 
         <LinearLayout
             android:id="@+id/pingjiawomenlayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_marginLeft="7dp"
+            android:layout_marginRight="7dp"
+            android:orientation="horizontal"
+            android:paddingBottom="16.5dp"
+            android:paddingTop="16.5dp">
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginBottom="@dimen/dp_20"
-                android:layout_marginRight="@dimen/dp_15"
-                android:layout_marginTop="@dimen/dp_20"
+                android:layout_marginRight="8.5dp"
                 android:src="@mipmap/pingjia" />
 
             <TextView
@@ -257,10 +280,27 @@
 
         <View
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#E6E6E6" />
+            android:layout_height="0.5dp"
+            android:background="#EDEDED" />
 
 
     </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <TextView
+        android:id="@+id/logoutTextView"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_40"
+        android:layout_gravity="center"
+        android:layout_margin="@dimen/dp_15"
+        android:background="@drawable/shape_oval_bg_yellow"
+        android:gravity="center"
+        android:text="退出登录"
+        android:textColor="@color/text_color_yellow"
+        android:textSize="14sp" />
 
 </LinearLayout>

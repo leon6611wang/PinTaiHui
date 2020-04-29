@@ -2,7 +2,9 @@ package com.zhiyu.quanzhu.utils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Handler;
 import android.view.View;
+import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
@@ -37,6 +39,7 @@ public class SoftKeyboardUtil {
 
     /**
      * 弹出软键盘
+     *
      * @param context
      * @param et
      */
@@ -44,5 +47,61 @@ public class SoftKeyboardUtil {
         et.requestFocus();
         InputMethodManager imm = (InputMethodManager) context.getSystemService(INPUT_METHOD_SERVICE);
         imm.showSoftInput(et, InputMethodManager.SHOW_IMPLICIT);
+    }
+
+    /**
+     * 打开软键盘
+     *
+     * @param window
+     */
+    public static void showSoftKeyBoard(final Window window) {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (window.getCurrentFocus() != null) {
+                    InputMethodManager inputManager = (InputMethodManager) window.getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
+                    inputManager.showSoftInputFromInputMethod(window.getCurrentFocus().getWindowToken(), 0);
+                }
+            }
+        }, 200);
+    }
+
+    public static void showSoftKeyBoard(final View v) {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (v != null) {
+                    InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.showSoftInput(v, InputMethodManager.SHOW_IMPLICIT);
+                }
+            }
+        }, 200);
+    }
+
+    /**
+     * 关闭软键盘
+     *
+     * @param window
+     */
+    public static void hideSoftKeyBoard(final Window window) {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (window.getCurrentFocus() != null) {
+                    InputMethodManager inputManager = (InputMethodManager) window.getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
+                    inputManager.hideSoftInputFromWindow(window.getCurrentFocus().getWindowToken(), 0);
+                }
+            }
+        }, 200);
+    }
+
+    public static void hideSoftKeyBoard(final Context ctx, final View v) {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                InputMethodManager imm = (InputMethodManager) ctx.getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+            }
+        }, 200);
     }
 }

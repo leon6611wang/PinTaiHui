@@ -32,6 +32,7 @@ import com.zhiyu.quanzhu.utils.MyPtrRefresherHeader;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.SharedPreferencesUtils;
 import com.zhiyu.quanzhu.utils.SpaceItemDecoration;
+import com.zhiyu.quanzhu.utils.ThreadPoolUtils;
 
 import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
@@ -85,8 +86,14 @@ public class FragmentQuanZiGuanZhu extends Fragment {
         view = inflater.inflate(R.layout.fragment_quanzi_guanzhu, container, false);
         initPtr();
         initViews();
-        requestMyFollows();
-        requestGuanZhuDongTaiList();
+        ThreadPoolUtils.getInstance().init().execute(new Runnable() {
+            @Override
+            public void run() {
+                requestMyFollows();
+                requestGuanZhuDongTaiList();
+            }
+        });
+
         return view;
     }
 

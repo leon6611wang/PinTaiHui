@@ -26,6 +26,8 @@ public class ConstantsUtils {
     public static final String HOME_QUAN_ZI_TUIJIAN_TAG = "api/v1/index/list/tag";
     //获取验证码
     public static final String GET_VERTIFY_CODE = "api/v1/sendcode";
+    //校验验证码
+    public static final String CHECK_VERFITY_CODE = "/api/v1/verifycode";
     //验证码登录/注册/校验
     public static final String VERIFY_LOGIN = "api/v1/verifylogin";
     //密码登录
@@ -224,7 +226,131 @@ public class ConstantsUtils {
     //更改购物车商品数据
     public static final String CART_GOODS_EDIT = "api/v1/mall/cart/edit";
     //用户详情
-    public static final String USER_PROFILE="api/v1/user/detail";
+    public static final String USER_PROFILE = "api/v1/user/detail";
     //更新用户信息
-    public static final String UPDATE_USER_PROFILE="api/v1/user/update";
+    public static final String UPDATE_USER_PROFILE = "api/v1/user/update";
+    //偏好选择
+    public static final String USER_HOBBY = "/api/v1/user/hobby";
+    //个人认证/商户认证
+    public static final String VERTIFY = "/api/v1/common/identify";
+    //认证详情
+    public static final String VERTIFY_DETAIL = "/api/v1/common/identify/detail";
+    //商店分类列表
+    public static final String SHOP_TYPE_LIST = "/api/v1/user/store/category";
+    //企查查
+    public static final String QI_CHA_CHA = "api/v1/common/qchacha";
+    //商店申请
+    public static final String SHOP_APPLY = "/api/v1/user/store/apply";
+    //vip会员中心
+    public static final String VIP_DETAIL = "/api/v1/user/vips/detail";
+    //VIP列表
+    public static final String VIP_LIST = "/api/v1/user/vips/list";
+    //vip权益列表
+    public static final String VIP_EQUITY_LIST = "/api/v1/user/vips/equity";
+    //我的访客列表
+    public static final String MY_VISITOR_LIST = "/api/v1/user/visitor";
+    //访客详情
+    public static final String VISITOR_INFO = "/api/v1/user/visitor_list";
+
+    //我的评论
+    public static final String MY_COMMENTS_LIST = "/api/v1/user/comnments";
+    //我的点赞
+    public static final String MY_PRISE_LIST = "/api/v1/user/prise";
+    //我的历史
+    public static final String MY_HISTORY_LIST = "/api/v1/user/history";
+    //我的收藏
+    public static final String MY_COLLECTION_LIST = "/api/v1/user/collect";
+    //批量取消收藏
+    public static final String CANCEL_COLLECT = "/api/v1/common/cancelcollect";
+    //签到详情
+    public static final String CHECK_IN_INFORMATION = "/api/v1/marketing/sign";
+    //签到
+    public static final String CHECK_IN = "/api/v1/marketing/setsign";
+    //会员中心
+    public static final String MEMBER_CENTER = "/api/v1/user/credits/usercenter";
+    //积分兑好礼列表
+    public static final String POINT_GOODS_LIST = "/api/v1/user/credits/goodslist";
+    //积分获取记录
+    public static final String POINT_RECORD_LIST = "/api/v1/user/credits/logs";
+    //积分兑换记录
+    public static final String POINT_EXCHANGE_RECORD_LIST = "/api/v1/user/credits/orders";
+    //积分兑换商品详情
+    public static final String POINT_GOODS_INFORMATION = "/api/v1/user/credits/goodsdetail";
+    //积分商品订单确认
+    public static final String POINT_GOODS_ORDER_CONFIRM = "/api/v1/user/credits/addorder";
+    //积分商品兑换
+    public static final String POINT_GOODS_EXCHANGE = "/api/v1/user/credits/buygoods";
+    //我的卡券
+    public static final String MY_COUPON_LIST = "/api/v1/marketing/couponlist";
+    //我的钱包详情
+    public static final String MY_PURSE_INFORMATION = "/api/v1/user/wallet/detail";
+    //我的钱包记录
+    public static final String MY_PURSE_RECORD_LIST = "/api/v1/user/wallet/list";
+    //我的钱包-提现
+    public static final String MY_PURSE_WITHDRAW = "/api/v1/user/wallet/apply";
+    //设置支付密码
+    public static final String SET_PAY_PWD = "/api/v1/user/setpaypwd";
+    //设置登录密码
+    public static final String SET_LOGIN_PWD = "/api/v1/user/setpwd";
+    //校验密码
+    public static final String CHECK_PASSWORD = "/api/v1/user/checkpassword";
+    //绑定支付账号
+    public static final String BOND_PAY_ACCOUNT = "/api/v1/user/bind";
+    //绑定的支付宝账号详情
+    public static final String BOND_ALIPAY_DETAIL = "/api/v1/user/binddetail";
+
+    //个人中心-最新物流数据
+    public static final String DELIVERY_LIST = "/api/v1/mall/order/expresslist";
+    //
+    public static final String DELIVERY_INFO = "/api/v1/mall/order/express";
+    //绑定/更改手机号
+    public static final String BIND_PHONE_NUMBER = "api/v1/user/bindmobile";
+    //用户绑定信息
+    public static final String BIND_INFO = "/api/v1/user/bindinfo";
+    //解绑
+    public static final String UNBIND = "/api/v1/user/unbindsdk";
+    //绑定QQ
+    public static final String BOND_QQ = "/api/v1/user/bindqq";
+    //绑定微信
+    public static final String BOND_WECHAT = "/api/v1/user/bindwx";
+    //系统设置详情
+    public static final String SYSTEM_SET_INFO = "/api/v1/user/setdetail";
+    //系统设置
+    public static final String SET_SYSTEM_SETTING = "/api/v1/user/set";
+    //关于我们
+    public static final String ABOUT_US = "/api/v1/common/aboutus";
+    //用户反馈
+    public static final String FEED_BACK = "/api/v1/common/feedback";
+    //我的草稿箱
+    public static final String MY_DRAFT_LIST = "/api/v1/user/publish/list";
+    //删除草稿
+    public static final String DELETE_DRAFT = "/api/v1/user/publish/del";
+    //我的发布-上架/下架
+    public static final String MY_PUBLISH_SET = "/api/v1/user/publish/set";
+    //我的订单
+    public static final String MY_ORDER = "/api/v1/user/order/list";
+    //取消订单
+    public static final String CANCEL_ORDER = "/api/v1/user/order/cancel";
+    //删除订单
+    public static final String DELETE_ORDER = "/api/v1/user/order/del";
+    //提醒发货
+    public static final String NOTICE_ORDER = "/api/v1/user/order/notice";
+    //订单详情
+    public static final String ORDER_INFORMATION = "/api/v1/user/order/detail";
+    //申请售后
+    public static final String ORDER_REFUND="/api/v1/user/order/refund";
+    //修改售后
+    public static final String ORDER_UPDATE_REFUND="/api/v1/user/order/updaterefund";
+    //售后详情
+    public static final String ORDER_REFUND_INFORMATION="/api/v1/user/order/refunddetail";
+    //快递公司列表
+    public static final String DELIVERY_COMPANY_LIST="/api/v1/user/order/kuaidi";
+    //撤销申请
+    public static final String CANCEL_REFUND="/api/v1/user/order/cancelrefund";
+
+    //确认收货
+    public static final String CONFIRM_SHOU_HUO="/api/v1/user/order/confirm";
+    //订单评价
+    public static final String ORDER_COMMENT="/api/v1/user/order/comment";
+
 }

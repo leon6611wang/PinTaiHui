@@ -42,6 +42,42 @@ public class IndustryDialog extends Dialog implements View.OnClickListener {
         this.onHangYeChooseListener = listener;
     }
 
+    public void setIndustry(String pIndustry, String cIndustry) {
+        int pIndex = -1, cIndex = -1;
+        if (null != parentList && parentList.size() > 0) {
+            for (int i = 0; i < parentList.size(); i++) {
+                if (parentList.get(i).equals(pIndustry)) {
+                    pIndex = i;
+                    break;
+                }
+            }
+            if (pIndex > -1) {
+                parentView.setCurrentPosition(pIndex);
+                industryParent = industryParentList.get(pIndex);
+                industryChildList = IndustryDao.getInstance().industryChildList(industryParentList.get(pIndex).getId());
+                if (null != industryChildList && industryChildList.size() > 0) {
+                    childList.clear();
+                    for (IndustryChild child : industryChildList) {
+                        childList.add(child.getName());
+                    }
+                }
+                childView.setItems(childList);
+            }
+        }
+        if (null != childList && childList.size() > 0) {
+            for (int i = 0; i < childList.size(); i++) {
+                if (childList.get(i).equals(cIndustry)) {
+                    cIndex = i;
+                    break;
+                }
+            }
+            if (cIndex > -1) {
+                childView.setCurrentPosition(cIndex);
+                industryChild = industryChildList.get(cIndex);
+            }
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,19 +96,17 @@ public class IndustryDialog extends Dialog implements View.OnClickListener {
     private void initData() {
         industryParentList = IndustryDao.getInstance().industryParentList();
         if (null != industryParentList && industryParentList.size() > 0) {
-            industryParent=industryParentList.get(0);
+            industryParent = industryParentList.get(0);
             for (IndustryParent parent : industryParentList) {
                 parentList.add(parent.getName());
-                System.out.println(parent.toString());
             }
         }
 
         industryChildList = IndustryDao.getInstance().industryChildList(industryParentList.get(0).getId());
         if (null != industryChildList && industryChildList.size() > 0) {
-            industryChild=industryChildList.get(0);
+            industryChild = industryChildList.get(0);
             for (IndustryChild child : industryChildList) {
                 childList.add(child.getName());
-                System.out.println(child.toString());
             }
         }
     }

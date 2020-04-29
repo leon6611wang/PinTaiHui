@@ -1,83 +1,64 @@
 package com.zhiyu.quanzhu.ui.activity;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.content.FileProvider;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.load.resource.gif.GifDrawable;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
+import com.lcw.library.imagepicker.ImagePicker;
 import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseActivity;
+import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.AreaCity;
 import com.zhiyu.quanzhu.model.bean.AreaProvince;
 import com.zhiyu.quanzhu.model.bean.HobbyDaoChild;
 import com.zhiyu.quanzhu.model.bean.HobbyDaoParent;
 import com.zhiyu.quanzhu.model.bean.IndustryChild;
 import com.zhiyu.quanzhu.model.bean.IndustryParent;
+import com.zhiyu.quanzhu.model.bean.UploadImage;
 import com.zhiyu.quanzhu.model.result.CircleDetailResult;
 import com.zhiyu.quanzhu.ui.adapter.ImageGridRecyclerAdapter;
-import com.zhiyu.quanzhu.ui.dialog.ChoosePhotoDialog;
 import com.zhiyu.quanzhu.ui.dialog.CircleTypeDialog;
 import com.zhiyu.quanzhu.ui.dialog.HobbyDialog;
 import com.zhiyu.quanzhu.ui.dialog.IndustryDialog;
 import com.zhiyu.quanzhu.ui.dialog.ProvinceCityDialog;
-import com.zhiyu.quanzhu.ui.widget.MyMediaController;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.RoundImageView;
 import com.zhiyu.quanzhu.ui.widget.SwitchButton;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
-import com.zhiyu.quanzhu.utils.GetPhotoFromPhotoAlbum;
+import com.zhiyu.quanzhu.utils.GlideLoader;
 import com.zhiyu.quanzhu.utils.GridSpacingItemDecoration;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 import com.zhiyu.quanzhu.utils.UploadImageUtils;
+import com.zhiyu.quanzhu.utils.VideoUtils;
 
 import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
 import org.xutils.x;
 
-import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
-
-import io.vov.vitamio.MediaPlayer;
-import io.vov.vitamio.Vitamio;
-import io.vov.vitamio.widget.VideoView;
-import pub.devrel.easypermissions.EasyPermissions;
 
 /**
  * 创建圈子
  */
 public class CreateCircleActivity extends BaseActivity implements View.OnClickListener, ImageGridRecyclerAdapter.OnAddImageListener,
-        EasyPermissions.PermissionCallbacks, ImageGridRecyclerAdapter.OnDeleteImageListener {
+        ImageGridRecyclerAdapter.OnDeleteImageListener {
     private LinearLayout backLayout, rightLayout;
     private TextView titleTextView, rightTextView, jinggaoTextView;
     private boolean isCreate = true;//是否创建
@@ -90,14 +71,7 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
     private ImageView uploadvideoImageView;
     private RecyclerView mRecyclerView;
     private ImageGridRecyclerAdapter imageGridRecyclerAdapter;
-    private List<String> list = new ArrayList<>();
-    private ChoosePhotoDialog choosePhotoDialog;
-    private String[] permissions = {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
-    private File cameraSavePath;
-    private Uri image_uri, video_uri;
-    private String logo_image_path;
-    private String video_path;
-    private boolean isChooseLogo = true;
+    private ArrayList<String> list = new ArrayList<>();
     private CircleTypeDialog circleTypeDialog;
     private ProvinceCityDialog cityDialog;
     private IndustryDialog industryDialog;
@@ -106,6 +80,8 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
     private long circle_id;
     private String name, province_name, city_name, descirption, logo, thumb, two_industry, three_industry, video;
     private int type, province, city, is_verify, is_price, price, status;
+    private String videoUrl;
+    private int videoWidth, videoHeight;
     private List<String> imgs = new ArrayList<>();
 
     private MyHandler myHandler = new MyHandler(this);
@@ -198,8 +174,11 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
                     activity.list.addAll(activity.circleDetailResult.getData().getImgs());
                     activity.imageGridRecyclerAdapter.setData(activity.list);
                     break;
-                case 2:
-
+                case 2://圈子创建成功
+                    MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
+                    if(200==activity.baseResult.getCode()){
+                        activity.finish();
+                    }
                     break;
             }
         }
@@ -223,22 +202,11 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
     }
 
     private void initDialogs() {
-        choosePhotoDialog = new ChoosePhotoDialog(this, R.style.dialog, new ChoosePhotoDialog.OnChoosePhotoListener() {
-            @Override
-            public void xiangce() {
-                goPhotoAlbum();
-            }
-
-            @Override
-            public void paizhao() {
-                goCamera();
-            }
-        });
         circleTypeDialog = new CircleTypeDialog(this, R.style.dialog, new CircleTypeDialog.OnCircleTypeListener() {
             @Override
             public void onCircleType(int t, String desc) {
                 circleType = t;
-                type=t;
+                type = t;
                 xingzhiTextView.setText(desc);
                 industryTextView.setText(desc);
             }
@@ -261,7 +229,7 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
                 hangyeTextView.setText(parent.getName() + "/" + child.getName());
             }
         });
-        hobbyDialog=new HobbyDialog(this, R.style.dialog, new HobbyDialog.OnChooseHobbyListener() {
+        hobbyDialog = new HobbyDialog(this, R.style.dialog, new HobbyDialog.OnChooseHobbyListener() {
             @Override
             public void onChooseHobby(HobbyDaoParent parent, HobbyDaoChild child) {
                 two_industry = parent.getName();
@@ -302,13 +270,13 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
         shenheSwitchButton.setOnSwitchButtonListener(new SwitchButton.OnSwitchButtonListener() {
             @Override
             public void onOpen(boolean isOpen) {
-                is_verify=isOpen?1:0;
+                is_verify = isOpen ? 1 : 0;
             }
         });
         shoufeiSwitchButton.setOnSwitchButtonListener(new SwitchButton.OnSwitchButtonListener() {
             @Override
             public void onOpen(boolean isOpen) {
-                is_price=isOpen?1:0;
+                is_price = isOpen ? 1 : 0;
                 moneyLayout.setVisibility(isOpen ? View.VISIBLE : View.GONE);
             }
         });
@@ -344,7 +312,7 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
                 cityDialog.show();
                 break;
             case R.id.hangyeLayout:
-                switch (type){
+                switch (type) {
                     case 1:
                         industryDialog.show();
                         break;
@@ -354,25 +322,22 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
                 }
                 break;
             case R.id.uploadvideoImageView:
-                getVideo();
+                selectVideo();
                 break;
             case R.id.logoImageView:
-                isChooseLogo = true;
-                getPermission();
+
                 break;
             case R.id.confirmTextView:
                 name = mingchengEditText.getText().toString().trim();
-                descirption=jieshaoEditText.getText().toString().trim();
-                String jine=jineEditText.getText().toString().trim();
-                if(!StringUtils.isNullOrEmpty(jine)){
-                    price=Integer.parseInt(jine)*100;
+                descirption = jieshaoEditText.getText().toString().trim();
+                String jine = jineEditText.getText().toString().trim();
+                if (!StringUtils.isNullOrEmpty(jine)) {
+                    price = Integer.parseInt(jine) * 100;
                 }
-                if(null!=imgs&&imgs.size()>0){
-                    thumb=imgs.get(0);
+                if (null != imgs && imgs.size() > 0) {
+                    thumb = imgs.get(0);
                     imgs.remove(0);
                 }
-                System.out.println("thumb: "+thumb);
-                logo="https://c-ssl.duitang.com/uploads/item/201801/31/20180131184558_jgycf.jpeg";
                 if (isCreate) {
                     createCircle();
                 } else {
@@ -401,193 +366,90 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
         }
     }
 
-    //获取权限
-    private void getPermission() {
-        if (EasyPermissions.hasPermissions(this, permissions)) {
-            //已经打开权限
-            choosePhotoDialog.show();
-//            Toast.makeText(this, "已经申请相关权限", Toast.LENGTH_SHORT).show();
-        } else {
-            //没有打开相关权限、申请权限
-            EasyPermissions.requestPermissions(this, "需要获取您的相册、照相使用权限", 1, permissions);
-        }
-
+    private void selectImages() {
+        list.remove("add");
+        ImagePicker.getInstance()
+                .setTitle("图片选择")//设置标题
+                .showCamera(true)//设置是否显示拍照按钮
+                .showImage(true)//设置是否展示图片
+                .showVideo(false)//设置是否展示视频
+                .setSingleType(true)//设置图片视频不能同时选择
+                .setMaxCount(9)//设置最大选择图片数目(默认为1，单选)
+                .setImagePaths(list)//保存上一次选择图片的状态，如果不需要可以忽略
+                .setImageLoader(new GlideLoader())//设置自定义图片加载器
+                .start(CreateCircleActivity.this, REQUEST_SELECT_IMAGES_CODE);//REQEST_SELECT_IMAGES_CODE为Intent调用的requestCode
     }
 
-
-    //激活相册操作
-    private void goPhotoAlbum() {
-        Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_PICK);
-        intent.setType("image/*");
-        startActivityForResult(intent, 2);
+    private void selectVideo() {
+        ImagePicker.getInstance()
+                .setTitle("视频选择")//设置标题
+                .showCamera(true)//设置是否显示拍照按钮
+                .showImage(false)//设置是否展示图片
+                .showVideo(true)//设置是否展示视频
+                .setSingleType(true)//设置图片视频不能同时选择
+                .setMaxCount(1)//设置最大选择图片数目(默认为1，单选)
+                .setImagePaths(mVideoList)//保存上一次选择图片的状态，如果不需要可以忽略
+                .setImageLoader(new GlideLoader())//设置自定义图片加载器
+                .start(CreateCircleActivity.this, REQUEST_SELECT_VIDEO_CODE);//REQEST_SELECT_IMAGES_CODE为Intent调用的requestCode
     }
 
-    private void getVideo() {
-        Intent intent = new Intent(Intent.ACTION_PICK, null);
-        intent.setType("video/*");
-        startActivityForResult(intent, 3);
-    }
-
-    //激活相机操作
-    private void goCamera() {
-        cameraSavePath = new File(Environment.getExternalStorageDirectory().getPath() + "/" + System.currentTimeMillis() + ".jpg");
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            image_uri = FileProvider.getUriForFile(this, "com.example.hxd.pictest.fileprovider", cameraSavePath);
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        } else {
-            image_uri = Uri.fromFile(cameraSavePath);
-        }
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, image_uri);
-        this.startActivityForResult(intent, 1);
-    }
-
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        //框架要求必须这么写
-        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
-    }
-
-
-    //成功打开权限
-    @Override
-    public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
-        choosePhotoDialog.show();
-    }
-
-    //用户未同意权限
-    @Override
-    public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
-        Toast.makeText(this, "请同意相关权限，否则功能无法使用", Toast.LENGTH_SHORT).show();
-    }
+    private ArrayList<String> mVideoList = new ArrayList<>();
+    private final int REQUEST_SELECT_IMAGES_CODE = 1001;
+    private final int REQUEST_SELECT_VIDEO_CODE = 1002;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        String path = null;
-        if (requestCode == 1 && resultCode == RESULT_OK) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                path = String.valueOf(cameraSavePath);
-            } else {
-                path = image_uri.getEncodedPath();
-            }
-        } else if (requestCode == 2 && resultCode == RESULT_OK) {
-            path = GetPhotoFromPhotoAlbum.getRealPathFromUri(this, data.getData());
+        if (requestCode == REQUEST_SELECT_IMAGES_CODE && resultCode == RESULT_OK) {
+            list = data.getStringArrayListExtra(ImagePicker.EXTRA_SELECT_IMAGES);
+            uploadImages();
+            list.add("add");
+            imageGridRecyclerAdapter.setData(list);
         }
-        if (isChooseLogo) {
-            logo_image_path = path;
-            Glide.with(this).load(logo_image_path).listener(new RequestListener<Drawable>() {
-                @Override
-                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                    return false;
-                }
 
+        if (requestCode == REQUEST_SELECT_VIDEO_CODE && resultCode == RESULT_OK) {
+            mVideoList = data.getStringArrayListExtra(ImagePicker.EXTRA_SELECT_IMAGES);
+            Glide.with(CreateCircleActivity.this).load(mVideoList.get(0)).error(R.drawable.image_error).into(uploadvideoImageView);
+            UploadImageUtils.getInstance().uploadFile(UploadImageUtils.CIRCLEFEES, mVideoList.get(0), new UploadImageUtils.OnUploadCallback() {
                 @Override
-                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                    if (resource instanceof GifDrawable) {
-                        ((GifDrawable) resource).setLoopCount(0);
-                    }
-                    return false;
+                public void onUploadSuccess(String name) {
+                    videoUrl = name;
+                    VideoUtils.getInstance().getVideoWidthAndHeightAndVideoTimes(videoUrl, new VideoUtils.OnCaculateVideoWidthHeightListener() {
+                        @Override
+                        public void onVideoWidthHeight(float w, float h, float vt) {
+                            videoWidth = (int) w;
+                            videoHeight = (int) h;
+                        }
+                    });
                 }
-            }).into(logoImageView);
-        } else {
-            if (!TextUtils.isEmpty(path)) {
-                UploadImageUtils.getInstance().uploadFile(UploadImageUtils.CIRCLE, path, new UploadImageUtils.OnUploadCallback() {
+            });
+
+        }
+    }
+
+    private LinkedHashMap<String, String> map = new LinkedHashMap<>();
+
+    private void uploadImages() {
+        for (final String path : list) {
+            if (!map.containsKey(path)) {
+                UploadImageUtils.getInstance().uploadFile(UploadImageUtils.CIRCLEFEES, path, new UploadImageUtils.OnUploadCallback() {
                     @Override
                     public void onUploadSuccess(String name) {
-                        imgs.add(name);
-                        System.out.println("upload image: " + name);
-                        System.out.println("imgs: "+imgs.size());
+                        map.put(path, name);
+                        for (int i = 0; i < list.size(); i++) {
+                            if (list.get(i).equals(path)) {
+                                list.get(i).replace(path, name);
+                            }
+                        }
                     }
                 });
-                list.add(path);
-                imageGridRecyclerAdapter.setData(list);
             }
-        }
-
-        if (requestCode == 3 && resultCode == RESULT_OK) {
-            video_path = GetPhotoFromPhotoAlbum.getRealPathFromUri(this, data.getData());
-            video=video_path;
-            System.out.println("video_path: " + video_path);
-            initVideo(video_path);
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    private MyMediaController controller;
-    private VideoView videoView;
-    private String urlString = "http://vd2.bdstatic.com/mda-jkv4qrxm0dmm3vz4/sc/mda-jkv4qrxm0dmm3vz4.mp4";
-
-    private void initVideo(String path) {
-        if (Vitamio.initialize(this)) {
-            videoView = findViewById(R.id.mVideoView);
-            videoView.setVisibility(View.VISIBLE);
-//            videoView.setVideoURI(Uri.parse(urlString));//播放网络视频
-            videoView.setVideoPath(path);//播放本地视频
-            controller = new MyMediaController(this, videoView, this);//视频控制器
-            videoView.setMediaController(controller);//关联控制器
-            //设置高画质
-            videoView.setVideoQuality(MediaPlayer.VIDEOQUALITY_HIGH);
-            //设置显示时长
-            controller.show(5000);
-            videoView.requestFocus();
-            videoView.start();
-            setListener();
         }
     }
 
-    private void setListener() {
-        //设置缓冲进度的监听
-        videoView.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
-            @Override
-            public void onBufferingUpdate(MediaPlayer mp, int percent) {
-//                tvProgress.setText(percent + "%");
-            }
-        });
-        //设置缓冲下载监听
-        videoView.setOnInfoListener(new MediaPlayer.OnInfoListener() {
-            @Override
-            public boolean onInfo(MediaPlayer mp, int what, int extra) {
-                switch (what) {
-                    //开始缓冲
-                    case MediaPlayer.MEDIA_INFO_BUFFERING_START://开始缓冲时的视图变化
-//                        tvProgress.setVisibility(View.VISIBLE);
-//                        tvDownloadSpeed.setVisibility(View.VISIBLE);
-                        mp.pause();
-                        break;
-                    //缓冲结束
-                    case MediaPlayer.MEDIA_INFO_BUFFERING_END://缓冲好后的视图变化（可播放）
-//                        tvProgress.setVisibility(View.GONE);
-//                        tvDownloadSpeed.setVisibility(View.GONE);
-                        mp.start();
-                        break;
-                    //正在缓冲
-                    case MediaPlayer.MEDIA_INFO_DOWNLOAD_RATE_CHANGED:
-//                        tvDownloadSpeed.setText("当前网速:" + extra + "kb/s");//下载是速度
-                        break;
-                }
-                return true;
-            }
-        });
-        //设置准备监听（判断一准备好播放）
-        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mp) {
-                videoView.setBufferSize(512 * 1025);//设置缓冲区大小
-            }
-        });
-    }
 
     @Override
     public void onAddImage() {
-        isChooseLogo = false;
-        if (list.size() < 10) {
-            getPermission();
-        } else {
-            Toast.makeText(this, "最多9张图片", Toast.LENGTH_SHORT).show();
-        }
+        selectImages();
     }
 
     @Override
@@ -597,13 +459,6 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
         imageGridRecyclerAdapter.setData(list);
     }
 
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        if (videoView != null) {
-//            videoView.setVideoLayout(VideoView.VIDEO_LAYOUT_SCALE, 0);
-        }
-        super.onConfigurationChanged(newConfig);
-    }
 
     @Override
     protected void onDestroy() {
@@ -618,10 +473,15 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
         editText.setInputType(editable ? InputType.TYPE_CLASS_TEXT : InputType.TYPE_NULL);
     }
 
+
+    private BaseResult baseResult;
     /**
      * 创建圈子
      */
     private void createCircle() {
+        if (null != list && list.size() > 0) {
+            logo = thumb = list.get(0);
+        }
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.ADD_CIRCLE);
         params.addBodyParameter("circle_name", name);
         params.addBodyParameter("descirption", descirption);
@@ -631,18 +491,20 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
         params.addBodyParameter("is_price", String.valueOf(is_price));
         params.addBodyParameter("price", String.valueOf(price));
         params.addBodyParameter("is_verify", String.valueOf(is_verify));
-        params.addBodyParameter("video", video);
-        params.addBodyParameter("imgs", GsonUtils.GsonString(imgs));
+        params.addBodyParameter("video", videoUrl);
+        params.addBodyParameter("imgs", GsonUtils.GsonString(list));
         params.addBodyParameter("two_industry", two_industry);
         params.addBodyParameter("three_industry", three_industry);
-        params.addBodyParameter("province",String.valueOf(province));
-        params.addBodyParameter("province_name",province_name);
-        params.addBodyParameter("city",String.valueOf(city));
-        params.addBodyParameter("city_name",city_name);
+        params.addBodyParameter("province", String.valueOf(province));
+        params.addBodyParameter("province_name", province_name);
+        params.addBodyParameter("city", String.valueOf(city));
+        params.addBodyParameter("city_name", city_name);
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println(result);
+                baseResult=GsonUtils.GsonToBean(result,BaseResult.class);
+                Message message=myHandler.obtainMessage(2);
+                message.sendToTarget();
             }
 
             @Override

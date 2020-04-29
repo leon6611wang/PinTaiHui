@@ -24,13 +24,15 @@ import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.Feed;
 import com.zhiyu.quanzhu.ui.activity.ArticleInformationActivity;
-import com.zhiyu.quanzhu.ui.activity.ComplaintActivity;
+import com.zhiyu.quanzhu.ui.activity.FeedInformationActivity;
 import com.zhiyu.quanzhu.ui.activity.LargeImageActivity;
+import com.zhiyu.quanzhu.ui.activity.PublishFeedActivity;
+import com.zhiyu.quanzhu.ui.activity.PublishVideoActivity;
 import com.zhiyu.quanzhu.ui.activity.VideoInformationActivity;
-import com.zhiyu.quanzhu.ui.dialog.ArticleOperatDialog;
-import com.zhiyu.quanzhu.ui.dialog.DeleteFeedDialog;
+import com.zhiyu.quanzhu.ui.dialog.MyPublishOperatDialog;
 import com.zhiyu.quanzhu.ui.dialog.ShareDialog;
-import com.zhiyu.quanzhu.ui.widget.CircleImageView;
+import com.zhiyu.quanzhu.ui.dialog.YNDialog;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.HorizontalListView;
 import com.zhiyu.quanzhu.ui.widget.MyGridView;
 import com.zhiyu.quanzhu.ui.widget.NiceImageView;
@@ -56,9 +58,11 @@ public class MyPublishListAdapter extends RecyclerView.Adapter<RecyclerView.View
     private ShareDialog shareDialog;
     private Activity activity;
     private Context context;
-    private ArticleOperatDialog articleOperatDialog;
+    private MyPublishOperatDialog myPublishOperatDialog;
+    private YNDialog ynDialog;
     private int dp_240;
     private int width, height;
+    private int deletePosition = -1;
     private MyHandler myHandler = new MyHandler(this);
 
     public MyPublishListAdapter(Activity aty, final Context context) {
@@ -70,10 +74,35 @@ public class MyPublishListAdapter extends RecyclerView.Adapter<RecyclerView.View
         int dp_30 = (int) context.getResources().getDimension(R.dimen.dp_30);
         width = screenWidth - dp_30;
         shareDialog = new ShareDialog(activity, context, R.style.dialog);
-        articleOperatDialog = new ArticleOperatDialog(context, R.style.dialog, new ArticleOperatDialog.OnArticleOperatListener() {
+        myPublishOperatDialog = new MyPublishOperatDialog(context, R.style.dialog, new MyPublishOperatDialog.OnArticleOperatListener() {
             @Override
-            public void onArticleOperat(int index, int position, String desc) {
+            public void onArticleOperat(int index, int position, int type, String desc) {
                 System.out.println("index: " + index + " , desc: " + desc + " , position: " + position);
+                switch (index) {
+                    case 1:
+                        myPublishSet(position);
+                        break;
+                    case 2:
+                        myPublishSet(position);
+                        break;
+                    case 3:
+                        ynDialog.show();
+                        switch (type) {
+                            case 1:
+                                ynDialog.setTitle("确定删除文章？");
+                                break;
+                            case 2:
+                                ynDialog.setTitle("确定删除视频？");
+                                break;
+                        }
+                        break;
+                }
+            }
+        });
+        ynDialog = new YNDialog(activity, R.style.dialog, new YNDialog.OnYNListener() {
+            @Override
+            public void onConfirm() {
+                deleteMyPublish();
             }
         });
     }
@@ -115,6 +144,21 @@ public class MyPublishListAdapter extends RecyclerView.Adapter<RecyclerView.View
                         adapter.notifyDataSetChanged();
                     }
                     break;
+                case 4:
+                    MessageToast.getInstance(adapter.context).show(adapter.baseResult.getMsg());
+                    if (200 == adapter.baseResult.getCode()) {
+                        int position = (Integer) msg.obj;
+                        adapter.list.get(position).getContent().setIs_publish(!adapter.list.get(position).getContent().isIs_publish());
+                        adapter.notifyItemChanged(position);
+                    }
+                    break;
+                case 5:
+                    MessageToast.getInstance(adapter.context).show(adapter.baseResult.getMsg());
+                    if (200 == adapter.baseResult.getCode()) {
+                        adapter.list.remove(adapter.deletePosition);
+                        adapter.notifyDataSetChanged();
+                    }
+                    break;
             }
         }
     }
@@ -125,8 +169,7 @@ public class MyPublishListAdapter extends RecyclerView.Adapter<RecyclerView.View
     }
 
     class FeedViewHolder extends RecyclerView.ViewHolder {
-        CircleImageView avatarImageView;
-        TextView nameTextView, timeTextView, sourceTextView, shareTextView, commentTextView, priseNumTextView;
+        TextView timeTextView, sourceTextView, shareTextView, commentTextView, priseNumTextView;
         ImageView collectImageView, priseImageView;
         ExpandableTextView mTextView;
         HorizontalListView tagListView;
@@ -137,11 +180,11 @@ public class MyPublishListAdapter extends RecyclerView.Adapter<RecyclerView.View
         NiceImageView feedImageView;
         LinearLayout priseLayout, itemRootLayout;
         RelativeLayout closeLayout;
+        LinearLayout operatLayout;
+        TextView operatTextView;
 
         public FeedViewHolder(View itemView) {
             super(itemView);
-            avatarImageView = itemView.findViewById(R.id.avatarImageView);
-            nameTextView = itemView.findViewById(R.id.nameTextView);
             timeTextView = itemView.findViewById(R.id.timeTextView);
             mTextView = itemView.findViewById(R.id.mTextView);
             collectImageView = itemView.findViewById(R.id.collectImageView);
@@ -159,27 +202,26 @@ public class MyPublishListAdapter extends RecyclerView.Adapter<RecyclerView.View
             videoPlayer = itemView.findViewById(R.id.videoPlayer);
             feedImageView = itemView.findViewById(R.id.feedImageView);
             closeLayout = itemView.findViewById(R.id.closeLayout);
+            operatLayout = itemView.findViewById(R.id.operatLayout);
+            operatTextView = itemView.findViewById(R.id.operatTextView);
         }
     }
 
     class ArticleViewHolder extends RecyclerView.ViewHolder {
         LinearLayout rootLayout;
-        CircleImageView avatarImageView;
-        TextView nameTextView, titleTextView, sourceTextView, timeTextView, shareTextView, commentTextView, priseTextView;
+        TextView titleTextView, sourceTextView, timeTextView, shareTextView, commentTextView, priseTextView;
         LinearLayout priseLayout;
         NiceImageView coverImageView;
         HorizontalListView tagListView;
         FeedCircleTagListAdapter adapter = new FeedCircleTagListAdapter();
         ImageView collectImageView, priseImageView;
         RelativeLayout closeLayout;
-        LinearLayout articleOperatLayout;
-        TextView articleOperatTextView;
+        LinearLayout operatLayout;
+        TextView operatTextView;
 
         public ArticleViewHolder(View itemView) {
             super(itemView);
             rootLayout = itemView.findViewById(R.id.rootLayout);
-            avatarImageView = itemView.findViewById(R.id.avatarImageView);
-            nameTextView = itemView.findViewById(R.id.nameTextView);
             titleTextView = itemView.findViewById(R.id.titleTextView);
             coverImageView = itemView.findViewById(R.id.coverImageView);
             sourceTextView = itemView.findViewById(R.id.sourceTextView);
@@ -193,14 +235,13 @@ public class MyPublishListAdapter extends RecyclerView.Adapter<RecyclerView.View
             tagListView = itemView.findViewById(R.id.tagListView);
             tagListView.setAdapter(adapter);
             closeLayout = itemView.findViewById(R.id.closeLayout);
-            articleOperatLayout = itemView.findViewById(R.id.articleOperatLayout);
-            articleOperatTextView = itemView.findViewById(R.id.articleOperatTextView);
+            operatLayout = itemView.findViewById(R.id.operatLayout);
+            operatTextView = itemView.findViewById(R.id.operatTextView);
         }
     }
 
     class VideoViewHolder extends RecyclerView.ViewHolder {
-        CircleImageView avatarImageView;
-        TextView nameTextView, timeTextView, sourceTextView, shareTextView, commentTextView, priseNumTextView;
+        TextView timeTextView, sourceTextView, shareTextView, commentTextView, priseNumTextView;
         ImageView collectImageView, priseImageView;
         ExpandableTextView mTextView;
         HorizontalListView tagListView;
@@ -208,11 +249,11 @@ public class MyPublishListAdapter extends RecyclerView.Adapter<RecyclerView.View
         VideoPlayerTrackView videoPlayer;
         LinearLayout priseLayout, itemRootLayout;
         RelativeLayout closeLayout;
+        LinearLayout operatLayout;
+        TextView operatTextView;
 
         public VideoViewHolder(View itemView) {
             super(itemView);
-            avatarImageView = itemView.findViewById(R.id.avatarImageView);
-            nameTextView = itemView.findViewById(R.id.nameTextView);
             timeTextView = itemView.findViewById(R.id.timeTextView);
             mTextView = itemView.findViewById(R.id.mTextView);
             collectImageView = itemView.findViewById(R.id.collectImageView);
@@ -228,6 +269,8 @@ public class MyPublishListAdapter extends RecyclerView.Adapter<RecyclerView.View
             tagListView.setAdapter(adapter);
             videoPlayer = itemView.findViewById(R.id.videoPlayer);
             closeLayout = itemView.findViewById(R.id.closeLayout);
+            operatLayout = itemView.findViewById(R.id.operatLayout);
+            operatTextView = itemView.findViewById(R.id.operatTextView);
         }
     }
 
@@ -246,11 +289,9 @@ public class MyPublishListAdapter extends RecyclerView.Adapter<RecyclerView.View
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
         if (holder instanceof FeedViewHolder) {
             FeedViewHolder feed = (FeedViewHolder) holder;
-            Glide.with(context).load(list.get(position).getContent().getAvatar()).error(R.mipmap.no_avatar).into(feed.avatarImageView);
-            feed.nameTextView.setText(list.get(position).getContent().getUsername());
             feed.timeTextView.setText(list.get(position).getContent().getTime());
             if (!StringUtils.isNullOrEmpty(list.get(position).getContent().getContent())) {
                 feed.mTextView.setVisibility(View.VISIBLE);
@@ -266,6 +307,7 @@ public class MyPublishListAdapter extends RecyclerView.Adapter<RecyclerView.View
                 feed.adapter.setList(list.get(position).getContent().getCircle_tags());
             }
             feed.sourceTextView.setText(list.get(position).getContent().getCircle_name());
+
             if (list.get(position).getContent().isIs_collect()) {
                 feed.collectImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.shoucang_yellow));
             } else {
@@ -309,10 +351,24 @@ public class MyPublishListAdapter extends RecyclerView.Adapter<RecyclerView.View
             feed.shareTextView.setOnClickListener(new OnShareClick(position));
             feed.commentTextView.setOnClickListener(new OnCommentClick(position));
             feed.priseLayout.setOnClickListener(new OnPriseClick(position));
+            feed.operatLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ynDialog.show();
+                    ynDialog.setTitle("确定删除动态？");
+                }
+            });
+            feed.itemRootLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent=new Intent(context, FeedInformationActivity.class);
+                    intent.putExtra("feed_id",list.get(position).getContent().getId());
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(intent);
+                }
+            });
         } else if (holder instanceof ArticleViewHolder) {
             ArticleViewHolder article = (ArticleViewHolder) holder;
-            Glide.with(context).load(list.get(position).getContent().getAvatar()).error(R.mipmap.no_avatar).into(article.avatarImageView);
-            article.nameTextView.setText(list.get(position).getContent().getUsername());
             article.titleTextView.setText(list.get(position).getContent().getTitle());
             article.sourceTextView.setText(list.get(position).getContent().getCircle_name());
             if (null != list.get(position).getContent().getThumb()) {
@@ -343,15 +399,19 @@ public class MyPublishListAdapter extends RecyclerView.Adapter<RecyclerView.View
             } else {
                 article.priseImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.dianzan_gray));
             }
+            if (list.get(position).getContent().isIs_publish()) {
+                article.operatTextView.setText("文章下架");
+            } else {
+                article.operatTextView.setText("文章上架");
+            }
+
             article.collectImageView.setOnClickListener(new OnCollectListener(position));
             article.priseLayout.setOnClickListener(new OnPriseClick(position));
             article.shareTextView.setOnClickListener(new OnShareClick(position));
             article.rootLayout.setOnClickListener(new OnArticleInfoClick(position));
-            article.articleOperatLayout.setOnClickListener(new OnArticleOperatClickListener(position));
+            article.operatLayout.setOnClickListener(new OnArticleOperatClickListener(position));
         } else if (holder instanceof VideoViewHolder) {
             VideoViewHolder video = (VideoViewHolder) holder;
-            Glide.with(context).load(list.get(position).getContent().getAvatar()).error(R.mipmap.no_avatar).into(video.avatarImageView);
-            video.nameTextView.setText(list.get(position).getContent().getUsername());
             video.timeTextView.setText(list.get(position).getContent().getTime());
             video.mTextView.setText(list.get(position).getContent().getContent());
             if (null == list.get(position).getContent().getCircle_tags() || list.get(position).getContent().getCircle_tags().size() == 0) {
@@ -365,6 +425,12 @@ public class MyPublishListAdapter extends RecyclerView.Adapter<RecyclerView.View
                 video.collectImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.shoucang_yellow));
             } else {
                 video.collectImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.shoucang_gray));
+            }
+
+            if (list.get(position).getContent().isIs_publish()) {
+                video.operatTextView.setText("视频下架");
+            } else {
+                video.operatTextView.setText("视频上架");
             }
             video.shareTextView.setText(String.valueOf(list.get(position).getContent().getShare_num()));
             video.commentTextView.setText(String.valueOf(list.get(position).getContent().getComment_num()));
@@ -381,7 +447,16 @@ public class MyPublishListAdapter extends RecyclerView.Adapter<RecyclerView.View
             video.shareTextView.setOnClickListener(new OnShareClick(position));
             video.commentTextView.setOnClickListener(new OnCommentClick(position));
             video.priseLayout.setOnClickListener(new OnPriseClick(position));
-            video.itemRootLayout.setOnClickListener(new OnVideoInformationClick(position));
+            video.operatLayout.setOnClickListener(new OnArticleOperatClickListener(position));
+            video.itemRootLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent=new Intent(context,VideoInformationActivity.class);
+                    intent.putExtra("feeds_id",list.get(position).getContent().getId());
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(intent);
+                }
+            });
         }
     }
 
@@ -476,29 +551,15 @@ public class MyPublishListAdapter extends RecyclerView.Adapter<RecyclerView.View
 
         @Override
         public void onClick(View v) {
+
             Intent articleInfoIntent = new Intent(context, ArticleInformationActivity.class);
             articleInfoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             articleInfoIntent.putExtra("article_id", list.get(position).getContent().getId());
-            System.out.println("跳转到文章详情的id: "+list.get(position).getContent().getId());
+            System.out.println("跳转到文章详情的id: " + list.get(position).getContent().getId());
             context.startActivity(articleInfoIntent);
         }
     }
 
-    private class OnVideoInformationClick implements View.OnClickListener {
-        private int position;
-
-        public OnVideoInformationClick(int position) {
-            this.position = position;
-        }
-
-        @Override
-        public void onClick(View v) {
-            Intent videoInfoIntent = new Intent(context, VideoInformationActivity.class);
-            videoInfoIntent.putExtra("feeds_id", list.get(position).getContent().getId());
-            videoInfoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(videoInfoIntent);
-        }
-    }
 
     private BaseResult baseResult;
 
@@ -612,9 +673,68 @@ public class MyPublishListAdapter extends RecyclerView.Adapter<RecyclerView.View
 
         @Override
         public void onClick(View v) {
-            articleOperatDialog.show();
-            articleOperatDialog.setPosition(position);
+            deletePosition = position;
+            myPublishOperatDialog.show();
+            myPublishOperatDialog.setPosition(position, list.get(position).getFeed_type(), list.get(position).getContent().isIs_publish());
         }
+    }
+
+    private void myPublishSet(final int position) {
+        RequestParams params = MyRequestParams.getInstance(context).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.MY_PUBLISH_SET);
+        params.addBodyParameter("id", String.valueOf(list.get(position).getContent().getId()));
+        params.addBodyParameter("type", list.get(position).getContent().isIs_publish() ? "2" : "1");
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
+                Message message = myHandler.obtainMessage(4);
+                message.obj = position;
+                message.sendToTarget();
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
+    private void deleteMyPublish() {
+        RequestParams params = MyRequestParams.getInstance(context).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.DELETE_DRAFT);
+        params.addBodyParameter("ids", String.valueOf(list.get(deletePosition).getContent().getId()));
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
+                Message message = myHandler.obtainMessage(5);
+                message.sendToTarget();
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
     }
 
 }

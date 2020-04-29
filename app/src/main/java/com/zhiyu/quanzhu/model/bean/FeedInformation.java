@@ -29,6 +29,83 @@ public class FeedInformation {
     private DongTaiInfoCircle circle;
     private int comment_num;
     private List<FeedTag> feeds_tags;
+    private String content;
+    private String industry;
+    private String p_industry;
+    private String hobby;
+    private String p_hobby;
+    private int is_secret;
+    private String secret_desc;
+
+    public int getIs_secret() {
+        return is_secret;
+    }
+
+    public void setIs_secret(int is_secret) {
+        this.is_secret = is_secret;
+    }
+
+    public String getSecret_desc() {
+        switch (this.is_secret){
+            case 1:
+                this.secret_desc="公开";
+                break;
+            case 2:
+                this.secret_desc="名片好友可见";
+                break;
+            case 3:
+                this.secret_desc="私密";
+                break;
+            case 4:
+                this.secret_desc="仅@圈子可见";
+                break;
+        }
+        return secret_desc;
+    }
+
+    public void setSecret_desc(String secret_desc) {
+        this.secret_desc = secret_desc;
+    }
+
+    public String getIndustry() {
+        return industry;
+    }
+
+    public void setIndustry(String industry) {
+        this.industry = industry;
+    }
+
+    public String getP_industry() {
+        return p_industry;
+    }
+
+    public void setP_industry(String p_industry) {
+        this.p_industry = p_industry;
+    }
+
+    public String getHobby() {
+        return hobby;
+    }
+
+    public void setHobby(String hobby) {
+        this.hobby = hobby;
+    }
+
+    public String getP_hobby() {
+        return p_hobby;
+    }
+
+    public void setP_hobby(String p_hobby) {
+        this.p_hobby = p_hobby;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
 
     public int getComment_num() {
         return comment_num;

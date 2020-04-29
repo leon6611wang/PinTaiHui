@@ -29,6 +29,8 @@ import com.zhiyu.quanzhu.model.bean.MyCircle;
 import com.zhiyu.quanzhu.model.bean.Tag;
 import com.zhiyu.quanzhu.model.bean.UploadImage;
 import com.zhiyu.quanzhu.model.bean.WhoCanSee;
+import com.zhiyu.quanzhu.model.result.FeedInfoResult;
+import com.zhiyu.quanzhu.model.result.VideoInfoResult;
 import com.zhiyu.quanzhu.ui.adapter.ComplaintImagesGridAdapter;
 import com.zhiyu.quanzhu.ui.adapter.PublishFeedImagesGridAdapter;
 import com.zhiyu.quanzhu.ui.dialog.AddTagDialog;
@@ -38,8 +40,11 @@ import com.zhiyu.quanzhu.ui.dialog.DeleteImageDialog;
 import com.zhiyu.quanzhu.ui.dialog.DrafDialog;
 import com.zhiyu.quanzhu.ui.dialog.HobbyDialog;
 import com.zhiyu.quanzhu.ui.dialog.IndustryDialog;
+import com.zhiyu.quanzhu.ui.dialog.LoadingDialog;
 import com.zhiyu.quanzhu.ui.dialog.WaitDialog;
 import com.zhiyu.quanzhu.ui.dialog.WhoCanSeeDialog;
+import com.zhiyu.quanzhu.ui.toast.FailureToast;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.MyGridView;
 import com.zhiyu.quanzhu.ui.widget.MyRecyclerView;
 import com.zhiyu.quanzhu.ui.widget.RecyclerScrollView;
@@ -82,9 +87,12 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
     private LinkedHashMap<String, String> map = new LinkedHashMap<>();
     private List<String> uploadImgList = new ArrayList<>();
     private RecyclerScrollView mScrollView;
-    private WaitDialog waitDialog;
+    private LoadingDialog waitDialog;
+    private int feeds_id;
     private String video_url;
     private int video_width, video_height;
+    private String circleName;
+    private int secretIndex;
     private MyHandler myHandler = new MyHandler(this);
 
     private static class MyHandler extends Handler {
@@ -98,12 +106,67 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
         public void handleMessage(Message msg) {
             PublishFeedActivity activity = activityWeakReference.get();
             switch (msg.what) {
+                case 0:
+                    if (200 == activity.feedInfoResult.getCode()) {
+                        activity.contentEditText.setText(activity.feedInfoResult.getData().getDetail().getContent());
+                        activity.mImageList.remove("add");
+                        if (!StringUtils.isNullOrEmpty(activity.feedInfoResult.getData().getDetail().getVideo_url())) {
+                            activity.mImageList.add(activity.feedInfoResult.getData().getDetail().getVideo_thumb());
+                            activity.video_url = activity.feedInfoResult.getData().getDetail().getVideo_url();
+                            activity.video_width = activity.feedInfoResult.getData().getDetail().getVideo_width();
+                            activity.video_height = activity.feedInfoResult.getData().getDetail().getVideo_height();
+                        } else {
+                            for (int i = 0; i < activity.feedInfoResult.getData().getDetail().getImgs().size(); i++) {
+                                activity.mImageList.add(activity.feedInfoResult.getData().getDetail().getImgs().get(i).getFile());
+                            }
+                        }
+                        activity.mImageList.add("add");
+                        activity.imageGridAdapter.setData(activity.mImageList);
+                        activity.circleName = activity.feedInfoResult.getData().getDetail().getCircle_name();
+                        activity.industry_parent = activity.feedInfoResult.getData().getDetail().getP_industry();
+                        activity.industry_child = activity.feedInfoResult.getData().getDetail().getIndustry();
+                        activity.hobby_parent = activity.feedInfoResult.getData().getDetail().getP_hobby();
+                        activity.hobby_child = activity.feedInfoResult.getData().getDetail().getHobby();
+                        activity.secretIndex = activity.feedInfoResult.getData().getDetail().getIs_secret();
+                        if (null != activity.feedInfoResult.getData().getDetail().getFeeds_tags() && activity.feedInfoResult.getData().getDetail().getFeeds_tags().size() > 0) {
+                            String tagNames = "";
+                            List<Tag> taglist = new ArrayList<>();
+                            for (int i = 0; i < activity.feedInfoResult.getData().getDetail().getFeeds_tags().size(); i++) {
+                                tagNames += activity.feedInfoResult.getData().getDetail().getFeeds_tags().get(i).getTag_name();
+                                Tag tag = new Tag();
+                                tag.setSelected(true);
+                                tag.setName(activity.feedInfoResult.getData().getDetail().getFeeds_tags().get(i).getTag_name());
+                                tag.setTag_id(activity.feedInfoResult.getData().getDetail().getFeeds_tags().get(i).getId());
+                                taglist.add(tag);
+                                activity.tags += activity.feedInfoResult.getData().getDetail().getFeeds_tags().get(i).getId();
+                                if (i < (activity.feedInfoResult.getData().getDetail().getFeeds_tags().size() - 1)) {
+                                    tagNames += ",";
+                                    activity.tags += ",";
+                                }
+                            }
+                            activity.tagList = taglist;
+                            activity.tagTextView.setText(tagNames);
+                        }
+                        activity.industryTextView.setText(activity.feedInfoResult.getData().getDetail().getP_industry() + "/" +
+                                activity.feedInfoResult.getData().getDetail().getIndustry());
+                        activity.hobbyTextView.setText(activity.feedInfoResult.getData().getDetail().getP_hobby() + "/" +
+                                activity.feedInfoResult.getData().getDetail().getHobby());
+                        activity.is_secret = activity.feedInfoResult.getData().getDetail().getIs_secret();
+                        activity.fanweiTextView.setText(activity.feedInfoResult.getData().getDetail().getSecret_desc());
+                        activity.circle_id = activity.feedInfoResult.getData().getDetail().getCircle().getId();
+                        activity.quanziTextView.setText(activity.feedInfoResult.getData().getDetail().getCircle_name());
+                    }
+                    break;
                 case 1:
                     activity.waitDialog.dismiss();
-                    Toast.makeText(activity, activity.baseResult.getMsg(), Toast.LENGTH_SHORT).show();
+                    MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
                     if (activity.baseResult.getCode() == 200) {
                         activity.finish();
                     }
+                    break;
+                case 2:
+                    activity.waitDialog.dismiss();
+                    FailureToast.getInstance(activity).show("发布失败");
                     break;
             }
         }
@@ -114,9 +177,13 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_publish_feed);
         ScreentUtils.getInstance().setStatusBarLightMode(this, true);
+        feeds_id = getIntent().getIntExtra("feeds_id", 0);
         mImageList.add("add");
         initViews();
         initDialogs();
+        if (feeds_id > 0) {
+            feedInformation();
+        }
     }
 
     private void initViews() {
@@ -206,6 +273,7 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
         circleSelectDialog = new CircleSelectDialog(this, R.style.dialog, new CircleSelectDialog.OnCircleSeletedListener() {
             @Override
             public void onCircleSelected(MyCircle circle) {
+                circleName = circle.getName();
                 circle_id = circle.getId();
                 quanziTextView.setText(circle.getName());
             }
@@ -213,12 +281,12 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
         whoCanSeeDialog = new WhoCanSeeDialog(this, R.style.dialog, new WhoCanSeeDialog.OnWhoCanSeeListener() {
             @Override
             public void onWhoCanSee(WhoCanSee whoCanSee) {
+                secretIndex = whoCanSee.getIndex();
                 is_secret = whoCanSee.getIndex();
                 fanweiTextView.setText(whoCanSee.getTitle());
-                System.out.println(whoCanSee);
             }
         });
-        waitDialog = new WaitDialog(this, R.style.dialog);
+        waitDialog = new LoadingDialog(this, R.style.dialog);
 
         industryDialog = new IndustryDialog(this, R.style.dialog, new IndustryDialog.OnHangYeChooseListener() {
             @Override
@@ -252,13 +320,13 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
         drafDialog = new DrafDialog(this, R.style.dialog, new DrafDialog.OnDrafListener() {
             @Override
             public void onConfirm() {
-                finish();
+                is_draf = 1;
+                publishFeed();
             }
 
             @Override
             public void onCancel() {
-                is_draf = 1;
-                publishFeed();
+
                 finish();
             }
         });
@@ -276,23 +344,45 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
                 break;
             case R.id.addTagLayout:
                 addTagDialog.show();
+                if (null != tagList && tagList.size() > 0) {
+                    addTagDialog.setTagList(tagList);
+                }
                 break;
             case R.id.atquanziLayout:
                 circleSelectDialog.show();
+                if (!StringUtils.isNullOrEmpty(circleName)) {
+                    circleSelectDialog.setCircleName(circleName);
+                }
                 break;
             case R.id.fanweiLayout:
                 whoCanSeeDialog.show();
+                if (null != feedInfoResult && secretIndex > 0) {
+                    whoCanSeeDialog.setWhoCanSee(secretIndex);
+                }
                 break;
             case R.id.publishTextView:
                 waitDialog.show();
-                waitDialog.setNotice("正在发布，请稍等...");
-                publishFeed();
+                if (feeds_id > 0) {
+                    updateFeed();
+                } else {
+                    publishFeed();
+                }
                 break;
             case R.id.hobbyLayout:
                 hobbyDialog.show();
+                if (null != feedInfoResult && !StringUtils.isNullOrEmpty(hobby_parent)
+                        && !StringUtils.isNullOrEmpty(hobby_child)) {
+                    hobbyDialog.setHobby(hobby_parent,
+                            hobby_child);
+                }
                 break;
             case R.id.industryLayout:
                 industryDialog.show();
+                if (null != feedInfoResult && !StringUtils.isNullOrEmpty(industry_parent)
+                        && !StringUtils.isNullOrEmpty(industry_child)) {
+                    industryDialog.setIndustry(industry_parent,
+                            industry_child);
+                }
                 break;
         }
     }
@@ -300,6 +390,7 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
     @Override
     public void onAddImages() {
         choosePhotoDialog.show();
+        choosePhotoDialog.setMenu("图片", "视频`");
     }
 
 
@@ -418,10 +509,6 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
         params.addBodyParameter("p_hobby", hobby_parent);
         params.addBodyParameter("hobby", hobby_child);//兴趣
         params.addBodyParameter("content", contentEditText.getText().toString().trim());
-        params.addBodyParameter("video_url", video_url);
-        params.addBodyParameter("video_width", String.valueOf(video_width));
-        params.addBodyParameter("video_height", String.valueOf(video_height));
-        System.out.println("photos size: " + uploadImageList.size());
         if (null != uploadImageList && uploadImageList.size() > 0) {
             params.addBodyParameter("photos", GsonUtils.GsonString(uploadImageList));
         }
@@ -437,6 +524,78 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
+                Message message = myHandler.obtainMessage(2);
+                message.sendToTarget();
+                System.out.println("发布动态: " + ex.toString());
+
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
+
+    private void updateFeed() {
+        if (null != map && map.size() > 0) {
+            List<String> list = imageGridAdapter.getList();
+            uploadImageList.clear();
+            for (String key : list) {
+                if (!key.equals("add")) {
+                    if (key.startsWith("http://") || key.startsWith("https://")) {
+                        if (null != feedInfoResult.getData().getDetail().getImgs()) {
+                            for (int i = 0; i < feedInfoResult.getData().getDetail().getImgs().size(); i++) {
+                                if (key.equals(feedInfoResult.getData().getDetail().getImgs().get(i).getFile())) {
+                                    UploadImage image = new UploadImage();
+                                    image.setFile(key);
+                                    image.setWidth(feedInfoResult.getData().getDetail().getImgs().get(i).getWidth());
+                                    image.setHeight(feedInfoResult.getData().getDetail().getImgs().get(i).getHeight());
+                                    uploadImageList.add(image);
+                                }
+                            }
+                        }
+                    } else {
+                        uploadImageList.add(ImageUtils.getInstance().getUploadImage(key, map.get(key)));
+                    }
+                }
+            }
+        }
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.UPDATE_FEED);
+        params.addBodyParameter("type", "3");
+        params.addBodyParameter("is_draf", String.valueOf(is_draf));
+        params.addBodyParameter("tags", tags);
+        params.addBodyParameter("circle_id", String.valueOf(circle_id));
+        params.addBodyParameter("p_industry", industry_parent);
+        params.addBodyParameter("industry", industry_child);//行业
+        params.addBodyParameter("p_hobby", hobby_parent);
+        params.addBodyParameter("hobby", hobby_child);//兴趣
+        params.addBodyParameter("content", contentEditText.getText().toString().trim());
+        params.addBodyParameter("feeds_id", String.valueOf(feeds_id));
+        if (null != uploadImageList && uploadImageList.size() > 0) {
+            params.addBodyParameter("photos", GsonUtils.GsonString(uploadImageList));
+        }
+        params.addBodyParameter("is_secret", String.valueOf(is_secret));
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
+                Message message = myHandler.obtainMessage(1);
+                message.sendToTarget();
+                System.out.println(baseResult.getMsg());
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+                Message message = myHandler.obtainMessage(2);
+                message.sendToTarget();
+                System.out.println("发布动态: " + ex.toString());
 
             }
 
@@ -465,5 +624,34 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
         return super.onKeyDown(keyCode, event);
     }
 
+    private FeedInfoResult feedInfoResult;
 
+    private void feedInformation() {
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.FEEDS_INFO);
+        params.addBodyParameter("feeds_id", String.valueOf(feeds_id));
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                System.out.println("feedInformation: " + result);
+                feedInfoResult = GsonUtils.GsonToBean(result, FeedInfoResult.class);
+                Message message = myHandler.obtainMessage(0);
+                message.sendToTarget();
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+                System.out.println("feedInformation: " + ex.toString());
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
 }

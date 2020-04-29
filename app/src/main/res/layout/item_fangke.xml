@@ -20,6 +20,7 @@
         android:padding="@dimen/dp_10">
 
         <com.zhiyu.quanzhu.ui.widget.CircleImageView
+            android:id="@+id/avatarImageView"
             android:layout_width="46dp"
             android:layout_height="46dp"
             android:layout_gravity="center"
@@ -38,10 +39,14 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
                 <TextView
+                    android:id="@+id/nameTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Queena"
                     android:textColor="@color/black"
+                    android:maxEms="5"
+                    android:singleLine="true"
+                    android:ellipsize="end"
                     android:textSize="15sp" />
                 <TextView
                     android:layout_width="wrap_content"
@@ -50,6 +55,7 @@
                     android:textColor="@color/black"
                     android:textSize="15sp" />
                 <TextView
+                    android:id="@+id/countTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text=" 4 "
@@ -68,6 +74,7 @@
                     android:layout_weight="1" />
 
                 <TextView
+                    android:id="@+id/timeTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="2019-04-26"
@@ -85,13 +92,17 @@
                     android:layout_height="wrap_content"
                     android:text="查看"
                     android:textColor="@color/text_color_yellow"
+                    android:visibility="gone"
                     android:textSize="13sp" />
 
                 <TextView
+                    android:id="@+id/contentTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="了你的名片，快去打声招呼吧~"
-                    android:textColor="@color/text_color_gray"
+                    android:textColor="@color/text_color_grey"
+                    android:maxLines="1"
+                    android:ellipsize="end"
                     android:textSize="13sp" />
             </LinearLayout>
 

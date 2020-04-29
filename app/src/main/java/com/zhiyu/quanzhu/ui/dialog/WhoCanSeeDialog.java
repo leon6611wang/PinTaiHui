@@ -33,6 +33,15 @@ public class WhoCanSeeDialog extends Dialog implements View.OnClickListener {
         this.onWhoCanSeeListener = listener;
     }
 
+    public void setWhoCanSee(int index){
+        if(null!=list&&list.size()>0){
+            for(int i=0;i<list.size();i++){
+               list.get(i).setSelected(false);
+            }
+            list.get(index-1).setSelected(true);
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,10 +60,10 @@ public class WhoCanSeeDialog extends Dialog implements View.OnClickListener {
 
     private void initDatas() {
         list = new ArrayList<>();
-        list.add(new WhoCanSee(1,"公开", "全平台可见"));
-        list.add(new WhoCanSee(2,"名片好友可见", "通讯录好友可见"));
-        list.add(new WhoCanSee(3,"私密", "仅自己可见"));
-        list.add(new WhoCanSee(4,"仅@圈子可见", "仅此圈子圈友可见"));
+        list.add(new WhoCanSee(1,"公开", "全平台可见",true));
+        list.add(new WhoCanSee(2,"名片好友可见", "通讯录好友可见",false));
+        list.add(new WhoCanSee(3,"私密", "仅自己可见",false));
+        list.add(new WhoCanSee(4,"仅@圈子可见", "仅此圈子圈友可见",false));
     }
 
     private void initViews() {

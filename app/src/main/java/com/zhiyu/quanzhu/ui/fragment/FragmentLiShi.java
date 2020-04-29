@@ -13,6 +13,10 @@ import android.widget.TextView;
 
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.ui.adapter.ViewPagerAdapter;
+import com.zhiyu.quanzhu.utils.ConstantsUtils;
+import com.zhiyu.quanzhu.utils.MyRequestParams;
+
+import org.xutils.http.RequestParams;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +26,7 @@ public class FragmentLiShi extends Fragment implements View.OnClickListener {
     private ViewPager mViewPager;
     private ViewPagerAdapter viewPagerAdapter;
     private List<Fragment> fragmentList = new ArrayList<>();
+
 
     private LinearLayout shangquanlayout, wenzhanglayout, shangpinlayout;
     private TextView shangquantextview, wenzhangtextview, shangpintextview;
@@ -91,5 +96,11 @@ public class FragmentLiShi extends Fragment implements View.OnClickListener {
                 break;
         }
         mViewPager.setCurrentItem(position);
+    }
+
+    private void myHistory(){
+        RequestParams params= MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL+ConstantsUtils.MY_HISTORY_LIST);
+
+
     }
 }

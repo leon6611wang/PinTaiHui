@@ -30,8 +30,8 @@
         android:layout_gravity="center"
         android:layout_marginLeft="@dimen/dp_15"
         android:layout_marginRight="@dimen/dp_15"
-        android:visibility="gone"
-        android:src="@mipmap/delete_reply" />
+        android:src="@mipmap/delete_reply"
+        android:visibility="gone" />
 
     <ImageView
         android:id="@+id/selectedImageView"

@@ -1,32 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingBottom="@dimen/dp_20"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:paddingBottom="@dimen/dp_20">
 
-    <ImageView
+    <com.zhiyu.quanzhu.ui.widget.NiceImageView
+        android:id="@+id/goodsImageImageView"
         android:layout_width="55dp"
         android:layout_height="55dp"
-        android:src="@mipmap/header"
         android:layout_marginRight="@dimen/dp_10"
-        />
+        android:scaleType="centerCrop"
+        android:src="@mipmap/header"
+        app:corner_radius="2dp" />
 
     <LinearLayout
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_weight="1"
         android:orientation="vertical">
 
         <TextView
+            android:id="@+id/goodsNameTextView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="3D环绕音智能蓝牙运动耳机全面环绕耳 机魔音极致智能耳机环绕耳 机魔音极致智能耳机环绕耳 机魔音极致智能耳机"
-            android:textColor="#333333"
-            android:textSize="15sp"
-            android:maxLines="2"
+            android:layout_height="0dp"
+            android:layout_gravity="center"
+            android:layout_weight="1"
             android:ellipsize="end"
-            android:textStyle="bold" />
+            android:gravity="center|left"
+            android:maxLines="2"
+            android:textColor="#333333"
+            android:textSize="15sp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -34,18 +39,23 @@
             android:orientation="horizontal">
 
             <TextView
-                android:layout_width="wrap_content"
+                android:id="@+id/goodsNormsTextView"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="4"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:text="魔音尊享版"
                 android:textColor="#666666"
                 android:textSize="13sp" />
 
             <View
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_height="@dimen/dp_1"
                 android:layout_weight="1" />
 
             <TextView
+                android:id="@+id/goodsPriceTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="598.9×1"

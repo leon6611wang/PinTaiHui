@@ -7,6 +7,15 @@ import java.util.List;
 public class FullSearchGoodsData {
     private List<FullSearchGoods> goods_list;
     private List<FullSearchGoods> goods;
+    private List<FullSearchGoods> list;
+
+    public List<FullSearchGoods> getList() {
+        return list;
+    }
+
+    public void setList(List<FullSearchGoods> list) {
+        this.list = list;
+    }
 
     public List<FullSearchGoods> getGoods() {
         return goods;

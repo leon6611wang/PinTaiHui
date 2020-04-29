@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseActivity;
 import com.zhiyu.quanzhu.base.BaseResult;
@@ -113,11 +114,13 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
                             null != activity.goodsResult.getData().getDetail()) {
                         activity.goodsInfoLikeGoods(activity.goodsResult.getData().getDetail().getShop_id());
                         List<GoodsImg> bannerList = new ArrayList<>();
-                        GoodsImg goodsVideo = new GoodsImg();
-                        goodsVideo.setUrl(activity.goodsResult.getData().getDetail().getVideo());
-                        goodsVideo.setWidth(activity.goodsResult.getData().getDetail().getVideo_width());
-                        goodsVideo.setHeight(activity.goodsResult.getData().getDetail().getVideo_height());
-                        bannerList.add(goodsVideo);
+                        if(!StringUtils.isNullOrEmpty(activity.goodsResult.getData().getDetail().getVideo())){
+                            GoodsImg goodsVideo = new GoodsImg();
+                            goodsVideo.setUrl(activity.goodsResult.getData().getDetail().getVideo());
+                            goodsVideo.setWidth(activity.goodsResult.getData().getDetail().getVideo_width());
+                            goodsVideo.setHeight(activity.goodsResult.getData().getDetail().getVideo_height());
+                            bannerList.add(goodsVideo);
+                        }
                         bannerList.addAll(activity.goodsResult.getData().getDetail().getImg_list());
                         activity.goodsInfoBanner.setList(bannerList);
                         if (activity.goodsResult.getData().isHas_norms()) {

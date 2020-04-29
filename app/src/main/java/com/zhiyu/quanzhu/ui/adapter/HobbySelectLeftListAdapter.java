@@ -21,6 +21,11 @@ public class HobbySelectLeftListAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    public void setSelectedCount(int position, int selecetdCount) {
+        list.get(position).setSeletedCount(selecetdCount);
+        notifyDataSetChanged();
+    }
+
     @Override
     public int getCount() {
         return null == list ? 0 : list.size();
@@ -66,7 +71,7 @@ public class HobbySelectLeftListAdapter extends BaseAdapter {
             holder.contentTextView.setTextColor(parent.getResources().getColor(R.color.text_color_black));
             holder.contentTextView.setBackground(parent.getResources().getDrawable(R.drawable.hobby_unselected));
         }
-        holder.contentTextView.setText(list.get(position).getName());
+        holder.contentTextView.setText(list.get(position).getName() + (list.get(position).getSeletedCount() == 0 ? "" : "(" + list.get(position).getSeletedCount() + ")"));
         return convertView;
     }
 }

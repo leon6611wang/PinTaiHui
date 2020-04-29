@@ -59,5 +59,26 @@
         <item name="android:windowExitAnimation">@anim/pop_out</item>
     </style>
 
+    <style name="popupwindow_shop_info_goods_type" parent="android:Animation">
+        <item name="android:windowEnterAnimation">@anim/dialog_show_from_right</item>
+        <item name="android:windowExitAnimation">@anim/dialog_hide_to_right</item>
+    </style>
+
+    <declare-styleable name="EmojiBoard">
+        <attr name="deleteIcon" format="reference" />
+        <attr name="emojiIndicator" format="reference" />
+        <attr name="emojiIndicatorHover" format="reference" />
+    </declare-styleable>
+    <declare-styleable name="Emojicon">
+        <attr name="emojiconSize" format="dimension" />
+        <attr name="emojiconAlignment" format="enum">
+            <enum name="bottom" value="0" />
+            <enum name="baseline" value="1" />
+        </attr>
+        <attr name="emojiconTextStart" format="integer" />
+        <attr name="emojiconTextLength" format="integer" />
+        <attr name="emojiconUseSystemDefault" format="boolean" />
+    </declare-styleable>
+
 
 </resources>

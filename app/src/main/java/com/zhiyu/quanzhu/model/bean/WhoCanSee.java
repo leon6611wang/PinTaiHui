@@ -17,10 +17,11 @@ public class WhoCanSee {
         this.index = index;
     }
 
-    public WhoCanSee(int index,String title, String desc) {
+    public WhoCanSee(int index,String title, String desc,boolean selected) {
         this.title = title;
         this.desc = desc;
         this.index=index;
+        this.isSelected=selected;
     }
 
     @Override

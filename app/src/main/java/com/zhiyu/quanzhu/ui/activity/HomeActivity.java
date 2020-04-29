@@ -64,7 +64,10 @@ import java.lang.ref.WeakReference;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Set;
 
+import cn.jpush.android.api.JPushInterface;
+import cn.jpush.android.api.TagAliasCallback;
 import io.rong.imkit.RongIM;
 import io.rong.imlib.IRongCallback;
 import io.rong.imlib.RongIMClient;
@@ -100,7 +103,6 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
             switch (msg.what) {
                 case 1:
                     String version = AppUtils.getInstance().getVersionName(activity);
-                    System.out.println("versionName: " + version);
                     boolean neglect = SharedPreferencesUtils.getInstance(activity).getNeglect();
                     if (null == version) {
                         activity.appUpdateDialog.show();
@@ -150,12 +152,17 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        Vitamio.isInitialized(getApplication());
-//        SharedPreferencesUtils.getInstance(this).clearUser();
+        JPushInterface.setAlias(this, 1001, "quanzhu_1001");
         // 检测Vitamio是否解压解码包
         if (!LibsChecker.checkVitamioLibs(this))
             return;
-        initConversationData();
+        ThreadPoolUtils.getInstance().init().execute(new Runnable() {
+            @Override
+            public void run() {
+                initConversationData();
+            }
+        });
+
         bottomBarLayout = findViewById(R.id.bottomBarLayout);
         bottomBarLayout.getViewTreeObserver().addOnPreDrawListener(
                 new ViewTreeObserver.OnPreDrawListener() {
@@ -171,11 +178,18 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
                 });
 
 //        getToken("9527", "亚瑟");
-        imConnect();
+
         initDialogs();
-        cityList();
-        industryList();
-        hobbyList();
+        ThreadPoolUtils.getInstance().init().execute(new Runnable() {
+            @Override
+            public void run() {
+                imConnect();
+                cityList();
+                industryList();
+                hobbyList();
+            }
+        });
+
     }
 
     @Override
@@ -188,8 +202,14 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
         mLocationClient.startLocation();
 //        requestAppVersion();
         if (checkLogin()) {
-            requestBase();
-            cardUserList();
+            ThreadPoolUtils.getInstance().init().execute(new Runnable() {
+                @Override
+                public void run() {
+                    requestBase();
+                    cardUserList();
+                }
+            });
+
         }
     }
 
@@ -244,7 +264,7 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
         viewPager.setScroll(false);
         adapter = new MyFragmentStatePagerAdapter(getSupportFragmentManager(), fragmentArrayList);
         viewPager.setAdapter(adapter);
-        viewPager.setOffscreenPageLimit(5);
+        viewPager.setOffscreenPageLimit(3);
         viewPager.setCurrentItem(0);
 
         quanzilayout = findViewById(R.id.quanzilayout);
@@ -334,17 +354,17 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
         RongIM.connect(IMUtils.TOKEN_9527, new RongIMClient.ConnectCallbackEx() {
             @Override
             public void OnDatabaseOpened(RongIMClient.DatabaseOpenStatus code) {
-                System.out.println("OnDatabaseOpened: " + code.toString());
+//                System.out.println("OnDatabaseOpened: " + code.toString());
             }
 
             @Override
             public void onTokenIncorrect() {
-                System.out.println("onTokenIncorrect: ");
+//                System.out.println("onTokenIncorrect: ");
             }
 
             @Override
             public void onSuccess(String s) {
-                System.out.println("登录融云服务器成功，当前用户id: " + s);
+//                System.out.println("登录融云服务器成功，当前用户id: " + s);
                 RongIM.setOnReceiveMessageListener(BaseApplication.receiveMessageListener);
                 SharedPreferencesUtils.getInstance(HomeActivity.this).saveUser("97", "一号测试", "http://5b0988e595225.cdn.sohucs.com/q_70,c_zoom,w_640/images/20190518/d38fda99a9654dd2b5b60950a1cb9967.jpeg", "18768100516");
                 updateUserInfo();
@@ -353,7 +373,7 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
 
             @Override
             public void onError(RongIMClient.ErrorCode e) {
-                System.out.println("onError: " + e.toString());
+//                System.out.println("onError: " + e.toString());
             }
         });
     }
@@ -385,7 +405,7 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
 
             @Override
             public void onError(Throwable arg0, boolean arg1) {
-                System.out.println("onError: " + arg0.toString());
+//                System.out.println("onError: " + arg0.toString());
             }
 
             @Override
@@ -394,7 +414,7 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
 
             @Override
             public void onSuccess(String s) {
-                System.out.println("token: " + s);
+//                System.out.println("token: " + s);
             }
         });
     }
@@ -458,7 +478,7 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
             Intent loginIntent = new Intent(this, LoginGetVertifyCodeActivity.class);
             startActivity(loginIntent);
         }
-        System.out.println("是否登录: " + (!TextUtils.isEmpty(user_token)));
+//        System.out.println("是否登录: " + (!TextUtils.isEmpty(user_token)));
         return !TextUtils.isEmpty(user_token);
     }
 
@@ -470,7 +490,7 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("基础信息: " + result);
+//                System.out.println("基础信息: " + result);
 //                userResult = GsonUtils.GsonToBean(result, UserResult.class);
                 homeBaseResult = GsonUtils.GsonToBean(result, HomeBaseResult.class);
                 SharedPreferencesUtils.getInstance(HomeActivity.this).saveUserId(String.valueOf(homeBaseResult.getData().getUid()));
@@ -484,7 +504,7 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                System.out.println("基础信息 error: " + ex.toString());
+//                System.out.println("基础信息 error: " + ex.toString());
             }
 
             @Override
@@ -510,12 +530,12 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
                 appVersionResult.getData().getAndroid().setVersion("5.2.7");
                 android.os.Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
-                System.out.println("app version: " + appVersionResult.getData().getAndroid().getVersion());
+//                System.out.println("app version: " + appVersionResult.getData().getAndroid().getVersion());
             }
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                System.out.println("app version error:" + ex.toString());
+//                System.out.println("app version error:" + ex.toString());
             }
 
             @Override
@@ -632,7 +652,7 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("area: " + result);
+//                System.out.println("area: " + result);
                 areaResult = GsonUtils.GsonToBean(result, AreaResult.class);
                 AreaDao.getInstance().saveAreaProvince(areaResult.getData().getCitys());
                 for (final AreaProvince p : areaResult.getData().getCitys()) {
@@ -673,7 +693,7 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("industry: " + result);
+//                System.out.println("industry: " + result);
                 industryResult = GsonUtils.GsonToBean(result, IndustryResult.class);
                 if (null != industryResult) {
                     IndustryDao.getInstance().saveIndustryParent(industryResult.getData().getList().get(0).getChild());
@@ -750,7 +770,7 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
             public void onSuccess(String result) {
                 cardFrendResult = GsonUtils.GsonToBean(result, CardFrendResult.class);
                 CardFrendDao.getDao().saveCardFendList(cardFrendResult.getData().getMy_friends_card());
-                System.out.println("card users: " + cardFrendResult.getData().getMy_friends_card().size());
+//                System.out.println("card users: " + cardFrendResult.getData().getMy_friends_card().size());
             }
 
             @Override

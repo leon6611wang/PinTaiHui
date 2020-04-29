@@ -19,6 +19,8 @@
     <color name="text_color_yellow">#FE8627</color>
     <color name="text_color_grey">#666666</color>
     <color name="text_color_red">#DD1041</color>
+    <color name="text_color_purse_in">#D90000</color>
+    <color name="text_color_purse_out">#333333</color>
     <color name="text_color_shareinner_gray">#808291</color>
     <color name="text_color_yilingqu">#BBBBBB</color>
     <color name="text_color_gold">#FFDF80</color>

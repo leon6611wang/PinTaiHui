@@ -19,9 +19,13 @@ import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseActivity;
 import com.zhiyu.quanzhu.model.bean.ArticleContent;
+import com.zhiyu.quanzhu.model.bean.ArticleInformation;
+import com.zhiyu.quanzhu.model.result.ArticleInformationResult;
 import com.zhiyu.quanzhu.ui.dialog.ArticleImageClickDialog;
 import com.zhiyu.quanzhu.ui.dialog.LoadingDialog;
+import com.zhiyu.quanzhu.ui.widget.ArticleImageView;
 import com.zhiyu.quanzhu.utils.GlideLoader;
+import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.ImageUtils;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 import com.zhiyu.quanzhu.utils.ThreadPoolUtils;
@@ -31,6 +35,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * 发布文章-正文编辑
@@ -51,6 +56,7 @@ public class PublishArticleContentEditActivity extends BaseActivity implements V
     private LoadingDialog loadingDialog;
     private MyHandler myHandler = new MyHandler(this);
     private int imageUploadCount = 1;
+    private List<ArticleContent> contentList;
 
     private static class MyHandler extends Handler {
         WeakReference<PublishArticleContentEditActivity> articleContentEditActivityWeakReference;
@@ -64,11 +70,19 @@ public class PublishArticleContentEditActivity extends BaseActivity implements V
             PublishArticleContentEditActivity activity = articleContentEditActivityWeakReference.get();
             switch (msg.what) {
                 case 1:
-                    System.out.println("imageUploadCount: " + activity.imageUploadCount);
+                    ArticleImageView imageView = (ArticleImageView) msg.obj;
+                    for (int i = 0; i < activity.viewList.size(); i++) {
+                        if (activity.viewList.get(i) instanceof ArticleImageView) {
+                            ArticleImageView articleImageView = (ArticleImageView) activity.viewList.get(i);
+                            if (null != articleImageView.getLocalPath() && articleImageView.getLocalPath().equals(imageView.getLocalPath())) {
+                                ((ArticleImageView) activity.viewList.get(i)).setImageWidth(imageView.getImageWidth());
+                                ((ArticleImageView) activity.viewList.get(i)).setImageHeight(imageView.getImageHeight());
+                                ((ArticleImageView) activity.viewList.get(i)).setImageUrl(imageView.getImageUrl());
+                            }
+                        }
+                    }
                     if (activity.imageUploadCount == activity.mImageList.size()) {
-//                        activity.loadingDialog.dismiss();
-                        activity.saveArticleContent(activity.list);
-//                        Toast.makeText(activity, "图片已上传完成", Toast.LENGTH_SHORT).show();
+                        activity.saveArticleContent();
                     }
                     activity.imageUploadCount++;
                     break;
@@ -81,10 +95,17 @@ public class PublishArticleContentEditActivity extends BaseActivity implements V
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_publish_article_content_edit);
         ScreentUtils.getInstance().setStatusBarLightMode(this, true);
+        String json = getIntent().getStringExtra("contentList");
         screenWidth = ScreentUtils.getInstance().getScreenWidth(this);
         initDialog();
         initViews();
-        insertEditText(0);
+        if (!StringUtils.isNullOrEmpty(json)) {
+            contentList = GsonUtils.getObjectList(json, ArticleContent.class);
+            initContentLayout(contentList);
+        } else {
+            insertEditText(0, null);
+        }
+
     }
 
     private void initDialog() {
@@ -95,13 +116,15 @@ public class PublishArticleContentEditActivity extends BaseActivity implements V
                     case 1:
                         contentEditLayout.removeViewAt(index);
                         viewList.remove(index);
-                        mImageList.remove(imageListIndex);
+                        if (null != mImageList && mImageList.size() > 0) {
+                            mImageList.remove(imageListIndex);
+                        }
                         break;
                     case 2:
-                        insertEditText(index);
+                        insertEditText(index, null);
                         break;
                     case 3:
-                        insertEditText(index + 1);
+                        insertEditText(index + 1, null);
                         break;
                 }
             }
@@ -124,6 +147,23 @@ public class PublishArticleContentEditActivity extends BaseActivity implements V
         insertImageImageView.setOnClickListener(this);
     }
 
+    private void initContentLayout(List<ArticleContent> list) {
+        this.list.addAll(list);
+        if (null != list && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                ArticleContent content = list.get(i);
+                switch (content.getType()) {
+                    case 1://文字
+                        insertEditText(i, content.getContent());
+                        break;
+                    case 2://图片
+                        insertImage(content.getContent(), null, content.getWidth(), content.getHeight());
+                        break;
+                }
+            }
+        }
+    }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -141,13 +181,19 @@ public class PublishArticleContentEditActivity extends BaseActivity implements V
     }
 
 
-    private void saveArticleContent(List<ArticleContent> articleContentList) {
-        int imgIndex = 0;
+    private void saveArticleContent() {
+        List<ArticleContent> articleContentList = new ArrayList<>();
         if (viewList.size() > 0) {
             for (int i = 0; i < viewList.size(); i++) {
                 if (viewList.get(i) instanceof ImageView) {
-                    articleContentList.get(imgIndex).setIndex(i);
-                    imgIndex++;
+                    ArticleContent imageContent = new ArticleContent();
+                    ArticleImageView imageView = (ArticleImageView) viewList.get(i);
+                    imageContent.setWidth(imageView.getImageWidth());
+                    imageContent.setHeight(imageView.getImageHeight());
+                    imageContent.setIndex(i);
+                    imageContent.setType(2);
+                    imageContent.setContent(imageView.getImageUrl());
+                    articleContentList.add(imageContent);
                 } else if (viewList.get(i) instanceof EditText) {
                     EditText et = (EditText) viewList.get(i);
                     if (!StringUtils.isNullOrEmpty(et.getText().toString().trim())) {
@@ -162,17 +208,18 @@ public class PublishArticleContentEditActivity extends BaseActivity implements V
         } else {
             Toast.makeText(this, "请编辑文章内容.", Toast.LENGTH_SHORT).show();
         }
+        System.out.println("1 --> 图文： " + articleContentList.size());
         loadingDialog.dismiss();
-        if(null!=onSaveArticleContentListener){
+        if (null != onSaveArticleContentListener) {
             onSaveArticleContentListener.onSaveArticleContent(articleContentList);
         }
         finish();
-        System.out.println("article content list: " + articleContentList.size());
     }
+
 
     private int imageListIndex = -1;
 
-    private void insertImage(final String imageUrl, int imageWidth, int imageHeight) {
+    private void insertImage(String imageUrl, String localPath, int imageWidth, int imageHeight) {
         int id = (int) ((Math.random() * 9 + 1) * 100000);
         int dp_5 = (int) getResources().getDimension(R.dimen.dp_5);
         int dp_15 = (int) getResources().getDimension(R.dimen.dp_15);
@@ -183,11 +230,19 @@ public class PublishArticleContentEditActivity extends BaseActivity implements V
         params.bottomMargin = dp_5;
         params.leftMargin = dp_15;
         params.rightMargin = dp_15;
-        ImageView imageView = new ImageView(this);
+        ArticleImageView imageView = new ArticleImageView(this);
         imageView.setId(id);
+        imageView.setImageWidth(imageWidth);
+        imageView.setImageHeight(imageHeight);
+        imageView.setImageUrl(imageUrl);
+        imageView.setLocalPath(localPath);
         imageView.setLayoutParams(params);
         contentEditLayout.addView(imageView);
-        Glide.with(this).load(imageUrl).into(imageView);
+        if (!StringUtils.isNullOrEmpty(imageUrl)) {
+            Glide.with(this).load(imageUrl).into(imageView);
+        } else {
+            Glide.with(this).load(localPath).into(imageView);
+        }
         viewList.add(imageView);
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -199,11 +254,11 @@ public class PublishArticleContentEditActivity extends BaseActivity implements V
                     }
                 }
 
-                for (int i = 0; i < mImageList.size(); i++) {
-                    if (mImageList.get(i).equals(imageUrl)) {
-                        imageListIndex = i;
-                    }
-                }
+//                for (int i = 0; i < mImageList.size(); i++) {
+//                    if (mImageList.get(i).equals(imageUrl)) {
+//                        imageListIndex = i;
+//                    }
+//                }
 
                 boolean showTop = true, showBottom = true;
                 int qianIndex = currentIndex - 1, houIndex = currentIndex + 1;
@@ -219,7 +274,6 @@ public class PublishArticleContentEditActivity extends BaseActivity implements V
                 if (viewList.get(houIndex) instanceof EditText) {
                     showBottom = false;
                 }
-                System.out.println("showTop: " + showTop + " , showBottom: " + showBottom);
                 articleImageClickDialog.show();
                 articleImageClickDialog.setIndex(currentIndex);
                 articleImageClickDialog.showTop(showTop);
@@ -228,7 +282,7 @@ public class PublishArticleContentEditActivity extends BaseActivity implements V
         });
     }
 
-    private void insertEditText(int index) {
+    private void insertEditText(int index, String content) {
         int dp_5 = (int) getResources().getDimension(R.dimen.dp_5);
         int dp_15 = (int) getResources().getDimension(R.dimen.dp_15);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (int) getResources().getDimension(R.dimen.dp_100));
@@ -243,6 +297,9 @@ public class PublishArticleContentEditActivity extends BaseActivity implements V
         editText.setTextSize(13);
         editText.setTextColor(getResources().getColor(R.color.text_color_black));
         editText.setHint("编辑文字内容");
+        if (!StringUtils.isNullOrEmpty(content)) {
+            editText.setText(content);
+        }
         editText.setHintTextColor(getResources().getColor(R.color.text_color_gray));
         editText.setPadding((int) getResources().getDimension(R.dimen.dp_10), (int) getResources().getDimension(R.dimen.dp_10), (int) getResources().getDimension(R.dimen.dp_10), (int) getResources().getDimension(R.dimen.dp_10));
         editText.setGravity(Gravity.TOP);
@@ -272,18 +329,15 @@ public class PublishArticleContentEditActivity extends BaseActivity implements V
             mImageList.addAll(imgList);
             for (String imageUrl : imgList) {
                 int[] wh = ImageUtils.getInstance().getLocalImageWidthHeight(imageUrl);
-                insertImage(imageUrl, wh[0], wh[1]);
+                insertImage(null, imageUrl, wh[0], wh[1]);
             }
         }
-
     }
 
     private List<ArticleContent> list = new ArrayList<>();
 
     private void uploadImages() {
         if (mImageList.size() > 0) {
-            int count = mImageList.size();
-            System.out.println("count: " + count);
             for (final String path : mImageList) {
                 ThreadPoolUtils.getInstance().init().execute(new Runnable() {
                     @Override
@@ -291,31 +345,34 @@ public class PublishArticleContentEditActivity extends BaseActivity implements V
                         UploadImageUtils.getInstance().uploadFile(UploadImageUtils.CIRCLEFEES, path, new UploadImageUtils.OnUploadCallback() {
                             @Override
                             public void onUploadSuccess(String name) {
-                                ArticleContent articleContent = new ArticleContent();
-                                articleContent.setContent(name);
-                                articleContent.setType(2);
+                                ArticleImageView articleImageView = new ArticleImageView(PublishArticleContentEditActivity.this);
                                 int[] wh = ImageUtils.getInstance().getLocalImageWidthHeight(path);
-                                articleContent.setWidth(wh[0]);
-                                articleContent.setHeight(wh[1]);
-                                list.add(articleContent);
-                                System.out.println("list size: " + list.size());
+                                articleImageView.setLocalPath(path);
+                                articleImageView.setImageUrl(name);
+                                articleImageView.setImageWidth(wh[0]);
+                                articleImageView.setImageHeight(wh[1]);
                                 Message message = myHandler.obtainMessage(1);
+                                message.obj = articleImageView;
                                 message.sendToTarget();
                             }
                         });
                     }
                 });
             }
-
+        } else {
+            loadingDialog.dismiss();
+            saveArticleContent();
         }
     }
 
 
     private static OnSaveArticleContentListener onSaveArticleContentListener;
-    public static void setOnSaveArticleContentListener(OnSaveArticleContentListener listener){
-        onSaveArticleContentListener=listener;
+
+    public static void setOnSaveArticleContentListener(OnSaveArticleContentListener listener) {
+        onSaveArticleContentListener = listener;
     }
-    public interface OnSaveArticleContentListener{
+
+    public interface OnSaveArticleContentListener {
         void onSaveArticleContent(List<ArticleContent> list);
     }
 

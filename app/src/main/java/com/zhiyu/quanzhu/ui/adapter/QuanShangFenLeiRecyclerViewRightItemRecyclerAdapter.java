@@ -63,7 +63,7 @@ public class QuanShangFenLeiRecyclerViewRightItemRecyclerAdapter extends Recycle
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.itemImageLayout.setOnClickListener(new OnFenLeiClickListener(list.get(position).getName()));
+        holder.itemImageLayout.setOnClickListener(new OnFenLeiClickListener(position));
         holder.fenleiNameTextView.setText(list.get(position).getName());
         Glide.with(context).load(list.get(position).getImg())
                 //异常时候显示的图片
@@ -81,16 +81,16 @@ public class QuanShangFenLeiRecyclerViewRightItemRecyclerAdapter extends Recycle
     }
 
     public class OnFenLeiClickListener implements View.OnClickListener {
-        private String fenlei;
-
-        public OnFenLeiClickListener(String fenlei) {
-            this.fenlei = fenlei;
+        private int position;
+        public OnFenLeiClickListener(int position) {
+            this.position = position;
         }
 
         @Override
         public void onClick(View v) {
             Intent intent = new Intent(context, GoodsSearchActivity.class);
-            intent.putExtra("keyword", fenlei);
+            intent.putExtra("keyword", list.get(position).getName());
+            intent.putExtra("goods_type_id",list.get(position).getId());
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
         }

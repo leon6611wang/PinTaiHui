@@ -21,6 +21,11 @@ public class ChoosePhotoDialog extends Dialog implements View.OnClickListener {
         this.mContext = context;
     }
 
+    public void setMenu(String menu1,String menu2){
+        xiangceTextView.setText(menu1);
+        paizhaoTextView.setText(menu2);
+    }
+
     public ChoosePhotoDialog(@NonNull Context context, int themeResId, OnChoosePhotoListener listener) {
         super(context, themeResId);
         this.mContext = context;

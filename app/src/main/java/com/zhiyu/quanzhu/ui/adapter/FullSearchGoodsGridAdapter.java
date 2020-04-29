@@ -1,6 +1,7 @@
 package com.zhiyu.quanzhu.ui.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.model.bean.FullSearchGoods;
+import com.zhiyu.quanzhu.ui.activity.GoodsInformationActivity;
 import com.zhiyu.quanzhu.utils.PriceParseUtils;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 
@@ -93,6 +95,23 @@ public class FullSearchGoodsGridAdapter extends BaseAdapter {
         holder.saleNumTextView.setText(String.valueOf(list.get(position).getSale_num()));
         holder.zhengshuTextView.setText(PriceParseUtils.getInstance().getZhengShu(list.get(position).getGoods_price()));
         holder.xiaoshuTextView.setText(PriceParseUtils.getInstance().getXiaoShu(list.get(position).getGoods_price()));
+        holder.goodsLayout.setOnClickListener(new OnGoodsInfoClick(position));
         return convertView;
+    }
+
+    private class OnGoodsInfoClick implements View.OnClickListener{
+        private int position;
+
+        public OnGoodsInfoClick(int position) {
+            this.position = position;
+        }
+
+        @Override
+        public void onClick(View v) {
+            Intent goodsInfoIntent=new Intent(context, GoodsInformationActivity.class);
+            goodsInfoIntent.putExtra("goods_id",list.get(position).getId());
+            goodsInfoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(goodsInfoIntent);
+        }
     }
 }

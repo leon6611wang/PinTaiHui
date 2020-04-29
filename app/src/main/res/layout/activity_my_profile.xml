@@ -19,21 +19,30 @@
             android:layout_marginTop="@dimen/dp_10"
             android:orientation="vertical">
 
-            <TextView
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/dp_10"
-                android:text="头像（点击更换）"
-                android:textColor="#999999"
-                android:textSize="14sp" />
+                android:gravity="center"
+                android:orientation="vertical">
 
-            <com.zhiyu.quanzhu.ui.widget.CircleImageView
-                android:id="@+id/avatarImageView"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_marginBottom="@dimen/dp_20"
-                android:layout_marginLeft="@dimen/dp_10"
-                android:src="@mipmap/no_avatar" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="@dimen/dp_10"
+                    android:gravity="center"
+                    android:text="头像（点击更换）"
+                    android:textColor="#999999"
+                    android:textSize="14sp" />
+
+                <com.zhiyu.quanzhu.ui.widget.CircleImageView
+                    android:id="@+id/avatarImageView"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="@dimen/dp_20"
+                    android:src="@mipmap/no_avatar" />
+            </LinearLayout>
 
             <View
                 android:layout_width="match_parent"
@@ -107,8 +116,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:hint="未选择"
-                    android:textColorHint="@color/text_color_gray"
                     android:textColor="#333333"
+                    android:textColorHint="@color/text_color_gray"
                     android:textSize="13sp" />
 
                 <ImageView
@@ -151,8 +160,8 @@
                     android:id="@+id/cityTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="#333333"
                     android:hint="未选择"
+                    android:textColor="#333333"
                     android:textColorHint="@color/text_color_gray"
                     android:textSize="13sp" />
 
@@ -185,19 +194,21 @@
                     android:layout_marginTop="@dimen/dp_20"
                     android:text="行业/兴趣"
                     android:textColor="#666666"
+                    android:layout_marginRight="@dimen/dp_10"
                     android:textSize="14sp" />
 
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1" />
 
                 <TextView
                     android:id="@+id/industryTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="#333333"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
                     android:hint="未选择"
+                    android:layout_gravity="center"
+                    android:gravity="center|right"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:textColor="#333333"
                     android:textColorHint="@color/text_color_gray"
                     android:textSize="13sp" />
 
@@ -241,8 +252,8 @@
                     android:id="@+id/vertifyTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="#333333"
                     android:hint="未认证"
+                    android:textColor="#333333"
                     android:textColorHint="@color/text_color_gray"
                     android:textSize="13sp" />
 

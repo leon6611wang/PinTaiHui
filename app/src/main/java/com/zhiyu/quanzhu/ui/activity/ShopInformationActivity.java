@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,10 +26,12 @@ import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseActivity;
 import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.MallAdGoods;
+import com.zhiyu.quanzhu.model.bean.ShopInfoGoodsType;
 import com.zhiyu.quanzhu.model.result.MallAdGoodsResult;
 import com.zhiyu.quanzhu.model.result.ShopResult;
 import com.zhiyu.quanzhu.ui.adapter.HomeQuanShangRecyclerAdapter;
 import com.zhiyu.quanzhu.ui.dialog.GoodsCouponsDialog;
+import com.zhiyu.quanzhu.ui.popupwindow.ShopInfoGoodsTypeWindow;
 import com.zhiyu.quanzhu.ui.widget.CircleImageView;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
@@ -75,6 +78,13 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
     private LinearLayout gouwucheLayout, shareLayout;
     private GoodsCouponsDialog youHuiQuanDialog;
     private TextView getCouponTextView;
+    private LinearLayout bottomMeuLayout, allLayout, typeLayout, serviceLayout;
+    private ImageView allImageView, typeImageView, serviceImageView;
+    private TextView allTextView, typeTextView, serviceTextView;
+    private int goods_type_id;
+    private ShopInfoGoodsTypeWindow goodsTypeWindow;
+    private int headerViewHeight, bottomMenuLayoutHeight, shopInfoGoodsTypeWindowHeight, screenHeight, tbHeight;
+
     private static class MyHandler extends Handler {
         WeakReference<ShopInformationActivity> activityWeakReference;
 
@@ -89,31 +99,34 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
                 case 1:
                     activity.ptrFrameLayout.refreshComplete();
                     if (null != activity.adapter) {
+                        activity.adapter.clearDatas();
                         activity.adapter.addDatas(activity.list);
                     }
                     break;
                 case 2:
-                    activity.initStar(activity.shopResult.getData().getMark());
-                    Glide.with(activity).load(activity.shopResult.getData().getShop_icon())
-                            //异常时候显示的图片
-                            .error(R.mipmap.img_h)
-                            //加载成功前显示的图片
-                            .placeholder(R.mipmap.img_h)
-                            //url为空的时候,显示的图片
-                            .fallback(R.mipmap.img_h)
-                            .into(activity.shopIconImageView);
-                    activity.shopNameTextView.setText(activity.shopResult.getData().getShop_name());
-                    activity.followTextView.setText(activity.shopResult.getData().getFollow_num() + "关注");
-                    if (activity.shopResult.getData().isIs_follow()) {
-                        activity.followBtnLayout.setBackground(activity.getResources().getDrawable(R.drawable.shape_oval_solid_bg_white));
-                        activity.followBtnImageView.setVisibility(View.GONE);
-                        activity.followBtnTextView.setText("已关注");
-                        activity.followBtnTextView.setTextColor(activity.getResources().getColor(R.color.text_color_yellow));
-                    } else {
-                        activity.followBtnLayout.setBackground(activity.getResources().getDrawable(R.drawable.shape_oval_bg_white));
-                        activity.followBtnImageView.setVisibility(View.VISIBLE);
-                        activity.followBtnTextView.setText("关注");
-                        activity.followBtnTextView.setTextColor(activity.getResources().getColor(R.color.white));
+                    if (200 == activity.shopResult.getCode()) {
+                        activity.initStar(activity.shopResult.getData().getMark());
+                        Glide.with(activity).load(activity.shopResult.getData().getShop_icon())
+                                //异常时候显示的图片
+                                .error(R.mipmap.img_h)
+                                //加载成功前显示的图片
+                                .placeholder(R.mipmap.img_h)
+                                //url为空的时候,显示的图片
+                                .fallback(R.mipmap.img_h)
+                                .into(activity.shopIconImageView);
+                        activity.shopNameTextView.setText(activity.shopResult.getData().getShop_name());
+                        activity.followTextView.setText(activity.shopResult.getData().getFollow_num() + "关注");
+                        if (activity.shopResult.getData().isIs_follow()) {
+                            activity.followBtnLayout.setBackground(activity.getResources().getDrawable(R.drawable.shape_oval_solid_bg_white));
+                            activity.followBtnImageView.setVisibility(View.GONE);
+                            activity.followBtnTextView.setText("已关注");
+                            activity.followBtnTextView.setTextColor(activity.getResources().getColor(R.color.text_color_yellow));
+                        } else {
+                            activity.followBtnLayout.setBackground(activity.getResources().getDrawable(R.drawable.shape_oval_bg_white));
+                            activity.followBtnImageView.setVisibility(View.VISIBLE);
+                            activity.followBtnTextView.setText("关注");
+                            activity.followBtnTextView.setTextColor(activity.getResources().getColor(R.color.white));
+                        }
                     }
                     break;
                 case 3:
@@ -134,22 +147,38 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shop_information);
         shop_id = getIntent().getStringExtra("shop_id");
-        shop_id = "1";
+//        shop_id = "1";
         ScreentUtils.getInstance().setStatusBarLightMode(this, false);
         int screenWidth = ScreentUtils.getInstance().getScreenWidth(this);
+        screenHeight = ScreentUtils.getInstance().getScreenHeight(this);
         headerHeight = Math.round(screenWidth * hw_ratio);
+        tbHeight = (int) getResources().getDimension(R.dimen.dp_44);
         ll = new LinearLayout.LayoutParams(screenWidth, headerHeight);
         initPtr();
         initViews();
         initDialogs();
         shopInfo();
         searchGoods();
-        shopGoodsType();
-
     }
 
-    private void initDialogs(){
-        youHuiQuanDialog=new GoodsCouponsDialog(this,R.style.dialog);
+    private void initDialogs() {
+        youHuiQuanDialog = new GoodsCouponsDialog(this, R.style.dialog);
+        goodsTypeWindow = new ShopInfoGoodsTypeWindow(this, new ShopInfoGoodsTypeWindow.OnGoodsTypeSelectListener() {
+            @Override
+            public void onGoodsTypeSelect(ShopInfoGoodsType goodsType) {
+                searchEditText.setText(goodsType.getName());
+                keyword = goodsType.getName();
+                goods_type_id = goodsType.getId();
+                page = 1;
+                searchGoods();
+            }
+        });
+        goodsTypeWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                changeBottomMenu(0);
+            }
+        });
     }
 
     private void initViews() {
@@ -170,6 +199,13 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
         mRecyclerView = findViewById(R.id.mRecyclerView);
         adapter = new HomeQuanShangRecyclerAdapter(this);
         headerView = LayoutInflater.from(this).inflate(R.layout.header_shop_information, null);
+        headerView.getViewTreeObserver().addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        headerViewHeight = headerView.getHeight();
+                    }
+                });
         headerBgLayout = headerView.findViewById(R.id.headerBgLayout);
         headerBgLayout.setLayoutParams(ll);
         shopIconImageView = headerView.findViewById(R.id.shopIconImageView);
@@ -180,7 +216,7 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
         followBtnLayout = headerView.findViewById(R.id.followBtnLayout);
         followBtnLayout.setOnClickListener(this);
         followBtnImageView = headerView.findViewById(R.id.followBtnImageView);
-        getCouponTextView=headerView.findViewById(R.id.getCouponTextView);
+        getCouponTextView = headerView.findViewById(R.id.getCouponTextView);
         getCouponTextView.setOnClickListener(this);
         adapter.setHeaderView(headerView);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
@@ -193,9 +229,9 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                     SoftKeyboardUtil.hideSoftKeyboard(ShopInformationActivity.this);
                     keyword = searchEditText.getText().toString().trim();
-                    if (!TextUtils.isEmpty(keyword)) {
-                        searchGoods();
-                    }
+                    goods_type_id = 0;
+                    page = 1;
+                    searchGoods();
                     return true;
                 }
 
@@ -228,10 +264,33 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 totalDy -= dy;
+                shopInfoGoodsTypeWindowHeight = screenHeight - bottomMenuLayoutHeight - headerViewHeight + tbHeight + (int) Math.abs(totalDy);
                 headerLayoutChange();
             }
         });
+        bottomMeuLayout = findViewById(R.id.bottomMeuLayout);
+        allLayout = findViewById(R.id.allLayout);
+        allLayout.setOnClickListener(this);
+        typeLayout = findViewById(R.id.typeLayout);
+        typeLayout.setOnClickListener(this);
+        serviceLayout = findViewById(R.id.serviceLayout);
+        serviceLayout.setOnClickListener(this);
+        allImageView = findViewById(R.id.allImageView);
+        typeImageView = findViewById(R.id.typeImageView);
+        serviceImageView = findViewById(R.id.serviceImageView);
+        allTextView = findViewById(R.id.allTextView);
+        typeTextView = findViewById(R.id.typeTextView);
+        serviceTextView = findViewById(R.id.serviceTextView);
+        bottomMeuLayout.getViewTreeObserver().addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        bottomMenuLayoutHeight = bottomMeuLayout.getHeight();
+//                        System.out.println("bottomMenuLayoutHeight: " + bottomMenuLayoutHeight);
+                    }
+                });
     }
+
 
     private void initStar(int starCount) {
         starLayout.removeAllViews();
@@ -313,6 +372,41 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
             case R.id.getCouponTextView:
                 youHuiQuanDialog.show();
                 break;
+            case R.id.allLayout:
+                if (null != goodsTypeWindow && goodsTypeWindow.isShowing()) {
+                    goodsTypeWindow.dismiss();
+                }
+                changeBottomMenu(0);
+                break;
+            case R.id.typeLayout:
+                if (null != goodsTypeWindow && !goodsTypeWindow.isShowing()) {
+                    goodsTypeWindow.setData(shopInfoGoodsTypeWindowHeight, shop_id);
+                    goodsTypeWindow.showAtUp(bottomMeuLayout);
+                }
+                changeBottomMenu(1);
+                break;
+            case R.id.serviceLayout:
+                if (null != goodsTypeWindow && goodsTypeWindow.isShowing()) {
+                    goodsTypeWindow.dismiss();
+                }
+                break;
+        }
+    }
+
+    private void changeBottomMenu(int position) {
+        allTextView.setTextColor(getResources().getColor(R.color.text_color_grey));
+        typeTextView.setTextColor(getResources().getColor(R.color.text_color_grey));
+        allImageView.setImageDrawable(getResources().getDrawable(R.mipmap.shop_info_all_gray));
+        typeImageView.setImageDrawable(getResources().getDrawable(R.mipmap.shop_info_type_gray));
+        switch (position) {
+            case 0:
+                allTextView.setTextColor(getResources().getColor(R.color.text_color_yellow));
+                allImageView.setImageDrawable(getResources().getDrawable(R.mipmap.shop_info_all_yellow));
+                break;
+            case 1:
+                typeTextView.setTextColor(getResources().getColor(R.color.text_color_yellow));
+                typeImageView.setImageDrawable(getResources().getDrawable(R.mipmap.shop_info_type_yellow));
+                break;
         }
     }
 
@@ -358,14 +452,14 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
                 xiaoliangOrderTextView2.setTextColor(getResources().getColor(R.color.text_color_yellow));
                 if (!isXiaoliangAsc) {
                     isXiaoliangAsc = true;
-                    sort_type = "desc";
+                    sort_type = "asc";
                     Drawable rightDrawable = getResources().getDrawable(R.mipmap.order_up_yellow);
                     rightDrawable.setBounds(0, 0, rightDrawable.getMinimumWidth(), rightDrawable.getMinimumHeight());
                     xiaoliangOrderTextView.setCompoundDrawables(null, null, rightDrawable, null);
                     xiaoliangOrderTextView2.setCompoundDrawables(null, null, rightDrawable, null);
                 } else {
                     isXiaoliangAsc = false;
-                    sort_type = "asc";
+                    sort_type = "desc";
                     Drawable rightDrawable = getResources().getDrawable(R.mipmap.order_down_yellow);
                     rightDrawable.setBounds(0, 0, rightDrawable.getMinimumWidth(), rightDrawable.getMinimumHeight());
                     xiaoliangOrderTextView.setCompoundDrawables(null, null, rightDrawable, null);
@@ -385,14 +479,14 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
                 jiageOrderTextView2.setTextColor(getResources().getColor(R.color.text_color_yellow));
                 if (!isJiageAsc) {
                     isJiageAsc = true;
-                    sort_type = "desc";
+                    sort_type = "asc";
                     Drawable rightDrawable = getResources().getDrawable(R.mipmap.order_up_yellow);
                     rightDrawable.setBounds(0, 0, rightDrawable.getMinimumWidth(), rightDrawable.getMinimumHeight());
                     jiageOrderTextView.setCompoundDrawables(null, null, rightDrawable, null);
                     jiageOrderTextView2.setCompoundDrawables(null, null, rightDrawable, null);
                 } else {
                     isJiageAsc = false;
-                    sort_type = "asc";
+                    sort_type = "desc";
                     Drawable rightDrawable = getResources().getDrawable(R.mipmap.order_down_yellow);
                     rightDrawable.setBounds(0, 0, rightDrawable.getMinimumWidth(), rightDrawable.getMinimumHeight());
                     jiageOrderTextView.setCompoundDrawables(null, null, rightDrawable, null);
@@ -402,7 +496,7 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
                 searchGoods();
                 break;
             case 4:
-                sort = "new_score";
+                sort = "is_new";
                 newOrderTextView.setTextColor(getResources().getColor(R.color.text_color_yellow));
                 newOrderTextView2.setTextColor(getResources().getColor(R.color.text_color_yellow));
                 isXiaoliangAsc = true;
@@ -449,16 +543,22 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
         RequestParams params = new RequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.GOODS_SEARCH);
         params.addBodyParameter("keywords", keyword);
         params.addBodyParameter("page", String.valueOf(page));
-//        params.addBodyParameter("sort",sort);
-//        params.addBodyParameter("sort_type",sort_type);
+        params.addBodyParameter("sort", sort);
+        params.addBodyParameter("is_new", sort.equals("is_new") ? "1" : "0");
+        params.addBodyParameter("sort_type", sort_type);
         params.addBodyParameter("shop_id", shop_id);
+        params.addBodyParameter("shop_category_id", String.valueOf(goods_type_id));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                result = " {\"code\":200,\"msg\":\"ok\",\"data\":{\"goods_list\":[{\"id\":1,\"goods_name\":\"\\u54c8\\u54c8\",\"img\":\"http:\\/\\/q1ecexot0.bkt.clouddn.com\\/89f7fd7ac19548f80029469fc67efab2.jpg\",\"goods_price\":\"1\",\"goods_stock\":\"1\",\"sale_num\":\"0\"},{\"id\":2,\"goods_name\":\"\\u563f\\u563f\",\"img\":\"http:\\/\\/q1ecexot0.bkt.clouddn.com\\/89f7fd7ac19548f80029469fc67efab2.jpg\",\"goods_price\":\"1\",\"goods_stock\":\"1\",\"sale_num\":\"0\"},{\"id\":3,\"goods_name\":\"\\u54c8\\u55bd\",\"img\":\"http:\\/\\/q1ecexot0.bkt.clouddn.com\\/89f7fd7ac19548f80029469fc67efab2.jpg\",\"goods_price\":\"1\",\"goods_stock\":\"1\",\"sale_num\":\"0\"},{\"id\":26,\"goods_name\":\"\\u6d4b\\u8bd5\\u5546\\u54c1\",\"img\":\"http:\\/\\/q1ecexot0.bkt.clouddn.com\\/89f7fd7ac19548f80029469fc67efab2.jpg\",\"goods_price\":\"0\",\"goods_stock\":\"0\",\"sale_num\":\"0\"}]}}\n";
+                System.out.println("店铺详情-商品列表: " + result);
                 mallAdGoodsResult = GsonUtils.GsonToBean(result, MallAdGoodsResult.class);
                 if (mallAdGoodsResult.getCode() == 200) {
-                    list = mallAdGoodsResult.getData().getGoods_list();
+                    if (page == 1) {
+                        list = mallAdGoodsResult.getData().getGoods_list();
+                    } else {
+                        list.addAll(mallAdGoodsResult.getData().getGoods_list());
+                    }
                 }
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
@@ -489,10 +589,11 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
+                System.out.println("shopinfo: " + result);
                 shopResult = GsonUtils.GsonToBean(result, ShopResult.class);
                 Message message = myHandler.obtainMessage(2);
                 message.sendToTarget();
-                System.out.println("shopinfo: " + shopResult.getData());
+
             }
 
             @Override
@@ -519,7 +620,7 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.FOLLOW);
         params.addBodyParameter("follow_id", shop_id);
         params.addBodyParameter("module_type", "store");
-        params.addBodyParameter("type", (null == shopResult || null == shopResult.getData() || !shopResult.getData().isIs_follow()) ? "0" : "1");
+        params.addBodyParameter("type", shopResult.getData().isIs_follow() ? "1" : "0");
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
@@ -547,29 +648,4 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
         });
     }
 
-    private void shopGoodsType(){
-        RequestParams params=new RequestParams(ConstantsUtils.BASE_URL+ConstantsUtils.SHOP_GOODS_TYPE);
-        params.addBodyParameter("shop_id",shop_id);
-        x.http().post(params, new Callback.CommonCallback<String>() {
-            @Override
-            public void onSuccess(String result) {
-                System.out.println("shopGoodsType: "+result);
-            }
-
-            @Override
-            public void onError(Throwable ex, boolean isOnCallback) {
-
-            }
-
-            @Override
-            public void onCancelled(CancelledException cex) {
-
-            }
-
-            @Override
-            public void onFinished() {
-
-            }
-        });
-    }
 }

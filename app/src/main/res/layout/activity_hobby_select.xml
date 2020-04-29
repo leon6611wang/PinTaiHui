@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     android:orientation="vertical">
 
     <include layout="@layout/header_left_center_right_yellow_text" />
@@ -15,18 +16,18 @@
             android:id="@+id/leftList"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1"
+            android:layout_weight="72"
             android:divider="@color/white"
-            android:dividerHeight="0dp"
-            />
+            android:dividerHeight="0dp" />
 
         <ExpandableListView
             android:id="@+id/rightList"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:groupIndicator="@null"
-            android:dividerHeight="0.5dp"
+            android:layout_weight="303"
+            android:childDivider="#EDEDED"
             android:divider="#EDEDED"
-            android:layout_weight="4" />
+            android:dividerHeight="0.5dp"
+            android:groupIndicator="@null" />
     </LinearLayout>
 </LinearLayout>

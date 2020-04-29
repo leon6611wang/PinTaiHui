@@ -82,10 +82,9 @@ public class ArticleInformationActivity extends BaseActivity implements View.OnC
     private CardView circleCardView;
     private NiceImageView circleImageView;
     private ShareDialog shareDialog;
-
     private int dp_15, dp_5, screenWidth, screenHeight;
     private String commentContent = null;
-    private int article_id;
+    private int article_id,myCommentId;
     private MyHandler myHandler = new MyHandler(this);
 
     private static class MyHandler extends Handler {
@@ -210,6 +209,7 @@ public class ArticleInformationActivity extends BaseActivity implements View.OnC
         setContentView(R.layout.activity_article_information);
         ScreentUtils.getInstance().setStatusBarLightMode(this, true);
         article_id = getIntent().getIntExtra("article_id", 0);
+        myCommentId = getIntent().getIntExtra("myCommentId", 0);
 //        article_id=288;
         dp_5 = (int) getResources().getDimension(R.dimen.dp_5);
         dp_15 = (int) getResources().getDimension(R.dimen.dp_15);
@@ -478,6 +478,7 @@ public class ArticleInformationActivity extends BaseActivity implements View.OnC
     private void articleInformation() {
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.FEEDS_INFO);
         params.addBodyParameter("feeds_id", String.valueOf(article_id));
+        params.addBodyParameter("comment_id",String.valueOf(myCommentId));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {

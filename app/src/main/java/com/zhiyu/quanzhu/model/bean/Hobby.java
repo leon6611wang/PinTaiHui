@@ -12,7 +12,26 @@ public class Hobby {
     private int pid;
     private int type;
     private int level;
+    private boolean is_choose;//右边最小层级是否选中
+    private int seletedCount;//左边选中的数量
     private List<Hobby> child;
+
+
+    public int getSeletedCount() {
+        return seletedCount;
+    }
+
+    public void setSeletedCount(int seletedCount) {
+        this.seletedCount = seletedCount;
+    }
+
+    public boolean isIs_choose() {
+        return is_choose;
+    }
+
+    public void setIs_choose(boolean is_choose) {
+        this.is_choose = is_choose;
+    }
 
     public String getSub_name() {
         return sub_name;
