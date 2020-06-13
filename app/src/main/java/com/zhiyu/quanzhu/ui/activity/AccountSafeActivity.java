@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.leon.chic.utils.SPUtils;
 import com.qiniu.android.utils.StringUtils;
 import com.tencent.connect.UserInfo;
 import com.tencent.connect.auth.QQToken;
@@ -18,8 +19,10 @@ import com.tencent.tauth.Tencent;
 import com.tencent.tauth.UiError;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseActivity;
+import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.result.BindInfoResult;
+import com.zhiyu.quanzhu.model.result.BindMobileResult;
 import com.zhiyu.quanzhu.ui.dialog.PasswordCheckDialog;
 import com.zhiyu.quanzhu.ui.dialog.YNDialog;
 import com.zhiyu.quanzhu.ui.toast.FailureToast;
@@ -45,9 +48,8 @@ public class AccountSafeActivity extends BaseActivity implements View.OnClickLis
     private TextView titleTextView, phoneNumberTextView, bondQQTextView, bondWechatTextView;
     private LinearLayout updatePhoneNumberLayout, editLoginPwdLayout, editPayPwdLayout;
     private PasswordCheckDialog passwordCheckDialog;
-    private YNDialog ynDialog;
+    private YNDialog ynDialog, confirmBindDialog;
     private int bondType = 1;//绑定类型1:qq,2:wx
-    private String phoneNumber = "18757591055";
     private Tencent mTencent;
     private MyHandler myHandler = new MyHandler(this);
 
@@ -87,12 +89,25 @@ public class AccountSafeActivity extends BaseActivity implements View.OnClickLis
                     }
                     break;
                 case 2:
-                    MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
-                    if (200 == activity.baseResult.getCode())
-                        activity.bindInfo();
+                    switch (activity.bindMobileResult.getCode()) {
+                        case 200:
+                            MessageToast.getInstance(activity).show(activity.bindMobileResult.getMsg());
+                            activity.bindInfo();
+                            break;
+                        case 1003:
+                            activity.confirmBindDialog.show();
+                            activity.confirmBindDialog.setTitle(activity.bindMobileResult.getMsg());
+                            break;
+                        default:
+                            MessageToast.getInstance(activity).show(activity.bindMobileResult.getMsg());
+                            break;
+                    }
                     break;
                 case 3:
                     FailureToast.getInstance(activity).show();
+                    break;
+                case 4:
+                    MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
                     break;
             }
         }
@@ -141,6 +156,12 @@ public class AccountSafeActivity extends BaseActivity implements View.OnClickLis
             @Override
             public void onConfirm() {
                 unbond();
+            }
+        });
+        confirmBindDialog = new YNDialog(this, R.style.dialog, new YNDialog.OnYNListener() {
+            @Override
+            public void onConfirm() {
+                confirmBindMobile();
             }
         });
     }
@@ -208,7 +229,11 @@ public class AccountSafeActivity extends BaseActivity implements View.OnClickLis
 
     @Override
     public void onBondWechatAccount(String openid, String unionid, String nickname, String avatar) {
-        bondWechat(openid, unionid, nickname, avatar);
+        this.openid = openid;
+        this.unionid = unionid;
+        this.nickname = nickname;
+        this.avatar = avatar;
+        bondWechat();
     }
 
     private BindInfoResult infoResult;
@@ -251,8 +276,12 @@ public class AccountSafeActivity extends BaseActivity implements View.OnClickLis
             @Override
             public void onSuccess(String result) {
                 baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
-                Message message = myHandler.obtainMessage(2);
+                Message message = myHandler.obtainMessage(4);
                 message.sendToTarget();
+                if (200 == baseResult.getCode()) {
+                    bindInfo();
+                }
+
             }
 
             @Override
@@ -273,7 +302,12 @@ public class AccountSafeActivity extends BaseActivity implements View.OnClickLis
         });
     }
 
-    private void bondQQ(String openid, String unionid, String nickname, String avatar) {
+    private BindMobileResult bindMobileResult;
+    private int bind_type = 0;
+    private String openid, unionid, nickname, avatar;
+
+    private void bondQQ() {
+        bind_type = 1;
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.BOND_QQ);
         params.addBodyParameter("openid", openid);
         params.addBodyParameter("unionid", unionid);
@@ -282,7 +316,7 @@ public class AccountSafeActivity extends BaseActivity implements View.OnClickLis
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
+                bindMobileResult = GsonUtils.GsonToBean(result, BindMobileResult.class);
                 Message message = myHandler.obtainMessage(2);
                 message.sendToTarget();
             }
@@ -305,7 +339,8 @@ public class AccountSafeActivity extends BaseActivity implements View.OnClickLis
         });
     }
 
-    private void bondWechat(String openid, String unionid, String nickname, String avatar) {
+    private void bondWechat() {
+        bind_type = 2;
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.BOND_WECHAT);
         params.addBodyParameter("openid", openid);
         params.addBodyParameter("unionid", unionid);
@@ -314,7 +349,8 @@ public class AccountSafeActivity extends BaseActivity implements View.OnClickLis
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
+                System.out.println("bindwechat: " + result);
+                bindMobileResult = GsonUtils.GsonToBean(result, BindMobileResult.class);
                 Message message = myHandler.obtainMessage(2);
                 message.sendToTarget();
             }
@@ -323,6 +359,43 @@ public class AccountSafeActivity extends BaseActivity implements View.OnClickLis
             public void onError(Throwable ex, boolean isOnCallback) {
                 Message message = myHandler.obtainMessage(3);
                 message.sendToTarget();
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
+    private void confirmBindMobile() {
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.CONFIRM_BIND_MOBILE);
+        params.addBodyParameter("id", String.valueOf(bindMobileResult.getData().getId()));
+        params.addBodyParameter("openid", openid);
+        params.addBodyParameter("unionid", unionid);
+        params.addBodyParameter("nickname", nickname);
+        params.addBodyParameter("avatar", avatar);
+        params.addBodyParameter("type", String.valueOf(bind_type));
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                System.out.println("确定绑定: " + result);
+                baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
+                Message message = myHandler.obtainMessage(4);
+                message.sendToTarget();
+                if (baseResult.getCode() == 200) {
+                    bindInfo();
+                }
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+
             }
 
             @Override
@@ -370,7 +443,7 @@ public class AccountSafeActivity extends BaseActivity implements View.OnClickLis
                 @Override
                 public void onComplete(Object o) {
                     System.out.println("qq 信息: " + o.toString());
-                    String nickname = ((JSONObject) o).optString("nickname");
+                    String name = ((JSONObject) o).optString("nickname");
                     String sexStr = ((JSONObject) o).optString("sex");
                     String headImg = ((JSONObject) o).optString("figureurl_qq_2");
                     int sex = 0;
@@ -381,7 +454,11 @@ public class AccountSafeActivity extends BaseActivity implements View.OnClickLis
                     }
                     //QQ第三方登录（5个参数）
                     System.out.println("nickname:" + nickname + " , headImg: " + headImg + " , sexStr: " + sexStr);
-                    bondQQ(uniqueCode, uniqueCode, nickname, headImg);
+                    openid = uniqueCode;
+                    unionid = uniqueCode;
+                    nickname = name;
+                    avatar = headImg;
+                    bondQQ();
                 }
 
                 @Override

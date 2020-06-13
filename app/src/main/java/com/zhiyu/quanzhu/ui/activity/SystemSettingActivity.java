@@ -2,17 +2,31 @@ package com.zhiyu.quanzhu.ui.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.leon.chic.utils.SPUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseActivity;
+import com.zhiyu.quanzhu.base.BaseApplication;
+import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.ui.dialog.AppraiseUsDialog;
 import com.zhiyu.quanzhu.ui.dialog.YNDialog;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
+import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GlideCacheUtil;
+import com.zhiyu.quanzhu.utils.GsonUtils;
+import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
-import com.zhiyu.quanzhu.utils.SharedPreferencesUtils;
+
+import org.xutils.common.Callback;
+import org.xutils.http.RequestParams;
+import org.xutils.x;
+
+import java.lang.ref.WeakReference;
 
 import io.rong.imlib.RongIMClient;
 
@@ -23,6 +37,29 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
     private TextView cacheSizeTextView;
     private YNDialog ynDialog;
     private AppraiseUsDialog appraiseUsDialog;
+    private MyHandler myHandler=new MyHandler(this);
+    private static class MyHandler extends Handler{
+        WeakReference<SystemSettingActivity> weakReference;
+        public MyHandler(SystemSettingActivity activity){
+            weakReference=new WeakReference<>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            SystemSettingActivity activity=weakReference.get();
+            switch (msg.what){
+                case 1:
+                    MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
+                    if(activity.baseResult.getCode()==200){
+                        activity.logout();
+                    }
+                    break;
+                case 99:
+                    MessageToast.getInstance(activity).show("服务器内部错误，请稍后再试.");
+                    break;
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,10 +98,10 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
         ynDialog = new YNDialog(this, R.style.dialog, new YNDialog.OnYNListener() {
             @Override
             public void onConfirm() {
-                logout();
+                logoutService();
             }
         });
-        appraiseUsDialog=new AppraiseUsDialog(this,R.style.dialog);
+        appraiseUsDialog = new AppraiseUsDialog(this, R.style.dialog);
     }
 
     @Override
@@ -104,12 +141,40 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
     }
 
     private void logout() {
-        SharedPreferencesUtils.getInstance(this).clearUser();
+        SPUtils.getInstance().userLogout(BaseApplication.applicationContext);
         RongIMClient.getInstance().logout();
-        Intent loginIntent = new Intent(this, LoginByPwdActivity.class);
+        Intent loginIntent = new Intent(this, LoginGetVertifyCodeActivity.class);
         startActivity(loginIntent);
         finish();
     }
 
+    private BaseResult baseResult;
+    private void logoutService(){
+        RequestParams params= MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL+ConstantsUtils.LOGOUT);
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                baseResult= GsonUtils.GsonToBean(result,BaseResult.class);
+                Message message=myHandler.obtainMessage(1);
+                message.sendToTarget();
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+                Message message=myHandler.obtainMessage(99);
+                message.sendToTarget();
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
 
 }

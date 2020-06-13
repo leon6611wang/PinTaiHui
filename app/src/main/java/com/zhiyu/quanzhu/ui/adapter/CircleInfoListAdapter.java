@@ -16,10 +16,13 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.leon.myvideoplaerlibrary.view.VideoPlayerTrackView;
+import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.CircleInfoFeed;
+import com.zhiyu.quanzhu.ui.activity.ArticleInformationActivity;
 import com.zhiyu.quanzhu.ui.activity.FeedInformationActivity;
+import com.zhiyu.quanzhu.ui.activity.VideoInformationActivity;
 import com.zhiyu.quanzhu.ui.dialog.ShareDialog;
 import com.zhiyu.quanzhu.ui.widget.CircleImageView;
 import com.zhiyu.quanzhu.ui.widget.HorizontalListView;
@@ -107,6 +110,12 @@ public class CircleInfoListAdapter extends BaseAdapter {
         return position;
     }
 
+    private boolean isStop;
+    public void setVideoStop(boolean stop){
+        this.isStop=stop;
+        notifyDataSetChanged();
+    }
+
     class ViewHolder {
         CircleImageView avatarImageView;
         TextView nameTextView, timeTextView, mTextView;
@@ -161,9 +170,11 @@ public class CircleInfoListAdapter extends BaseAdapter {
         } else {
             holder.priseImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.dianzan_gray));
         }
-        Glide.with(parent.getContext()).load(list.get(position).getContent().getAvatar()).error(R.mipmap.no_avatar).into(holder.avatarImageView);
+        Glide.with(parent.getContext()).load(list.get(position).getContent().getAvatar()).error(R.drawable.image_error).into(holder.avatarImageView);
+        if(!StringUtils.isNullOrEmpty(list.get(position).getContent().getUsername()))
         holder.nameTextView.setText(list.get(position).getContent().getUsername());
         holder.timeTextView.setText(list.get(position).getContent().getTime());
+        if(!StringUtils.isNullOrEmpty(list.get(position).getContent().getContent()))
         holder.mTextView.setText(list.get(position).getContent().getContent());
         holder.collectImageView.setOnClickListener(new OnCollectListener(position));
         holder.priseLayout.setOnClickListener(new OnPriseClick(position));
@@ -178,6 +189,9 @@ public class CircleInfoListAdapter extends BaseAdapter {
                 holder.imageGridView.setVisibility(View.VISIBLE);
                 holder.imagesGridAdapter.setList(list.get(position).getContent().getImgs());
                 break;
+        }
+        if(isStop&&holder.videoPlayer.isPlaying()){
+            holder.videoPlayer.pause();
         }
         return convertView;
     }
@@ -244,11 +258,30 @@ public class CircleInfoListAdapter extends BaseAdapter {
 
         @Override
         public void onClick(View v) {
-            Intent feedInfoIntent=new Intent(context, FeedInformationActivity.class);
-            feedInfoIntent.putExtra("feed_id",list.get(position).getContent().getId());
-            feedInfoIntent.putExtra("feed_type",String.valueOf(list.get(position).getType()));
-            feedInfoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(feedInfoIntent);
+            switch (list.get(position).getFeeds_type()){
+                case 1:
+                    Intent articleIntent=new Intent(context, ArticleInformationActivity.class);
+                    articleIntent.putExtra("article_id",list.get(position).getContent().getId());
+
+                    articleIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(articleIntent);
+                    break;
+                case 2:
+                    Intent videoIntent=new Intent(context, VideoInformationActivity.class);
+                    videoIntent.putExtra("feeds_id",list.get(position).getContent().getId());
+
+                    videoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(videoIntent);
+                    break;
+                case 3:
+                    Intent feedInfoIntent=new Intent(context, FeedInformationActivity.class);
+                    feedInfoIntent.putExtra("feed_id",list.get(position).getContent().getId());
+                    feedInfoIntent.putExtra("feed_type",String.valueOf(list.get(position).getType()));
+                    feedInfoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(feedInfoIntent);
+                    break;
+            }
+
         }
     }
 

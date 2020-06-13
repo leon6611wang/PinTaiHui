@@ -2,6 +2,9 @@ package com.zhiyu.quanzhu.utils;
 
 import android.content.Context;
 
+import com.leon.chic.utils.SPUtils;
+import com.zhiyu.quanzhu.base.BaseApplication;
+
 import org.xutils.http.RequestParams;
 
 /**
@@ -32,20 +35,22 @@ public class MyRequestParams {
             String brand = AppUtils.getInstance().getDeviceBrand() + " " + AppUtils.getInstance().getSystemModel();
             user_agent = xitong + "/" + sys_version + "/" + brand;
         }
-        if (null == user_token) {
-            user_token = SharedPreferencesUtils.getInstance(context).getUserToken();
-        }
+
         return params;
     }
 
     public RequestParams getRequestParams(String url) {
+        try {
+            user_token = SPUtils.getInstance().getUserToken(BaseApplication.applicationContext);
+        } catch (Exception e) {
+            user_token = null;
+        }
         RequestParams params = new RequestParams(url);
         params.addHeader("version", version);
         params.addHeader("os", "android");
-        params.addHeader("device_id", device_id);
+        params.addHeader("device", device_id);
         params.addHeader("user_agent", user_agent);
         params.addHeader("Authorization", user_token);
-//        System.out.println(user_token);
         return params;
     }
 }

@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -21,6 +22,7 @@ import com.zhiyu.quanzhu.model.bean.FeedCommentChild;
 import com.zhiyu.quanzhu.model.result.FeedChildCommentResult;
 import com.zhiyu.quanzhu.model.result.FeedCommentParentResult;
 import com.zhiyu.quanzhu.ui.adapter.ArticleInfoCommentListChildAdapter;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.CircleImageView;
 import com.zhiyu.quanzhu.ui.widget.MyListView;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
@@ -46,7 +48,7 @@ import in.srain.cube.views.ptr.PtrFrameLayout;
 /**
  * 评论详情
  */
-public class CommentInformationActivity extends BaseActivity implements View.OnClickListener {
+public class CommentInformationActivity extends BaseActivity implements View.OnClickListener, ArticleInfoCommentListChildAdapter.OnReplyChildCommentListener {
     private LinearLayout backLayout;
     private TextView titleTextView;
     private PtrFrameLayout ptrFrameLayout;
@@ -60,6 +62,7 @@ public class CommentInformationActivity extends BaseActivity implements View.OnC
     private String commentContent;
     private int comment_id;
     private MyHandler myHandler = new MyHandler(this);
+
     private static class MyHandler extends Handler {
         WeakReference<CommentInformationActivity> activityWeakReference;
 
@@ -88,26 +91,26 @@ public class CommentInformationActivity extends BaseActivity implements View.OnC
                     activity.adapter.setList(activity.list);
                     break;
                 case 2:
-                    Toast.makeText(activity, activity.baseResult.getMsg(), Toast.LENGTH_SHORT).show();
-                    if (activity.baseResult.getCode() == 200) {
-                        activity.feedCommentParentResult.getData().setIs_prise(!activity.feedCommentParentResult.getData().isIs_prise());
-                        if (activity.feedCommentParentResult.getData().isIs_prise()) {
-                            activity.priseImageView.setImageDrawable(activity.getResources().getDrawable(R.mipmap.dianzan_yellow));
-                            activity.feedCommentParentResult.getData().setPnum(activity.feedCommentParentResult.getData().getPnum()+1);
-                            activity.priseNumTextView.setText(String.valueOf(activity.feedCommentParentResult.getData().getPnum()));
-                        } else {
-                            activity.priseImageView.setImageDrawable(activity.getResources().getDrawable(R.mipmap.dianzan_gray));
-                            activity.feedCommentParentResult.getData().setPnum(activity.feedCommentParentResult.getData().getPnum()-1);
-                            activity.priseNumTextView.setText(String.valueOf(activity.feedCommentParentResult.getData().getPnum()));
-                        }
-                    }
+                    MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
+//                    if (activity.baseResult.getCode() == 200) {
+//                        activity.feedCommentParentResult.getData().setIs_prise(!activity.feedCommentParentResult.getData().isIs_prise());
+//                        if (activity.feedCommentParentResult.getData().isIs_prise()) {
+//                            activity.priseImageView.setImageDrawable(activity.getResources().getDrawable(R.mipmap.dianzan_yellow));
+//                            activity.feedCommentParentResult.getData().setPnum(activity.feedCommentParentResult.getData().getPnum() + 1);
+//                            activity.priseNumTextView.setText(String.valueOf(activity.feedCommentParentResult.getData().getPnum()));
+//                        } else {
+//                            activity.priseImageView.setImageDrawable(activity.getResources().getDrawable(R.mipmap.dianzan_gray));
+//                            activity.feedCommentParentResult.getData().setPnum(activity.feedCommentParentResult.getData().getPnum() - 1);
+//                            activity.priseNumTextView.setText(String.valueOf(activity.feedCommentParentResult.getData().getPnum()));
+//                        }
+//                    }
                     break;
                 case 3:
-                    if (activity.baseResult.getCode() == 200) {
-                        Toast.makeText(activity, "评论成功", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(activity, "操作失败，请稍后再试.", Toast.LENGTH_SHORT).show();
-                    }
+                    MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
+                    break;
+                case 99:
+                    MessageToast.getInstance(activity).show("服务器错误，稍后再试.");
+                    activity.ptrFrameLayout.refreshComplete();
                     break;
             }
         }
@@ -117,9 +120,11 @@ public class CommentInformationActivity extends BaseActivity implements View.OnC
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         setContentView(R.layout.activity_comment_information);
         ScreentUtils.getInstance().setStatusBarLightMode(this, true);
         comment_id = getIntent().getIntExtra("comment_id", 0);
+        reply_comment_id = comment_id;
         initViews();
         commentDetail();
         replyCommentList();
@@ -138,9 +143,11 @@ public class CommentInformationActivity extends BaseActivity implements View.OnC
         timeTextView = findViewById(R.id.timeTextView);
         contentTextView = findViewById(R.id.contentTextView);
         replyTextView = findViewById(R.id.replyTextView);
+        replyTextView.setOnClickListener(this);
         priseLayout = findViewById(R.id.priseLayout);
         priseLayout.setOnClickListener(this);
         adapter = new ArticleInfoCommentListChildAdapter(this);
+        adapter.setOnReplyChildCommentListener(this);
         listView = findViewById(R.id.listView);
         listView.setAdapter(adapter);
         commentEditText = findViewById(R.id.commentEditText);
@@ -157,6 +164,19 @@ public class CommentInformationActivity extends BaseActivity implements View.OnC
                 return false;
             }
         });
+    }
+
+    private int reply_comment_id;
+
+    @Override
+    public void onReplyChildComment(int comment_id) {
+        System.out.println("comment_id: " + comment_id);
+//        SoftKeyboardUtil.showSoftKeyBoard(getWindow());
+        SoftKeyboardUtil.showSoftKeyboard(this, commentEditText);
+        reply_comment_id = comment_id;
+        System.out.println("reply_comment_id: " + reply_comment_id);
+        commentEditText.setFocusable(true);
+
     }
 
     private void initPtr() {
@@ -192,24 +212,33 @@ public class CommentInformationActivity extends BaseActivity implements View.OnC
             case R.id.priseLayout:
                 priseFeed();
                 break;
+            case R.id.replyTextView:
+                SoftKeyboardUtil.showSoftKeyboard(this, commentEditText);
+                reply_comment_id = comment_id;
+                commentEditText.setFocusable(true);
+                System.out.println("reply_comment_id: " + reply_comment_id + " , comment_id: " + comment_id);
+                break;
         }
     }
 
     private FeedCommentParentResult feedCommentParentResult;
-    private void commentDetail(){
-        RequestParams params=MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL+ConstantsUtils.COMMENT_DETAIL);
-        params.addBodyParameter("comment_id",String.valueOf(comment_id));
+
+    private void commentDetail() {
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.COMMENT_DETAIL);
+        params.addBodyParameter("comment_id", String.valueOf(comment_id));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                feedCommentParentResult=GsonUtils.GsonToBean(result,FeedCommentParentResult.class);
-                Message message=myHandler.obtainMessage(0);
+                feedCommentParentResult = GsonUtils.GsonToBean(result, FeedCommentParentResult.class);
+                Message message = myHandler.obtainMessage(0);
                 message.sendToTarget();
             }
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
 //                System.out.println("commentDetail: "+ex.toString());
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
             }
 
             @Override
@@ -230,12 +259,14 @@ public class CommentInformationActivity extends BaseActivity implements View.OnC
     private List<FeedCommentChild> list;
 
     private void replyCommentList() {
+        System.out.println("comment_id: " + comment_id);
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.REPLY_COMMENT);
         params.addBodyParameter("comment_id", String.valueOf(comment_id));
         params.addBodyParameter("page", String.valueOf(page));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
+                System.out.println("评论-回复列表: " + result);
                 childCommentResult = GsonUtils.GsonToBean(result, FeedChildCommentResult.class);
                 if (isRefresh) {
                     list = childCommentResult.getData().getList();
@@ -248,7 +279,10 @@ public class CommentInformationActivity extends BaseActivity implements View.OnC
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
                 System.out.println("reply commment list: " + ex.toString());
+
             }
 
             @Override
@@ -280,7 +314,8 @@ public class CommentInformationActivity extends BaseActivity implements View.OnC
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
             }
 
             @Override
@@ -299,23 +334,30 @@ public class CommentInformationActivity extends BaseActivity implements View.OnC
      * 评论/回复评论
      */
     private void feedComment() {
+        System.out.println("评论/回复评论 -- feeds_id: " + feedCommentParentResult.getData().getFeeds_id() + " , comment_id: " + comment_id);
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.FEED_COMMENT);
         params.addBodyParameter("feeds_id", String.valueOf(feedCommentParentResult.getData().getFeeds_id()));
-        params.addBodyParameter("comment_id", String.valueOf(comment_id));
+        params.addBodyParameter("comment_id", String.valueOf(reply_comment_id));
         params.addBodyParameter("content", commentContent);
         commentContent = null;
-        comment_id = 0;
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
                 baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
                 Message message = myHandler.obtainMessage(2);
                 message.sendToTarget();
+                if (baseResult.getCode() == 200) {
+                    page = 1;
+                    isRefresh = true;
+                    replyCommentList();
+                }
                 System.out.println("feedComment: " + result);
             }
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
                 System.out.println("feedComment: " + ex.toString());
             }
 

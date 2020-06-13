@@ -7,6 +7,15 @@ import java.util.List;
 public class FeedData {
     private List<Feed> mycircles;
     private List<Feed> list;
+    private List<Feed> feeds;
+
+    public List<Feed> getFeeds() {
+        return feeds;
+    }
+
+    public void setFeeds(List<Feed> feeds) {
+        this.feeds = feeds;
+    }
 
     public List<Feed> getList() {
         return list;

@@ -1,5 +1,6 @@
 package com.zhiyu.quanzhu.model.bean;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,13 +27,53 @@ public class QuanZiTuiJianContent {
     private int id;
     private int feed_id;
 
-    private ArticleThumb thumb;
+    private String thumb;
+    private List<CircleTuiJianArticle> thumb_content;
+    private List<String> articleTxtList;
+    private List<String> articleImgList;
 
-    public ArticleThumb getThumb() {
+    public List<String> getArticleTxtList() {
+        if (null == articleTxtList) {
+            articleTxtList = new ArrayList<>();
+        }
+        if (articleTxtList.size() == 0)
+            if (null != thumb_content && thumb_content.size() > 0)
+                for (CircleTuiJianArticle a : thumb_content) {
+                    if (a.getType() == 1) {
+                        articleTxtList.add(a.getContent());
+                    }
+                }
+
+        return articleTxtList;
+    }
+
+    public List<String> getArticleImgList() {
+        if (null == articleImgList) {
+            articleImgList = new ArrayList<>();
+        }
+        if (articleImgList.size() == 0)
+            if (null != thumb_content && thumb_content.size() > 0)
+                for (CircleTuiJianArticle a : thumb_content) {
+                    if (a.getType() == 2) {
+                        articleImgList.add(a.getContent());
+                    }
+                }
+        return articleImgList;
+    }
+
+    public List<CircleTuiJianArticle> getThumb_content() {
+        return thumb_content;
+    }
+
+    public void setThumb_content(List<CircleTuiJianArticle> thumb_content) {
+        this.thumb_content = thumb_content;
+    }
+
+    public String getThumb() {
         return thumb;
     }
 
-    public void setThumb(ArticleThumb thumb) {
+    public void setThumb(String thumb) {
         this.thumb = thumb;
     }
 

@@ -165,7 +165,7 @@ public class AddressActivity extends BaseActivity implements View.OnClickListene
                 } else {
                     list.addAll(addressResult.getData().getAddress());
                 }
-                System.out.println("address list: " + list.size());
+                System.out.println("address list: " + result);
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
             }

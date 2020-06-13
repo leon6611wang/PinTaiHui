@@ -3,28 +3,38 @@ package com.zhiyu.quanzhu.ui.activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.youth.banner.Banner;
 import com.youth.banner.BannerConfig;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseActivity;
-import com.zhiyu.quanzhu.ui.dialog.IMRightMenuDialog;
+import com.zhiyu.quanzhu.model.result.ConversationCircleResult;
+import com.zhiyu.quanzhu.ui.dialog.CircleConversationRightMenuDialog;
+import com.zhiyu.quanzhu.ui.dialog.IMRightMenuDialog2;
 import com.zhiyu.quanzhu.ui.widget.Indicator;
+import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GlideImageLoader;
+import com.zhiyu.quanzhu.utils.GsonUtils;
+import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 import com.zhiyu.quanzhu.utils.SharedPreferencesUtils;
 
+import org.xutils.common.Callback;
+import org.xutils.http.RequestParams;
+import org.xutils.x;
+
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,21 +46,46 @@ import io.rong.imkit.fragment.ConversationFragment;
 public class ConversationActivity extends BaseActivity implements View.OnClickListener {
     private View headerView;
     private LinearLayout rootLayout, privateBackLayout, privateRightLayout, groupBackLayout, groupRightLayout;
-    private TextView titleTextView,gonggaoTextView;
+    private TextView titleTextView, noticeTextView;
     private Uri uri;
     private String targetId, title;
     private ConversationFragment fragement;
     private LinearLayout menuLayout;
-    private IMRightMenuDialog menuDialog;
+    private IMRightMenuDialog2 menuDialog;
+    private CircleConversationRightMenuDialog rightMenuDialog;
     private String conversation_type;
     private float ratio = 0.5333f;
-    private int screenWidth,dialogHeight;
+    private int screenWidth, dialogHeight;
     private FrameLayout.LayoutParams fl;
-    private int bannerHeight=0;
+    private int bannerHeight = 0;
     private Banner banner;
     private Indicator indicator;
     private List<String> imageUrl = new ArrayList<>();
     private boolean isBlackStatus;
+    private MyHandler myHandler = new MyHandler(this);
+
+    private static class MyHandler extends Handler {
+        WeakReference<ConversationActivity> activityWeakReference;
+
+        public MyHandler(ConversationActivity activity) {
+            activityWeakReference = new WeakReference<>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            ConversationActivity activity = activityWeakReference.get();
+            switch (msg.what) {
+                case 1:
+                    if (200 == activity.conversationCircleResult.getCode()) {
+                        activity.noticeTextView.setText(activity.conversationCircleResult.getData().getNotice());
+                        activity.initBannerDatas();
+                        activity.startBanner();
+                    }
+
+                    break;
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +95,7 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
         conversation_type = SharedPreferencesUtils.getInstance(this).getConversationType();
         targetId = uri.getQueryParameter("targetId").toString();
         title = uri.getQueryParameter("title").toString();
-        System.out.println("ConversationActivity targetId: "+targetId);
+//        System.out.println("ConversationActivity targetId: " + targetId);
         initHeaderViews();
 
 
@@ -75,7 +110,7 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
             headerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                 @Override
                 public void onGlobalLayout() {
-                    dialogHeight=headerView.getHeight();
+                    dialogHeight = headerView.getHeight();
                 }
             });
             rootLayout.addView(headerView, 0);
@@ -90,20 +125,21 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
             groupRightLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
+                    Intent intent = new Intent(ConversationActivity.this, CircleInfoActivity.class);
+                    intent.putExtra("circle_id", Long.parseLong(targetId));
+                    startActivity(intent);
                 }
             });
-            gonggaoTextView=headerView.findViewById(R.id.gonggaoTextView);
-            gonggaoTextView.setSelected(true);
+            noticeTextView = headerView.findViewById(R.id.noticeTextView);
+            noticeTextView.setSelected(true);
             banner = headerView.findViewById(R.id.banner);
             indicator = headerView.findViewById(R.id.indicator);
-            screenWidth=ScreentUtils.getInstance().getScreenWidth(this);
-            bannerHeight=(int)(ratio*screenWidth);
-            fl=new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,bannerHeight);
+            screenWidth = ScreentUtils.getInstance().getScreenWidth(this);
+            bannerHeight = (int) (ratio * screenWidth);
+            fl = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, bannerHeight);
             banner.setLayoutParams(fl);
 
-            initDatas();
-            startBanner();
+
         } else if (conversation_type.equals(SharedPreferencesUtils.IM_PRIVATE)) {
             isBlackStatus = true;
             headerView = LayoutInflater.from(this).inflate(R.layout.header_conversation_private, null);
@@ -120,7 +156,8 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
                 @Override
                 public void onClick(View v) {
                     Intent privateSettingIntent = new Intent(ConversationActivity.this, ConversationPrivateSettingActivity.class);
-                    startActivity(privateSettingIntent);
+                    privateSettingIntent.putExtra("targetId", targetId);
+                    startActivityForResult(privateSettingIntent, 1003);
                 }
             });
             titleTextView = headerView.findViewById(R.id.titleTextView);
@@ -132,16 +169,14 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
         initViews();
     }
 
-    private void initDatas() {
-        imageUrl.add("https://c-ssl.duitang.com/uploads/item/201711/23/20171123005542_4ZvXh.jpeg");
-        imageUrl.add("https://c-ssl.duitang.com/uploads/item/201901/25/20190125133246_reiqi.jpg");
-        imageUrl.add("https://c-ssl.duitang.com/uploads/item/201805/31/20180531100518_yrtgi.jpg");
-        imageUrl.add("https://c-ssl.duitang.com/uploads/item/201808/19/20180819144607_bhmtu.jpg");
-        imageUrl.add("https://c-ssl.duitang.com/uploads/item/201708/10/20170810190105_hx23Z.jpeg");
-        imageUrl.add("https://c-ssl.duitang.com/uploads/item/201906/16/20190616121851_rbhei.jpg");
-        imageUrl.add("https://c-ssl.duitang.com/uploads/item/201904/30/20190430205649_vbbtf.jpg");
-        imageUrl.add("https://c-ssl.duitang.com/uploads/item/201901/05/20190105152941_qjlkm.jpg");
-        imageUrl.add("https://c-ssl.duitang.com/uploads/item/201206/09/20120609152914_F2RAR.jpeg");
+    private void initBannerDatas() {
+        if (null != conversationCircleResult && null != conversationCircleResult.getData()
+                && null != conversationCircleResult.getData().getImgs() &&
+                conversationCircleResult.getData().getImgs().size() > 0) {
+            for (String imgUrl : conversationCircleResult.getData().getImgs()) {
+                imageUrl.add(imgUrl);
+            }
+        }
     }
 
 
@@ -190,7 +225,8 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
     }
 
     private void initDialogs() {
-        menuDialog = new IMRightMenuDialog(this, R.style.dialog);
+        menuDialog = new IMRightMenuDialog2(this, R.style.dialog);
+        rightMenuDialog = new CircleConversationRightMenuDialog();
     }
 
     private void initViews() {
@@ -199,6 +235,7 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
             menuLayout.setVisibility(View.GONE);
         } else {
             menuLayout.setVisibility(View.VISIBLE);
+            circleInfo();
         }
         menuLayout.setOnClickListener(this);
         FragmentManager fragmentManage = getSupportFragmentManager();
@@ -214,10 +251,65 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.menuLayout:
-                menuDialog.show();
-                menuDialog.setDialogHeight(dialogHeight);
+//                menuDialog.show();
+//                menuDialog.setDialogHeight(dialogHeight);
+                int height = ScreentUtils.getInstance().getScreenHeight(this) - dialogHeight - (int) getResources().getDimension(R.dimen.dp_10);
+                Bundle bundle = new Bundle();
+                bundle.putInt("height", height);
+
+                if (null != conversationCircleResult && null != conversationCircleResult.getData() &&
+                        null != conversationCircleResult.getData().getShops() &&
+                        conversationCircleResult.getData().getShops().size() > 0) {
+                    System.out.println("圈子的商店数量: "+conversationCircleResult.getData().getShops().size());
+                    bundle.putString("shop_list", GsonUtils.GsonString(conversationCircleResult.getData().getShops()));
+                }
+                rightMenuDialog.setArguments(bundle);
+                rightMenuDialog.show(getSupportFragmentManager(), "");
                 break;
         }
     }
 
+    private ConversationCircleResult conversationCircleResult;
+
+    private void circleInfo() {
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.MESSAGE_CIRCLE_INFO);
+        params.addBodyParameter("circle_id", String.valueOf(targetId));
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                System.out.println("圈子基础信息: " + result);
+                conversationCircleResult = GsonUtils.GsonToBean(result, ConversationCircleResult.class);
+                Message message = myHandler.obtainMessage(1);
+                message.sendToTarget();
+
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == 1003) {
+            if (null != data) {
+                if (data.hasExtra("isdelete")) {
+                    finish();
+                }
+            }
+        }
+    }
 }

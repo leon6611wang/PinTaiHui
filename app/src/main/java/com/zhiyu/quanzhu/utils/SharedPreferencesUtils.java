@@ -11,7 +11,6 @@ public class SharedPreferencesUtils {
     private static final String USER_NAME = "user_name";
     private static final String USER_PHONE_NUMBER = "user_phone_number";
     private static final String USER_HEADER_PIC = "user_header_pic";
-    private static final String USER_TOKEN = "user_token";
     private static final String USER_SP = "user_sp";
     private static SharedPreferences user_sp;
     private static SharedPreferences.Editor user_editor;
@@ -54,7 +53,6 @@ public class SharedPreferencesUtils {
         user_editor.putString(USER_NAME, "");
         user_editor.putString(USER_PHONE_NUMBER, "");
         user_editor.putString(USER_HEADER_PIC, "");
-        user_editor.putString(USER_TOKEN, "");
         user_editor.commit();
     }
 
@@ -78,10 +76,6 @@ public class SharedPreferencesUtils {
         user_editor.commit();
     }
 
-    public void saveUserToken(String user_token) {
-        user_editor.putString(USER_TOKEN, user_token);
-        user_editor.commit();
-    }
 
 
     public String getUserId() {
@@ -104,17 +98,6 @@ public class SharedPreferencesUtils {
         return headerPic;
     }
 
-    public String getUserToken() {
-        if (null == user_sp) {
-            user_sp = ctxt.getSharedPreferences(USER_SP, Context.MODE_PRIVATE);
-            user_editor = user_sp.edit();
-        }
-        String token = user_sp.getString(USER_TOKEN, null);
-        if (null != token && !token.contains("bearer")) {
-            token = "bearer " + token;
-        }
-        return token;
-    }
 
     /**
      * 聊天室类型:私聊，群聊

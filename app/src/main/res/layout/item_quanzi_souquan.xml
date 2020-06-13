@@ -25,6 +25,8 @@
                 android:layout_marginLeft="@dimen/dp_10"
                 android:layout_marginRight="@dimen/dp_10"
                 android:layout_marginTop="@dimen/dp_10"
+                android:layout_gravity="center"
+                android:gravity="center"
                 android:orientation="horizontal">
 
                 <com.zhiyu.quanzhu.ui.widget.CircleImageView
@@ -32,14 +34,17 @@
                     android:layout_width="@dimen/dp_20"
                     android:layout_height="@dimen/dp_20"
                     android:layout_marginRight="5.5dp"
-                    android:src="@mipmap/header" />
+                    android:src="@drawable/image_error"
+                    android:layout_gravity="center"
+                    />
 
                 <TextView
                     android:id="@+id/nameTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="老猫不吃鱼"
                     android:textColor="@color/text_color_black"
+                    android:layout_gravity="center"
+                    android:gravity="center"
                     android:textSize="13sp" />
 
                 <View
@@ -51,6 +56,8 @@
                     android:id="@+id/timeTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
                     android:text="创建1天"
                     android:textColor="@color/text_color_gray"
                     android:textSize="12sp" />
@@ -69,7 +76,8 @@
                     android:layout_marginRight="@dimen/dp_10"
                     android:scaleType="centerCrop"
                     app:corner_radius="5dp"
-                    android:src="@mipmap/header" />
+                    android:src="@drawable/image_error"
+                    />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -80,10 +88,10 @@
                     <TextView
                         android:id="@+id/circleNameTextView"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
                         android:ellipsize="end"
                         android:maxLines="2"
-                        android:text="苹苔汇官方圈主交流商圈"
                         android:textColor="#333333"
                         android:textSize="15sp"
                         android:textStyle="bold" />
@@ -92,10 +100,9 @@
                         android:id="@+id/descriptionTextView"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
-                        android:layout_weight="1"
+                        android:layout_weight="2"
                         android:ellipsize="end"
                         android:maxLines="2"
-                        android:text="圈主是基于我们APP上的一个重要组 成部分，通过圈主可以吸引粉丝入们APP上的一个重要组 们APP上的一个重要组 "
                         android:layout_gravity="center"
                         android:gravity="center|left"
                         android:textColor="#999999"
@@ -111,7 +118,8 @@
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
                         android:orientation="horizontal"
                         >
                         <TextView
@@ -119,8 +127,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:background="@drawable/shape_corner_yellow"
-                            android:text="city"
                             android:textColor="@color/text_color_yellow"
+                            android:textColorHint="@color/text_color_yellow"
                             android:textSize="11sp"
                             android:paddingLeft="7.5dp"
                             android:paddingRight="7.5dp"
@@ -134,7 +142,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:background="@drawable/shape_corner_yellow"
-                            android:text="city"
+                            android:textColorHint="@color/text_color_yellow"
                             android:textColor="@color/text_color_yellow"
                             android:textSize="11sp"
                             android:paddingLeft="7.5dp"

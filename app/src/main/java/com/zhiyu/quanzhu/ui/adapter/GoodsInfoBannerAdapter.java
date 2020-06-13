@@ -84,12 +84,10 @@ public class GoodsInfoBannerAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
     @Override
     public int getItemViewType(int position) {
-        if (list.get(position).getUrl().endsWith(".jpg") || list.get(position).getUrl().endsWith(".JPG") || list.get(position).getUrl().endsWith(".jpeg")
-                || list.get(position).getUrl().endsWith(".JPEG") || list.get(position).getUrl().endsWith(".png") || list.get(position).getUrl().endsWith(".PNG")
-                || list.get(position).getUrl().endsWith(".gif") || list.get(position).getUrl().endsWith(".GIF")) {
-            return IMG;
-        } else {
+        if (list.get(position).isVideo()) {
             return VIDEO;
+        } else {
+            return IMG;
         }
     }
 
@@ -115,15 +113,15 @@ public class GoodsInfoBannerAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             myHolder.mImageView.setLayoutParams(list.get(position).getLayoutParams(screenWidth));
             Glide.with(context).load(list.get(position).getUrl())
                     //异常时候显示的图片
-                    .error(R.mipmap.img_error)
+                    .error(R.drawable.image_error)
                     //加载成功前显示的图片
-                    .placeholder(R.mipmap.img_loading)
+                    .placeholder(R.drawable.image_error)
                     //url为空的时候,显示的图片
-                    .fallback(R.mipmap.img_error)
+                    .fallback(R.drawable.image_error)
                     .into(myHolder.mImageView);
         } else if (holder instanceof VideoViewHolder) {
             VideoViewHolder myHolder = (VideoViewHolder) holder;
-            myHolder.videoPlayer.setLayoutParams(list.get(position).getLayoutParams(screenWidth));
+            myHolder.videoPlayer.setLayoutParams(list.get(position).getVideoParams(context));
             myHolder.videoPlayer.setDataSource(list.get(position).getUrl(), "");
             Glide.with(context).load(list.get(position).getUrl()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(myHolder.videoPlayer.getCoverController().getVideoCover());
         }

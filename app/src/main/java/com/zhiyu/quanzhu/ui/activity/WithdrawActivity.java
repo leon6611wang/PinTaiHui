@@ -179,12 +179,16 @@ public class WithdrawActivity extends BaseActivity implements View.OnClickListen
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 997) {
-            boolean isPwd = data.getBooleanExtra("isPwd", false);
-            is_pwd = isPwd;
+            if (data.hasExtra("isPwd")) {
+                boolean isPwd = data.getBooleanExtra("isPwd", false);
+                is_pwd = isPwd;
+            }
         }
         if (requestCode == 1031) {
-            is_ali = data.getBooleanExtra("isAlipay", false);
-            is_wechar = data.getBooleanExtra("isWechat", false);
+            if (data.hasExtra("isAlipay"))
+                is_ali = data.getBooleanExtra("isAlipay", false);
+            if (data.hasExtra("isWechat"))
+                is_wechar = data.getBooleanExtra("isWechat", false);
         }
     }
 

@@ -18,7 +18,7 @@ public class SystemSettingInfo {
                 this.contactstatus_desc = "公开（任何人可见）";
                 break;
             case 2:
-                this.contactstatus_desc = "仅好友可见";
+                this.contactstatus_desc = "仅圈友可见";
                 break;
             case 3:
                 this.contactstatus_desc = "仅实名认证用户可见";

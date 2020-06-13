@@ -15,6 +15,11 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
         notifyDataSetChanged();
     }
 
+    public void setFragmentList(List<Fragment> list){
+        this.fragmentList=list;
+        notifyDataSetChanged();
+    }
+
     @Override
     public Fragment getItem(int position) {
         return fragmentList.get(position);

@@ -61,7 +61,7 @@ public class MyCollectionGoodsAdapter extends BaseAdapter {
 
     public void cancelCollectSuccess() {
         List<Integer> positionList = new ArrayList<>();
-        for (int i = list.size()-1; i >0; i--) {
+        for (int i = list.size() - 1; i > 0; i--) {
             if (list.get(i).isSelected()) {
                 positionList.add(i);
             }
@@ -130,7 +130,8 @@ public class MyCollectionGoodsAdapter extends BaseAdapter {
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
-        Glide.with(context).load(list.get(position).getImg().getUrl()).error(R.drawable.image_error).into(holder.coverImageView);
+        Glide.with(context).load(list.get(position).getImg().getUrl()).error(R.drawable.image_error).placeholder(R.drawable.image_error)
+                .fallback(R.drawable.image_error).into(holder.coverImageView);
         holder.titleTextView.setText(list.get(position).getGoods_name());
         holder.saleNumTextView.setText(String.valueOf(list.get(position).getSale_num()));
         holder.zhengshuTextView.setText(PriceParseUtils.getInstance().getZhengShu(list.get(position).getGoods_price()));
@@ -145,9 +146,9 @@ public class MyCollectionGoodsAdapter extends BaseAdapter {
         } else {
             holder.selectedImageView.setVisibility(View.GONE);
         }
-        if(isSelectModel){
+        if (isSelectModel) {
             holder.goodsLayout.setOnClickListener(new OnSelectGoodsClickListener(position));
-        }else{
+        } else {
             holder.goodsLayout.setOnClickListener(new OnGoodsInformationClick(position));
         }
 
@@ -172,7 +173,7 @@ public class MyCollectionGoodsAdapter extends BaseAdapter {
         return list;
     }
 
-    private class OnGoodsInformationClick implements View.OnClickListener{
+    private class OnGoodsInformationClick implements View.OnClickListener {
         private int position;
 
         public OnGoodsInformationClick(int position) {
@@ -181,8 +182,8 @@ public class MyCollectionGoodsAdapter extends BaseAdapter {
 
         @Override
         public void onClick(View v) {
-            Intent goodsInfoIntent=new Intent(context, GoodsInformationActivity.class);
-            goodsInfoIntent.putExtra("goods_id",list.get(position).getId());
+            Intent goodsInfoIntent = new Intent(context, GoodsInformationActivity.class);
+            goodsInfoIntent.putExtra("goods_id", list.get(position).getGoods_id());
             goodsInfoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(goodsInfoIntent);
         }

@@ -158,9 +158,7 @@ public class AddTagDialog extends Dialog implements View.OnClickListener {
     @Override
     public void dismiss() {
         super.dismiss();
-        if (null != onTagsSelectedListener) {
-            onTagsSelectedListener.onTagsSelected(selectedTagList);
-        }
+
     }
 
     private void initViews() {
@@ -206,6 +204,9 @@ public class AddTagDialog extends Dialog implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.confirmTextView:
+                if (null != onTagsSelectedListener) {
+                    onTagsSelectedListener.onTagsSelected(selectedTagList);
+                }
                 dismiss();
                 break;
             case R.id.cancelTextView:
@@ -385,7 +386,7 @@ public class AddTagDialog extends Dialog implements View.OnClickListener {
     }
 
     private TagAdapter hotAdapter;
-    private List<Tag> hotTagList;
+    private List<Tag> hotTagList = new ArrayList<>();
     private List<Integer> selectedList;
 
     /**
@@ -434,7 +435,7 @@ public class AddTagDialog extends Dialog implements View.OnClickListener {
 
                 if (hotTagList.get(position).isSelected()) {
                     TagDao.getInstance().saveTag(hotTagList.get(position));
-                    if (null != hotTagList && hotTagList.size() > 0)
+                    if (null != hotTagList && hotTagList.size() > 0 && null != historyTagList)
                         historyTagList.add(hotTagList.get(position));
                     if (null != historyTagList && historyTagList.size() > 0) {
                         boolean has = false;

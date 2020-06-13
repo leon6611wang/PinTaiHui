@@ -15,6 +15,7 @@ import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.model.bean.PraiseCircle;
 import com.zhiyu.quanzhu.model.result.PraiseCircleResult;
 import com.zhiyu.quanzhu.ui.adapter.ShangQuanRecyclerAdapter;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.MyRecyclerView;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
@@ -56,6 +57,10 @@ public class FragmentShangQuan extends Fragment {
                 case 1:
                     fragment.ptrFrameLayout.refreshComplete();
                     fragment.adapter.setList(fragment.list);
+                    break;
+                case 99:
+                    fragment.ptrFrameLayout.refreshComplete();
+                    MessageToast.getInstance(fragment.getContext()).show("服务器内部错误，请稍后重试.");
                     break;
             }
         }
@@ -129,7 +134,8 @@ public class FragmentShangQuan extends Fragment {
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-
+                Message message=myHandler.obtainMessage(99);
+                message.sendToTarget();
             }
 
             @Override

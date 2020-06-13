@@ -71,7 +71,7 @@ public class CircleInfoMemberListAdapter extends BaseAdapter {
             }
         } else {
             Glide.with(parent.getContext()).load(list.get(position).getAvatar())
-                    .error(R.mipmap.no_avatar)
+                    .error(R.drawable.image_error)
                     .into(holder.avatarImageView);
             holder.nameTextView.setText(list.get(position).getName());
         }

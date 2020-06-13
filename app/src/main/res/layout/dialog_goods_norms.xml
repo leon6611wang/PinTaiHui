@@ -19,6 +19,7 @@
             android:layout_width="90dp"
             android:layout_height="90dp"
             android:layout_marginRight="@dimen/dp_10"
+            android:scaleType="centerCrop"
             android:background="@drawable/image_error" />
 
         <LinearLayout
@@ -87,7 +88,7 @@
                 android:ellipsize="end"
                 android:gravity="center|left"
                 android:maxLines="1"
-                android:text="3D环绕音"
+                android:text="商品"
                 android:textColor="@color/text_color_black"
                 android:textSize="15sp"
                 android:textStyle="bold" />
@@ -220,12 +221,12 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:background="@drawable/shape_oval_bg_yellow"
+            android:background="@drawable/shape_oval_bg_gray"
             android:gravity="center"
             android:paddingBottom="14.5dp"
             android:paddingTop="14.5dp"
             android:text="加入购物车"
-            android:textColor="#FE8627"
+            android:textColor="@color/text_color_gray"
             android:textSize="14sp" />
 
         <View
@@ -238,7 +239,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:background="@mipmap/mingpian_fenxiang_button_bg"
+            android:background="@drawable/shape_oval_solid_bg_gray"
             android:gravity="center"
             android:paddingBottom="14.5dp"
             android:paddingTop="14.5dp"

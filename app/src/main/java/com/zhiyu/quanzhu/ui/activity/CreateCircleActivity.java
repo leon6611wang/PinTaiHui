@@ -24,13 +24,16 @@ import com.zhiyu.quanzhu.model.bean.AreaProvince;
 import com.zhiyu.quanzhu.model.bean.HobbyDaoChild;
 import com.zhiyu.quanzhu.model.bean.HobbyDaoParent;
 import com.zhiyu.quanzhu.model.bean.IndustryChild;
+import com.zhiyu.quanzhu.model.bean.IndustryHobby;
 import com.zhiyu.quanzhu.model.bean.IndustryParent;
 import com.zhiyu.quanzhu.model.bean.UploadImage;
 import com.zhiyu.quanzhu.model.result.CircleDetailResult;
+import com.zhiyu.quanzhu.model.result.CircleInfoResult;
 import com.zhiyu.quanzhu.ui.adapter.ImageGridRecyclerAdapter;
 import com.zhiyu.quanzhu.ui.dialog.CircleTypeDialog;
 import com.zhiyu.quanzhu.ui.dialog.HobbyDialog;
 import com.zhiyu.quanzhu.ui.dialog.IndustryDialog;
+import com.zhiyu.quanzhu.ui.dialog.IndustryHobbyDialog;
 import com.zhiyu.quanzhu.ui.dialog.ProvinceCityDialog;
 import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.RoundImageView;
@@ -40,6 +43,7 @@ import com.zhiyu.quanzhu.utils.GlideLoader;
 import com.zhiyu.quanzhu.utils.GridSpacingItemDecoration;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
+import com.zhiyu.quanzhu.utils.PriceParseUtils;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 import com.zhiyu.quanzhu.utils.UploadImageUtils;
 import com.zhiyu.quanzhu.utils.VideoUtils;
@@ -74,8 +78,8 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
     private ArrayList<String> list = new ArrayList<>();
     private CircleTypeDialog circleTypeDialog;
     private ProvinceCityDialog cityDialog;
-    private IndustryDialog industryDialog;
-    private HobbyDialog hobbyDialog;
+    private IndustryHobbyDialog industryDialog;
+    private IndustryHobbyDialog hobbyDialog;
     private int circleType = 1;
     private long circle_id;
     private String name, province_name, city_name, descirption, logo, thumb, two_industry, three_industry, video;
@@ -102,57 +106,59 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
                     String title = null;
                     String buttonString = null;
                     String remark = null;
-                    switch (activity.circleDetailResult.getData().getStatus()) {
+                    switch (activity.circleInfoResult.getData().getStatus()) {
                         case -2:
                             title = "圈子审核失败";
-                            remark = (StringUtils.isNullOrEmpty(activity.circleDetailResult.getData().getRemark())) ? "审核失败，可修改信息重新提交审核" : activity.circleDetailResult.getData().getRemark();
+                            remark = (StringUtils.isNullOrEmpty(activity.circleInfoResult.getData().getRemark())) ? "审核失败，可修改信息重新提交审核" : activity.circleInfoResult.getData().getRemark();
                             buttonString = "重新提交审核";
                             break;
                         case -1:
                             title = "圈子审核中";
                             buttonString = "撤销审核";
-                            remark = (StringUtils.isNullOrEmpty(activity.circleDetailResult.getData().getRemark())) ? "正在审核中，数据不可修改" : activity.circleDetailResult.getData().getRemark();
+                            remark = (StringUtils.isNullOrEmpty(activity.circleInfoResult.getData().getRemark())) ? "正在审核中，数据不可修改" : activity.circleInfoResult.getData().getRemark();
                             break;
                         case 2:
                             title = "圈子被后台下架";
                             buttonString = "申请重新上架";
-                            remark = (StringUtils.isNullOrEmpty(activity.circleDetailResult.getData().getRemark())) ? "已被下架，可修改数据重新申请上架" : activity.circleDetailResult.getData().getRemark();
+                            remark = (StringUtils.isNullOrEmpty(activity.circleInfoResult.getData().getRemark())) ? "已被下架，可修改数据重新申请上架" : activity.circleInfoResult.getData().getRemark();
                             break;
                         case 3:
                             title = "圈子被后台禁用";
                             buttonString = "申请解除禁用";
-                            remark = (StringUtils.isNullOrEmpty(activity.circleDetailResult.getData().getRemark())) ? "已被禁用，可修改数据重新申请" : activity.circleDetailResult.getData().getRemark();
+                            remark = (StringUtils.isNullOrEmpty(activity.circleInfoResult.getData().getRemark())) ? "已被禁用，可修改数据重新申请" : activity.circleInfoResult.getData().getRemark();
                             break;
                         case 4:
                             title = "圈子被圈主解散";
                             buttonString = "删除圈子";
-                            remark = (StringUtils.isNullOrEmpty(activity.circleDetailResult.getData().getRemark())) ? "已被圈助解散，可直接删除" : activity.circleDetailResult.getData().getRemark();
+                            remark = (StringUtils.isNullOrEmpty(activity.circleInfoResult.getData().getRemark())) ? "已被圈助解散，可直接删除" : activity.circleInfoResult.getData().getRemark();
                             break;
                     }
                     activity.titleTextView.setText(title);
                     activity.confirmTextView.setText(buttonString);
                     activity.jinggaoTextView.setText(remark);
-                    activity.mingchengEditText.setText(activity.circleDetailResult.getData().getName());
-                    activity.name = activity.circleDetailResult.getData().getName();
-                    activity.type = activity.circleDetailResult.getData().getType();
-                    activity.xingzhiTextView.setText(activity.circleDetailResult.getData().getType() == 1 ? "行业" : "兴趣");
-                    activity.two_industry = activity.circleDetailResult.getData().getTwo_industry();
-                    activity.three_industry = activity.circleDetailResult.getData().getThree_industry();
-                    activity.province = activity.circleDetailResult.getData().getProvince();
-                    activity.province_name = activity.circleDetailResult.getData().getProvince_name();
-                    activity.city = activity.circleDetailResult.getData().getCity();
-                    activity.city_name = activity.circleDetailResult.getData().getCity_name();
-                    activity.is_verify = activity.circleDetailResult.getData().getIs_verify();
-                    activity.is_price = activity.circleDetailResult.getData().getIs_price();
-                    activity.price = activity.circleDetailResult.getData().getPrice();
-                    activity.descirption = activity.circleDetailResult.getData().getDescirption();
-                    activity.imgs = activity.circleDetailResult.getData().getImgs();
-                    activity.logo = activity.circleDetailResult.getData().getLogo();
-                    activity.video = activity.circleDetailResult.getData().getVideo();
-
-                    activity.hangyeTextView.setText(activity.circleDetailResult.getData().getTwo_industry() + "/" + activity.circleDetailResult.getData().getThree_industry());
-                    activity.chengshiTextView.setText(activity.circleDetailResult.getData().getProvince_name() + " " + activity.circleDetailResult.getData().getCity_name());
-                    switch (activity.circleDetailResult.getData().getIs_verify()) {
+                    activity.mingchengEditText.setText(activity.circleInfoResult.getData().getName());
+                    activity.name = activity.circleInfoResult.getData().getName();
+                    activity.type = activity.circleInfoResult.getData().getType();
+                    activity.xingzhiTextView.setText(activity.circleInfoResult.getData().getType() == 1 ? "行业" : "兴趣");
+                    activity.two_industry = activity.circleInfoResult.getData().getTwo_industry();
+                    activity.three_industry = activity.circleInfoResult.getData().getThree_industry();
+                    activity.province = activity.circleInfoResult.getData().getProvince();
+                    activity.province_name = activity.circleInfoResult.getData().getProvince_name();
+                    activity.city = activity.circleInfoResult.getData().getCity();
+                    activity.city_name = activity.circleInfoResult.getData().getCity_name();
+                    activity.is_verify = activity.circleInfoResult.getData().isIs_verify() ? 1 : 0;
+                    activity.is_price = activity.circleInfoResult.getData().getIs_price();
+                    activity.price = activity.circleInfoResult.getData().getPrice();
+                    activity.descirption = activity.circleInfoResult.getData().getDescirption();
+                    activity.imgList = activity.circleInfoResult.getData().getImgs();
+                    activity.logo = activity.circleInfoResult.getData().getLogo();
+                    activity.videoUrl = activity.circleInfoResult.getData().getVideo();
+                    if (!StringUtils.isNullOrEmpty(activity.videoUrl)) {
+                        Glide.with(activity).load(activity.videoUrl).error(R.drawable.image_error).into(activity.uploadvideoImageView);
+                    }
+                    activity.hangyeTextView.setText(activity.circleInfoResult.getData().getTwo_industry() + "/" + activity.circleInfoResult.getData().getThree_industry());
+                    activity.chengshiTextView.setText(activity.circleInfoResult.getData().getProvince_name() + " " + activity.circleInfoResult.getData().getCity_name());
+                    switch (activity.is_verify) {
                         case 0:
                             activity.shenheSwitchButton.close();
                             break;
@@ -160,7 +166,7 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
                             activity.shenheSwitchButton.open();
                             break;
                     }
-                    switch (activity.circleDetailResult.getData().getIs_price()) {
+                    switch (activity.circleInfoResult.getData().getIs_price()) {
                         case 0:
                             activity.shoufeiSwitchButton.close();
                             break;
@@ -168,15 +174,17 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
                             activity.shoufeiSwitchButton.open();
                             break;
                     }
-                    activity.jineEditText.setText(((float) activity.circleDetailResult.getData().getPrice() / 100f) + "元");
-                    activity.jieshaoEditText.setText(activity.circleDetailResult.getData().getDescirption());
-                    Glide.with(activity).load(activity.circleDetailResult.getData().getLogo()).into(activity.logoImageView);
-                    activity.list.addAll(activity.circleDetailResult.getData().getImgs());
+                    activity.jineEditText.setText(PriceParseUtils.getInstance().parsePrice(activity.price) + "元");
+                    activity.jieshaoEditText.setText(activity.circleInfoResult.getData().getDescirption());
+                    Glide.with(activity).load(activity.circleInfoResult.getData().getLogo()).error(R.drawable.image_error).into(activity.logoImageView);
+                    activity.list.remove("add");
+                    activity.list.addAll(activity.circleInfoResult.getData().getImgs());
+                    activity.list.add("add");
                     activity.imageGridRecyclerAdapter.setData(activity.list);
                     break;
                 case 2://圈子创建成功
                     MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
-                    if(200==activity.baseResult.getCode()){
+                    if (200 == activity.baseResult.getCode()) {
                         activity.finish();
                     }
                     break;
@@ -221,17 +229,17 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
                 chengshiTextView.setText(p.getName() + " " + c.getName());
             }
         });
-        industryDialog = new IndustryDialog(this, R.style.dialog, new IndustryDialog.OnHangYeChooseListener() {
+        industryDialog = new IndustryHobbyDialog(this, R.style.dialog, true, new IndustryHobbyDialog.OnIndustryHobbySelectedListener() {
             @Override
-            public void onHangYeChoose(IndustryParent parent, IndustryChild child) {
+            public void onIndustryHobbySelected(IndustryHobby parent, IndustryHobby child) {
                 two_industry = parent.getName();
                 three_industry = child.getName();
                 hangyeTextView.setText(parent.getName() + "/" + child.getName());
             }
         });
-        hobbyDialog = new HobbyDialog(this, R.style.dialog, new HobbyDialog.OnChooseHobbyListener() {
+        hobbyDialog = new IndustryHobbyDialog(this, R.style.dialog, false, new IndustryHobbyDialog.OnIndustryHobbySelectedListener() {
             @Override
-            public void onChooseHobby(HobbyDaoParent parent, HobbyDaoChild child) {
+            public void onIndustryHobbySelected(IndustryHobby parent, IndustryHobby child) {
                 two_industry = parent.getName();
                 three_industry = child.getName();
                 hangyeTextView.setText(parent.getName() + "/" + child.getName());
@@ -288,6 +296,8 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
         mRecyclerView = findViewById(R.id.mRecyclerView);
         imageGridRecyclerAdapter = new ImageGridRecyclerAdapter(this);
         imageGridRecyclerAdapter.setData(list);
+        imageGridRecyclerAdapter.setOnDeleteImageListener(this);
+        imageGridRecyclerAdapter.setOnAddImageListener(this);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 3);
         GridSpacingItemDecoration gridSpacingItemDecoration = new GridSpacingItemDecoration(3, (int) getResources().getDimension(R.dimen.dp_10), false);
         mRecyclerView.setAdapter(imageGridRecyclerAdapter);
@@ -302,9 +312,6 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
             case R.id.backLayout:
                 finish();
                 break;
-            case R.id.rightLayout:
-
-                break;
             case R.id.xingzhiLayout:
                 circleTypeDialog.show();
                 break;
@@ -312,7 +319,7 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
                 cityDialog.show();
                 break;
             case R.id.hangyeLayout:
-                switch (type) {
+                switch (circleType) {
                     case 1:
                         industryDialog.show();
                         break;
@@ -331,8 +338,11 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
                 name = mingchengEditText.getText().toString().trim();
                 descirption = jieshaoEditText.getText().toString().trim();
                 String jine = jineEditText.getText().toString().trim();
+                if (jine.contains("元")) {
+                    jine = jine.replace("元", "");
+                }
                 if (!StringUtils.isNullOrEmpty(jine)) {
-                    price = Integer.parseInt(jine) * 100;
+                    price = (int) Float.parseFloat(jine) * 100;
                 }
                 if (null != imgs && imgs.size() > 0) {
                     thumb = imgs.get(0);
@@ -341,26 +351,27 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
                 if (isCreate) {
                     createCircle();
                 } else {
-                    switch (circleDetailResult.getData().getStatus()) {
-                        case -2:
-
+                    switch (circleInfoResult.getData().getStatus()) {
+                        case -2://圈子申请已被驳回，请点击重新申请
+                            operation_type = 2;
                             break;
-                        case -1:
-
+                        case -1://圈子审核中，可点击查看详情
+                            operation_type=1;
                             break;
                         case 1:
 
                             break;
-                        case 2:
-
+                        case 2://圈子已被下架，请根据系统通知调整
+                            operation_type = 4;
                             break;
-                        case 3:
-
+                        case 3://圈子已被禁用，可向平台申诉解封
+                            operation_type = 3;
                             break;
-                        case 4:
+                        case 4://圈子已被圈主解散，可长按删除
 
                             break;
                     }
+                    updateCircle();
                 }
                 break;
         }
@@ -408,7 +419,8 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
 
         if (requestCode == REQUEST_SELECT_VIDEO_CODE && resultCode == RESULT_OK) {
             mVideoList = data.getStringArrayListExtra(ImagePicker.EXTRA_SELECT_IMAGES);
-            Glide.with(CreateCircleActivity.this).load(mVideoList.get(0)).error(R.drawable.image_error).into(uploadvideoImageView);
+            Glide.with(CreateCircleActivity.this).load(mVideoList.get(0)).error(R.drawable.image_error).placeholder(R.drawable.image_error)
+                    .fallback(R.drawable.image_error).into(uploadvideoImageView);
             UploadImageUtils.getInstance().uploadFile(UploadImageUtils.CIRCLEFEES, mVideoList.get(0), new UploadImageUtils.OnUploadCallback() {
                 @Override
                 public void onUploadSuccess(String name) {
@@ -427,19 +439,23 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
     }
 
     private LinkedHashMap<String, String> map = new LinkedHashMap<>();
+    private List<String> imgList = new ArrayList<>();
 
     private void uploadImages() {
+        System.out.println("list size: " + list.size());
         for (final String path : list) {
             if (!map.containsKey(path)) {
                 UploadImageUtils.getInstance().uploadFile(UploadImageUtils.CIRCLEFEES, path, new UploadImageUtils.OnUploadCallback() {
                     @Override
                     public void onUploadSuccess(String name) {
                         map.put(path, name);
-                        for (int i = 0; i < list.size(); i++) {
-                            if (list.get(i).equals(path)) {
-                                list.get(i).replace(path, name);
-                            }
-                        }
+                        imgList.add(name);
+                        imgs.add(name);
+//                        for (int i = 0; i < list.size(); i++) {
+//                            if (list.get(i).equals(path)) {
+//                                list.get(i).replace(path, name);
+//                            }
+//                        }
                     }
                 });
             }
@@ -454,7 +470,10 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
 
     @Override
     public void onDelete(int position) {
-        imgs.remove(position);
+        System.out.println("position: " + position);
+        System.out.println("1 imgs: " + imgList.size());
+        imgList.remove(position);
+        System.out.println("2 imgs: " + imgList.size());
         list.remove(position);
         imageGridRecyclerAdapter.setData(list);
     }
@@ -475,12 +494,13 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
 
 
     private BaseResult baseResult;
+
     /**
      * 创建圈子
      */
     private void createCircle() {
-        if (null != list && list.size() > 0) {
-            logo = thumb = list.get(0);
+        if (null != imgList && imgList.size() > 0) {
+            logo = thumb = imgList.get(0);
         }
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.ADD_CIRCLE);
         params.addBodyParameter("circle_name", name);
@@ -492,7 +512,7 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
         params.addBodyParameter("price", String.valueOf(price));
         params.addBodyParameter("is_verify", String.valueOf(is_verify));
         params.addBodyParameter("video", videoUrl);
-        params.addBodyParameter("imgs", GsonUtils.GsonString(list));
+        params.addBodyParameter("imgs", GsonUtils.GsonString(imgList));
         params.addBodyParameter("two_industry", two_industry);
         params.addBodyParameter("three_industry", three_industry);
         params.addBodyParameter("province", String.valueOf(province));
@@ -502,8 +522,8 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                baseResult=GsonUtils.GsonToBean(result,BaseResult.class);
-                Message message=myHandler.obtainMessage(2);
+                baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
+                Message message = myHandler.obtainMessage(2);
                 message.sendToTarget();
             }
 
@@ -524,21 +544,74 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
         });
     }
 
-    private CircleDetailResult circleDetailResult;
+    //1撤销审核 2提交审核 3申请解除禁用 4申请重新上架
+    private int operation_type = 0;
+
+    private void updateCircle() {
+        System.out.println("operation_type: " + operation_type);
+        System.out.println("imgs size: " + imgList.size());
+        if (null != imgList && imgList.size() > 0) {
+            logo = thumb = imgList.get(0);
+        }
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.UPDATE_CIRCLE);
+        params.addBodyParameter("circle_name", name);
+        params.addBodyParameter("descirption", descirption);
+        params.addBodyParameter("logo", logo);
+        params.addBodyParameter("thumb", thumb);
+        params.addBodyParameter("type", String.valueOf(circleType));
+        params.addBodyParameter("is_price", String.valueOf(is_price));
+        params.addBodyParameter("price", String.valueOf(price));
+        params.addBodyParameter("is_verify", String.valueOf(is_verify));
+        params.addBodyParameter("video", videoUrl);
+        params.addBodyParameter("imgs", GsonUtils.GsonString(imgList));
+        params.addBodyParameter("two_industry", two_industry);
+        params.addBodyParameter("three_industry", three_industry);
+        params.addBodyParameter("province", String.valueOf(province));
+        params.addBodyParameter("province_name", province_name);
+        params.addBodyParameter("city", String.valueOf(city));
+        params.addBodyParameter("operation_type", String.valueOf(operation_type));
+        params.addBodyParameter("city_name", city_name);
+        params.addBodyParameter("circle_id", String.valueOf(circle_id));
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
+                Message message = myHandler.obtainMessage(2);
+                message.sendToTarget();
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
+    private CircleInfoResult circleInfoResult;
 
     /**
      * 圈子详情
      */
     private void circleDetail() {
-        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.CIRCLE_DETAIL);
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.CIRCLE_BASE);
         params.addBodyParameter("circle_id", String.valueOf(circle_id));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
                 System.out.println(result);
-                circleDetailResult = GsonUtils.GsonToBean(result, CircleDetailResult.class);
-                if (null != circleDetailResult.getData())
-                    isEdit = (circleDetailResult.getData().getStatus() == -1) ? false : true;
+                circleInfoResult = GsonUtils.GsonToBean(result, CircleInfoResult.class);
+                if (null != circleInfoResult.getData())
+                    isEdit = (circleInfoResult.getData().getStatus() == -1) ? false : true;
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
             }

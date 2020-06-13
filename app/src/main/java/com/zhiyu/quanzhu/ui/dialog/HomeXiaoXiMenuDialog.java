@@ -97,7 +97,7 @@ public class HomeXiaoXiMenuDialog extends Dialog implements View.OnClickListener
                 break;
             case R.id.yaoqinglayout:
                 if (null != onMenuSelectedListener) {
-                    onMenuSelectedListener.onMenuSelected(5, "邀请好友");
+                    onMenuSelectedListener.onMenuSelected(5, "邀请圈友");
                 }
                 dismiss();
                 break;

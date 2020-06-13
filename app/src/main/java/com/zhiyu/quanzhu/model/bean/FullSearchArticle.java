@@ -12,6 +12,7 @@ public class FullSearchArticle {
     private int comment_num;
     private boolean is_prise;
     private boolean is_collect;
+    private ArticleThumb newthumb;
     private String thumb;
     private String circle_name;
     private List<FeedTag> feeds_tags;
@@ -95,6 +96,14 @@ public class FullSearchArticle {
 
     public void setIs_collect(boolean is_collect) {
         this.is_collect = is_collect;
+    }
+
+    public ArticleThumb getNewthumb() {
+        return newthumb;
+    }
+
+    public void setNewthumb(ArticleThumb newthumb) {
+        this.newthumb = newthumb;
     }
 
     public String getThumb() {

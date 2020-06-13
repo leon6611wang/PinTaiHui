@@ -7,6 +7,11 @@
         <item name="android:windowAllowReturnTransitionOverlap">true</item>
     </style>
 
+    <!--parent设置为启动页的theme-->
+    <style name="AppTheme.customeTheme" parent="AppTheme">
+        <item name="android:windowBackground">@mipmap/init</item>
+    </style>
+
     <style name="dialog" parent="android:style/Theme.Dialog">
         <item name="android:background">#00000000</item>
         <item name="android:windowBackground">@android:color/transparent</item>

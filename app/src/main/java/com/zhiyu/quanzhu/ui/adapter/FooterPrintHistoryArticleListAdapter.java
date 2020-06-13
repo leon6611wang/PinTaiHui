@@ -15,12 +15,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.Feed;
 import com.zhiyu.quanzhu.model.bean.FullSearchArticle;
 import com.zhiyu.quanzhu.ui.activity.ArticleInformationActivity;
 import com.zhiyu.quanzhu.ui.dialog.ShareDialog;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.CircleImageView;
 import com.zhiyu.quanzhu.ui.widget.HorizontalListView;
 import com.zhiyu.quanzhu.ui.widget.NiceImageView;
@@ -40,14 +42,20 @@ public class FooterPrintHistoryArticleListAdapter extends BaseAdapter {
     private Activity activity;
     private Context context;
     private ShareDialog shareDialog;
-    private MyHandler myHandler=new MyHandler(this);
+    private MyHandler myHandler = new MyHandler(this);
+
     public FooterPrintHistoryArticleListAdapter(Activity aty, Context context) {
-        this.activity=aty;
+        this.activity = aty;
         this.context = context;
         initDialogs();
     }
-    private void initDialogs(){
-        shareDialog=new ShareDialog(activity,context,R.style.dialog);
+
+    public void setQQShareResult(int requestCode,int resultCode,Intent data){
+        shareDialog.setQQShareCallback(requestCode,resultCode,data);
+    }
+
+    private void initDialogs() {
+        shareDialog = new ShareDialog(activity, context, R.style.dialog);
     }
 
 
@@ -56,26 +64,27 @@ public class FooterPrintHistoryArticleListAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-    private static class MyHandler extends Handler{
+    private static class MyHandler extends Handler {
         WeakReference<FooterPrintHistoryArticleListAdapter> adapterWeakReference;
-        public MyHandler(FooterPrintHistoryArticleListAdapter adapter){
-            adapterWeakReference=new WeakReference<>(adapter);
+
+        public MyHandler(FooterPrintHistoryArticleListAdapter adapter) {
+            adapterWeakReference = new WeakReference<>(adapter);
         }
 
         @Override
         public void handleMessage(Message msg) {
-            FooterPrintHistoryArticleListAdapter adapter=adapterWeakReference.get();
-            switch (msg.what){
+            FooterPrintHistoryArticleListAdapter adapter = adapterWeakReference.get();
+            switch (msg.what) {
                 case 1:
-                Toast.makeText(adapter.context, adapter.baseResult.getMsg(), Toast.LENGTH_SHORT).show();
-                if (adapter.baseResult.getCode() == 200) {
-                    int posiiton = (Integer) msg.obj;
-                    adapter.list.get(posiiton).getContent().setIs_collect(!adapter.list.get(posiiton).getContent().isIs_collect());
-                    adapter.notifyDataSetChanged();
-                }
-                break;
+                    MessageToast.getInstance(adapter.context).show(adapter.baseResult.getMsg());
+                    if (adapter.baseResult.getCode() == 200) {
+                        int posiiton = (Integer) msg.obj;
+                        adapter.list.get(posiiton).getContent().setIs_collect(!adapter.list.get(posiiton).getContent().isIs_collect());
+                        adapter.notifyDataSetChanged();
+                    }
+                    break;
                 case 2:
-                    Toast.makeText(adapter.context, adapter.baseResult.getMsg(), Toast.LENGTH_SHORT).show();
+                    MessageToast.getInstance(adapter.context).show(adapter.baseResult.getMsg());
                     if (adapter.baseResult.getCode() == 200) {
                         int posiiton = (Integer) msg.obj;
                         adapter.list.get(posiiton).getContent().setIs_prise(!adapter.list.get(posiiton).getContent().isIs_prise());
@@ -120,7 +129,7 @@ public class FooterPrintHistoryArticleListAdapter extends BaseAdapter {
         if (null == convertView) {
             holder = new ViewHolder();
             convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_full_search_article, null);
-            holder.rootLayout=convertView.findViewById(R.id.rootLayout);
+            holder.rootLayout = convertView.findViewById(R.id.rootLayout);
             holder.avatarImageView = convertView.findViewById(R.id.avatarImageView);
             holder.nameTextView = convertView.findViewById(R.id.nameTextView);
             holder.titleTextView = convertView.findViewById(R.id.titleTextView);
@@ -128,32 +137,43 @@ public class FooterPrintHistoryArticleListAdapter extends BaseAdapter {
             holder.sourceTextView = convertView.findViewById(R.id.sourceTextView);
             holder.timeTextView = convertView.findViewById(R.id.timeTextView);
             holder.collectImageView = convertView.findViewById(R.id.collectImageView);
-            holder.shareTextView=convertView.findViewById(R.id.shareTextView);
-            holder.commentTextView=convertView.findViewById(R.id.commentTextView);
-            holder.priseLayout=convertView.findViewById(R.id.priseLayout);
-            holder.priseImageView=convertView.findViewById(R.id.priseImageView);
-            holder.priseTextView=convertView.findViewById(R.id.priseTextView);
+            holder.shareTextView = convertView.findViewById(R.id.shareTextView);
+            holder.commentTextView = convertView.findViewById(R.id.commentTextView);
+            holder.priseLayout = convertView.findViewById(R.id.priseLayout);
+            holder.priseImageView = convertView.findViewById(R.id.priseImageView);
+            holder.priseTextView = convertView.findViewById(R.id.priseTextView);
             holder.tagListView = convertView.findViewById(R.id.tagListView);
             holder.tagListView.setAdapter(holder.adapter);
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
-        holder.titleTextView.setText(list.get(position).getContent().getTitle());
-        Glide.with(parent.getContext()).load(list.get(position).getContent().getThumb()).error(R.mipmap.img_error).into(holder.coverImageView);
+        if (!StringUtils.isNullOrEmpty(list.get(position).getContent().getTitle()))
+            holder.titleTextView.setText(list.get(position).getContent().getTitle());
+        if(!StringUtils.isNullOrEmpty(list.get(position).getContent().getCircle_name())){
+            holder.sourceTextView.setText(list.get(position).getContent().getCircle_name());
+        }
+        if(!StringUtils.isNullOrEmpty(list.get(position).getContent().getThumb())){
+            Glide.with(parent.getContext()).load(list.get(position).getContent().getThumb()).error(R.drawable.image_error)
+                    .into(holder.coverImageView);
+            holder.coverImageView.setVisibility(View.VISIBLE);
+        }else{
+            holder.coverImageView.setVisibility(View.GONE);
+        }
+
         holder.timeTextView.setText(list.get(position).getContent().getTime());
         holder.adapter.setList(list.get(position).getContent().getFeeds_tags());
-        if(list.get(position).getContent().isIs_collect()){
+        if (list.get(position).getContent().isIs_collect()) {
             holder.collectImageView.setImageDrawable(parent.getContext().getResources().getDrawable(R.mipmap.shoucang_yellow));
-        }else{
+        } else {
             holder.collectImageView.setImageDrawable(parent.getContext().getResources().getDrawable(R.mipmap.shoucang_gray));
         }
         holder.shareTextView.setText(String.valueOf(list.get(position).getContent().getShare_num()));
         holder.commentTextView.setText(String.valueOf(list.get(position).getContent().getComment_num()));
         holder.priseTextView.setText(String.valueOf(list.get(position).getContent().getPrise_num()));
-        if(list.get(position).getContent().isIs_prise()){
+        if (list.get(position).getContent().isIs_prise()) {
             holder.priseImageView.setImageDrawable(parent.getContext().getResources().getDrawable(R.mipmap.dianzan_yellow));
-        }else{
+        } else {
             holder.priseImageView.setImageDrawable(parent.getContext().getResources().getDrawable(R.mipmap.dianzan_gray));
         }
         holder.collectImageView.setOnClickListener(new OnCollectClick(position));
@@ -164,7 +184,7 @@ public class FooterPrintHistoryArticleListAdapter extends BaseAdapter {
     }
 
 
-    private class OnCollectClick implements View.OnClickListener{
+    private class OnCollectClick implements View.OnClickListener {
         private int position;
 
         public OnCollectClick(int position) {
@@ -177,7 +197,7 @@ public class FooterPrintHistoryArticleListAdapter extends BaseAdapter {
         }
     }
 
-    private class OnShareClick implements View.OnClickListener{
+    private class OnShareClick implements View.OnClickListener {
         private int position;
 
         public OnShareClick(int position) {
@@ -190,7 +210,7 @@ public class FooterPrintHistoryArticleListAdapter extends BaseAdapter {
         }
     }
 
-    private class OnPriseClick implements View.OnClickListener{
+    private class OnPriseClick implements View.OnClickListener {
         private int position;
 
         public OnPriseClick(int position) {
@@ -203,7 +223,7 @@ public class FooterPrintHistoryArticleListAdapter extends BaseAdapter {
         }
     }
 
-    private class OnArticleInfoClick implements View.OnClickListener{
+    private class OnArticleInfoClick implements View.OnClickListener {
         private int position;
 
         public OnArticleInfoClick(int position) {
@@ -212,9 +232,9 @@ public class FooterPrintHistoryArticleListAdapter extends BaseAdapter {
 
         @Override
         public void onClick(View v) {
-            Intent articleInfoIntent=new Intent(context, ArticleInformationActivity.class);
+            Intent articleInfoIntent = new Intent(context, ArticleInformationActivity.class);
             articleInfoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            articleInfoIntent.putExtra("article_id",list.get(position).getContent().getId());
+            articleInfoIntent.putExtra("article_id", list.get(position).getContent().getId());
             context.startActivity(articleInfoIntent);
         }
     }
@@ -224,7 +244,7 @@ public class FooterPrintHistoryArticleListAdapter extends BaseAdapter {
     private void priseArticle(final int position) {
         RequestParams params = MyRequestParams.getInstance(context).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.PRISE);
         params.addBodyParameter("prise_id", String.valueOf(list.get(position).getContent().getId()));
-        params.addBodyParameter("module_type", "quanzi");
+        params.addBodyParameter("module_type", "feeds");
         params.addBodyParameter("type", (list.get(position).getContent().isIs_prise() ? "1" : "0"));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
@@ -255,7 +275,7 @@ public class FooterPrintHistoryArticleListAdapter extends BaseAdapter {
     private void collectArticle(final int position) {
         RequestParams params = MyRequestParams.getInstance(context).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.COLLECT);
         params.addBodyParameter("collect_id", String.valueOf(list.get(position).getContent().getId()));
-        params.addBodyParameter("module_type", "quanzi");
+        params.addBodyParameter("module_type", "feeds");
         params.addBodyParameter("type", (list.get(position).getContent().isIs_collect() ? "1" : "0"));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override

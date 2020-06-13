@@ -26,6 +26,7 @@ public class FullSearchFeedContent {
     private boolean is_prise;
     private boolean is_collect;
     private String thumb;
+    private ArticleThumb newthumb;
     private String circle_name;
     private String video_thumb;
 
@@ -237,6 +238,14 @@ public class FullSearchFeedContent {
 
     public void setThumb(String thumb) {
         this.thumb = thumb;
+    }
+
+    public ArticleThumb getNewthumb() {
+        return newthumb;
+    }
+
+    public void setNewthumb(ArticleThumb newthumb) {
+        this.newthumb = newthumb;
     }
 
     public String getCircle_name() {

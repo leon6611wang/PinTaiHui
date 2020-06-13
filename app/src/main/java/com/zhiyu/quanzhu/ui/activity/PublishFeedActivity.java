@@ -1,59 +1,47 @@
 package com.zhiyu.quanzhu.ui.activity;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.lcw.library.imagepicker.ImagePicker;
+import com.leon.chic.utils.SPUtils;
 import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseActivity;
+import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.base.BaseResult;
-import com.zhiyu.quanzhu.model.bean.HobbyDaoChild;
-import com.zhiyu.quanzhu.model.bean.HobbyDaoParent;
-import com.zhiyu.quanzhu.model.bean.IndustryChild;
-import com.zhiyu.quanzhu.model.bean.IndustryParent;
+import com.zhiyu.quanzhu.model.bean.IndustryHobby;
 import com.zhiyu.quanzhu.model.bean.MyCircle;
 import com.zhiyu.quanzhu.model.bean.Tag;
 import com.zhiyu.quanzhu.model.bean.UploadImage;
 import com.zhiyu.quanzhu.model.bean.WhoCanSee;
 import com.zhiyu.quanzhu.model.result.FeedInfoResult;
-import com.zhiyu.quanzhu.model.result.VideoInfoResult;
-import com.zhiyu.quanzhu.ui.adapter.ComplaintImagesGridAdapter;
 import com.zhiyu.quanzhu.ui.adapter.PublishFeedImagesGridAdapter;
 import com.zhiyu.quanzhu.ui.dialog.AddTagDialog;
 import com.zhiyu.quanzhu.ui.dialog.ChoosePhotoDialog;
 import com.zhiyu.quanzhu.ui.dialog.CircleSelectDialog;
 import com.zhiyu.quanzhu.ui.dialog.DeleteImageDialog;
 import com.zhiyu.quanzhu.ui.dialog.DrafDialog;
-import com.zhiyu.quanzhu.ui.dialog.HobbyDialog;
-import com.zhiyu.quanzhu.ui.dialog.IndustryDialog;
+import com.zhiyu.quanzhu.ui.dialog.IndustryHobbyDialog;
 import com.zhiyu.quanzhu.ui.dialog.LoadingDialog;
-import com.zhiyu.quanzhu.ui.dialog.WaitDialog;
 import com.zhiyu.quanzhu.ui.dialog.WhoCanSeeDialog;
 import com.zhiyu.quanzhu.ui.toast.FailureToast;
 import com.zhiyu.quanzhu.ui.toast.MessageToast;
-import com.zhiyu.quanzhu.ui.widget.MyGridView;
 import com.zhiyu.quanzhu.ui.widget.MyRecyclerView;
 import com.zhiyu.quanzhu.ui.widget.RecyclerScrollView;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
-import com.zhiyu.quanzhu.utils.GetPhotoFromPhotoAlbum;
 import com.zhiyu.quanzhu.utils.GlideLoader;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.ImageUtils;
-import com.zhiyu.quanzhu.utils.MediaUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 import com.zhiyu.quanzhu.utils.UploadImageUtils;
@@ -66,10 +54,8 @@ import org.xutils.x;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 发布动态
@@ -232,13 +218,13 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
     private AddTagDialog addTagDialog;
     private CircleSelectDialog circleSelectDialog;
     private WhoCanSeeDialog whoCanSeeDialog;
-    private IndustryDialog industryDialog;
-    private HobbyDialog hobbyDialog;
+    private IndustryHobbyDialog industryDialog, hobbyDialog;
     private ChoosePhotoDialog choosePhotoDialog;
     private List<Tag> tagList;
     private String tags = "";
     private String industry_parent, industry_child;
     private String hobby_parent, hobby_child;
+    private boolean isSelectCircle = false;
 
     private void initDialogs() {
         addTagDialog = new AddTagDialog(this, this, R.style.dialog, new AddTagDialog.OnTagsSelectedListener() {
@@ -267,15 +253,21 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
                 mImageList.remove(delete_position);
                 mImageList.remove("add");
                 mImageList.add("add");
+                if (mImageList.size() == 1) {
+                    selectType = 0;
+                }
                 imageGridAdapter.setData(mImageList);
             }
         });
-        circleSelectDialog = new CircleSelectDialog(this, R.style.dialog, new CircleSelectDialog.OnCircleSeletedListener() {
+        circleSelectDialog = new CircleSelectDialog(this, R.style.dialog, 0, new CircleSelectDialog.OnCircleSeletedListener() {
             @Override
             public void onCircleSelected(MyCircle circle) {
                 circleName = circle.getName();
                 circle_id = circle.getId();
                 quanziTextView.setText(circle.getName());
+                if (circle_id > 0) {
+                    isSelectCircle = true;
+                }
             }
         });
         whoCanSeeDialog = new WhoCanSeeDialog(this, R.style.dialog, new WhoCanSeeDialog.OnWhoCanSeeListener() {
@@ -288,32 +280,24 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
         });
         waitDialog = new LoadingDialog(this, R.style.dialog);
 
-        industryDialog = new IndustryDialog(this, R.style.dialog, new IndustryDialog.OnHangYeChooseListener() {
-            @Override
-            public void onHangYeChoose(IndustryParent parent, IndustryChild child) {
-                industry_parent = parent.getName();
-                industry_child = child.getName();
-                industryTextView.setText(parent.getName() + "/" + child.getName());
-            }
-        });
-        hobbyDialog = new HobbyDialog(this, R.style.dialog, new HobbyDialog.OnChooseHobbyListener() {
-            @Override
-            public void onChooseHobby(HobbyDaoParent parent, HobbyDaoChild child) {
-                hobby_parent = parent.getName();
-                hobby_child = child.getName();
-                hobbyTextView.setText(parent.getName() + "/" + child.getName());
-            }
-        });
 
         choosePhotoDialog = new ChoosePhotoDialog(this, R.style.dialog, new ChoosePhotoDialog.OnChoosePhotoListener() {
             @Override
             public void xiangce() {
-                selectImages();
+                if (mImageList.size() > 0 && selectType == 2) {
+                    MessageToast.getInstance(PublishFeedActivity.this).show("动态不能同时发布图片和视频");
+                } else {
+                    selectImages();
+                }
             }
 
             @Override
             public void paizhao() {
-                selectVideo();
+                if (mImageList.size() > 0 && selectType == 1) {
+                    MessageToast.getInstance(PublishFeedActivity.this).show("动态不能同时发布图片和视频");
+                } else {
+                    selectVideo();
+                }
             }
         });
 
@@ -328,6 +312,23 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
             public void onCancel() {
 
                 finish();
+            }
+        });
+
+        industryDialog = new IndustryHobbyDialog(this, R.style.dialog, true, new IndustryHobbyDialog.OnIndustryHobbySelectedListener() {
+            @Override
+            public void onIndustryHobbySelected(IndustryHobby p, IndustryHobby c) {
+                industry_parent = p.getName();
+                industry_child = c.getName();
+                industryTextView.setText(p.getName() + "/" + c.getName());
+            }
+        });
+        hobbyDialog = new IndustryHobbyDialog(this, R.style.dialog, false, new IndustryHobbyDialog.OnIndustryHobbySelectedListener() {
+            @Override
+            public void onIndustryHobbySelected(IndustryHobby p, IndustryHobby c) {
+                hobby_parent = p.getName();
+                hobby_child = c.getName();
+                hobbyTextView.setText(p.getName() + "/" + c.getName());
             }
         });
     }
@@ -356,6 +357,7 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
                 break;
             case R.id.fanweiLayout:
                 whoCanSeeDialog.show();
+                whoCanSeeDialog.setSelectCircle(isSelectCircle);
                 if (null != feedInfoResult && secretIndex > 0) {
                     whoCanSeeDialog.setWhoCanSee(secretIndex);
                 }
@@ -370,19 +372,21 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
                 break;
             case R.id.hobbyLayout:
                 hobbyDialog.show();
-                if (null != feedInfoResult && !StringUtils.isNullOrEmpty(hobby_parent)
-                        && !StringUtils.isNullOrEmpty(hobby_child)) {
-                    hobbyDialog.setHobby(hobby_parent,
-                            hobby_child);
-                }
+//                hobbyDialog.show();
+//                if (null != feedInfoResult && !StringUtils.isNullOrEmpty(hobby_parent)
+//                        && !StringUtils.isNullOrEmpty(hobby_child)) {
+//                    hobbyDialog.setHobby(hobby_parent,
+//                            hobby_child);
+//                }
                 break;
             case R.id.industryLayout:
                 industryDialog.show();
-                if (null != feedInfoResult && !StringUtils.isNullOrEmpty(industry_parent)
-                        && !StringUtils.isNullOrEmpty(industry_child)) {
-                    industryDialog.setIndustry(industry_parent,
-                            industry_child);
-                }
+//                industryDialog.show();
+//                if (null != feedInfoResult && !StringUtils.isNullOrEmpty(industry_parent)
+//                        && !StringUtils.isNullOrEmpty(industry_child)) {
+//                    industryDialog.setIndustry(industry_parent,
+//                            industry_child);
+//                }
                 break;
         }
     }
@@ -393,8 +397,11 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
         choosePhotoDialog.setMenu("图片", "视频`");
     }
 
+    //1.img,2.video
+    private int selectType = 0;
 
     private void selectImages() {
+        selectType = 1;
         mImageList.remove("add");
         ImagePicker.getInstance()
                 .setTitle("图片选择")//设置标题
@@ -409,7 +416,9 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
     }
 
     private void selectVideo() {
+        selectType = 2;
         mImageList.remove("add");
+        System.out.println("video mImageList: " + mImageList.size());
         ImagePicker.getInstance()
                 .setTitle("视频选择")//设置标题
                 .showCamera(true)//设置是否显示拍照按钮
@@ -426,6 +435,7 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
         if (requestCode == REQUEST_SELECT_IMAGES_CODE && resultCode == RESULT_OK) {
             mImageList = data.getStringArrayListExtra(ImagePicker.EXTRA_SELECT_IMAGES);
             uploadImages();
@@ -437,7 +447,6 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
             mImageList = data.getStringArrayListExtra(ImagePicker.EXTRA_SELECT_IMAGES);
             mImageList.add("add");
             imageGridAdapter.setData(mImageList);
-
             UploadImageUtils.getInstance().uploadFile(UploadImageUtils.CIRCLEFEES, mImageList.get(0), new UploadImageUtils.OnUploadCallback() {
                 @Override
                 public void onUploadSuccess(String name) {
@@ -509,10 +518,18 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
         params.addBodyParameter("p_hobby", hobby_parent);
         params.addBodyParameter("hobby", hobby_child);//兴趣
         params.addBodyParameter("content", contentEditText.getText().toString().trim());
+
         if (null != uploadImageList && uploadImageList.size() > 0) {
             params.addBodyParameter("photos", GsonUtils.GsonString(uploadImageList));
         }
         params.addBodyParameter("is_secret", String.valueOf(is_secret));
+        if (!StringUtils.isNullOrEmpty(video_url)) {
+            params.addBodyParameter("video_url", video_url);
+            params.addBodyParameter("video_width", String.valueOf(video_width));
+            params.addBodyParameter("video_height", String.valueOf(video_height));
+        }
+        params.addBodyParameter("city_name", SPUtils.getInstance().getLocationCity(BaseApplication.applicationContext));
+        params.addBodyParameter("province_name", SPUtils.getInstance().getLocationProvince(BaseApplication.applicationContext));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
@@ -582,6 +599,8 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
             params.addBodyParameter("photos", GsonUtils.GsonString(uploadImageList));
         }
         params.addBodyParameter("is_secret", String.valueOf(is_secret));
+        params.addBodyParameter("city_name", SPUtils.getInstance().getLocationCity(BaseApplication.applicationContext));
+        params.addBodyParameter("province_name", SPUtils.getInstance().getLocationProvince(BaseApplication.applicationContext));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {

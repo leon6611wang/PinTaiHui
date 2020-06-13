@@ -13,6 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.leon.chic.dao.PageDao;
+import com.leon.chic.utils.SPUtils;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.footer.ClassicsFooter;
 import com.scwang.smartrefresh.layout.header.ClassicsHeader;
@@ -20,21 +22,22 @@ import com.scwang.smartrefresh.layout.impl.RefreshFooterWrapper;
 import com.scwang.smartrefresh.layout.impl.RefreshHeaderWrapper;
 import com.scwang.smartrefresh.layout.listener.OnRefreshLoadMoreListener;
 import com.zhiyu.quanzhu.R;
+import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.model.bean.QuanZiTuiJian;
 import com.zhiyu.quanzhu.model.bean.QuanZiTuiJianDaoHang;
 import com.zhiyu.quanzhu.model.result.QuanZiTuiJianDaoHangResult;
 import com.zhiyu.quanzhu.model.result.QuanZiTuiJianQuanZiResult;
 import com.zhiyu.quanzhu.model.result.QuanZiTuiJianResult;
 import com.zhiyu.quanzhu.ui.adapter.CircleTuiJianAdapter;
-import com.zhiyu.quanzhu.ui.adapter.QuanZiTuiJianAdapter;
 import com.zhiyu.quanzhu.ui.adapter.QuanZiTuiJianTitleRecyclerAdapter;
+import com.zhiyu.quanzhu.ui.dialog.LoadingDialog;
 import com.zhiyu.quanzhu.ui.dialog.QuanZiTuiJianLabelDialog;
 import com.zhiyu.quanzhu.ui.widget.MyRecyclerView;
 import com.zhiyu.quanzhu.utils.CenterLayoutManager;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
-import com.zhiyu.quanzhu.utils.SharedPreferencesUtils;
+import com.zhiyu.quanzhu.utils.ScreentUtils;
 import com.zhiyu.quanzhu.utils.ThreadPoolUtils;
 import com.zhiyu.quanzhu.utils.VideoCacheUtils;
 
@@ -50,11 +53,10 @@ import java.util.List;
  * 圈子-关注
  */
 public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitleRecyclerAdapter.OnTitleClickListener, View.OnClickListener, OnRefreshLoadMoreListener,
-        QuanZiTuiJianAdapter.OnChangeXingQuListener {
+        CircleTuiJianAdapter.OnChangeXingQuListener {
     private View view;
     private MyRecyclerView mRecyclerView;
     private RefreshLayout refreshLayout;
-    private QuanZiTuiJianAdapter adapter;
     private CircleTuiJianAdapter circleTuiJianAdapter;
     private MyRecyclerView titleRecyclerView;
     private QuanZiTuiJianTitleRecyclerAdapter titleRecyclerAdapter;
@@ -64,6 +66,7 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
     private QuanZiTuiJianLabelDialog quanZiTuiJianLabelDialog;
     private List<QuanZiTuiJian> tuiJianList = new ArrayList<>();
     private QuanZiTuiJianResult quanziTuijianResult;
+    private LoadingDialog loadingDialog;
     private int contentHeight;
     private MyHandler myHandler = new MyHandler(this);
 
@@ -79,19 +82,30 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
             FragmentQuanZiTuiJian fragment = fragmentQuanZiTuiJianWeakReference.get();
             switch (msg.what) {
                 case 1:
+                    if (fragment.loadingDialog.isShowing()) {
+                        fragment.loadingDialog.dismiss();
+                    }
                     fragment.refreshLayout.finishRefresh();
-//                    fragment.adapter.setData(fragment.tuiJianList);
                     fragment.circleTuiJianAdapter.setList(fragment.tuiJianList);
                     break;
                 case 2:
+                    if (fragment.loadingDialog.isShowing()) {
+                        fragment.loadingDialog.dismiss();
+                    }
                     fragment.refreshLayout.finishLoadMore();
                     fragment.circleTuiJianAdapter.setList(fragment.tuiJianList);
                     break;
                 case 3:
+                    if (fragment.loadingDialog.isShowing()) {
+                        fragment.loadingDialog.dismiss();
+                    }
                     fragment.refreshLayout.finishRefresh();
                     fragment.refreshLayout.finishLoadMore();
                     break;
                 case 4://感兴趣的圈子推荐
+                    if (fragment.loadingDialog.isShowing()) {
+                        fragment.loadingDialog.dismiss();
+                    }
                     int position = (Integer) msg.obj;
                     fragment.tuiJianList.get(position).setQuanzi(fragment.quanZiTuiJianQuanZiResult.getData().getCirclelist());
                     fragment.circleTuiJianAdapter.notifyItemChanged(position);
@@ -102,7 +116,6 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
                     String pa = b.getString("path");
                     fragment.tuiJianList.get(po).getContent().setVideo_url(pa);
                     fragment.circleTuiJianAdapter.notifyItemChanged(po);
-//                    System.out.println("position: " + po + " , path: " + pa);
                     break;
                 case 6:
                     fragment.daoHangList.get(0).setChoose(true);
@@ -118,35 +131,54 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
         contentHeight = getArguments().getInt("contentHeight");
         int dp_60 = (int) getContext().getResources().getDimension(R.dimen.dp_60);
         card_height = contentHeight - dp_60;
-        float width = (9f / 16f) * card_height;
+        int sw = ScreentUtils.getInstance().getScreenWidth(getContext());
+        int sh = ScreentUtils.getInstance().getScreenHeight(getContext());
+        float ratio = (float) sw / (float) sh;
+        float ratio2 = (float) 9 / (float) 16;
+        System.out.println("ratio: " + ratio + " , ratio2: " + ratio2);
+        float width = ratio * card_height;
         card_width = Math.round(width);
         try {
-            cityName=SharedPreferencesUtils.getInstance(getContext()).getLocationCity();
-        }catch (Exception e){
+            cityName = SPUtils.getInstance().getLocationCity(BaseApplication.applicationContext);
+        } catch (Exception e) {
             e.printStackTrace();
         }
         ThreadPoolUtils.getInstance().init().execute(new Runnable() {
             @Override
             public void run() {
                 requestDaoHangList();
-                tuijianFeedList();
+                tuiJianList();
             }
         });
 
         initRefreshLayout();
         initViews();
+//        initData();
         initDialogs();
+
         return view;
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (null != circleTuiJianAdapter)
+            if (isVisibleToUser) {
+                circleTuiJianAdapter.setVideoStop(false);
+            } else {
+                circleTuiJianAdapter.setVideoStop(true);
+            }
     }
 
     private void initDialogs() {
         quanZiTuiJianLabelDialog = new QuanZiTuiJianLabelDialog(getActivity(), R.style.dialog, new QuanZiTuiJianLabelDialog.OnDaoHangCallbackListener() {
             @Override
             public void onDaoHangCallback(List<QuanZiTuiJianDaoHang> list) {
-                daoHangList=list;
+                daoHangList = list;
                 titleRecyclerAdapter.setData(daoHangList);
             }
         });
+        loadingDialog = new LoadingDialog(getContext(), R.style.dialog);
     }
 
     private void initRefreshLayout() {
@@ -165,18 +197,15 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
 
     private void initViews() {
         mRecyclerView = view.findViewById(R.id.mRecyclerView);
-        LinearLayoutManager lm = new LinearLayoutManager(getContext());
-        lm.setOrientation(LinearLayoutManager.HORIZONTAL);
+        LinearLayoutManager lm = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+//        lm.setOrientation(LinearLayoutManager.HORIZONTAL);
         mRecyclerView.setItemAnimator(null);
         mRecyclerView.setLayoutManager(lm);
         mRecyclerView.setItemViewCacheSize(10);
         LinearSnapHelper mLinearSnapHelper = new LinearSnapHelper();
         mLinearSnapHelper.attachToRecyclerView(mRecyclerView);
-//        adapter = new QuanZiTuiJianAdapter(getActivity());
-//        adapter.setOnChangeXingQuListener(this);
-//        mRecyclerView.setAdapter(adapter);
-//        adapter.setWidthHeight(card_width, card_height);
         circleTuiJianAdapter = new CircleTuiJianAdapter(getContext(), card_width, card_height);
+        circleTuiJianAdapter.setOnChangeXingQuListener(this);
         mRecyclerView.setAdapter(circleTuiJianAdapter);
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -186,17 +215,22 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
                     if (disX == 0) {
                         currentPosition = 0;
                     } else {
-                        currentPosition = ((RecyclerView.LayoutParams) mRecyclerView.getChildAt(1).getLayoutParams()).getViewAdapterPosition();
+                        try {
+                            currentPosition = ((RecyclerView.LayoutParams) mRecyclerView.getChildAt(1).getLayoutParams()).getViewAdapterPosition();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
+                    circleTuiJianAdapter.notifyItemChanged(currentPosition);
+
 //                    tuiJianList.get(currentPosition).setPlay(true);
 //                    System.out.println("currentPosition: " + currentPosition);
-                    circleTuiJianAdapter.notifyItemChanged(currentPosition);
+
                 } else {//滑动
                     if (currentPosition > -1) {
                         tuiJianList.get(currentPosition).setPlay(false);
                         circleTuiJianAdapter.notifyItemChanged(currentPosition);
                     }
-
                 }
             }
 
@@ -218,6 +252,7 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
         titleRecyclerAdapter.setOnTitleClickListener(this);
         addLabelImageView = view.findViewById(R.id.addLabelImageView);
         addLabelImageView.setOnClickListener(this);
+
     }
 
     @Override
@@ -230,36 +265,44 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
         }
     }
 
+    private int requetType;
+
     @Override
     public void onTitleClick(int position) {
+        loadingDialog.show();
+        tuiJianList.clear();
+        circleTuiJianAdapter.setList(tuiJianList);
+        disX = 0;
+        currentX = 0;
+        mScale = 0.8f;
+        isInitScale = true;
+        requetType = position;
+        page = 1;
+        isRefresh = true;
+
         for (QuanZiTuiJianDaoHang tuiJianTitle : daoHangList) {
             tuiJianTitle.setChoose(false);
         }
         daoHangList.get(position).setChoose(true);
         titleRecyclerAdapter.setData(daoHangList);
         centerLayoutManager.smoothScrollToPosition(titleRecyclerView, new RecyclerView.State(), position);
-//        tuiJianList.clear();
-//        circleTuiJianAdapter.notifyDataSetChanged();
-        switch (daoHangList.get(position).getType()) {
-
+        switch (requetType) {
+            case 0:
+                tuiJianList();
+                break;
             case 1:
-                tuijianFeedList();
+                videoList();
                 break;
             case 2:
-                videoFeedList();
-                break;
-            case 3:
                 feedList();
                 break;
-            case 4:
-                districtFeedList();
+            case 3:
+                cityList();
                 break;
             default:
                 tagFeedList(daoHangList.get(position).getName());
                 break;
         }
-//        titleRecyclerView.scrollToPosition(position);
-//        Log.i("onTitleClick", "position: " + position);
     }
 
     @Override
@@ -271,14 +314,46 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
     public void onLoadMore(@NonNull RefreshLayout refreshLayout) {
         isRefresh = false;
         page++;
-        tuijianFeedList();
+        switch (requetType) {
+            case 0:
+                tuiJianList();
+                break;
+            case 1:
+                videoList();
+                break;
+            case 2:
+                feedList();
+                break;
+            case 3:
+                cityList();
+                break;
+            default:
+                tagFeedList(daoHangList.get(requetType).getName());
+                break;
+        }
     }
 
     @Override
     public void onRefresh(@NonNull RefreshLayout refreshLayout) {
         isRefresh = true;
         page = 1;
-        tuijianFeedList();
+        switch (requetType) {
+            case 0:
+                tuiJianList();
+                break;
+            case 1:
+                videoList();
+                break;
+            case 2:
+                feedList();
+                break;
+            case 3:
+                cityList();
+                break;
+            default:
+                tagFeedList(daoHangList.get(requetType).getName());
+                break;
+        }
 
     }
 
@@ -289,10 +364,16 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
     private void scaleRecyclerViewItem() {
         if (null != tuiJianList && tuiJianList.size() > 0) {
             View currentView = null, leftView = null, rightView = null;
-            int currentPosition = ((RecyclerView.LayoutParams) mRecyclerView.getChildAt(1).getLayoutParams()).getViewAdapterPosition();
+            int currentPosition = 0;
+            try {
+                currentPosition = ((RecyclerView.LayoutParams) mRecyclerView.getChildAt(1).getLayoutParams()).getViewAdapterPosition();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             int count = tuiJianList.size();
             currentView = mRecyclerView.getLayoutManager().findViewByPosition(currentPosition);
-            currentView.setScaleY(1.0f);
+            if (null != currentView)
+                currentView.setScaleY(1.0f);
             if (currentPosition > 0 && currentPosition < count) {
                 leftView = mRecyclerView.getLayoutManager().findViewByPosition(currentPosition - 1);
                 rightView = mRecyclerView.getLayoutManager().findViewByPosition(currentPosition + 1);
@@ -344,28 +425,30 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
         }
     }
 
-    private String cityName="";
-    public void setCity(String city){
-        cityName=city;
-        page=1;
-        isRefresh=true;
-        tuijianFeedList();
+    private String cityName = "";
+
+    public void setCity(String city) {
+        cityName = city;
+        page = 1;
+        isRefresh = true;
+        tuiJianList();
         requestDaoHangList();
     }
 
     private int page = 1;
     private boolean isRefresh = true;
 
-    private void tuijianFeedList() {
-        RequestParams params = new RequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.HOME_QUANZI_TUIJIAN_LIST);
+    private void tuiJianList() {
+        RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.HOME_QUANZI_TUIJIAN_LIST);
         params.addBodyParameter("city_name", cityName);
         params.addBodyParameter("page", String.valueOf(page));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String res) {
-                System.out.println("圈子-推荐列表: " + res);
+                System.out.println("推荐-推荐: " + res);
                 quanziTuijianResult = GsonUtils.GsonToBean(res, QuanZiTuiJianResult.class);
                 if (isRefresh) {
+                    PageDao.getInstance().save(QuanZiTuiJianResult.class, res, BaseApplication.getInstance());
                     tuiJianList.clear();
                     tuiJianList = quanziTuijianResult.getData().getList();
                     Message message = myHandler.obtainMessage(1);
@@ -375,15 +458,14 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
                     Message message = myHandler.obtainMessage(2);
                     message.sendToTarget();
                 }
-//                cachedVideo();
+
             }
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                Message message1 = myHandler.obtainMessage(1);
-                message1.sendToTarget();
-                Message message2 = myHandler.obtainMessage(2);
-                message2.sendToTarget();
+                System.out.println("推荐-推荐: " + ex.toString());
+                Message message = myHandler.obtainMessage(3);
+                message.sendToTarget();
             }
 
             @Override
@@ -401,11 +483,12 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
     private QuanZiTuiJianQuanZiResult quanZiTuiJianQuanZiResult;
 
     private void requestShangQuanTuiJian(final int position) {
-        RequestParams params = new RequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.SHANG_QUAN_TUI_JIAN_LIST);
-        params.addBodyParameter("city_name", "马鞍山");
+        RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.SHANG_QUAN_TUI_JIAN_LIST);
+        params.addBodyParameter("city_name", SPUtils.getInstance().getLocationCity(BaseApplication.applicationContext));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
+                System.out.println("感兴趣的圈子: " + result);
                 quanZiTuiJianQuanZiResult = GsonUtils.GsonToBean(result, QuanZiTuiJianQuanZiResult.class);
                 Message message = myHandler.obtainMessage(4);
                 message.obj = position;
@@ -414,7 +497,7 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-//                System.out.println("onError: " + ex.toString());
+                System.out.println("感兴趣的圈子: " + ex.toString());
             }
 
             @Override
@@ -437,10 +520,12 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
+                System.out.println("推荐-导航: " + result);
                 daoHangResult = GsonUtils.GsonToBean(result, QuanZiTuiJianDaoHangResult.class);
                 daoHangList = daoHangResult.getData().getList();
                 Message message = myHandler.obtainMessage(6);
                 message.sendToTarget();
+                PageDao.getInstance().save(QuanZiTuiJianDaoHangResult.class, result, BaseApplication.getInstance());
             }
 
             @Override
@@ -477,14 +562,14 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
     }
 
 
-    private void videoFeedList() {
+    private void videoList() {
         RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.HOME_QUANZI_TUIJIAN_DAOHANG_SHIPIN);
-        params.addBodyParameter("city_name", SharedPreferencesUtils.getInstance(getContext()).getLocationCity());
+        params.addBodyParameter("city_name", SPUtils.getInstance().getLocationCity(BaseApplication.applicationContext));
         params.addBodyParameter("page", String.valueOf(page));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("视频: " + result);
+                System.out.println("推荐-视频: " + result);
                 quanziTuijianResult = GsonUtils.GsonToBean(result, QuanZiTuiJianResult.class);
                 if (null != quanziTuijianResult && null != quanziTuijianResult.getData() && null != quanziTuijianResult.getData().getList())
                     if (isRefresh) {
@@ -501,7 +586,9 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-
+                Message message = myHandler.obtainMessage(3);
+                message.sendToTarget();
+                System.out.println("推荐-视频: " + ex.toString());
             }
 
             @Override
@@ -518,12 +605,12 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
 
     private void feedList() {
         RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.HOME_QUANZI_TUIJIAN_DAOHANG_DONGTAI);
-        params.addBodyParameter("city_name", SharedPreferencesUtils.getInstance(getContext()).getLocationCity());
+        params.addBodyParameter("city_name", SPUtils.getInstance().getLocationCity(BaseApplication.applicationContext));
         params.addBodyParameter("page", String.valueOf(page));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("动态: " + result);
+                System.out.println("推荐-动态: " + result);
                 quanziTuijianResult = GsonUtils.GsonToBean(result, QuanZiTuiJianResult.class);
                 if (null != quanziTuijianResult && null != quanziTuijianResult.getData() && null != quanziTuijianResult.getData().getList())
                     if (isRefresh) {
@@ -540,7 +627,9 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-
+                Message message = myHandler.obtainMessage(3);
+                message.sendToTarget();
+                System.out.println("推荐-动态: " + ex.toString());
             }
 
             @Override
@@ -555,14 +644,14 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
         });
     }
 
-    private void districtFeedList() {
+    private void cityList() {
         RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.HOME_QUANZI_TUIJIAN_DAOHANG_DIQU);
-        params.addBodyParameter("city_name", SharedPreferencesUtils.getInstance(getContext()).getLocationCity());
+        params.addBodyParameter("city_name", SPUtils.getInstance().getLocationCity(BaseApplication.applicationContext));
         params.addBodyParameter("page", String.valueOf(page));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("城市: " + result);
+                System.out.println("推荐-城市" + result);
                 quanziTuijianResult = GsonUtils.GsonToBean(result, QuanZiTuiJianResult.class);
                 if (null != quanziTuijianResult && null != quanziTuijianResult.getData() && null != quanziTuijianResult.getData().getList())
                     if (isRefresh) {
@@ -579,7 +668,9 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-
+                Message message = myHandler.obtainMessage(3);
+                message.sendToTarget();
+                System.out.println("推荐-城市: " + ex.toString());
             }
 
             @Override
@@ -596,12 +687,13 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
 
     private void tagFeedList(String tag_name) {
         RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.HOME_QUAN_ZI_TUIJIAN_TAG);
-        params.addBodyParameter("city_name", SharedPreferencesUtils.getInstance(getContext()).getLocationCity());
+        params.addBodyParameter("city_name", SPUtils.getInstance().getLocationCity(BaseApplication.applicationContext));
         params.addBodyParameter("tag_name", tag_name);
         params.addBodyParameter("page", String.valueOf(page));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
+                System.out.println("推荐-标签: " + result);
                 quanziTuijianResult = GsonUtils.GsonToBean(result, QuanZiTuiJianResult.class);
                 if (null != quanziTuijianResult && null != quanziTuijianResult.getData() && null != quanziTuijianResult.getData().getList())
                     if (isRefresh) {
@@ -618,7 +710,9 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-
+                System.out.println("推荐-标签: " + ex.toString());
+                Message message = myHandler.obtainMessage(3);
+                message.sendToTarget();
             }
 
             @Override

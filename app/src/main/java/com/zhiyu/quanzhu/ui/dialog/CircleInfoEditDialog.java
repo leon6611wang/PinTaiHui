@@ -9,7 +9,9 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 
 /**
@@ -52,8 +54,8 @@ public class CircleInfoEditDialog extends Dialog implements View.OnClickListener
                 hint = "请输入您的圈子简介信息...";
                 break;
             case 3:
-                title="申请信息";
-                hint="请输入您的入圈申请信息...";
+                title = "申请信息";
+                hint = "请输入您的入圈申请信息...";
                 break;
         }
         titleTextView.setText(title);
@@ -79,10 +81,15 @@ public class CircleInfoEditDialog extends Dialog implements View.OnClickListener
                 break;
             case R.id.confirmTextView:
                 String content = contentEditText.getText().toString().trim();
-                if (null != onEditListener) {
-                    onEditListener.onEdit(editType, content);
+                if (!StringUtils.isNullOrEmpty(content)) {
+                    if (null != onEditListener) {
+                        onEditListener.onEdit(editType, content);
+                    }
+                    dismiss();
+                } else {
+                    MessageToast.getInstance(getContext()).show(hint);
                 }
-                dismiss();
+
                 break;
         }
     }

@@ -117,9 +117,10 @@ public class CartGoodsNormsSelectDialog extends Dialog implements View.OnClickLi
         }
     }
 
-    public CartGoodsNormsSelectDialog(@NonNull Context context, int themeResId) {
+    public CartGoodsNormsSelectDialog(@NonNull Context context, int themeResId,OnCartGoodsNormsSelectListener listener) {
         super(context, themeResId);
         this.mContext = context;
+        this.onCartGoodsNormsSelectListener=listener;
         screenHeight = ScreentUtils.getInstance().getScreenHeight(mContext);
         dialogHeight = (int) (heightRatio * screenHeight);
         loadingDialog = new LoadingDialog(getContext(), R.style.dialog);
@@ -131,7 +132,8 @@ public class CartGoodsNormsSelectDialog extends Dialog implements View.OnClickLi
     public void setGoods(CartGoods goods) {
         initSelectedList.clear();
         this.goods_id = (int) goods.getGoods_id();
-        Glide.with(getContext()).load(goods.getImg()).error(R.drawable.image_error).into(mImageView);
+        Glide.with(getContext()).load(goods.getImg()).error(R.drawable.image_error).placeholder(R.drawable.image_error)
+                .fallback(R.drawable.image_error).into(mImageView);
         priceTextView.setText(PriceParseUtils.getInstance().parsePrice(goods.getPrice()));
         titleTextView.setText(goods.getGoods_name());
         stockTextView.setText(String.valueOf(goods.getStock()));
@@ -174,6 +176,8 @@ public class CartGoodsNormsSelectDialog extends Dialog implements View.OnClickLi
         titleTextView = findViewById(R.id.titleTextView);
         stockTextView = findViewById(R.id.stockTextView);
         selectTextView = findViewById(R.id.selectTextView);
+        confirmTextView = findViewById(R.id.confirmTextView);
+        confirmTextView.setOnClickListener(this);
 
         mRecyclerView = findViewById(R.id.mRecyclerView);
         adapter = new CartGoodsNormsSelectRecyclerAdapter(mContext, this);
@@ -197,6 +201,21 @@ public class CartGoodsNormsSelectDialog extends Dialog implements View.OnClickLi
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.confirmTextView:
+                List<GoodsNorm> normsList = new ArrayList<>();
+                for (GoodsNormGroup group : list) {
+                    for (GoodsNorm goodsNorm : group.getList()) {
+                        if (goodsNorm.isSelected()) {
+                            normsList.add(goodsNorm);
+                        }
+                    }
+                }
+                if(null!=onCartGoodsNormsSelectListener){
+                    onCartGoodsNormsSelectListener.onCardGoodsNormsSelect(normsList);
+                }
+                dismiss();
+                break;
+            case R.id.closelayout:
+                dismiss();
                 break;
         }
     }
@@ -223,7 +242,7 @@ public class CartGoodsNormsSelectDialog extends Dialog implements View.OnClickLi
 //                }
 //            }
 //        }
-        adapter.setGroupList(list,parentPosition);
+        adapter.setGroupList(list, parentPosition);
         List<GoodsNorm> selectedGoodsNormList = new ArrayList<>();
         String selectedNorm = "";
         for (GoodsNormGroup group : list) {
@@ -256,7 +275,7 @@ public class CartGoodsNormsSelectDialog extends Dialog implements View.OnClickLi
      * 商品规格
      */
     private void goodsNorms() {
-        RequestParams params = new RequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.GOODS_INFO_GOODS_NORMS);
+        RequestParams params =MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.GOODS_INFO_GOODS_NORMS);
         params.addBodyParameter("goods_id", String.valueOf(goods_id));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
@@ -294,7 +313,7 @@ public class CartGoodsNormsSelectDialog extends Dialog implements View.OnClickLi
      */
     private void goodsStock() {
         loadingDialog.show();
-        RequestParams params = new RequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.GOODS_INFO_GOODS_STOCK);
+        RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.GOODS_INFO_GOODS_STOCK);
         params.addBodyParameter("goods_id", String.valueOf(goods_id));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
@@ -322,5 +341,10 @@ public class CartGoodsNormsSelectDialog extends Dialog implements View.OnClickLi
         });
     }
 
+
+    private OnCartGoodsNormsSelectListener onCartGoodsNormsSelectListener;
+    public interface OnCartGoodsNormsSelectListener{
+        void onCardGoodsNormsSelect( List<GoodsNorm> list);
+    }
 
 }

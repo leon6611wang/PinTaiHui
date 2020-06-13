@@ -92,4 +92,5 @@ dependencies {
     implementation project(':MyVideoPlaerLibrary')
     implementation files('libs/jcore-android-2.3.4.jar')
     implementation files('libs/jpush-android-3.6.0.jar')
+    implementation project(':leon')
 }

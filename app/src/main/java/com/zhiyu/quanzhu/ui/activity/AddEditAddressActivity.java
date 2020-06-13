@@ -65,7 +65,6 @@ public class AddEditAddressActivity extends BaseActivity implements View.OnClick
                     activity.loadingDialog.dismiss();
                     MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
                     if (activity.baseResult.getCode() == 200) {
-                        SuccessToast.getInstance(activity).show();
                         activity.finish();
                     }
                     break;

@@ -14,7 +14,15 @@ public class OrderShop {
     private List<OrderGoods> goods;
     private long over_time;
     private int is_pay;//1已付款 0未付款
+    private boolean timeCountComplete;
 
+    public boolean isTimeCountComplete() {
+        return timeCountComplete;
+    }
+
+    public void setTimeCountComplete(boolean timeCountComplete) {
+        this.timeCountComplete = timeCountComplete;
+    }
 
     public int getIs_pay() {
         return is_pay;

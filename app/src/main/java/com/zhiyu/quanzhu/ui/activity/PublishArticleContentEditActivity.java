@@ -23,11 +23,13 @@ import com.zhiyu.quanzhu.model.bean.ArticleInformation;
 import com.zhiyu.quanzhu.model.result.ArticleInformationResult;
 import com.zhiyu.quanzhu.ui.dialog.ArticleImageClickDialog;
 import com.zhiyu.quanzhu.ui.dialog.LoadingDialog;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.ArticleImageView;
 import com.zhiyu.quanzhu.utils.GlideLoader;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.ImageUtils;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
+import com.zhiyu.quanzhu.utils.SoftKeyboardUtil;
 import com.zhiyu.quanzhu.utils.ThreadPoolUtils;
 import com.zhiyu.quanzhu.utils.UploadImageUtils;
 
@@ -96,6 +98,7 @@ public class PublishArticleContentEditActivity extends BaseActivity implements V
         setContentView(R.layout.activity_publish_article_content_edit);
         ScreentUtils.getInstance().setStatusBarLightMode(this, true);
         String json = getIntent().getStringExtra("contentList");
+        System.out.println("2 json: "+json);
         screenWidth = ScreentUtils.getInstance().getScreenWidth(this);
         initDialog();
         initViews();
@@ -171,9 +174,11 @@ public class PublishArticleContentEditActivity extends BaseActivity implements V
                 selectImages();
                 break;
             case R.id.backLayout:
+                SoftKeyboardUtil.hideSoftKeyboard(this);
                 finish();
                 break;
             case R.id.rightLayout:
+                SoftKeyboardUtil.hideSoftKeyboard(this);
                 loadingDialog.show();
                 uploadImages();
                 break;
@@ -206,9 +211,8 @@ public class PublishArticleContentEditActivity extends BaseActivity implements V
                 }
             }
         } else {
-            Toast.makeText(this, "请编辑文章内容.", Toast.LENGTH_SHORT).show();
+            MessageToast.getInstance(this).show("请编辑文章内容.");
         }
-        System.out.println("1 --> 图文： " + articleContentList.size());
         loadingDialog.dismiss();
         if (null != onSaveArticleContentListener) {
             onSaveArticleContentListener.onSaveArticleContent(articleContentList);

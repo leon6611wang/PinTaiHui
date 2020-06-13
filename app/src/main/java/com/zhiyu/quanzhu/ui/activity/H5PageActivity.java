@@ -25,7 +25,7 @@ public class H5PageActivity extends BaseActivity implements View.OnClickListener
         ScreentUtils.getInstance().setStatusBarLightMode(this, true);
         url = getIntent().getStringExtra("url");
 //        url="https://www.baidu.com/";
-        System.out.println("h5page url: "+url);
+//        System.out.println("h5page url: "+url);
         initViews();
     }
 
@@ -33,6 +33,7 @@ public class H5PageActivity extends BaseActivity implements View.OnClickListener
         backLayout = findViewById(R.id.backLayout);
         backLayout.setOnClickListener(this);
         titleTextView = findViewById(R.id.titleTextView);
+        titleTextView.setText(null);
         mWebView = findViewById(R.id.mWebView);
         mWebView.loadUrl(url);
         mWebView.getSettings().setJavaScriptEnabled(true);

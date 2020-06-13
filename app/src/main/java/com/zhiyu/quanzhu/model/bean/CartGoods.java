@@ -6,7 +6,7 @@ package com.zhiyu.quanzhu.model.bean;
 public class CartGoods {
     private long id;//购物车id
     private int num;
-    private long nid;
+    private String nid;
     private int goods_feight;
     private long goods_id;
     private String goods_name;
@@ -39,16 +39,21 @@ public class CartGoods {
         return isSelected;
     }
 
-    public void setSelected(boolean selected) {
-        if (selected) {
-            if (stock == 0 || currentNum > stock) {
-                this.isSelected = false;
+    public void setSelected(boolean selected, boolean isManage) {
+        if (!isManage) {
+            if (selected) {
+                if (stock == 0 || currentNum > stock) {
+                    this.isSelected = false;
+                } else {
+                    this.isSelected = selected;
+                }
             } else {
-                this.isSelected = selected;
+                isSelected = selected;
             }
         } else {
             isSelected = selected;
         }
+
 
     }
 
@@ -68,11 +73,11 @@ public class CartGoods {
         this.num = num;
     }
 
-    public long getNid() {
+    public String getNid() {
         return nid;
     }
 
-    public void setNid(long nid) {
+    public void setNid(String nid) {
         this.nid = nid;
     }
 

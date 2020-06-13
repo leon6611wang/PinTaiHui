@@ -60,6 +60,9 @@ public class MyCollectionVideoAdapter extends RecyclerView.Adapter<RecyclerView.
     private int dp_240;
     private int width, height;
     private boolean isSelectModel;
+    public void setQQShareResult(int requestCode,int resultCode,Intent data){
+        shareDialog.setQQShareCallback(requestCode,resultCode,data);
+    }
     public void setAllSelect(boolean isAllSelected){
         for(Feed feed:list){
             feed.setSelected(isAllSelected);
@@ -366,7 +369,7 @@ public class MyCollectionVideoAdapter extends RecyclerView.Adapter<RecyclerView.
             article.titleTextView.setText(list.get(position).getContent().getTitle());
             if (null != list.get(position).getContent().getThumb()) {
                 article.coverImageView.setVisibility(View.VISIBLE);
-                Glide.with(context).load(list.get(position).getContent().getThumb().getFile()).error(R.mipmap.img_error).into(article.coverImageView);
+                Glide.with(context).load(list.get(position).getContent().getNewthumb().getFile()).error(R.mipmap.img_error).into(article.coverImageView);
             } else {
                 article.coverImageView.setVisibility(View.GONE);
             }

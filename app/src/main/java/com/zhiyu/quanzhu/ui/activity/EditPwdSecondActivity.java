@@ -94,9 +94,10 @@ public class EditPwdSecondActivity extends BaseActivity implements View.OnClickL
         switch (payOrLoginPwd) {
             case 0:
                 titleTextView.setText("更改登录密码");
-                pwdEditText.setHint("请输入新密码(8-18位组合)");
+                pwdEditText.setHint("请输入新密码(6-14位组合)");
                 pwdEditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-                pwdEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(18)});
+                pwdEditText.setMaxEms(6);
+                pwdEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(14)});
                 break;
             case 1:
                 titleTextView.setText("更改支付密码");
@@ -149,14 +150,14 @@ public class EditPwdSecondActivity extends BaseActivity implements View.OnClickL
                 int length = pwd.length();
                 switch (payOrLoginPwd) {
                     case 0:
-                        if (length <= 8 || length > 18) {
-                            MessageToast.getInstance(this).show("登录密码长度8-18");
+                        if (length < 6 || length > 14) {
+                            MessageToast.getInstance(this).show("登录密码长度6-14");
                             break;
                         }
                         setLoginPwd();
                         break;
                     case 1:
-                        if (length < 6 || length > 6) {
+                        if (length != 6) {
                             MessageToast.getInstance(this).show("请确认6位支付密码");
                             break;
                         }
@@ -180,7 +181,7 @@ public class EditPwdSecondActivity extends BaseActivity implements View.OnClickL
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("支付密码: "+result);
+                System.out.println("支付密码: " + result);
                 baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
@@ -188,7 +189,7 @@ public class EditPwdSecondActivity extends BaseActivity implements View.OnClickL
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                System.out.println("支付密码: "+ex.toString());
+                System.out.println("支付密码: " + ex.toString());
             }
 
             @Override
@@ -214,7 +215,7 @@ public class EditPwdSecondActivity extends BaseActivity implements View.OnClickL
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("登录密码: "+result);
+                System.out.println("登录密码: " + result);
                 baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
@@ -222,7 +223,7 @@ public class EditPwdSecondActivity extends BaseActivity implements View.OnClickL
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                System.out.println("登录密码: "+ex.toString());
+                System.out.println("登录密码: " + ex.toString());
             }
 
             @Override

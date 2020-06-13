@@ -14,6 +14,7 @@ import com.zhiyu.quanzhu.model.result.QuanZiTuiJianResult;
 import com.zhiyu.quanzhu.ui.adapter.HorizontalCardListAdapter;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
+import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 
 import org.xutils.common.Callback;
@@ -92,7 +93,7 @@ public class HorizontalCardListActivity extends BaseActivity {
     private int page = 1;
 
     private void requestTuiJianList() {
-        RequestParams params = new RequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.HOME_QUANZI_TUIJIAN_LIST);
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.HOME_QUANZI_TUIJIAN_LIST);
         params.addBodyParameter("city_name", "马鞍山市");
         params.addBodyParameter("page", String.valueOf(page));
         x.http().post(params, new Callback.CommonCallback<String>() {

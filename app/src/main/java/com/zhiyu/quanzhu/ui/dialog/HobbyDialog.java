@@ -3,6 +3,8 @@ package com.zhiyu.quanzhu.ui.dialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -18,10 +20,23 @@ import com.zhiyu.quanzhu.model.bean.HobbyDaoParent;
 import com.zhiyu.quanzhu.model.bean.IndustryChild;
 import com.zhiyu.quanzhu.model.dao.HobbyDao;
 import com.zhiyu.quanzhu.model.dao.IndustryDao;
+import com.zhiyu.quanzhu.model.result.HobbyDaoResult;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
+import com.zhiyu.quanzhu.utils.ConstantsUtils;
+import com.zhiyu.quanzhu.utils.GsonUtils;
+import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
+import com.zhiyu.quanzhu.utils.ThreadPoolUtils;
 
+import org.xutils.common.Callback;
+import org.xutils.http.RequestParams;
+import org.xutils.x;
+
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * 兴趣
@@ -36,10 +51,39 @@ public class HobbyDialog extends Dialog implements View.OnClickListener {
     private List<HobbyDaoChild> hobbyChildList;
     private HobbyDaoParent hobbyDaoParent;
     private HobbyDaoChild hobbyDaoChild;
+    private MyHandler myHandler = new MyHandler(this);
+
+    private static class MyHandler extends Handler {
+        WeakReference<HobbyDialog> dialogWeakReference;
+
+        public MyHandler(HobbyDialog dialog) {
+            dialogWeakReference = new WeakReference<>(dialog);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            HobbyDialog dialog = dialogWeakReference.get();
+            switch (msg.what) {
+                case 1:
+                    dialog.initData();
+                    break;
+                case 2:
+                    dialog.notifyData();
+                    break;
+            }
+        }
+    }
 
     public HobbyDialog(@NonNull Context context, int themeResId, OnChooseHobbyListener listener) {
         super(context, themeResId);
         this.onChooseHobbyListener = listener;
+        ThreadPoolUtils.getInstance().init().execute(new Runnable() {
+            @Override
+            public void run() {
+                hobbyParentList = HobbyDao.getInstance().hobbyParentList();
+            }
+        });
+
     }
 
     public void setHobby(String pHobby, String cHobby) {
@@ -89,35 +133,57 @@ public class HobbyDialog extends Dialog implements View.OnClickListener {
         getWindow().setGravity(Gravity.BOTTOM);
         getWindow().setWindowAnimations(R.style.dialogBottomShow);
         getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        initData();
         initViews();
+        hobbyList();
+//        if (null != hobbyParentList && hobbyParentList.size() > 0) {
+//            System.out.println("initData");
+//            initData();
+//        } else {
+//            System.out.println("hobbyList");
+//            hobbyList();
+//        }
     }
 
     private void initData() {
-        hobbyParentList = HobbyDao.getInstance().hobbyParentList();
-        if (null != hobbyParentList && hobbyParentList.size() > 0) {
-            hobbyDaoParent = hobbyParentList.get(0);
-            for (HobbyDaoParent parent : hobbyParentList) {
-                parentList.add(parent.getName());
-            }
-        }
+        ThreadPoolUtils.getInstance().init().execute(new Runnable() {
+            @Override
+            public void run() {
+                System.out.println("startTime: " + new Date().getTime());
+                if (null != hobbyParentList && hobbyParentList.size() > 0) {
+                    hobbyDaoParent = hobbyParentList.get(0);
+                    for (HobbyDaoParent parent : hobbyParentList) {
+                        parentList.add(parent.getName());
+                    }
+                }
 
-        hobbyChildList = HobbyDao.getInstance().hobbyChildList(hobbyParentList.get(0).getId());
-        if (null != hobbyChildList && hobbyChildList.size() > 0) {
-            hobbyDaoChild = hobbyChildList.get(0);
-            for (HobbyDaoChild child : hobbyChildList) {
-                childList.add(child.getName());
+                hobbyChildList = HobbyDao.getInstance().hobbyChildList(hobbyParentList.get(0).getId());
+                if (null != hobbyChildList && hobbyChildList.size() > 0) {
+                    hobbyDaoChild = hobbyChildList.get(0);
+                    for (HobbyDaoChild child : hobbyChildList) {
+                        childList.add(child.getName());
+                    }
+                }
+                System.out.println("endTime: " + new Date().getTime());
+                Message message = myHandler.obtainMessage(2);
+                message.sendToTarget();
             }
-        }
+        });
+
     }
+
+    private void notifyData() {
+        parentView.setItems(parentList);
+        parentView.setInitPosition(0);
+        childView.setItems(childList);
+        childView.setInitPosition(0);
+    }
+
 
     private void initViews() {
         parentView = findViewById(R.id.parentView);
         parentView.setNotLoop();
         childView = findViewById(R.id.childView);
         childView.setNotLoop();
-        parentView.setItems(parentList);
-        parentView.setInitPosition(0);
         parentView.setListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(int index) {
@@ -138,12 +204,11 @@ public class HobbyDialog extends Dialog implements View.OnClickListener {
                         }
                     }
                     childView.setItems(childList);
+                    if (null != hobbyChildList && hobbyChildList.size() > 0)
+                        hobbyDaoChild = hobbyChildList.get(0);
                 }
             }
         });
-        parent = parentList.get(parentView.getSelectedItem());
-        childView.setItems(childList);
-        childView.setInitPosition(0);
         childView.setListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(int index) {
@@ -168,10 +233,19 @@ public class HobbyDialog extends Dialog implements View.OnClickListener {
                 dismiss();
                 break;
             case R.id.confirmTextView:
-                if (null != onChooseHobbyListener) {
-                    onChooseHobbyListener.onChooseHobby(hobbyDaoParent, hobbyDaoChild);
-                    dismiss();
+                if (null == hobbyChildList || hobbyChildList.size() == 0) {
+                    MessageToast.getInstance(getContext()).show("当前兴趣无二级分类，请选择其他兴趣");
+                } else {
+                    if (null != onChooseHobbyListener) {
+                        if (null != hobbyDaoParent && null != hobbyChildList) {
+                            onChooseHobbyListener.onChooseHobby(hobbyDaoParent, hobbyDaoChild);
+                            dismiss();
+                        } else {
+                            MessageToast.getInstance(getContext()).show("请选择兴趣");
+                        }
+                    }
                 }
+
                 break;
         }
     }
@@ -180,5 +254,38 @@ public class HobbyDialog extends Dialog implements View.OnClickListener {
 
     public interface OnChooseHobbyListener {
         void onChooseHobby(HobbyDaoParent parent, HobbyDaoChild child);
+    }
+
+
+    private HobbyDaoResult hobbyResult;
+
+    private void hobbyList() {
+        final RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.HOBBY_LIST);
+        params.addBodyParameter("type", "2");
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                System.out.println("hobby list: " + result);
+                hobbyResult = GsonUtils.GsonToBean(result, HobbyDaoResult.class);
+                hobbyParentList = hobbyResult.getData().getList().get(0).getChild();
+                Message message = myHandler.obtainMessage(1);
+                message.sendToTarget();
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+                System.out.println("hobby list error: " + ex.toString());
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
     }
 }

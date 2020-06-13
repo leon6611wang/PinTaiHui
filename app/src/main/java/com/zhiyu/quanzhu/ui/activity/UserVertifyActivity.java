@@ -64,11 +64,13 @@ public class UserVertifyActivity extends BaseActivity implements View.OnClickLis
                     if (activity.vertifyResult.getCode() == 200 && null != activity.vertifyResult.getData()) {
                         if (!StringUtils.isNullOrEmpty(activity.vertifyResult.getData().getIdentity_front())) {
                             activity.zhengmianEgImageView.setVisibility(View.GONE);
-                            Glide.with(activity).load(activity.vertifyResult.getData().getIdentity_front()).error(R.drawable.image_error).into(activity.zhengmianImageView);
+                            Glide.with(activity).load(activity.vertifyResult.getData().getIdentity_front()).error(R.drawable.image_error) .placeholder(R.drawable.image_error)
+                                    .fallback(R.drawable.image_error).into(activity.zhengmianImageView);
                         }
                         if (!StringUtils.isNullOrEmpty(activity.vertifyResult.getData().getIdentity_back())) {
                             activity.fanmianEgImageView.setVisibility(View.GONE);
-                            Glide.with(activity).load(activity.vertifyResult.getData().getIdentity_back()).error(R.drawable.image_error).into(activity.fanmianImageView);
+                            Glide.with(activity).load(activity.vertifyResult.getData().getIdentity_back()).error(R.drawable.image_error) .placeholder(R.drawable.image_error)
+                                    .fallback(R.drawable.image_error).into(activity.fanmianImageView);
                         }
                         activity.zhengMianUrl = activity.vertifyResult.getData().getIdentity_front();
                         activity.fanMianUrl = activity.vertifyResult.getData().getIdentity_back();

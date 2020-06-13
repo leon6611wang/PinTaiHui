@@ -2,6 +2,7 @@ package com.zhiyu.quanzhu.ui.dialog;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -12,6 +13,7 @@ import android.widget.LinearLayout;
 import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseResult;
+import com.zhiyu.quanzhu.ui.activity.EditPwdFirstActivity;
 import com.zhiyu.quanzhu.ui.toast.FailureToast;
 import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.PwdEditText;
@@ -19,6 +21,7 @@ import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
+import com.zhiyu.quanzhu.utils.SoftKeyboardUtil;
 
 import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
@@ -34,8 +37,9 @@ import java.lang.ref.WeakReference;
 public class PasswordCheckDialog extends Dialog implements PwdEditText.OnTextChangeListeven {
     private PwdEditText pwdEdit;
     private int screenWidth, dp_15, dp_22, dp_32;
+    private YNDialog ynDialog;
     private LoadingDialog loadingDialog;
-    private int passwordType=2;//1登录密码 2支付密码
+    private int passwordType = 2;//1登录密码 2支付密码
 
     private MyHandler myHandler = new MyHandler(this);
 
@@ -51,7 +55,6 @@ public class PasswordCheckDialog extends Dialog implements PwdEditText.OnTextCha
             PasswordCheckDialog dialog = dialogWeakReference.get();
             switch (msg.what) {
                 case 1:
-                    MessageToast.getInstance(dialog.getContext()).show(dialog.baseResult.getMsg());
                     dialog.loadingDialog.dismiss();
                     if (dialog.baseResult.getCode() == 200) {
                         if (null != dialog.onPayPwdListener) {
@@ -59,7 +62,21 @@ public class PasswordCheckDialog extends Dialog implements PwdEditText.OnTextCha
                         }
                         dialog.dismiss();
                     } else {
+                        MessageToast.getInstance(dialog.getContext()).show(dialog.baseResult.getMsg());
                         dialog.pwdEdit.clearText();
+                        if (dialog.baseResult.getCode() == 1005) {
+                            dialog.ynDialog.show();
+                            String title = "";
+                            switch (dialog.passwordType) {
+                                case 1:
+                                    title = "您暂未设置登录密码，是否立即设置？";
+                                    break;
+                                case 2:
+                                    title = "您暂未设置支付密码，是否立即设置？";
+                                    break;
+                            }
+                            dialog.ynDialog.setTitle(title);
+                        }
                     }
                     break;
                 case 2:
@@ -75,8 +92,8 @@ public class PasswordCheckDialog extends Dialog implements PwdEditText.OnTextCha
         this.onPayPwdListener = listener;
     }
 
-    public void setPasswordType(int type){
-        this.passwordType=type;
+    public void setPasswordType(int type) {
+        this.passwordType = type;
     }
 
     @Override
@@ -96,6 +113,15 @@ public class PasswordCheckDialog extends Dialog implements PwdEditText.OnTextCha
 
     private void initLoadingDialog() {
         loadingDialog = new LoadingDialog(getContext(), R.style.dialog);
+        ynDialog = new YNDialog(getContext(), R.style.dialog, new YNDialog.OnYNListener() {
+            @Override
+            public void onConfirm() {
+                Intent intent = new Intent(getContext(), EditPwdFirstActivity.class);
+                intent.putExtra("payOrLoginPwd", passwordType - 1);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                getContext().startActivity(intent);
+            }
+        });
     }
 
     private void initViews() {
@@ -132,6 +158,7 @@ public class PasswordCheckDialog extends Dialog implements PwdEditText.OnTextCha
     public void show() {
         super.show();
         pwdEdit.clearText();
+        SoftKeyboardUtil.showSoftKeyBoard(getWindow());
     }
 
     private OnPayPwdListener onPayPwdListener;

@@ -60,6 +60,9 @@ public class MyFootprintPriseAdapter extends RecyclerView.Adapter<RecyclerView.V
     private int width, height;
     private MyHandler myHandler = new MyHandler(this);
 
+    public void setQQShareResult(int requestCode,int resultCode,Intent data){
+        shareDialog.setQQShareCallback(requestCode,resultCode,data);
+    }
     public MyFootprintPriseAdapter(Activity aty, final Context context) {
         this.context = context;
         this.activity = aty;
@@ -320,9 +323,9 @@ public class MyFootprintPriseAdapter extends RecyclerView.Adapter<RecyclerView.V
             Glide.with(context).load(list.get(position).getContent().getAvatar()).error(R.mipmap.no_avatar).into(article.avatarImageView);
             article.nameTextView.setText(list.get(position).getContent().getUsername());
             article.titleTextView.setText(list.get(position).getContent().getTitle());
-            if(null!=list.get(position).getContent().getThumb()){
+            if(null!=list.get(position).getContent().getNewthumb()){
                 article.coverImageView.setVisibility(View.VISIBLE);
-                Glide.with(context).load(list.get(position).getContent().getThumb().getFile()).error(R.mipmap.img_error).into(article.coverImageView);
+                Glide.with(context).load(list.get(position).getContent().getNewthumb().getFile()).error(R.mipmap.img_error).into(article.coverImageView);
             }else{
                 article.coverImageView.setVisibility(View.GONE);
             }
@@ -392,7 +395,7 @@ public class MyFootprintPriseAdapter extends RecyclerView.Adapter<RecyclerView.V
 
     @Override
     public int getItemViewType(int position) {
-        return list.get(position).getFeed_type();
+        return list.get(position).getFeeds_type();
     }
 
     private final int ARTICLE = 1, VIDEO = 2, FEED = 3;

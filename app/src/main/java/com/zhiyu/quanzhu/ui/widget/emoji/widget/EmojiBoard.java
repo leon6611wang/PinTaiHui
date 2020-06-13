@@ -168,7 +168,8 @@ public class EmojiBoard extends LinearLayout {
             int pageSize = EmojiUtil.getPageSize();
             for (int i = 0; i < pageSize; i++) {//多少页数据就有多少个小圆点
                 ImageView imageView = new ImageView(getContext());
-                LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                int width = (int) context.getResources().getDimension(R.dimen.dp_3);
+                LayoutParams params = new LayoutParams(width, width);
                 int px = (int) (4 * context.getResources().getDisplayMetrics().density + 0.5f);//设置间距
                 params.setMargins(px, 0, px, 0);
                 imageView.setLayoutParams(params);
@@ -210,5 +211,9 @@ public class EmojiBoard extends LinearLayout {
      */
     public void showBoard() {
         setVisibility(getVisibility() == VISIBLE ? GONE : VISIBLE);
+    }
+
+    public void hideBoard() {
+        setVisibility(GONE);
     }
 }

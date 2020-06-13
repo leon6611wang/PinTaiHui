@@ -75,7 +75,7 @@ public class MyFollowShopAdapter extends BaseAdapter {
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
-        Glide.with(parent.getContext()).load(list.get(position).getIcon()).into(holder.coverImageView);
+        Glide.with(parent.getContext()).load(list.get(position).getIcon()).error(R.drawable.image_error).into(holder.coverImageView);
         holder.nameTextView.setText(list.get(position).getName());
         if (!StringUtils.isNullOrEmpty(list.get(position).getCity_name())) {
             holder.cityTextView.setVisibility(View.VISIBLE);
@@ -110,7 +110,7 @@ public class MyFollowShopAdapter extends BaseAdapter {
         @Override
         public void onClick(View v) {
             Intent shopInfoIntent = new Intent(context, ShopInformationActivity.class);
-            shopInfoIntent.putExtra("shop_id", list.get(position).getId());
+            shopInfoIntent.putExtra("shop_id", String.valueOf(list.get(position).getId()));
             shopInfoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(shopInfoIntent);
         }

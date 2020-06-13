@@ -16,6 +16,7 @@ import com.bumptech.glide.Glide;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.model.bean.VIP;
 import com.zhiyu.quanzhu.ui.activity.AllVIPEquityActivity;
+import com.zhiyu.quanzhu.ui.dialog.PayWayDialog;
 import com.zhiyu.quanzhu.utils.PriceParseUtils;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class BuyVipRecyclerAdapter extends RecyclerView.Adapter<BuyVipRecyclerAd
     private Context context;
     private ViewGroup.LayoutParams params;
     private List<VIP> list;
+
 
     public void setList(List<VIP> vipList) {
         this.list = vipList;
@@ -41,6 +43,7 @@ public class BuyVipRecyclerAdapter extends RecyclerView.Adapter<BuyVipRecyclerAd
         TextView vipNametTextView, vipPriceTextView, moreEquityTextView;
         ListView listView;
         VIPEquityListAdapter adapter;
+        TextView buyButtonTextView;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -53,6 +56,7 @@ public class BuyVipRecyclerAdapter extends RecyclerView.Adapter<BuyVipRecyclerAd
             adapter = new VIPEquityListAdapter();
             listView.setAdapter(adapter);
             moreEquityTextView = itemView.findViewById(R.id.moreEquityTextView);
+            buyButtonTextView = itemView.findViewById(R.id.buyButtonTextView);
         }
     }
 
@@ -63,12 +67,20 @@ public class BuyVipRecyclerAdapter extends RecyclerView.Adapter<BuyVipRecyclerAd
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
         Glide.with(context).load(list.get(position).getIcon()).into(holder.vipIconImageView);
         holder.vipNametTextView.setText(list.get(position).getName());
         holder.vipPriceTextView.setText(PriceParseUtils.getInstance().parsePrice(list.get(position).getPrice()));
         holder.adapter.setList(list.get(position).getEquity_list());
         holder.moreEquityTextView.setOnClickListener(new OnMoreEquityClick(position));
+        holder.buyButtonTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               if(null!=onBuyVIPListener){
+                   onBuyVIPListener.onBuyVIP(position);
+               }
+            }
+        });
     }
 
     @Override
@@ -90,5 +102,12 @@ public class BuyVipRecyclerAdapter extends RecyclerView.Adapter<BuyVipRecyclerAd
             moreEquityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(moreEquityIntent);
         }
+    }
+    private OnBuyVIPListener onBuyVIPListener;
+    public void setOnBuyVIPListener(OnBuyVIPListener listener){
+        this.onBuyVIPListener=listener;
+    }
+    public interface OnBuyVIPListener{
+        void onBuyVIP(int position);
     }
 }

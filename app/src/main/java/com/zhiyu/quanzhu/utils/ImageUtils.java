@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import com.zhiyu.quanzhu.R;
+import com.zhiyu.quanzhu.model.bean.MessageImage;
 import com.zhiyu.quanzhu.model.bean.UploadImage;
 
 /**
@@ -34,6 +35,23 @@ public class ImageUtils {
         int width = options.outWidth;
         int height = options.outHeight;
         image.setFile(url);
+        image.setWidth(width);
+        image.setHeight(height);
+        return image;
+    }
+
+    public MessageImage getMessageImage(String path, String url) {
+        MessageImage image = new MessageImage();
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        /**
+         * 最关键在此，把options.inJustDecodeBounds = true;
+         * 这里再decodeFile()，返回的bitmap为空，但此时调用options.outHeight时，已经包含了图片的高了
+         */
+        options.inJustDecodeBounds = true;
+        Bitmap bitmap = BitmapFactory.decodeFile(path, options); // 此时返回的bitmap为null
+        int width = options.outWidth;
+        int height = options.outHeight;
+        image.setUrl(url);
         image.setWidth(width);
         image.setHeight(height);
         return image;

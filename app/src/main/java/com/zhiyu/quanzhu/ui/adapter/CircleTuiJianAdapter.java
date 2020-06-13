@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +22,7 @@ import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.base.BaseResult;
+import com.zhiyu.quanzhu.model.bean.CircleTuiJianArticle;
 import com.zhiyu.quanzhu.model.bean.QuanZiTuiJian;
 import com.zhiyu.quanzhu.ui.activity.ArticleInformationActivity;
 import com.zhiyu.quanzhu.ui.activity.FeedInformationActivity;
@@ -40,10 +42,11 @@ import org.xutils.http.RequestParams;
 import org.xutils.x;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CircleTuiJianAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private final int ARTICLE = 1, VIDEO = 2, FEED = 3, FEED_ONE_IMAGE = 4;
+    private final int ARTICLE = 1, VIDEO = 2, FEED = 3, FEED_ONE_IMAGE = 4, INTEREST = 7;
     private List<QuanZiTuiJian> list;
     private Context context;
     private int width, height, screenWidth;
@@ -88,6 +91,13 @@ public class CircleTuiJianAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     public void setList(List<QuanZiTuiJian> tuiJianList) {
         this.list = tuiJianList;
+        notifyDataSetChanged();
+    }
+
+    private boolean isStop;
+
+    public void setVideoStop(boolean stop) {
+        this.isStop = stop;
         notifyDataSetChanged();
     }
 
@@ -151,7 +161,7 @@ public class CircleTuiJianAdapter extends RecyclerView.Adapter<RecyclerView.View
         CircleImageView avatarImageView;
         ImageView followImageView;
         TextView nameTextView, timeTextView, followTextView, titleTextView, contentTextView;
-        WrapImageView coverImageView;
+        ImageView coverImageView;
 
         public ArticleViewHolder(View itemView) {
             super(itemView);
@@ -195,6 +205,28 @@ public class CircleTuiJianAdapter extends RecyclerView.Adapter<RecyclerView.View
         }
     }
 
+    class InterestViewHolder extends RecyclerView.ViewHolder {
+        RecyclerView mRecyclerView;
+        TextView changeTextView;
+        CircleTuiJianInterestAdapter adapter;
+        LinearLayoutManager layoutManager;
+        LinearLayout itemLayout;
+        CardView cardView;
+
+        public InterestViewHolder(View itemView) {
+            super(itemView);
+            itemLayout = itemView.findViewById(R.id.itemLayout);
+            cardView = itemView.findViewById(R.id.cardView);
+            mRecyclerView = itemView.findViewById(R.id.mRecyclerView);
+            changeTextView = itemView.findViewById(R.id.changeTextView);
+            adapter = new CircleTuiJianInterestAdapter(context);
+            layoutManager = new LinearLayoutManager(context);
+            layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+            mRecyclerView.setLayoutManager(layoutManager);
+            mRecyclerView.setAdapter(adapter);
+        }
+    }
+
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -206,12 +238,14 @@ public class CircleTuiJianAdapter extends RecyclerView.Adapter<RecyclerView.View
             return new VideoViewHolder(LayoutInflater.from(context).inflate(R.layout.item_circle_tuijian_video, parent, false));
         } else if (viewType == FEED_ONE_IMAGE) {
             return new FeedOneImageViewHolder(LayoutInflater.from(context).inflate(R.layout.item_circle_tuijian_feed_one_image, parent, false));
+        } else if (viewType == INTEREST) {
+            return new InterestViewHolder(LayoutInflater.from(context).inflate(R.layout.item_circle_tuijian_interest, parent, false));
         }
         return null;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
         if (holder instanceof FeedViewHolder) {
             FeedViewHolder feed = (FeedViewHolder) holder;
             feed.itemLayout.setLayoutParams(list.get(position).getItemLayoutParams(context, width));
@@ -231,7 +265,11 @@ public class CircleTuiJianAdapter extends RecyclerView.Adapter<RecyclerView.View
                 Glide.with(context).load(list.get(position).getContent().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(feed.videoPlayer.getCoverController().getVideoCover());
                 feed.videoPlayer.setLayoutParams(list.get(position).getFeedParams(screenWidth, width, dp_240, true));
             } else {
-                if (list.get(position).getContent().getImgs().size() == 1) {
+                if (null == list.get(position).getContent().getImgs() || list.get(position).getContent().getImgs().size() == 0) {
+                    feed.feedImageView.setVisibility(View.GONE);
+                    feed.imageGridView.setVisibility(View.GONE);
+                    feed.videoPlayer.setVisibility(View.GONE);
+                } else if (list.get(position).getContent().getImgs().size() == 1) {
                     feed.feedImageView.setVisibility(View.VISIBLE);
                     feed.imageGridView.setVisibility(View.GONE);
                     feed.videoPlayer.setVisibility(View.GONE);
@@ -263,25 +301,35 @@ public class CircleTuiJianAdapter extends RecyclerView.Adapter<RecyclerView.View
             }
             feed.followLayout.setOnClickListener(new OnFollowClickListener(position));
             feed.itemLayout.setOnClickListener(new OnFeedInformationClick(position));
+            if (isStop && feed.videoPlayer.isPlaying()) {
+                feed.videoPlayer.pause();
+            }
         } else if (holder instanceof ArticleViewHolder) {
             ArticleViewHolder article = (ArticleViewHolder) holder;
             article.itemLayout.setLayoutParams(list.get(position).getItemLayoutParams(context, width));
             article.cardView.setLayoutParams(list.get(position).getCardViewParams(context, width, height));
             article.titleTextView.setText(list.get(position).getContent().getTitle());
-            if (null != list.get(position).getContent().getThumb()) {
+
+            if (list.get(position).getContent().getArticleImgList().size() > 0) {
                 article.coverImageView.setVisibility(View.VISIBLE);
-                Glide.with(context).load(list.get(position).getContent().getThumb().getFile());
+                Glide.with(context).load(list.get(position).getContent().getArticleImgList().get(0)).error(R.drawable.image_error)
+                        .placeholder(R.drawable.image_error)
+                        .fallback(R.drawable.image_error)
+                        .into(article.coverImageView);
             } else {
                 article.coverImageView.setVisibility(View.GONE);
             }
-            article.contentTextView.setText(list.get(position).getContent().getContent());
+            if (list.get(position).getContent().getArticleTxtList().size() > 0) {
+                article.contentTextView.setText(list.get(position).getContent().getArticleTxtList().get(0));
+            }
+
             Glide.with(context).load(list.get(position).getContent().getAvatar()).error(R.mipmap.no_avatar).into(article.avatarImageView);
             article.nameTextView.setText(list.get(position).getContent().getUsername());
             article.timeTextView.setText(list.get(position).getContent().getTime());
             if (list.get(position).getContent().isIs_follow()) {
                 article.followLayout.setBackground(context.getResources().getDrawable(R.drawable.shape_oval_bg_gray));
                 article.followImageView.setVisibility(View.GONE);
-                article.followTextView.setTextColor(context.getResources().getColor(R.color.color_dfdfdf));
+                article.followTextView.setTextColor(context.getResources().getColor(R.color.color_bbbbbb));
                 article.followTextView.setText("已关注");
             } else {
                 article.followLayout.setBackground(context.getResources().getDrawable(R.drawable.shape_oval_bg_yellow));
@@ -305,7 +353,7 @@ public class CircleTuiJianAdapter extends RecyclerView.Adapter<RecyclerView.View
             video.videoPlayer.setLayoutParams(list.get(position).getVideoParams(context, width, height));
             video.videoPlayer.setDataSource(list.get(position).getContent().getVideo_url(), "");
             Glide.with(context).load(list.get(position).getContent().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(video.videoPlayer.getCoverController().getVideoCover());
-            Glide.with(context).load(list.get(position).getContent().getAvatar()).error(R.mipmap.no_avatar).into(video.avatarImageView);
+            Glide.with(context).load(list.get(position).getContent().getAvatar()).error(R.drawable.image_error).into(video.avatarImageView);
             video.nameTextView.setText(list.get(position).getContent().getUsername());
             video.timeTextView.setText(list.get(position).getContent().getTime());
             if (list.get(position).getContent().isIs_follow()) {
@@ -321,6 +369,9 @@ public class CircleTuiJianAdapter extends RecyclerView.Adapter<RecyclerView.View
             }
             video.followLayout.setOnClickListener(new OnFollowClickListener(position));
             video.itemLayout.setOnClickListener(new OnVideoInformationClick(position));
+            if (isStop && video.videoPlayer.isPlaying()) {
+                video.videoPlayer.pause();
+            }
         } else if (holder instanceof FeedOneImageViewHolder) {
             FeedOneImageViewHolder oneImage = (FeedOneImageViewHolder) holder;
             oneImage.itemLayout.setLayoutParams(list.get(position).getItemLayoutParams(context, width));
@@ -344,6 +395,19 @@ public class CircleTuiJianAdapter extends RecyclerView.Adapter<RecyclerView.View
             }
             oneImage.followLayout.setOnClickListener(new OnFollowClickListener(position));
             oneImage.itemLayout.setOnClickListener(new OnFeedInformationClick(position));
+        } else if (holder instanceof InterestViewHolder) {
+            InterestViewHolder interest = (InterestViewHolder) holder;
+            interest.itemLayout.setLayoutParams(list.get(position).getItemLayoutParams(context, width));
+            interest.cardView.setLayoutParams(list.get(position).getCardViewParams(context, width, height));
+            interest.adapter.setList(list.get(position).getQuanzi());
+            interest.changeTextView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (null != onChangeXingQuListener) {
+                        onChangeXingQuListener.onChangeXingQu(position);
+                    }
+                }
+            });
         }
     }
 
@@ -354,9 +418,13 @@ public class CircleTuiJianAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     @Override
     public int getItemViewType(int position) {
-        int type = list.get(position).getFeed_type();
-        if (type == FEED && StringUtils.isNullOrEmpty(list.get(position).getContent().getContent()) && null != list.get(position).getContent().getImgs()) {
+        int type = list.get(position).getFeeds_type();
+        if (type == FEED && StringUtils.isNullOrEmpty(list.get(position).getContent().getContent()) && null != list.get(position).getContent().getImgs() &&
+                list.get(position).getContent().getImgs().size() == 1) {
             type = FEED_ONE_IMAGE;
+        }
+        if (list.get(position).getType() == INTEREST) {
+            type = INTEREST;
         }
         return type;
     }
@@ -450,6 +518,7 @@ public class CircleTuiJianAdapter extends RecyclerView.Adapter<RecyclerView.View
         public void onClick(View v) {
             Intent videoInfoIntent = new Intent(context, VideoInformationActivity.class);
             videoInfoIntent.putExtra("feeds_id", list.get(position).getContent().getId());
+            videoInfoIntent.putExtra("user_id",list.get(position).getContent().getUid());
             videoInfoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(videoInfoIntent);
         }
@@ -466,10 +535,22 @@ public class CircleTuiJianAdapter extends RecyclerView.Adapter<RecyclerView.View
         public void onClick(View v) {
             Intent feedInfoIntent = new Intent(context, FeedInformationActivity.class);
             feedInfoIntent.putExtra("feed_id", list.get(position).getContent().getId());
-            feedInfoIntent.putExtra("feed_type", !StringUtils.isNullOrEmpty(list.get(position).getContent().getVideo_url()) ? "video" : "image");
             feedInfoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(feedInfoIntent);
 
         }
+    }
+
+    /**
+     * 感兴趣的圈子推荐-换一批
+     */
+    public interface OnChangeXingQuListener {
+        void onChangeXingQu(int position);
+    }
+
+    private OnChangeXingQuListener onChangeXingQuListener;
+
+    public void setOnChangeXingQuListener(OnChangeXingQuListener listener) {
+        this.onChangeXingQuListener = listener;
     }
 }

@@ -16,6 +16,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.orm.SugarContext;
 import com.leon.myvideoplaerlibrary.manager.VideoPlayerManager;
 import com.zhiyu.quanzhu.ui.activity.VideoPlayerActivity;
+import com.zhiyu.quanzhu.ui.widget.emoji.EmojiManager;
 import com.zhiyu.quanzhu.ui.widget.rongfrend.FrendMessage;
 import com.zhiyu.quanzhu.ui.widget.rongmingpian.MingPianMessage;
 import com.zhiyu.quanzhu.ui.widget.rongmingpian.MingPianMessageItemProvider;
@@ -63,6 +64,7 @@ public class BaseApplication extends Application implements BaseActivity.OnExter
     @Override
     public void onCreate() {
         super.onCreate();
+        EmojiManager.init(this);//初始化
         JPushInterface.setDebugMode(true);
         JPushInterface.init(this);
         //视频播放器初始化
@@ -83,7 +85,8 @@ public class BaseApplication extends Application implements BaseActivity.OnExter
             /**
              * IMKit SDK调用第一步 初始化
              */
-            RongIM.init(this);
+//            RongIM.init(this);
+            RongIM.init(this, "25wehl3u20ldw");
             setInputProvider();
             //名片消息
             RongIM.registerMessageType(MingPianMessage.class);
@@ -149,7 +152,6 @@ public class BaseApplication extends Application implements BaseActivity.OnExter
     @Override
     public void onExternalStorage() {
         if (null == db) {
-//            System.out.println("application initXUtils");
             SugarContext.init(this);
             initXUtils();
         }

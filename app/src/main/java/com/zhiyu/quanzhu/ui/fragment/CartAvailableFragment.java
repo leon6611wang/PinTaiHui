@@ -41,7 +41,7 @@ import in.srain.cube.views.ptr.PtrFrameLayout;
 /**
  * 购物车-有效的
  */
-public class CartAvailableFragment extends Fragment {
+public class CartAvailableFragment extends Fragment implements CartAvailableShopRecyclerAdapter.OnCartItemSelectListener, CartAvailableShopRecyclerAdapter.OnChangeNormsListener {
     private View view;
     private PtrFrameLayout ptrFrameLayout;
     private RecyclerView mRecyclerView;
@@ -80,14 +80,22 @@ public class CartAvailableFragment extends Fragment {
 
         initDialogs();
         initViews();
-        cartList();
+
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        cartList();
     }
 
     private void initViews() {
         initPtr();
         mRecyclerView = view.findViewById(R.id.mRecyclerView);
         adapter = new CartAvailableShopRecyclerAdapter(getContext());
+        adapter.setOnCartItemSelectListener(this);
+        adapter.setOnChangeNormsListener(this);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(linearLayoutManager);
@@ -97,8 +105,40 @@ public class CartAvailableFragment extends Fragment {
 
     }
 
+    public void setManage(boolean manage) {
+        adapter.setManage(manage);
+    }
+
     public List<CartShop> getList() {
         return adapter.getList();
+    }
+
+    public void setUnSelected() {
+        for (CartShop shop : list) {
+            shop.setSelected(false);
+            for (CartGoods goods : shop.getList()) {
+                goods.setSelected(false, false);
+            }
+        }
+        adapter.setData(list);
+    }
+
+    @Override
+    public void onCartItemSelect() {
+        if (null != onAvailableGoodsSelectListener) {
+            onAvailableGoodsSelectListener.onAvailableGoodsSelect();
+        }
+    }
+
+
+    private OnAvailableGoodsSelectListener onAvailableGoodsSelectListener;
+
+    public void setOnAvailableGoodsSelectListener(OnAvailableGoodsSelectListener listener) {
+        this.onAvailableGoodsSelectListener = listener;
+    }
+
+    public interface OnAvailableGoodsSelectListener {
+        void onAvailableGoodsSelect();
     }
 
     public void allSelect(boolean isAllSelected) {
@@ -106,14 +146,14 @@ public class CartAvailableFragment extends Fragment {
             for (CartShop gouWuCheItem : list) {
                 gouWuCheItem.setSelected(false);
                 for (CartGoods gouWuCheItemItem : gouWuCheItem.getList()) {
-                    gouWuCheItemItem.setSelected(false);
+                    gouWuCheItemItem.setSelected(false, false);
                 }
             }
         } else {
             for (CartShop gouWuCheItem : list) {
                 gouWuCheItem.setSelected(true);
                 for (CartGoods gouWuCheItemItem : gouWuCheItem.getList()) {
-                    gouWuCheItemItem.setSelected(true);
+                    gouWuCheItemItem.setSelected(true, false);
                 }
             }
         }
@@ -122,6 +162,13 @@ public class CartAvailableFragment extends Fragment {
 
 
     public void refreshCart() {
+        isRefresh = true;
+        page = 1;
+        cartList();
+    }
+
+    @Override
+    public void onChangeNorms() {
         isRefresh = true;
         page = 1;
         cartList();
@@ -186,6 +233,7 @@ public class CartAvailableFragment extends Fragment {
     private int type = 1;//1.有效；2.失效
     private boolean isRefresh = true;
     private CartResult cartResult;
+
     private void cartList() {
         RequestParams params = MyRequestParams.getInstance(getActivity()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.CART_LIST);
         params.addBodyParameter("page", String.valueOf(page));
@@ -193,7 +241,7 @@ public class CartAvailableFragment extends Fragment {
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("购物车-有效: "+result);
+                System.out.println("购物车-有效: " + result);
                 cartResult = GsonUtils.GsonToBean(result, CartResult.class);
                 if (null != cartResult.getData()) {
                     if (isRefresh) {
@@ -201,6 +249,9 @@ public class CartAvailableFragment extends Fragment {
                     } else {
                         list.addAll(cartResult.getData());
                     }
+                } else if (null == cartResult.getData()) {
+                    if (null != list && isRefresh)
+                        list.clear();
                 }
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
@@ -208,6 +259,7 @@ public class CartAvailableFragment extends Fragment {
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
+                System.out.println("购物车-有效: " + ex.toString());
                 Message message = myHandler.obtainMessage(2);
                 message.sendToTarget();
             }

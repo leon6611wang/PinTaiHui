@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseResult;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
@@ -49,29 +50,35 @@ public class CircleMemberManageTopMenuWindow extends PopupWindow {
     private int layoutCount = 0;
     private int operationType = -1;// 0 T人 1撤销管理员 2转让群 3注销群,4:删除圈子， 5:添加管理
     private int tuid, circle_id;
-    private MyHandler myHandler=new MyHandler(this);
+    private MyHandler myHandler = new MyHandler(this);
+
     private static class MyHandler extends Handler {
         WeakReference<CircleMemberManageTopMenuWindow> windowWeakReference;
-        public MyHandler(CircleMemberManageTopMenuWindow window){
-            windowWeakReference=new WeakReference<>(window);
+
+        public MyHandler(CircleMemberManageTopMenuWindow window) {
+            windowWeakReference = new WeakReference<>(window);
         }
 
         @Override
         public void handleMessage(Message msg) {
-            CircleMemberManageTopMenuWindow window=windowWeakReference.get();
-            switch (msg.what){
+            CircleMemberManageTopMenuWindow window = windowWeakReference.get();
+            switch (msg.what) {
                 case 1:
-                    Toast.makeText(window.context,window.baseResult.getMsg(),Toast.LENGTH_SHORT).show();
+                    MessageToast.getInstance(window.context).show(window.baseResult.getMsg());
+                    if (null != window.circleMemberManageTopListener) {
+                        window.circleMemberManageTopListener.onComplete();
+                    }
                     break;
                 case 2:
-                    Toast.makeText(window.context,"操作失败，出错了~",Toast.LENGTH_SHORT).show();
+                    MessageToast.getInstance(window.context).show("服务器内部错误，请稍后重试.");
                     break;
             }
         }
     }
 
-    public CircleMemberManageTopMenuWindow(Context context, int my_role, int user_role, int circle_id, int tuid) {
+    public CircleMemberManageTopMenuWindow(Context context, int my_role, int user_role, int circle_id, int tuid, CircleMemberManageTopListener listener) {
         super(context);
+        this.circleMemberManageTopListener = listener;
         this.context = context;
         this.my_role = my_role;
         this.user_role = user_role;
@@ -113,7 +120,7 @@ public class CircleMemberManageTopMenuWindow extends PopupWindow {
                 menu3Layout.setVisibility(View.VISIBLE);
                 menu1Layout.setOnClickListener(new OnAddFrendClick());
                 menu2Layout.setOnClickListener(new OnTUserClick());
-                menu1TextView.setText("添加好友");
+                menu1TextView.setText("添加圈友");
                 menu2TextView.setText("请出圈聊");
                 switch (user_role) {
                     case 1:
@@ -132,14 +139,14 @@ public class CircleMemberManageTopMenuWindow extends PopupWindow {
                         menu1Layout.setVisibility(View.GONE);
                         menu2Layout.setVisibility(View.GONE);
                         menu3Layout.setVisibility(View.VISIBLE);
-                        menu3TextView.setText("添加好友");
+                        menu3TextView.setText("添加圈友");
                         menu3Layout.setOnClickListener(new OnAddFrendClick());
                         break;
                     case 1:
                         menu1Layout.setVisibility(View.GONE);
                         menu2Layout.setVisibility(View.GONE);
                         menu3Layout.setVisibility(View.VISIBLE);
-                        menu3TextView.setText("添加好友");
+                        menu3TextView.setText("添加圈友");
                         menu3Layout.setOnClickListener(new OnAddFrendClick());
                         break;
                     case 2:
@@ -148,7 +155,7 @@ public class CircleMemberManageTopMenuWindow extends PopupWindow {
                         menu3Layout.setVisibility(View.VISIBLE);
                         menu1Layout.setOnClickListener(new OnAddFrendClick());
                         menu3Layout.setOnClickListener(new OnTUserClick());
-                        menu1TextView.setText("添加好友");
+                        menu1TextView.setText("添加圈友");
                         menu3TextView.setText("请出圈聊");
                         break;
                 }
@@ -157,7 +164,7 @@ public class CircleMemberManageTopMenuWindow extends PopupWindow {
                 menu1Layout.setVisibility(View.GONE);
                 menu2Layout.setVisibility(View.GONE);
                 menu3Layout.setVisibility(View.VISIBLE);
-                menu3TextView.setText("添加好友");
+                menu3TextView.setText("添加圈友");
                 menu3Layout.setOnClickListener(new OnAddFrendClick());
                 break;
         }
@@ -202,7 +209,7 @@ public class CircleMemberManageTopMenuWindow extends PopupWindow {
         @Override
         public void onClick(View v) {
             dismiss();
-            System.out.println("添加好友");
+            System.out.println("添加圈友");
             addFrend();
         }
     }
@@ -258,14 +265,14 @@ public class CircleMemberManageTopMenuWindow extends PopupWindow {
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                baseResult= GsonUtils.GsonToBean(result,BaseResult.class);
-                Message message=myHandler.obtainMessage(1);
+                baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
+                Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
             }
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                Message message=myHandler.obtainMessage(2);
+                Message message = myHandler.obtainMessage(2);
                 message.sendToTarget();
             }
 
@@ -283,20 +290,21 @@ public class CircleMemberManageTopMenuWindow extends PopupWindow {
 
 
     private BaseResult baseResult;
+
     private void addFrend() {
         RequestParams params = MyRequestParams.getInstance(context).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.CARD_EXCHANGE);
         params.addBodyParameter("tuid", String.valueOf(tuid));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                baseResult= GsonUtils.GsonToBean(result,BaseResult.class);
-                Message message=myHandler.obtainMessage(1);
+                baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
+                Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
             }
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                Message message=myHandler.obtainMessage(2);
+                Message message = myHandler.obtainMessage(2);
                 message.sendToTarget();
             }
 
@@ -310,5 +318,11 @@ public class CircleMemberManageTopMenuWindow extends PopupWindow {
 
             }
         });
+    }
+
+    private CircleMemberManageTopListener circleMemberManageTopListener;
+
+    public interface CircleMemberManageTopListener {
+        void onComplete();
     }
 }

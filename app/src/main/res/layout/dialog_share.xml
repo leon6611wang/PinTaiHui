@@ -22,7 +22,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:drawableTop="@mipmap/share_quanyou"
-        android:text="圈聊好友"
+        android:text="圈聊圈友"
         android:textSize="12sp"
         android:textColor="#666666"
         android:drawablePadding="@dimen/dp_5"
@@ -76,7 +76,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:drawableTop="@mipmap/share_weixin"
-            android:text="微信好友"
+            android:text="微信圈友"
             android:textSize="12sp"
             android:textColor="#666666"
             android:drawablePadding="@dimen/dp_5"
@@ -89,7 +89,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:drawableTop="@mipmap/share_qq"
-            android:text="QQ好友"
+            android:text="QQ圈友"
             android:textSize="12sp"
             android:textColor="#666666"
             android:drawablePadding="@dimen/dp_5"
@@ -120,6 +120,7 @@
         />
 
     <TextView
+        android:id="@+id/cancelTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="取消"
@@ -128,7 +129,7 @@
         android:layout_marginLeft="@dimen/dp_15"
         android:layout_marginRight="@dimen/dp_15"
         android:layout_marginTop="@dimen/dp_10"
-        android:layout_marginBottom="@dimen/dp_30"
+        android:layout_marginBottom="@dimen/dp_15"
         android:layout_gravity="center"
         android:gravity="center"
         />

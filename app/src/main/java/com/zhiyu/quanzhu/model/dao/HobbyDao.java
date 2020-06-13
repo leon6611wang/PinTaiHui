@@ -48,7 +48,7 @@ public class HobbyDao {
             list = BaseApplication.db.findAll(HobbyDaoParent.class);
             if (null != list && list.size() > 0) {
                 for (HobbyDaoParent parent : list) {
-                    System.out.println("hobbyParent: " + parent.getName()+" ----> ");
+//                    System.out.println("hobbyParent: " + parent.getName()+" ----> ");
                     hobbyChildList(parent.getId());
                 }
             }
@@ -62,10 +62,10 @@ public class HobbyDao {
         List<HobbyDaoChild> list = null;
         try {
             list = BaseApplication.db.selector(HobbyDaoChild.class).where("pid", "=", String.valueOf(pid)).findAll();
-            if (null != list && list.size() > 0) {
-                for (HobbyDaoChild child : list) {
-                }
-            }
+//            if (null != list && list.size() > 0) {
+//                for (HobbyDaoChild child : list) {
+//                }
+//            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -76,11 +76,11 @@ public class HobbyDao {
         List<HobbyDaoChild> list = null;
         try {
             list = BaseApplication.db.selector(HobbyDaoChild.class).where("sub_name", "=", parent_name).findAll();
-            if (null != list && list.size() > 0) {
-                for (HobbyDaoChild child : list) {
-                    System.out.println("hobbyChild: " + child.getName());
-                }
-            }
+//            if (null != list && list.size() > 0) {
+//                for (HobbyDaoChild child : list) {
+//                    System.out.println("hobbyChild: " + child.getName());
+//                }
+//            }
         } catch (Exception e) {
             e.printStackTrace();
         }

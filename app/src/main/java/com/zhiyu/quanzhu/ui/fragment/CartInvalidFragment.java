@@ -83,8 +83,13 @@ public class CartInvalidFragment extends Fragment {
 
         initDialogs();
         initViews();
-        cartList();
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        cartList();
     }
 
     private void initViews() {
@@ -106,14 +111,14 @@ public class CartInvalidFragment extends Fragment {
             for (CartShop gouWuCheItem : list) {
                 gouWuCheItem.setSelected(false);
                 for (CartGoods gouWuCheItemItem : gouWuCheItem.getList()) {
-                    gouWuCheItemItem.setSelected(false);
+                    gouWuCheItemItem.setSelected(false, false);
                 }
             }
         } else {
             for (CartShop gouWuCheItem : list) {
                 gouWuCheItem.setSelected(true);
                 for (CartGoods gouWuCheItemItem : gouWuCheItem.getList()) {
-                    gouWuCheItemItem.setSelected(true);
+                    gouWuCheItemItem.setSelected(true, false);
                 }
             }
         }
@@ -205,6 +210,9 @@ public class CartInvalidFragment extends Fragment {
                     } else {
                         list.addAll(cartResult.getData());
                     }
+                } else if (null == cartResult.getData()) {
+                    if (null != list)
+                        list.clear();
                 }
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();

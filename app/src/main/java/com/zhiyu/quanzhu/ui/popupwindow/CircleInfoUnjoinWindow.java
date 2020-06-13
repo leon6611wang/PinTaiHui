@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 
 import com.zhiyu.quanzhu.R;
@@ -18,18 +19,20 @@ import com.zhiyu.quanzhu.R;
  */
 public class CircleInfoUnjoinWindow extends PopupWindow implements View.OnClickListener {
     private Context context;
-
-    public CircleInfoUnjoinWindow(Context context) {
+    private View view;
+    public CircleInfoUnjoinWindow(Context context, OnMenuSelectListener listener) {
         super(context);
         this.context = context;
+        this.onMenuSelectListener = listener;
         initalize();
     }
 
     private void initalize() {
         LayoutInflater inflater = LayoutInflater.from(context);
-        View view = inflater.inflate(R.layout.popupwindow_circle_info_unjoin, null);
+         view = inflater.inflate(R.layout.popupwindow_circle_info_unjoin, null);
         setContentView(view);
         initWindow();
+        initViews();
     }
 
     private void initWindow() {
@@ -51,6 +54,13 @@ public class CircleInfoUnjoinWindow extends PopupWindow implements View.OnClickL
             }
         });
     }
+    private LinearLayout shareLayout,complaintLayout;
+    private void initViews(){
+        shareLayout=view.findViewById(R.id.shareLayout);
+        shareLayout.setOnClickListener(this);
+        complaintLayout=view.findViewById(R.id.complaintLayout);
+        complaintLayout.setOnClickListener(this);
+    }
 
     //设置添加屏幕的背景透明度
     public void backgroundAlpha(Activity context, float bgAlpha) {
@@ -69,9 +79,25 @@ public class CircleInfoUnjoinWindow extends PopupWindow implements View.OnClickL
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            default:
+            case R.id.shareLayout:
+                if (null != onMenuSelectListener) {
+                    onMenuSelectListener.onMenuSelect(1, "分享");
+                }
+                dismiss();
+                break;
+            case R.id.complaintLayout:
+                if (null != onMenuSelectListener) {
+                    onMenuSelectListener.onMenuSelect(2, "投诉");
+                }
+                dismiss();
                 break;
         }
+    }
+
+    private OnMenuSelectListener onMenuSelectListener;
+
+    public interface OnMenuSelectListener {
+        void onMenuSelect(int index, String menu);
     }
 
 }

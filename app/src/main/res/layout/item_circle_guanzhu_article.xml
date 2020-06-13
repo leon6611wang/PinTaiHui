@@ -23,7 +23,7 @@
             android:id="@+id/avatarImageView"
             android:layout_width="@dimen/dp_30"
             android:layout_height="@dimen/dp_30"
-            android:src="@mipmap/no_avatar" />
+            android:src="@drawable/image_error" />
 
         <View
             android:layout_width="@dimen/dp_10"
@@ -33,7 +33,6 @@
             android:id="@+id/nameTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="昵称"
             android:textColor="@color/text_color_black"
             android:layout_marginRight="@dimen/dp_10"
             android:textSize="12sp" />
@@ -43,7 +42,6 @@
             android:id="@+id/timeTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="1分钟前"
             android:textColor="@color/text_color_gray"
             android:textSize="12sp" />
         <View
@@ -74,7 +72,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/dp_10"
-        android:text="多喝粮食酒的好处多喝粮食酒的好处多喝粮食酒的 好处多喝粮食酒的好处"
         android:textColor="@color/text_color_black"
         android:textSize="15sp"
         android:textStyle="bold" />
@@ -84,7 +81,6 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_200"
         android:scaleType="centerCrop"
-        android:src="@mipmap/cover"
         app:corner_radius="@dimen/dp_2" />
 
     <com.zhiyu.quanzhu.ui.widget.HorizontalListView
@@ -110,7 +106,6 @@
             android:id="@+id/sourceTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="上海酿酒圈"
             android:textColor="#009DE0"
             android:textSize="12sp" />
 

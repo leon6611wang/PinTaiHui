@@ -52,6 +52,7 @@ public class FragmentPublishChooseGoodsSearch extends Fragment {
     private PtrFrameLayout ptrFrameLayout;
     private EditText searchEditText;
     private int feeds_id;
+    private int selectGoodsCount;
     private MyHandler myHandler = new MyHandler(this);
 
     private static class MyHandler extends Handler {
@@ -92,6 +93,14 @@ public class FragmentPublishChooseGoodsSearch extends Fragment {
     public void onResume() {
         super.onResume();
         shopList();
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser) {
+            shopList();
+        }
     }
 
     private void initViews() {
@@ -169,6 +178,23 @@ public class FragmentPublishChooseGoodsSearch extends Fragment {
         ptrFrameLayout.setMode(PtrFrameLayout.Mode.LOAD_MORE);
     }
 
+    public int getSelectedGoodsCount() {
+        selectGoodsCount=0;
+        System.out.println("shoplist " + (null == shopList ? 0 : shopList.size()));
+        System.out.println("myShopList " + (null == myShopList ? 0 : myShopList.size()));
+        if (null != shopList && shopList.size() > 0) {
+            for (LinkShop shop : shopList) {
+                selectGoodsCount += shop.getCount();
+            }
+        }
+        if (null != myShopList && myShopList.size() > 0) {
+            for (LinkShop shop : myShopList) {
+                selectGoodsCount += shop.getCount();
+            }
+        }
+        return selectGoodsCount;
+    }
+
     private int page = 1;
     private String keywords;
     private LinkShopResult shopResult;
@@ -183,7 +209,7 @@ public class FragmentPublishChooseGoodsSearch extends Fragment {
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println(result);
+                System.out.println("搜索: " + result);
                 shopResult = GsonUtils.GsonToBean(result, LinkShopResult.class);
                 if (isSearch) {
                     if (page == 1) {

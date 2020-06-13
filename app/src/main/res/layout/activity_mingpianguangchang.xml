@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:cube_ptr="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:cube_ptr="http://schemas.android.com/tools"
     android:background="@color/white"
     android:orientation="vertical">
 
@@ -42,10 +42,13 @@
                     android:src="@mipmap/search_inner_gray" />
 
                 <EditText
+                    android:id="@+id/searchEditText"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@null"
                     android:hint="检索名片"
+                    android:imeOptions="actionSearch"
+                    android:singleLine="true"
                     android:textColor="@color/text_color_gray"
                     android:textSize="13sp" />
             </LinearLayout>
@@ -71,9 +74,11 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:drawablePadding="@dimen/dp_5"
+                        android:ellipsize="end"
                         android:gravity="center"
+                        android:maxLines="1"
                         android:text="城市"
-                        android:textColor="@color/text_color_yellow"
+                        android:textColor="@color/text_color_black"
                         android:textSize="@dimen/sp_14" />
 
                     <View
@@ -85,7 +90,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:src="@mipmap/sanjiao_xia_yellow" />
+                        android:src="@mipmap/sanjiao_xia_black" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -103,8 +108,10 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:drawablePadding="@dimen/dp_5"
+                        android:ellipsize="end"
                         android:gravity="center"
-                        android:text="职业"
+                        android:maxLines="1"
+                        android:text="行业"
                         android:textColor="@color/text_color_black"
                         android:textSize="@dimen/sp_14" />
 
@@ -135,8 +142,10 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:drawablePadding="@dimen/dp_5"
+                        android:ellipsize="end"
                         android:gravity="center"
-                        android:text="推荐排序"
+                        android:maxLines="1"
+                        android:text="排序"
                         android:textColor="@color/text_color_black"
                         android:textSize="@dimen/sp_14" />
 
@@ -158,6 +167,7 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
         <in.srain.cube.views.ptr.PtrFrameLayout
             android:id="@+id/ptr_frame_layout"
             android:layout_width="match_parent"
@@ -175,35 +185,167 @@
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/mRecyclerView"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="@dimen/dp_10"
-                android:layout_marginRight="@dimen/dp_10" />
+                android:layout_height="match_parent" />
         </in.srain.cube.views.ptr.PtrFrameLayout>
 
         <LinearLayout
             android:id="@+id/chengshiMenuLayout"
             android:layout_width="match_parent"
             android:layout_height="@dimen/dp_200"
-            android:background="@color/text_color_yellow"
-            android:orientation="vertical"
-            ></LinearLayout>
+            android:background="@color/white"
+            android:orientation="vertical">
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:cardBackgroundColor="@color/white"
+                android:layout_marginBottom="@dimen/dp_3"
+                app:cardElevation="@dimen/dp_2">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:orientation="horizontal">
+
+                        <com.weigan.loopview.LoopView
+                            android:id="@+id/provinceView"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            app:awv_textsize="14" />
+
+                        <com.weigan.loopview.LoopView
+                            android:id="@+id/cityView"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            app:awv_textsize="14" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/cityConfirmTextView"
+                        android:layout_width="80dp"
+                        android:layout_height="30dp"
+                        android:layout_gravity="right"
+                        android:layout_margin="@dimen/dp_5"
+                        android:background="@drawable/shape_corner_yellow"
+                        android:gravity="center"
+                        android:text="确定"
+                        android:textColor="@color/text_color_yellow"
+                        android:textSize="13sp" />
+
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+
+
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/zhiyeMenuLayout"
             android:layout_width="match_parent"
             android:layout_height="@dimen/dp_200"
-            android:background="@color/colorAccent"
-            android:orientation="vertical"
-            ></LinearLayout>
+            android:background="@color/white"
+            android:orientation="vertical">
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:cardBackgroundColor="@color/white"
+                android:layout_marginBottom="@dimen/dp_3"
+                app:cardElevation="@dimen/dp_2">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:orientation="horizontal">
+
+                        <com.weigan.loopview.LoopView
+                            android:id="@+id/industryParentView"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            app:awv_textsize="14" />
+
+                        <com.weigan.loopview.LoopView
+                            android:id="@+id/industryChildView"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            app:awv_textsize="14" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/industryConfirmTextView"
+                        android:layout_width="80dp"
+                        android:layout_height="30dp"
+                        android:layout_gravity="right"
+                        android:layout_margin="@dimen/dp_5"
+                        android:background="@drawable/shape_corner_yellow"
+                        android:gravity="center"
+                        android:text="确定"
+                        android:textColor="@color/text_color_yellow"
+                        android:textSize="13sp" />
+
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+
+
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/orderMenuLayout"
             android:layout_width="match_parent"
             android:layout_height="@dimen/dp_200"
-            android:background="@color/red"
-            android:orientation="vertical"
-            ></LinearLayout>
+            android:background="@color/white"
+            android:orientation="vertical">
 
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:cardBackgroundColor="@color/white"
+                android:layout_marginBottom="@dimen/dp_3"
+                app:cardElevation="@dimen/dp_2">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <com.weigan.loopview.LoopView
+                        android:id="@+id/sortView"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        app:awv_textsize="14" />
+
+                    <TextView
+                        android:id="@+id/sortConfirmTextView"
+                        android:layout_width="80dp"
+                        android:layout_height="30dp"
+                        android:layout_gravity="right"
+                        android:layout_margin="@dimen/dp_5"
+                        android:background="@drawable/shape_corner_yellow"
+                        android:gravity="center"
+                        android:text="确定"
+                        android:textColor="@color/text_color_yellow"
+                        android:textSize="13sp" />
+
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+
+        </LinearLayout>
 
 
     </FrameLayout>

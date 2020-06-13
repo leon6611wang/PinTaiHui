@@ -46,7 +46,8 @@
                 android:layout_width="68dp"
                 android:layout_height="68dp"
                 android:layout_marginRight="@dimen/dp_10"
-                android:src="@mipmap/header"
+                android:src="@drawable/image_error"
+                android:scaleType="centerCrop"
                 app:corner_radius="@dimen/dp_5" />
 
             <LinearLayout
@@ -59,7 +60,8 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
                     android:layout_gravity="center"
                     android:gravity="center|left"
                     android:orientation="horizontal">
@@ -69,7 +71,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginRight="@dimen/dp_5"
-                        android:text="姓名"
                         android:textColor="@color/text_color_black"
                         android:textSize="14sp"
                         android:textStyle="bold" />
@@ -78,7 +79,6 @@
                         android:id="@+id/occupionTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="职务"
                         android:textColor="@color/text_color_grey"
                         android:textSize="12sp" />
                 </LinearLayout>
@@ -92,13 +92,13 @@
                     android:ellipsize="end"
                     android:gravity="center|left"
                     android:maxLines="1"
-                    android:text="公司"
                     android:textColor="@color/text_color_gray"
                     android:textSize="12sp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
                     android:layout_gravity="center"
                     android:gravity="center|left"
                     android:orientation="horizontal">
@@ -113,7 +113,9 @@
                         android:paddingLeft="6.5dp"
                         android:paddingRight="6.5dp"
                         android:paddingTop="2dp"
-                        android:text="城市"
+                        android:maxEms="6"
+                        android:maxLines="1"
+                        android:ellipsize="end"
                         android:textColor="@color/text_color_yellow"
                         android:textSize="11sp" />
 
@@ -126,8 +128,10 @@
                         android:paddingLeft="6.5dp"
                         android:paddingRight="6.5dp"
                         android:paddingTop="2dp"
-                        android:text="行业"
                         android:textColor="@color/text_color_yellow"
+                        android:maxEms="6"
+                        android:maxLines="1"
+                        android:ellipsize="end"
                         android:textSize="11sp" />
 
                 </LinearLayout>

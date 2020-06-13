@@ -7,7 +7,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -25,6 +24,8 @@ import com.google.zxing.DecodeHintType;
 import com.google.zxing.Result;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseActivity;
+import com.zhiyu.quanzhu.model.bean.QRCode;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.zxing.android.BeepManager;
 import com.zhiyu.quanzhu.ui.widget.zxing.android.CaptureActivityHandler2;
 import com.zhiyu.quanzhu.ui.widget.zxing.android.FinishListener;
@@ -33,6 +34,7 @@ import com.zhiyu.quanzhu.ui.widget.zxing.android.IntentSource;
 import com.zhiyu.quanzhu.ui.widget.zxing.camera.CameraManager;
 import com.zhiyu.quanzhu.ui.widget.zxing.view.ViewfinderView;
 import com.zhiyu.quanzhu.utils.GetPhotoFromPhotoAlbum;
+import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.QRHelper;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 
@@ -101,7 +103,7 @@ public class ScanActivity extends BaseActivity implements
         backLayout.setOnClickListener(this);
         rightLayout = findViewById(R.id.rightLayout);
         rightLayout.setOnClickListener(this);
-        myQrCodeTextView=findViewById(R.id.myQrCodeTextView);
+        myQrCodeTextView = findViewById(R.id.myQrCodeTextView);
         myQrCodeTextView.setOnClickListener(this);
     }
 
@@ -139,7 +141,7 @@ public class ScanActivity extends BaseActivity implements
                 getPermission();
                 break;
             case R.id.myQrCodeTextView:
-                Intent intent=new Intent(ScanActivity.this,MyQRCodeActivity.class);
+                Intent intent = new Intent(ScanActivity.this, MyQRCodeActivity.class);
                 startActivity(intent);
                 break;
         }
@@ -172,15 +174,8 @@ public class ScanActivity extends BaseActivity implements
         boolean fromLiveScan = barcode != null;
         if (fromLiveScan) {
             beepManager.playBeepSoundAndVibrate();
-            Log.i("scanqrcode", rawResult.getText() + " , barcode: " + barcode);
-
-//            Intent intent = getIntent();
-//            intent.putExtra("codedContent", rawResult.getText());
-//            intent.putExtra("codedBitmap", barcode);
-//            setResult(RESULT_OK, intent);
-//            finish();
+            scanPage(rawResult.getText());
         }
-
     }
 
     private void initCamera(SurfaceHolder surfaceHolder) {
@@ -300,9 +295,38 @@ public class ScanActivity extends BaseActivity implements
         if (requestCode == 2 && resultCode == RESULT_OK) {
             photoPath = GetPhotoFromPhotoAlbum.getRealPathFromUri(this, data.getData());
             String result = QRHelper.getReult(BitmapFactory.decodeFile(photoPath));
-            Log.i("photoPath", "photoPath: " + photoPath);
-            Log.i("scanqrcode", "result: " + result);
+            scanPage(result);
+//            Log.i("photoPath", "photoPath: " + photoPath);
+//            Log.i("scanqrcode", "result: " + result);
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void scanPage(String content) {
+        QRCode code = null;
+        try {
+            code = GsonUtils.GsonToBean(content, QRCode.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            code = new QRCode();
+            code.setType("default");
+        }
+        switch (code.getType()) {
+            case "login":
+                Intent webLoginIntent = new Intent(ScanActivity.this, WebLoginActivity.class);
+                webLoginIntent.putExtra("url", code.getUrl());
+                startActivity(webLoginIntent);
+                break;
+            case "cards":
+                Intent cardInfoIntent = new Intent(ScanActivity.this, CardInformationActivity.class);
+                cardInfoIntent.putExtra("card_id", code.getCard_id());
+                cardInfoIntent.putExtra("uid", code.getUid());
+                startActivity(cardInfoIntent);
+                break;
+            case "default":
+                MessageToast.getInstance(this).show("不是内部有效二维码，识别失败.");
+                break;
+        }
+        finish();
     }
 }

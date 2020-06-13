@@ -70,7 +70,8 @@ public class FangKeXiangQingDialog extends Dialog implements View.OnClickListene
 
     public void setVisitor(Visitor v) {
         this.visitor = v;
-        Glide.with(getContext()).load(visitor.getAvatar()).error(R.drawable.image_error).into(avatarImageView);
+        Glide.with(getContext()).load(visitor.getAvatar()).error(R.drawable.image_error) .placeholder(R.drawable.image_error)
+                .fallback(R.drawable.image_error).into(avatarImageView);
         nameTextView.setText(visitor.getUsername());
         countTextView.setText(String.valueOf(visitor.getCount()));
         contentTextView.setText(visitor.getDate() + " 最后一次" + visitor.getType());

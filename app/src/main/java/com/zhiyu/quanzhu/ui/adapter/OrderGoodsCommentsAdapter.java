@@ -17,6 +17,7 @@ import com.bumptech.glide.Glide;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.model.bean.CommentStar;
 import com.zhiyu.quanzhu.model.bean.OrderGoods;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.MyRecyclerView;
 import com.zhiyu.quanzhu.ui.widget.NiceImageView;
 import com.zhiyu.quanzhu.utils.GridSpacingItemDecoration;
@@ -34,7 +35,7 @@ public class OrderGoodsCommentsAdapter extends RecyclerView.Adapter<OrderGoodsCo
     }
 
     public void setUrlList(int position, List<String> urlList) {
-        System.out.println("position: "+position+" , list: "+urlList.toString());
+        System.out.println("position: " + position + " , list: " + urlList.toString());
         list.get(position).setUrlList(urlList);
     }
 
@@ -55,7 +56,6 @@ public class OrderGoodsCommentsAdapter extends RecyclerView.Adapter<OrderGoodsCo
                 goodsNormsTextView;
         NiceImageView goodsImageImageView;
         ImageGridRecyclerAdapter imgAdapter;
-        ArrayList<String> imgList = new ArrayList<>();
         EditText commentContentEditText;
 
         public ViewHolder(View itemView) {
@@ -83,8 +83,6 @@ public class OrderGoodsCommentsAdapter extends RecyclerView.Adapter<OrderGoodsCo
             mRecyclerView.setAdapter(imgAdapter);
             mRecyclerView.addItemDecoration(decoration);
             mRecyclerView.setLayoutManager(gridLayoutManager);
-            imgList.add("add");
-            imgAdapter.setData(imgList);
             commentContentEditText = itemView.findViewById(R.id.commentContentEditText);
         }
     }
@@ -97,7 +95,8 @@ public class OrderGoodsCommentsAdapter extends RecyclerView.Adapter<OrderGoodsCo
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
-        Glide.with(context).load(list.get(position).getGoods_img()).error(R.drawable.image_error).into(holder.goodsImageImageView);
+        Glide.with(context).load(list.get(position).getGoods_img()).error(R.drawable.image_error).placeholder(R.drawable.image_error)
+                .fallback(R.drawable.image_error).into(holder.goodsImageImageView);
         holder.goodsNameTextView.setText(list.get(position).getGoods_name());
         holder.goodsNormsTextView.setText(list.get(position).getGoods_normas_name());
         holder.imgAdapter.setData(list.get(position).getCommentImageList());
@@ -109,6 +108,15 @@ public class OrderGoodsCommentsAdapter extends RecyclerView.Adapter<OrderGoodsCo
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                int lineCount = holder.commentContentEditText.getLineCount();
+                if (lineCount > 10) {
+                    //发现输入的内容大于最大行数，则删除多余的内容
+                    String str = holder.commentContentEditText.getText().toString();
+                    str = str.substring(0, str.length() - 1);
+                    holder.commentContentEditText.setText(str);
+                    holder.commentContentEditText.setSelection(holder.commentContentEditText.getText().length());
+                    MessageToast.getInstance(context).show("商品评价最多十行哦~");
+                }
                 list.get(position).setCommentContent(holder.commentContentEditText.getText().toString().trim());
             }
 
@@ -128,7 +136,7 @@ public class OrderGoodsCommentsAdapter extends RecyclerView.Adapter<OrderGoodsCo
             @Override
             public void onAddImage() {
                 if (null != onAddImageListener) {
-                    onAddImageListener.onAddImage(position, holder.imgList);
+                    onAddImageListener.onAddImage(position, list.get(position).getCommentImageList());
                 }
             }
         });

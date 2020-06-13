@@ -19,7 +19,7 @@
             android:layout_width="@dimen/dp_50"
             android:layout_height="@dimen/dp_50"
             android:layout_marginRight="@dimen/dp_10"
-            android:src="@mipmap/no_avatar" />
+            android:src="@drawable/image_error" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -33,7 +33,7 @@
                 android:id="@+id/nameTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="用户名"
+                android:text="暂无数据"
                 android:textColor="@color/text_color_black"
                 android:maxLines="1"
                 android:ellipsize="end"
@@ -55,7 +55,7 @@
                     android:id="@+id/fansCountTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="881"
+                    android:text="0"
                     android:textColor="@color/text_color_gray"
                     android:textSize="13sp" />
             </LinearLayout>

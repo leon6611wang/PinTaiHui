@@ -12,11 +12,13 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.leon.chic.utils.SPUtils;
 import com.qiniu.android.utils.StringUtils;
 import com.leon.myvideoplaerlibrary.manager.VideoPlayerManager;
 import com.leon.myvideoplaerlibrary.manager.VideoWindowManager;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseActivity;
+import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.model.bean.FullSearchTab;
 import com.zhiyu.quanzhu.model.bean.FullSearchHistory;
 import com.zhiyu.quanzhu.model.dao.FullSearchHistoryDao;
@@ -164,6 +166,7 @@ public class FullSearchActivity extends BaseActivity implements View.OnClickList
                         FullSearchHistory history = new FullSearchHistory();
                         history.setHistory(search);
                         history.setTime(new Date().getTime());
+                        history.setUser_id(SPUtils.getInstance().getUserId(BaseApplication.applicationContext));
                         FullSearchHistoryDao.getDao().saveFullSearchHistory(history);
                     }
 
@@ -229,7 +232,6 @@ public class FullSearchActivity extends BaseActivity implements View.OnClickList
         softKeyBoardListener.setOnSoftKeyBoardChangeListener(new SoftKeyBoardListener.OnSoftKeyBoardChangeListener() {
             @Override
             public void keyBoardShow(int height) {
-                System.out.println("keyBoardShow");
                 contentLayout.setVisibility(View.GONE);
                 historyLayout.setVisibility(View.VISIBLE);
                 historyList = FullSearchHistoryDao.getDao().fullSearchHistoryList();
@@ -238,7 +240,6 @@ public class FullSearchActivity extends BaseActivity implements View.OnClickList
 
             @Override
             public void keyBoardHide(int height) {
-                System.out.println("keyBoardHide");
                 contentLayout.setVisibility(View.VISIBLE);
                 historyLayout.setVisibility(View.GONE);
             }

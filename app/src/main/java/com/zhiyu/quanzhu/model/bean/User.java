@@ -21,6 +21,7 @@ public class User {
     private int industrystatus;
     private String username;
     private String regtoken;
+    private String sharetxt;
     private int credit;
     private int score;
     private boolean cart_status;
@@ -37,7 +38,104 @@ public class User {
     private int order_comment;
     private int order_revice;
     private int order_back;
+    private int messagestatus;
+    private int couponmessagestatus;
+    private int feedbackmessagestatus;
+    private int firendsmessagestatus;
+    private int gfmessagestatus;
+    private int paymessagestatus;
+    private int shopmessagestatus;
+    private int circlemessagestatus;
+    private boolean is_rz;
+    private boolean has_circle;
 
+    public boolean isHas_circle() {
+        return has_circle;
+    }
+
+    public void setHas_circle(boolean has_circle) {
+        this.has_circle = has_circle;
+    }
+
+    public boolean isIs_rz() {
+        return is_rz;
+    }
+
+    public void setIs_rz(boolean is_rz) {
+        this.is_rz = is_rz;
+    }
+
+    public String getSharetxt() {
+        return sharetxt;
+    }
+
+    public void setSharetxt(String sharetxt) {
+        this.sharetxt = sharetxt;
+    }
+
+    public int getMessagestatus() {
+        return messagestatus;
+    }
+
+    public void setMessagestatus(int messagestatus) {
+        this.messagestatus = messagestatus;
+    }
+
+    public int getCouponmessagestatus() {
+        return couponmessagestatus;
+    }
+
+    public void setCouponmessagestatus(int couponmessagestatus) {
+        this.couponmessagestatus = couponmessagestatus;
+    }
+
+    public int getFeedbackmessagestatus() {
+        return feedbackmessagestatus;
+    }
+
+    public void setFeedbackmessagestatus(int feedbackmessagestatus) {
+        this.feedbackmessagestatus = feedbackmessagestatus;
+    }
+
+    public int getFirendsmessagestatus() {
+        return firendsmessagestatus;
+    }
+
+    public void setFirendsmessagestatus(int firendsmessagestatus) {
+        this.firendsmessagestatus = firendsmessagestatus;
+    }
+
+    public int getGfmessagestatus() {
+        return gfmessagestatus;
+    }
+
+    public void setGfmessagestatus(int gfmessagestatus) {
+        this.gfmessagestatus = gfmessagestatus;
+    }
+
+    public int getPaymessagestatus() {
+        return paymessagestatus;
+    }
+
+    public void setPaymessagestatus(int paymessagestatus) {
+        this.paymessagestatus = paymessagestatus;
+    }
+
+    public int getShopmessagestatus() {
+        return shopmessagestatus;
+    }
+
+    public void setShopmessagestatus(int shopmessagestatus) {
+        this.shopmessagestatus = shopmessagestatus;
+    }
+
+    public int getCirclemessagestatus() {
+        return circlemessagestatus;
+    }
+
+    public void setCirclemessagestatus(int circlemessagestatus) {
+        this.circlemessagestatus = circlemessagestatus;
+    }
 
     public int getCredit() {
         return credit;

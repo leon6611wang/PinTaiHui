@@ -101,8 +101,8 @@ public class CartGoodsNormsSelectRecyclerAdapter extends RecyclerView.Adapter<Ca
                 // label就是标签项，在这里可以对标签项单独设置一些属性，比如文本样式等。
                 if (guiGeList.get(position).getList().get(child_position).isSelectable()) {
                     if (guiGeList.get(position).getList().get(child_position).isSelected()) {
-                        System.out.println("当前选中: " + guiGeList.get(position).getList().get(child_position).getNorms_id() +
-                                " , " + guiGeList.get(position).getList().get(child_position).getNorms_name());
+//                        System.out.println("当前选中: " + guiGeList.get(position).getList().get(child_position).getNorms_id() +
+//                                " , " + guiGeList.get(position).getList().get(child_position).getNorms_name());
                         label.setBackground(context.getResources().getDrawable(R.drawable.shape_guige_selected));
                         label.setTextColor(context.getResources().getColor(R.color.text_color_yellow));
                     } else {
@@ -114,7 +114,7 @@ public class CartGoodsNormsSelectRecyclerAdapter extends RecyclerView.Adapter<Ca
                     label.setTextColor(context.getResources().getColor(R.color.text_color_yilingqu));
                 }
                 //根据data和position返回label需要显示的数据。
-                return data.getNorms_name() + "-" + data.getNorms_id();
+                return data.getNorms_name();
             }
         });
         //标签的点击监听

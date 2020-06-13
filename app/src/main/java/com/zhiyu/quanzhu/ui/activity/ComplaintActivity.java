@@ -89,6 +89,7 @@ public class ComplaintActivity extends BaseActivity implements View.OnClickListe
         setContentView(R.layout.activity_complaint);
         report_id = getIntent().getIntExtra("report_id", 0);
         module_type = getIntent().getStringExtra("module_type");
+//        System.out.println("report_id: "+report_id+" , module_type: "+module_type);
         ScreentUtils.getInstance().setStatusBarLightMode(this, true);
         initList();
         initViews();

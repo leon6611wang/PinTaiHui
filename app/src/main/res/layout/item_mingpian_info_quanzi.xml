@@ -7,6 +7,7 @@
     android:orientation="vertical">
 
     <android.support.v7.widget.CardView
+        android:id="@+id/mCardView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/dp_5"
@@ -33,7 +34,7 @@
                     android:id="@+id/headerImageView"
                     android:layout_width="@dimen/dp_20"
                     android:layout_height="@dimen/dp_20"
-                    android:src="@mipmap/header" />
+                    android:src="@drawable/image_error" />
 
                 <View
                     android:layout_width="@dimen/dp_5"
@@ -76,8 +77,8 @@
                     android:layout_width="110dp"
                     android:layout_height="88dp"
                     android:layout_marginRight="@dimen/dp_10"
-                    android:scaleType="fitXY"
-                    android:src="@mipmap/header" />
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/image_error" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -88,7 +89,7 @@
                         android:id="@+id/circleNameTextView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="苹苔汇官方圈主交流商圈"
+                        android:text="圈助官方圈主交流商圈"
                         android:textColor="@color/text_color_black"
                         android:textSize="15sp"
                         android:textStyle="bold" />
@@ -118,7 +119,7 @@
                     <android.support.v7.widget.RecyclerView
                         android:id="@+id/quanziLabelRecyclerView"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="24dp"
                         />
                 </LinearLayout>
             </LinearLayout>

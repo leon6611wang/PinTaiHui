@@ -225,6 +225,7 @@
                 android:id="@+id/topCircleFeedRootLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:visibility="invisible"
                 android:orientation="vertical">
 
                 <LinearLayout
@@ -265,6 +266,7 @@
                 android:id="@+id/onlyPublishCircleRootLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:visibility="invisible"
                 android:orientation="vertical">
 
                 <LinearLayout

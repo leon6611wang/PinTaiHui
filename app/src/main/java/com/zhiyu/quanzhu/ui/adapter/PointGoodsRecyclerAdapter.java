@@ -56,7 +56,8 @@ public class PointGoodsRecyclerAdapter extends RecyclerView.Adapter<PointGoodsRe
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Glide.with(context).load(list.get(position).getThumb()).error(R.drawable.image_error).into(holder.goodsImageImageView);
+        Glide.with(context).load(list.get(position).getThumb()).error(R.drawable.image_error) .placeholder(R.drawable.image_error)
+                .fallback(R.drawable.image_error).into(holder.goodsImageImageView);
         holder.nameTextView.setText(list.get(position).getGoods_name());
         holder.pointTextView.setText(list.get(position).getGoods_credit() + "积分");
         holder.saleNumTextView.setText("剩余" + list.get(position).getGoods_stock() + "件");

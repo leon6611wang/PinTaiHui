@@ -3,7 +3,6 @@ package com.zhiyu.quanzhu.ui.dialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
@@ -14,19 +13,16 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.model.bean.Card;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.CircleImageView;
+import com.zhiyu.quanzhu.utils.SaveBitmapUtils;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 import com.zhiyu.quanzhu.utils.ThreadPoolUtils;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.lang.ref.WeakReference;
 
 /**
@@ -54,7 +50,8 @@ public class MyQRCodeDialog extends Dialog implements View.OnClickListener {
             MyQRCodeDialog dialog = dialogWeakReference.get();
             switch (msg.what) {
                 case 1:
-                    Toast.makeText(dialog.getContext(), "保存成功!", Toast.LENGTH_SHORT).show();
+                    dialog.isSaving = false;
+                    MessageToast.getInstance(dialog.getContext()).show("保存成功!");
                     dialog.bottomLayout.setVisibility(View.VISIBLE);
                     break;
             }
@@ -75,8 +72,11 @@ public class MyQRCodeDialog extends Dialog implements View.OnClickListener {
     }
 
     public void setCard(Card card) {
-        Glide.with(getContext()).load(card.getCard_thumb()).into(headerImageView);
-        Glide.with(getContext()).load(card.getQrcode()).into(qrImageView);
+        Glide.with(getContext()).load(card.getCard_thumb()).error(R.drawable.image_error) .placeholder(R.drawable.image_error)
+                .fallback(R.drawable.image_error) .placeholder(R.drawable.image_error)
+                .fallback(R.drawable.image_error).into(headerImageView);
+        Glide.with(getContext()).load(card.getQrcode()).error(R.drawable.image_error) .placeholder(R.drawable.image_error)
+                .fallback(R.drawable.image_error).into(qrImageView);
         nameTextView.setText(card.getCard_name());
         positionTextView.setText(card.getOccupation());
         companyTextView.setText(card.getCompany());
@@ -98,24 +98,33 @@ public class MyQRCodeDialog extends Dialog implements View.OnClickListener {
         bottomLayout = findViewById(R.id.bottomLayout);
     }
 
+    private boolean isSaving;
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.saveTextView:
+                System.out.println("saveTextView");
                 bottomLayout.setVisibility(View.GONE);
                 qrCardView.invalidate();
                 qrCardView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                     @Override
                     public void onGlobalLayout() {
                         if (bottomLayout.getVisibility() == View.GONE) {
-                            qrCardView.buildDrawingCache();
-                            final Bitmap bmp = qrCardView.getDrawingCache(); // 获取图片
-                            ThreadPoolUtils.getInstance().init().execute(new Runnable() {
-                                @Override
-                                public void run() {
-                                    savePicture(bmp, "我的名片二维码.jpg");// 保存图片
-                                }
-                            });
+                            if (!isSaving) {
+                                isSaving = true;
+                                qrCardView.buildDrawingCache();
+                                final Bitmap bmp = qrCardView.getDrawingCache(); // 获取图片
+                                ThreadPoolUtils.getInstance().init().execute(new Runnable() {
+                                    @Override
+                                    public void run() {
+//                                    savePicture(bmp, "my_qrcode.jpg");// 保存图片
+                                        SaveBitmapUtils.saveBitmap2file(bmp, getContext());
+                                        Message message = myHandler.obtainMessage(1);
+                                        message.sendToTarget();
+                                    }
+                                });
+                            }
                         }
                     }
                 });
@@ -125,31 +134,5 @@ public class MyQRCodeDialog extends Dialog implements View.OnClickListener {
                 break;
         }
     }
-
-    public void savePicture(Bitmap bm, String fileName) {
-        if (null == bm) {
-            return;
-        }
-        File foder = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/圈助");
-        if (!foder.exists()) {
-            foder.mkdirs();
-        }
-        File myCaptureFile = new File(foder, fileName);
-        try {
-            if (!myCaptureFile.exists()) {
-                myCaptureFile.createNewFile();
-            }
-            BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(myCaptureFile));
-            //压缩保存到本地
-            bm.compress(Bitmap.CompressFormat.JPEG, 90, bos);
-            bos.flush();
-            bos.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Message message = myHandler.obtainMessage(1);
-        message.sendToTarget();
-    }
-
 
 }

@@ -9,17 +9,30 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.leon.chic.dao.MessageDao;
+import com.leon.chic.utils.MessageTypeUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseActivity;
+import com.zhiyu.quanzhu.base.BaseApplication;
+import com.zhiyu.quanzhu.model.bean.QuanYouShenHe;
+import com.zhiyu.quanzhu.model.result.QuanYouShenHeResult;
 import com.zhiyu.quanzhu.ui.adapter.XiTongXiaoXiQuanYouShenHeRecyclerAdapter;
+import com.zhiyu.quanzhu.utils.ConstantsUtils;
+import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyPtrHandlerFooter;
 import com.zhiyu.quanzhu.utils.MyPtrHandlerHeader;
 import com.zhiyu.quanzhu.utils.MyPtrRefresherFooter;
 import com.zhiyu.quanzhu.utils.MyPtrRefresherHeader;
+import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 import com.zhiyu.quanzhu.utils.SpaceItemDecoration;
 
+import org.xutils.common.Callback;
+import org.xutils.http.RequestParams;
+import org.xutils.x;
+
 import java.lang.ref.WeakReference;
+import java.util.List;
 
 import in.srain.cube.views.ptr.PtrDefaultHandler2;
 import in.srain.cube.views.ptr.PtrFrameLayout;
@@ -33,19 +46,22 @@ public class XiTongXiaoXiQuanYouShenHeActivity extends BaseActivity implements V
     private PtrFrameLayout ptrFrameLayout;
     private RecyclerView mRecyclerView;
     private XiTongXiaoXiQuanYouShenHeRecyclerAdapter adapter;
-    private MyHandler myHandler=new MyHandler(this);
-    private static class MyHandler extends Handler{
+    private MyHandler myHandler = new MyHandler(this);
+
+    private static class MyHandler extends Handler {
         WeakReference<XiTongXiaoXiQuanYouShenHeActivity> activityWeakReference;
-        public MyHandler(XiTongXiaoXiQuanYouShenHeActivity activity){
-            activityWeakReference=new WeakReference<>(activity);
+
+        public MyHandler(XiTongXiaoXiQuanYouShenHeActivity activity) {
+            activityWeakReference = new WeakReference<>(activity);
         }
 
         @Override
         public void handleMessage(Message msg) {
-            XiTongXiaoXiQuanYouShenHeActivity activity=activityWeakReference.get();
-            switch (msg.what){
+            XiTongXiaoXiQuanYouShenHeActivity activity = activityWeakReference.get();
+            switch (msg.what) {
                 case 1:
                     activity.ptrFrameLayout.refreshComplete();
+                    activity.adapter.setList(activity.list);
                     break;
             }
         }
@@ -56,6 +72,7 @@ public class XiTongXiaoXiQuanYouShenHeActivity extends BaseActivity implements V
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_xitongxiaoxi_inner_list);
         ScreentUtils.getInstance().setStatusBarLightMode(this, true);
+        MessageDao.getInstance().readAllUnReadSystemMessage(MessageTypeUtils.QUAN_YOU_QING_QIU, BaseApplication.getInstance());
         initPtr();
         initViews();
     }
@@ -65,16 +82,17 @@ public class XiTongXiaoXiQuanYouShenHeActivity extends BaseActivity implements V
         backLayout.setOnClickListener(this);
         titleTextView = findViewById(R.id.titleTextView);
         titleTextView.setText("圈友审核");
-        mRecyclerView=findViewById(R.id.mRecyclerView);
-        LinearLayoutManager linearLayoutManager=new LinearLayoutManager(this);
+        mRecyclerView = findViewById(R.id.mRecyclerView);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
 //        SpaceItemDecoration spaceItemDecoration=new SpaceItemDecoration((int) getResources().getDimension(R.dimen.dp_10));
-        adapter=new XiTongXiaoXiQuanYouShenHeRecyclerAdapter();
+        adapter = new XiTongXiaoXiQuanYouShenHeRecyclerAdapter(this);
         mRecyclerView.setAdapter(adapter);
         mRecyclerView.setLayoutManager(linearLayoutManager);
 //        mRecyclerView.addItemDecoration(spaceItemDecoration);
     }
-    private void initPtr(){
+
+    private void initPtr() {
         ptrFrameLayout = findViewById(R.id.ptr_frame_layout);
         ptrFrameLayout.setHeaderView(new MyPtrRefresherHeader(this));
         ptrFrameLayout.addPtrUIHandler(new MyPtrHandlerHeader(this, ptrFrameLayout));
@@ -83,37 +101,20 @@ public class XiTongXiaoXiQuanYouShenHeActivity extends BaseActivity implements V
         ptrFrameLayout.setPtrHandler(new PtrDefaultHandler2() {
             @Override
             public void onLoadMoreBegin(PtrFrameLayout frame) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Thread.sleep(2000);
-                            Message message = myHandler.obtainMessage(1);
-                            message.sendToTarget();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }).start();
+                page++;
+                isRefresh = false;
+                list();
 
             }
 
             @Override
             public void onRefreshBegin(PtrFrameLayout frame) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Thread.sleep(2000);
-                            Message message = myHandler.obtainMessage(1);
-                            message.sendToTarget();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }).start();
+                page = 1;
+                isRefresh = true;
+                list();
             }
         });
+        ptrFrameLayout.autoRefresh();
         ptrFrameLayout.setMode(PtrFrameLayout.Mode.BOTH);
     }
 
@@ -124,5 +125,44 @@ public class XiTongXiaoXiQuanYouShenHeActivity extends BaseActivity implements V
                 finish();
                 break;
         }
+    }
+
+    private int page = 1;
+    private boolean isRefresh = true;
+    private QuanYouShenHeResult quanYouShenHeResult;
+    private List<QuanYouShenHe> list;
+
+    private void list() {
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.XI_TONNG_XIAO_XI_QUAN_YOU_SHEN_HE);
+        params.addBodyParameter("page", String.valueOf(page));
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                System.out.println("圈友审核" + result);
+                quanYouShenHeResult = GsonUtils.GsonToBean(result, QuanYouShenHeResult.class);
+                if (isRefresh) {
+                    list = quanYouShenHeResult.getData().getList();
+                } else {
+                    list.addAll(quanYouShenHeResult.getData().getList());
+                }
+                Message message = myHandler.obtainMessage(1);
+                message.sendToTarget();
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+                System.out.println("圈友审核" + ex.toString());
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
     }
 }

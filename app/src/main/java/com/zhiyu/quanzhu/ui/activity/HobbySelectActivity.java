@@ -12,8 +12,10 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.leon.chic.utils.SPUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseActivity;
+import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.Hobby;
 import com.zhiyu.quanzhu.model.bean.HobbySelect;
@@ -94,7 +96,9 @@ public class HobbySelectActivity extends BaseActivity implements View.OnClickLis
                         if (activity.loadType == 1) {
                             activity.finish();
                         } else {
-
+                            Intent interestQuanZiIntent = new Intent(activity, InterestQuanZiSelectActivity.class);
+                            activity.startActivity(interestQuanZiIntent);
+                            activity.finish();
                         }
                     }
                     break;
@@ -202,16 +206,7 @@ public class HobbySelectActivity extends BaseActivity implements View.OnClickLis
                 finish();
                 break;
             case R.id.rightLayout:
-                switch (loadType) {
-                    case 0:
-                        Intent interestQuanZiIntent = new Intent(this, InterestQuanZiSelectActivity.class);
-                        startActivity(interestQuanZiIntent);
-                        break;
-                    case 1:
-                        userHobby();
-                        break;
-                }
-
+                userHobby();
                 break;
         }
     }
@@ -224,7 +219,7 @@ public class HobbySelectActivity extends BaseActivity implements View.OnClickLis
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("hobby list: " + result);
+//                System.out.println("hobby list: " + result);
                 hobbyResult = GsonUtils.GsonToBean(result, HobbyResult.class);
                 if (null != hobbyResult && null != hobbyResult.getData() && null != hobbyResult.getData().getList() && hobbyResult.getData().getList().size() > 0) {
                     for (int i = 0; i < hobbyResult.getData().getList().size(); i++) {
@@ -259,7 +254,7 @@ public class HobbySelectActivity extends BaseActivity implements View.OnClickLis
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                System.out.println("hobbylist:" + ex.toString());
+//                System.out.println("hobbylist:" + ex.toString());
                 Message message = myHandler.obtainMessage(5);
                 message.sendToTarget();
             }
@@ -285,7 +280,7 @@ public class HobbySelectActivity extends BaseActivity implements View.OnClickLis
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("add hobby: " + result);
+//                System.out.println("add hobby: " + result);
                 addHobbyResult = GsonUtils.GsonToBean(result, AddHobbyResult.class);
                 Message message = myHandler.obtainMessage(2);
                 message.sendToTarget();
@@ -294,7 +289,7 @@ public class HobbySelectActivity extends BaseActivity implements View.OnClickLis
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                System.out.println("add hobby: " + ex.toString());
+//                System.out.println("add hobby: " + ex.toString());
                 Message message = myHandler.obtainMessage(5);
                 message.sendToTarget();
             }
@@ -423,6 +418,9 @@ public class HobbySelectActivity extends BaseActivity implements View.OnClickLis
             @Override
             public void onSuccess(String result) {
                 baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
+                if (200 == baseResult.getCode()) {
+                    SPUtils.getInstance().userChooseInterest(BaseApplication.applicationContext);
+                }
                 Message message = myHandler.obtainMessage(4);
                 message.sendToTarget();
                 System.out.println("用户偏好选择: " + result);

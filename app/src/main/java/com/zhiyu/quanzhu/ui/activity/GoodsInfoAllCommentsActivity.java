@@ -15,12 +15,14 @@ import com.zhiyu.quanzhu.model.bean.GoodsComment;
 import com.zhiyu.quanzhu.model.result.GoodsCommentResult;
 import com.zhiyu.quanzhu.ui.adapter.GoodsInfoAllCommentsRecyclerAdapter;
 import com.zhiyu.quanzhu.ui.toast.FailureToast;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyPtrHandlerFooter;
 import com.zhiyu.quanzhu.utils.MyPtrHandlerHeader;
 import com.zhiyu.quanzhu.utils.MyPtrRefresherFooter;
 import com.zhiyu.quanzhu.utils.MyPtrRefresherHeader;
+import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 
 import org.xutils.common.Callback;
@@ -61,13 +63,15 @@ public class GoodsInfoAllCommentsActivity extends BaseActivity implements View.O
             GoodsInfoAllCommentsActivity activity = allCommentsActivityWeakReference.get();
             switch (msg.what) {
                 case 1:
+                    System.out.println("商品全部评价网络请求结束");
                     activity.ptrFrameLayout.refreshComplete();
                     activity.allCommentsTextView.setText("全部(" + activity.commentResult.getData().getAllnum() + ")");
                     activity.hasImageTextView.setText("有图(" + activity.commentResult.getData().getImgnum() + ")");
                     activity.adapter.setList(activity.list);
                     break;
-                case 2:
-                    FailureToast.getInstance(activity).show();
+                case 99:
+                    activity.ptrFrameLayout.refreshComplete();
+                    MessageToast.getInstance(activity).show("服务器内部错误，请稍后重试");
                     break;
             }
         }
@@ -81,7 +85,6 @@ public class GoodsInfoAllCommentsActivity extends BaseActivity implements View.O
         ScreentUtils.getInstance().setStatusBarLightMode(this, true);
         initPtr();
         initViews();
-        goodsInfoAllComments();
     }
 
     private void initViews() {
@@ -159,6 +162,7 @@ public class GoodsInfoAllCommentsActivity extends BaseActivity implements View.O
                 goodsInfoAllComments();
             }
         });
+        ptrFrameLayout.autoRefresh();
         ptrFrameLayout.setMode(PtrFrameLayout.Mode.BOTH);
     }
 
@@ -167,15 +171,15 @@ public class GoodsInfoAllCommentsActivity extends BaseActivity implements View.O
     private GoodsCommentResult commentResult;
 
     private void goodsInfoAllComments() {
-        RequestParams params = new RequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.GOODS_INFO_ALL_COMMENTS);
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.GOODS_INFO_ALL_COMMENTS);
         params.addBodyParameter("type", String.valueOf(comments_type));
         params.addBodyParameter("goods_id", String.valueOf(goods_id));
         params.addBodyParameter("page", String.valueOf(page));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                commentResult = GsonUtils.GsonToBean(result, GoodsCommentResult.class);
                 System.out.println("all comments: " + result);
+                commentResult = GsonUtils.GsonToBean(result, GoodsCommentResult.class);
                 if (isRefresh) {
                     list = commentResult.getData().getList();
                 } else {
@@ -189,7 +193,7 @@ public class GoodsInfoAllCommentsActivity extends BaseActivity implements View.O
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                Message message = myHandler.obtainMessage(2);
+                Message message = myHandler.obtainMessage(99);
                 message.sendToTarget();
             }
 

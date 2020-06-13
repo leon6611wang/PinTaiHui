@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="211dp"
     android:orientation="vertical">
 
     <FrameLayout
@@ -35,7 +35,9 @@
                 <com.zhiyu.quanzhu.ui.widget.CircleImageView
                     android:id="@+id/shopIconImageView"
                     android:layout_width="38dp"
-                    android:layout_height="38dp" />
+                    android:layout_height="38dp"
+                    android:src="@drawable/image_error"
+                    />
 
                 <View
                     android:layout_width="@dimen/dp_10"
@@ -53,7 +55,7 @@
                         android:id="@+id/shopNameTextView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="genanx旗舰店"
+                        android:hint="暂无数据"
                         android:textColor="@color/white"
                         android:textSize="12sp"
                         android:textStyle="bold" />

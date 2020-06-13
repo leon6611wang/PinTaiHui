@@ -57,7 +57,8 @@ public class PointGoodsImageListAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
         holder.goodsimgImageView.setLayoutParams(list.get(position).getImageParams(context));
-        Glide.with(context).load(list.get(position).getUrl()).error(R.drawable.image_error).into(holder.goodsimgImageView);
+        Glide.with(context).load(list.get(position).getUrl()).error(R.drawable.image_error) .placeholder(R.drawable.image_error)
+                .fallback(R.drawable.image_error).into(holder.goodsimgImageView);
         return convertView;
     }
 }

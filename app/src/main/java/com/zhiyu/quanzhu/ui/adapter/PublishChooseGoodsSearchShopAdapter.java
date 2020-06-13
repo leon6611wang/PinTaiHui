@@ -15,13 +15,15 @@ import java.util.List;
 
 public class PublishChooseGoodsSearchShopAdapter extends BaseAdapter {
     private List<LinkShop> list;
-    public void setList(List<LinkShop> shopList){
-        this.list=shopList;
+
+    public void setList(List<LinkShop> shopList) {
+        this.list = shopList;
         notifyDataSetChanged();
     }
+
     @Override
     public int getCount() {
-        return null==list?0: list.size();
+        return null == list ? 0 : list.size();
     }
 
     @Override
@@ -34,23 +36,23 @@ public class PublishChooseGoodsSearchShopAdapter extends BaseAdapter {
         return position;
     }
 
-    class ViewHolder{
+    class ViewHolder {
         NiceImageView shopIconImageView;
-        TextView nameTextView,goodsCountTextView;
+        TextView nameTextView, goodsCountTextView;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder holder=null;
-        if(null==convertView){
-            holder=new ViewHolder();
-            convertView= LayoutInflater.from(parent.getContext()).inflate(R.layout.item_publish_choose_goods_shop,null);
-            holder.shopIconImageView=convertView.findViewById(R.id.shopIconImageView);
-            holder.nameTextView=convertView.findViewById(R.id.nameTextView);
-            holder.goodsCountTextView=convertView.findViewById(R.id.goodsCountTextView);
+        ViewHolder holder = null;
+        if (null == convertView) {
+            holder = new ViewHolder();
+            convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_publish_choose_goods_shop, null);
+            holder.shopIconImageView = convertView.findViewById(R.id.shopIconImageView);
+            holder.nameTextView = convertView.findViewById(R.id.nameTextView);
+            holder.goodsCountTextView = convertView.findViewById(R.id.goodsCountTextView);
             convertView.setTag(holder);
-        }else{
-            holder=(ViewHolder)convertView.getTag();
+        } else {
+            holder = (ViewHolder) convertView.getTag();
         }
         Glide.with(parent.getContext()).load(list.get(position).getIcon()).into(holder.shopIconImageView);
         holder.nameTextView.setText(list.get(position).getName());

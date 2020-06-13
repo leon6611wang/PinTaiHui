@@ -6,8 +6,13 @@ package com.zhiyu.quanzhu.model.bean;
 public class MallAdImg {
     private String img;
     private int type;
-    private String handel_type;
-    private String handel_url;
+    private String handle_type;
+    private String handle_url;
+
+    @Override
+    public String toString() {
+        return "img: "+img+" , type: "+type+" , handle_type: "+handle_type+" , handle_url: "+handle_url;
+    }
 
     public String getImg() {
         return img;
@@ -25,19 +30,19 @@ public class MallAdImg {
         this.type = type;
     }
 
-    public String getHandel_type() {
-        return handel_type;
+    public String getHandle_type() {
+        return handle_type;
     }
 
-    public void setHandel_type(String handel_type) {
-        this.handel_type = handel_type;
+    public void setHandle_type(String handle_type) {
+        this.handle_type = handle_type;
     }
 
-    public String getHandel_url() {
-        return handel_url;
+    public String getHandle_url() {
+        return handle_url;
     }
 
-    public void setHandel_url(String handel_url) {
-        this.handel_url = handel_url;
+    public void setHandle_url(String handle_url) {
+        this.handle_url = handle_url;
     }
 }

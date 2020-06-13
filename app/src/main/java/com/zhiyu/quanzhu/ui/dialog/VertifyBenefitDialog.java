@@ -4,9 +4,11 @@ import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.view.View;
 import android.view.WindowManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.widget.TextView;
 
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
@@ -16,7 +18,7 @@ import com.zhiyu.quanzhu.utils.ScreentUtils;
  */
 public class VertifyBenefitDialog extends Dialog {
     private WebView webView;
-
+    private TextView confirmTextView;
     public VertifyBenefitDialog(@NonNull Context context, int themeResId) {
         super(context, themeResId);
     }
@@ -40,6 +42,13 @@ public class VertifyBenefitDialog extends Dialog {
 
     private void initViews() {
         webView = findViewById(R.id.webView);
+        confirmTextView=findViewById(R.id.confirmTextView);
+        confirmTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+            }
+        });
     }
 
 

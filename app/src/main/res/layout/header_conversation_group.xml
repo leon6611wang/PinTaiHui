@@ -51,14 +51,13 @@
                 android:textSize="12sp" />
 
             <TextView
-                android:id="@+id/gonggaoTextView"
+                android:id="@+id/noticeTextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ellipsize="marquee"
                 android:marqueeRepeatLimit="marquee_forever"
                 android:singleLine="true"
-                android:text="当App 本身没有用户系统或者因为某些原因不方便使用上述用户信息提供者的时候，可以使用消息携带用户信息来发送给消息接收方。请注意这种方式不要和用户信息提供者混用。并且，这种方式会在每条发送的消息里都携带当前登陆用户的信息，增加消息的长度。首先，需要使用 setCurrentUserInfo 方法来设置当前的用户信息。"
                 android:textColor="@color/text_color_black"
                 android:textSize="12sp" />
         </LinearLayout>

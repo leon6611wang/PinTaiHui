@@ -54,7 +54,8 @@ public class AllVIPEquityListAdapter extends BaseAdapter {
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
-        Glide.with(parent.getContext()).load(list.get(position).getIcon()).error(R.drawable.image_error).into(holder.equityIconImageView);
+        Glide.with(parent.getContext()).load(list.get(position).getIcon()).error(R.drawable.image_error) .placeholder(R.drawable.image_error)
+                .fallback(R.drawable.image_error).into(holder.equityIconImageView);
         holder.equityTitleTextView.setText(Html.fromHtml(list.get(position).getName()));
         return convertView;
     }

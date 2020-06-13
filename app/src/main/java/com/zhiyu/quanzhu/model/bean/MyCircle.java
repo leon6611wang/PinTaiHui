@@ -7,10 +7,28 @@ public class MyCircle {
     private boolean isSelected;
     private String roleName;
     private String thumb;
+    private boolean has_shop;
+    private int status;
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public boolean isHas_shop() {
+        return has_shop;
+    }
+
+    public void setHas_shop(boolean has_shop) {
+        this.has_shop = has_shop;
+    }
 
     @Override
     public String toString() {
-        return "id "+id+" , name "+name+" , role "+role+" , roleName "+getRoleName()+" , isSelected "+isSelected;
+        return "id " + id + " , name " + name + " , role " + role + " , roleName " + getRoleName() + " , isSelected " + isSelected;
     }
 
     public String getThumb() {
@@ -55,15 +73,15 @@ public class MyCircle {
 
     public String getRoleName() {
         //0圈主 1管理员 2成员
-        switch (this.role){
+        switch (this.role) {
             case 0:
-                this.roleName="圈主";
+                this.roleName = "圈主";
                 break;
             case 1:
-                this.roleName="管理员";
+                this.roleName = "管理员";
                 break;
             case 2:
-                this.roleName="成员";
+                this.roleName = "成员";
                 break;
         }
         return roleName;

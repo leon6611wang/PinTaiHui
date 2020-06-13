@@ -13,7 +13,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:src="@mipmap/header"
+        android:scaleType="centerCrop"
+        android:src="@drawable/image_error"
         app:corner_radius="2dp" />
 
 </LinearLayout>

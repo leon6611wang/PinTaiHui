@@ -1,5 +1,6 @@
 package com.zhiyu.quanzhu.ui.fragment;
 
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,10 +16,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.model.bean.Visitor;
 import com.zhiyu.quanzhu.model.result.MyVisitorResult;
+import com.zhiyu.quanzhu.ui.activity.BuyVIPActivity;
 import com.zhiyu.quanzhu.ui.adapter.FangKeRecyclerAdapter;
 import com.zhiyu.quanzhu.ui.widget.ControllScrollLayoutManager;
 import com.zhiyu.quanzhu.ui.widget.MyRecyclerView;
@@ -40,7 +43,7 @@ import java.util.List;
 import in.srain.cube.views.ptr.PtrDefaultHandler2;
 import in.srain.cube.views.ptr.PtrFrameLayout;
 
-public class FragmentFangKe extends Fragment {
+public class FragmentFangKe extends Fragment implements View.OnClickListener,BuyVIPActivity.OnBuyVIPSuccessListener {
     private View view;
     private MyRecyclerView mRecyclerView;
     private FangKeRecyclerAdapter adapter;
@@ -48,6 +51,7 @@ public class FragmentFangKe extends Fragment {
     private ImageView visitorBgImageView;
     private ControllScrollLayoutManager layoutManager;
     private LinearLayout isNotVipLayout;
+    private TextView buyVipButton;
     private MyHandler myHandler = new MyHandler(this);
 
     private static class MyHandler extends Handler {
@@ -86,6 +90,7 @@ public class FragmentFangKe extends Fragment {
         view = LayoutInflater.from(getContext()).inflate(R.layout.fragment_fangke, container, false);
         initPtr();
         initViews();
+        BuyVIPActivity.setOnBuyVIPSuccessListener(this);
         return view;
     }
 
@@ -128,9 +133,28 @@ public class FragmentFangKe extends Fragment {
         mRecyclerView.setAdapter(adapter);
         visitorBgImageView = view.findViewById(R.id.visitorBgImageView);
         isNotVipLayout = view.findViewById(R.id.isNotVipLayout);
-
+        buyVipButton = view.findViewById(R.id.buyVipButton);
+        buyVipButton.setOnClickListener(this);
     }
 
+    @Override
+    public void onBuyVIPSuccess() {
+        isNotVipLayout.setVisibility(View.GONE);
+        layoutManager.setScrollEnabled(true);
+        ptrFrameLayout.setMode(PtrFrameLayout.Mode.BOTH);
+        adapter.setShowInfo(true);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.buyVipButton:
+                Intent intent = new Intent(getContext(), BuyVIPActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                getContext().startActivity(intent);
+                break;
+        }
+    }
 
     private int page = 1;
     private boolean isRefresh = true;
@@ -145,7 +169,6 @@ public class FragmentFangKe extends Fragment {
             public void onSuccess(String result) {
                 System.out.println("我的访客: " + result);
                 myVisitorResult = GsonUtils.GsonToBean(result, MyVisitorResult.class);
-                myVisitorResult.getData().setIs_vip(true);
                 if (isRefresh) {
                     list = myVisitorResult.getData().getList();
                 } else {

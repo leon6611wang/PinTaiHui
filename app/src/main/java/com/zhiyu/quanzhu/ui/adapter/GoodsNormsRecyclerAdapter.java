@@ -104,7 +104,7 @@ public class GoodsNormsRecyclerAdapter extends RecyclerView.Adapter<GoodsNormsRe
                     label.setTextColor(context.getResources().getColor(R.color.text_color_yilingqu));
                 }
                 //根据data和position返回label需要显示的数据。
-                return data.getNorms_name() + "-" + data.getNorms_id();
+                return data.getNorms_name();
             }
         });
         //标签的点击监听

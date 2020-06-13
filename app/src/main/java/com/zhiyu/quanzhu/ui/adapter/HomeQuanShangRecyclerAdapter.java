@@ -69,6 +69,8 @@ public class HomeQuanShangRecyclerAdapter extends BaseRecyclerAdapter<MallAdGood
             holder.rootLayout.setLayoutParams(ll);
             Glide.with(context).load(goods.getImg().getUrl())
                     .error(R.drawable.image_error)
+                    .placeholder(R.drawable.image_error)
+                    .fallback(R.drawable.image_error)
                     .into(holder.goodsImageImageView);
             holder.mingchengTextView.setText(goods.getGoods_name());
             holder.priceZhengShuTextView.setText(PriceParseUtils.getInstance().getZhengShu(goods.getGoods_price()));

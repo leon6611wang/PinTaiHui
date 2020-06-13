@@ -32,10 +32,11 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/headerUserLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_gravity="center"
+            android:layout_weight="1"
             android:gravity="center|left"
             android:orientation="horizontal">
 
@@ -43,33 +44,30 @@
                 android:id="@+id/avatarImageView"
                 android:layout_width="@dimen/dp_25"
                 android:layout_height="@dimen/dp_25"
-                android:src="@mipmap/no_avatar"
                 android:layout_gravity="center"
                 android:layout_marginRight="@dimen/dp_8"
-                />
+                android:src="@drawable/image_error" />
 
             <TextView
                 android:id="@+id/nameTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="昵称"
-                android:textSize="12sp"
                 android:textColor="@color/white"
-                />
+                android:textSize="12sp" />
 
             <TextView
                 android:id="@+id/followTextView"
                 android:layout_width="26dp"
                 android:layout_height="18dp"
-                android:text="＋"
                 android:layout_gravity="center"
-                android:gravity="center"
-                android:background="@drawable/shape_oval_solid_bg_yellow"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:textColor="@color/white"
                 android:layout_marginLeft="@dimen/dp_8"
-                />
+                android:background="@drawable/shape_oval_solid_bg_yellow"
+                android:gravity="center"
+                android:text="＋"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:textStyle="bold" />
 
         </LinearLayout>
 
@@ -78,7 +76,6 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_30"
-        />
+        android:layout_height="@dimen/dp_30" />
 
 </LinearLayout>

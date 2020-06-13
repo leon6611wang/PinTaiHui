@@ -56,6 +56,7 @@ public class GoodsStatusDialog extends Dialog implements View.OnClickListener{
         confirmTextView.setOnClickListener(this);
         mLoopView = findViewById(R.id.mLoopView);
         mLoopView.setItems(list);
+        mLoopView.setInitPosition(0);
         mLoopView.setListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(int index) {

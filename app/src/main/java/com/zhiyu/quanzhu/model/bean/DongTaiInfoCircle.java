@@ -15,6 +15,51 @@ public class DongTaiInfoCircle {
     private int fnum;
     private String city_name;
     private String industry;
+    private String three_industry;
+    private String created_at;
+    private String thumb;
+    private String username;
+    private String avatar;
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getThumb() {
+        return thumb;
+    }
+
+    public void setThumb(String thumb) {
+        this.thumb = thumb;
+    }
+
+    public String getThree_industry() {
+        return three_industry;
+    }
+
+    public void setThree_industry(String three_industry) {
+        this.three_industry = three_industry;
+    }
+
+    public String getCreated_at() {
+        return created_at;
+    }
+
+    public void setCreated_at(String created_at) {
+        this.created_at = created_at;
+    }
 
     public int getId() {
         return id;

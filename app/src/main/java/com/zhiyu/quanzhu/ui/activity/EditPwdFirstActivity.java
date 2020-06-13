@@ -10,6 +10,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.leon.chic.utils.SPUtils;
 import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseActivity;
@@ -17,8 +18,8 @@ import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
+import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
-import com.zhiyu.quanzhu.utils.SharedPreferencesUtils;
 
 import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
@@ -39,7 +40,7 @@ public class EditPwdFirstActivity extends BaseActivity implements View.OnClickLi
     private TextView contentTextView, timeCountTextView, nextTextView;
     private EditText vertifyCodeEditText;
     private String content;
-    private String phoneNumber = "18757591055";
+    private String phoneNumber;
     private Timer timer;
     private TimerTask task;
     private final int COUNT = 60;
@@ -83,6 +84,7 @@ public class EditPwdFirstActivity extends BaseActivity implements View.OnClickLi
         setContentView(R.layout.activity_edit_pwd_first);
         ScreentUtils.getInstance().setStatusBarLightMode(this, true);
         payOrLoginPwd = getIntent().getIntExtra("payOrLoginPwd", 0);
+        phoneNumber = SPUtils.getInstance().getUserPhoneNum(this);
 //         phoneNumber = SharedPreferencesUtils.getInstance(this).getUserPhoneNumber();
         String subPhoneNumber = phoneNumber.substring(phoneNumber.length() - 4, phoneNumber.length());
         content = "我们已经发送了一条包含验证码数字的短信到您尾号 <font color='#FE8627'>" + subPhoneNumber + "</font> 的手机上，请在下方输入您收到的验证码信息";
@@ -172,7 +174,7 @@ public class EditPwdFirstActivity extends BaseActivity implements View.OnClickLi
     private BaseResult baseResult;
 
     private void getVertifiyCode() {
-        RequestParams params = new RequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.GET_VERTIFY_CODE);
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.GET_VERTIFY_CODE);
         params.addBodyParameter("mobile", phoneNumber);
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
@@ -203,12 +205,15 @@ public class EditPwdFirstActivity extends BaseActivity implements View.OnClickLi
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 996) {
-            Intent intent=new Intent();
-            intent.putExtra("isPwd",true);
-            setResult(997,intent);
-            boolean isfinish = data.getBooleanExtra("isfinish", false);
-            if (isfinish)
-                finish();
+            Intent intent = new Intent();
+            intent.putExtra("isPwd", true);
+            setResult(997, intent);
+            if (null != data && data.hasExtra("isfinish")) {
+                boolean isfinish = data.getBooleanExtra("isfinish", false);
+                if (isfinish)
+                    finish();
+            }
+
         }
     }
 }

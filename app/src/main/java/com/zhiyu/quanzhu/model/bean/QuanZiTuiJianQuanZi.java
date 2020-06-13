@@ -15,7 +15,25 @@ public class QuanZiTuiJianQuanZi {
     private String created_at;
     private String avatar;
     private String username;
-    private String thumb;
+    private GuanZhuCirlceThumb thumb;
+    private int days;
+    private String industry;
+
+    public String getIndustry() {
+        return industry;
+    }
+
+    public void setIndustry(String industry) {
+        this.industry = industry;
+    }
+
+    public int getDays() {
+        return days;
+    }
+
+    public void setDays(int days) {
+        this.days = days;
+    }
 
     public String getAvatar() {
         return avatar;
@@ -33,11 +51,11 @@ public class QuanZiTuiJianQuanZi {
         this.username = username;
     }
 
-    public String getThumb() {
+    public GuanZhuCirlceThumb getThumb() {
         return thumb;
     }
 
-    public void setThumb(String thumb) {
+    public void setThumb(GuanZhuCirlceThumb thumb) {
         this.thumb = thumb;
     }
 

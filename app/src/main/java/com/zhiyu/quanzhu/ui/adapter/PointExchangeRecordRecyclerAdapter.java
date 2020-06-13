@@ -50,7 +50,8 @@ public class PointExchangeRecordRecyclerAdapter extends RecyclerView.Adapter<Poi
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.timeTextView.setText(list.get(position).getAddtime());
-        Glide.with(context).load(list.get(position).getThumb()).error(R.drawable.image_error).into(holder.iconImageView);
+        Glide.with(context).load(list.get(position).getThumb()).error(R.drawable.image_error) .placeholder(R.drawable.image_error)
+                .fallback(R.drawable.image_error).into(holder.iconImageView);
         holder.nameTextView.setText(list.get(position).getName());
         holder.pointTextView.setText("-"+list.get(position).getNeed_inegral()+"积分");
     }

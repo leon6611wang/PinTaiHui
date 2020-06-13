@@ -46,6 +46,7 @@ public class CircleSelectDialog extends Dialog implements View.OnClickListener {
     private RecyclerView mRecyclerView;
     private List<MyCircle> list;
     private TextView cancelTextView, confirmTextView;
+    private int type=0;
     private MyHandler myHandler = new MyHandler(this);
 
     private static class MyHandler extends Handler {
@@ -67,10 +68,12 @@ public class CircleSelectDialog extends Dialog implements View.OnClickListener {
         }
     }
 
-    public CircleSelectDialog(@NonNull Context context, int themeResId, OnCircleSeletedListener listener) {
+    public CircleSelectDialog(@NonNull Context context, int themeResId, int type, OnCircleSeletedListener listener) {
         super(context, themeResId);
+        this.type = type;
         this.onCircleSeletedListener = listener;
     }
+
 
     private String circle_name;
 
@@ -131,7 +134,7 @@ public class CircleSelectDialog extends Dialog implements View.OnClickListener {
         ptrFrameLayout.setMode(PtrFrameLayout.Mode.BOTH);
 
         mRecyclerView = findViewById(R.id.mRecyclerView);
-        adapter = new CircleSelectRecyclerAdapter(getContext());
+        adapter = new CircleSelectRecyclerAdapter(getContext(),type);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setAdapter(adapter);
@@ -165,6 +168,7 @@ public class CircleSelectDialog extends Dialog implements View.OnClickListener {
     private void myCircles() {
         RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.SEARCH_MY_CIRCLE);
         params.addBodyParameter("page", String.valueOf(page));
+        params.addBodyParameter("type", String.valueOf(type));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {

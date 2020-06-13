@@ -16,6 +16,15 @@ public class CartShop {
     private int freight;
     private List<CartGoods> list;
     private boolean isSelected;
+    private boolean has_counpon;
+
+    public boolean isHas_counpon() {
+        return has_counpon;
+    }
+
+    public void setHas_counpon(boolean has_counpon) {
+        this.has_counpon = has_counpon;
+    }
 
     public int getStatus() {
         return status;
@@ -62,7 +71,6 @@ public class CartShop {
     }
 
     public void setSelected(boolean selected) {
-
         isSelected = selected;
     }
 

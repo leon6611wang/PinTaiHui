@@ -3,6 +3,15 @@ package com.zhiyu.quanzhu.model.bean;
 public class CircleInfoFeed {
     private int type;
     private CircleInfoFeedContent content;
+    private int feeds_type;
+
+    public int getFeeds_type() {
+        return feeds_type;
+    }
+
+    public void setFeeds_type(int feeds_type) {
+        this.feeds_type = feeds_type;
+    }
 
     public int getType() {
         return type;

@@ -6,6 +6,15 @@ package com.zhiyu.quanzhu.model.bean;
 public class LoginToken {
     private long expires;
     private String token;
+    private UserInfo userinfo;
+
+    public UserInfo getUserinfo() {
+        return userinfo;
+    }
+
+    public void setUserinfo(UserInfo userinfo) {
+        this.userinfo = userinfo;
+    }
 
     public long getExpires() {
         return expires;

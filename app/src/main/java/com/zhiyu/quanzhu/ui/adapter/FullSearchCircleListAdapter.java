@@ -65,25 +65,28 @@ public class FullSearchCircleListAdapter extends BaseAdapter {
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
-        Glide.with(parent.getContext()).load(list.get(position).getUser_avatar()).error(R.mipmap.no_avatar).into(holder.avatarImageView);
-        holder.nameTextView.setText(list.get(position).getUser_name());
+        Glide.with(parent.getContext()).load(list.get(position).getAvatar()).error(R.drawable.image_error).into(holder.avatarImageView);
+        if (!StringUtils.isNullOrEmpty(list.get(position).getUsername()))
+            holder.nameTextView.setText(list.get(position).getUsername());
         holder.dayTextView.setText(String.valueOf(list.get(position).getDays()));
-        Glide.with(parent.getContext()).load(list.get(position).getThumb()).error(R.mipmap.img_error).into(holder.coverImageView);
-        holder.circleNameTextView.setText(list.get(position).getName());
-        holder.descTextView.setText(list.get(position).getDescirption());
-        holder.cityTextView.setText(list.get(position).getCity_name());
-        holder.industryTextView.setText(list.get(position).getIndustry());
+        Glide.with(parent.getContext()).load(list.get(position).getThumb().getFile()).error(R.drawable.image_error).into(holder.coverImageView);
+        if (!StringUtils.isNullOrEmpty(list.get(position).getName()))
+            holder.circleNameTextView.setText(list.get(position).getName());
+        if (!StringUtils.isNullOrEmpty(list.get(position).getDescirption()))
+            holder.descTextView.setText(list.get(position).getDescirption());
         holder.pnumTextView.setText(String.valueOf(list.get(position).getPnum()));
         holder.fnumTextView.setText(String.valueOf(list.get(position).getFnum()));
         if (StringUtils.isNullOrEmpty(list.get(position).getCity_name())) {
             holder.cityTextView.setVisibility(View.GONE);
         } else {
             holder.cityTextView.setVisibility(View.VISIBLE);
+            holder.cityTextView.setText(list.get(position).getCity_name());
         }
         if (StringUtils.isNullOrEmpty(list.get(position).getIndustry())) {
             holder.industryTextView.setVisibility(View.GONE);
         } else {
             holder.industryTextView.setVisibility(View.VISIBLE);
+            holder.industryTextView.setText(list.get(position).getIndustry());
         }
         return convertView;
     }

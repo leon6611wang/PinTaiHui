@@ -83,7 +83,7 @@
                         android:layout_height="wrap_content"
                         android:ellipsize="end"
                         android:maxLines="1"
-                        android:text="苹苔汇官方圈主交流商圈"
+                        android:text="圈助官方圈主交流商圈"
                         android:textColor="@color/text_color_black"
                         android:textSize="12sp"
                         android:textStyle="bold" />

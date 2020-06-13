@@ -3,9 +3,7 @@ package com.zhiyu.quanzhu.ui.fragment;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,27 +13,31 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.leon.chic.utils.SPUtils;
 import com.zhiyu.quanzhu.R;
+import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.model.bean.AreaCity;
 import com.zhiyu.quanzhu.model.bean.AreaProvince;
+import com.zhiyu.quanzhu.ui.activity.CardInformationActivity;
+import com.zhiyu.quanzhu.ui.activity.CreateCircleActivity;
 import com.zhiyu.quanzhu.ui.activity.FullSearchActivity;
-import com.zhiyu.quanzhu.ui.adapter.MyFragmentPagerAdapter;
+import com.zhiyu.quanzhu.ui.activity.MyCirclesActivity;
+import com.zhiyu.quanzhu.ui.activity.ScanActivity;
+import com.zhiyu.quanzhu.ui.adapter.CircleGuanZhuAdapter;
 import com.zhiyu.quanzhu.ui.adapter.MyFragmentStatePagerAdapter;
-import com.zhiyu.quanzhu.ui.adapter.ViewPagerAdapter;
+import com.zhiyu.quanzhu.ui.dialog.HomeCircleMenuDialog;
 import com.zhiyu.quanzhu.ui.dialog.ProvinceCityDialog;
 import com.zhiyu.quanzhu.ui.dialog.PublishDialog;
-import com.zhiyu.quanzhu.ui.widget.NoScrollHorizontallyViewPager;
+import com.zhiyu.quanzhu.ui.dialog.ShareDialog;
 import com.zhiyu.quanzhu.ui.widget.NoScrollViewPager;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
-import com.zhiyu.quanzhu.utils.SharedPreferencesUtils;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 /**
  * 首页-圈子
  */
-public class FragmentHomeQuanZi extends Fragment implements View.OnClickListener {
+public class FragmentHomeQuanZi extends Fragment implements View.OnClickListener,CircleGuanZhuAdapter.OnMoreCircleClickListener {
     private View view;
     private NoScrollViewPager viewPager;
     private MyFragmentStatePagerAdapter adapter;
@@ -46,10 +48,13 @@ public class FragmentHomeQuanZi extends Fragment implements View.OnClickListener
     private int topBarWidth, topBarHeight;
     private int bottomBarHeight;
     private int contentHeight;
+    private HomeCircleMenuDialog menuDialog;
     private PublishDialog publishDialog;
+    private ShareDialog shareDialog;
     private LinearLayout cityLayout;
     private TextView cityTextView;
     private ProvinceCityDialog cityDialog;
+    private int menuY;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -77,12 +82,50 @@ public class FragmentHomeQuanZi extends Fragment implements View.OnClickListener
     }
 
     private void initDialogs() {
+        shareDialog=new ShareDialog(getActivity(),getContext(),R.style.dialog);
         publishDialog = new PublishDialog(getContext(), R.style.dialog);
         cityDialog = new ProvinceCityDialog(getContext(), R.style.dialog, new ProvinceCityDialog.OnCityChooseListener() {
             @Override
             public void onCityChoose(AreaProvince province, AreaCity city) {
                 cityTextView.setText(city.getName());
                 fragmentQuanZiTuiJian.setCity(city.getName());
+            }
+        });
+        menuDialog=new HomeCircleMenuDialog(getContext(), R.style.dialog, new HomeCircleMenuDialog.OnMenuSelectedListener() {
+            @Override
+            public void onMenuSelected(int position, String desc) {
+                switch (position) {
+                    case 0:
+                        publishDialog.show();
+                        break;
+                    case 1:
+                        Intent scanIntent = new Intent(getActivity(), ScanActivity.class);
+                        scanIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        getContext().startActivity(scanIntent);
+                        break;
+                    case 2:
+                        Intent createShangQuanIntent = new Intent(getActivity(), CreateCircleActivity.class);
+                        createShangQuanIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        getContext().startActivity(createShangQuanIntent);
+                        break;
+                    case 3:
+
+                        break;
+                    case 4:
+                        Intent cardIntent = new Intent(getActivity(), CardInformationActivity.class);
+                        cardIntent.putExtra("uid", (long) SPUtils.getInstance().getUserId(BaseApplication.applicationContext));
+                        cardIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        getContext().startActivity(cardIntent);
+                        break;
+                    case 5:
+                        shareDialog.show();
+                        break;
+                    case 6:
+                        Intent shangquanIntent = new Intent(getActivity(), MyCirclesActivity.class);
+                        shangquanIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        getContext().startActivity(shangquanIntent);
+                        break;
+                }
             }
         });
     }
@@ -103,15 +146,34 @@ public class FragmentHomeQuanZi extends Fragment implements View.OnClickListener
 //        }
     }
 
+    public void setCityName(String cityName){
+        cityTextView.setText(cityName);
+    }
+
     private void initViews() {
         cityLayout = view.findViewById(R.id.cityLayout);
         cityLayout.setOnClickListener(this);
         cityTextView = view.findViewById(R.id.cityTextView);
-        cityTextView.setText(SharedPreferencesUtils.getInstance(getContext()).getLocationCity());
+        cityTextView.setText(SPUtils.getInstance().getLocationCity(BaseApplication.applicationContext));
         guanzhutextview = view.findViewById(R.id.guanzhutextview);
         tuijiantextview = view.findViewById(R.id.tuijiantextview);
         souquantextview = view.findViewById(R.id.souquantextview);
         publishMenuImageView = view.findViewById(R.id.publishMenuImageView);
+        publishMenuImageView.getViewTreeObserver().addOnPreDrawListener(
+                new ViewTreeObserver.OnPreDrawListener() {
+                    @Override
+                    public boolean onPreDraw() {
+                        publishMenuImageView.getViewTreeObserver().removeOnPreDrawListener(this);
+                        int[] locations = new int[2];
+                        publishMenuImageView.getLocationOnScreen(locations);
+                        int menu_y = locations[1];
+                        int menu_height = publishMenuImageView.getHeight(); // 获取高度
+//                        menuY=menu_y+menu_height;
+                        menuY = menu_y - menu_height + 20;
+//                        System.out.println("menu_height: " + menu_height+" , menu_y: "+menu_y);
+                        return true;
+                    }
+                });
         searchImageView = view.findViewById(R.id.searchImageView);
         searchImageView.setOnClickListener(this);
         guanzhutextview.setOnClickListener(this);
@@ -121,8 +183,16 @@ public class FragmentHomeQuanZi extends Fragment implements View.OnClickListener
         viewPager = view.findViewById(R.id.viewPager);
         viewPager.setScroll(false);
         adapter = new MyFragmentStatePagerAdapter(getChildFragmentManager(), fragmentArrayList);
+        CircleGuanZhuAdapter.setOnMoreCircleClickListener(this);
         viewPager.setAdapter(adapter);
-        viewPager.setCurrentItem(0);
+        viewPager.setCurrentItem(1);
+        barChange(1);
+    }
+
+    @Override
+    public void onMoreCircle() {
+        viewPager.setCurrentItem(2);
+        barChange(2);
     }
 
     @Override
@@ -138,7 +208,8 @@ public class FragmentHomeQuanZi extends Fragment implements View.OnClickListener
                 barChange(2);
                 break;
             case R.id.publishMenuImageView:
-                publishDialog.show();
+                menuDialog.show();
+                menuDialog.setY(menuY);
                 break;
             case R.id.searchImageView:
                 Intent fullSearchIntent = new Intent(getActivity(), FullSearchActivity.class);
@@ -174,5 +245,10 @@ public class FragmentHomeQuanZi extends Fragment implements View.OnClickListener
                 souquantextview.setTextSize(16);
                 break;
         }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }

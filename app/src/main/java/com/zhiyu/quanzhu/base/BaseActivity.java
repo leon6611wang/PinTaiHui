@@ -5,12 +5,15 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import com.leon.chic.utils.AndroidBug54971Workaround;
+import com.leon.chic.utils.AndroidWorkaround;
 import com.zhiyu.quanzhu.utils.AppManager;
 import com.zhiyu.quanzhu.utils.StatusBarUtils;
 
@@ -28,6 +31,8 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+//        AndroidBug54971Workaround.assistActivity(findViewById(android.R.id.content));
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         //将Activity实例添加到AppManager的堆栈
         AppManager.getAppManager().addActivity(this);
         setStatusBar();
@@ -37,6 +42,10 @@ public class BaseActivity extends AppCompatActivity {
         registerReceiver(networkChangeReceiver, intentFilter);
         methodRequiresTwoPermission();
 
+
+        if (AndroidWorkaround.checkDeviceHasNavigationBar(this)) {
+            AndroidWorkaround.assistActivity(findViewById(android.R.id.content));
+        }
     }
 
     protected void setStatusBar() {

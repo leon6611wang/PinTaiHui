@@ -6,6 +6,8 @@ public class FeedInformation {
     private int id;
     private String title;
     private String thumb;
+    private String thumb_file;
+    private ArticleThumb newthumb;
     private String desc;
     private int video_width;
     private int video_height;
@@ -36,6 +38,31 @@ public class FeedInformation {
     private String p_hobby;
     private int is_secret;
     private String secret_desc;
+    private String format_view_num;
+
+    public String getThumb_file() {
+        return thumb_file;
+    }
+
+    public void setThumb_file(String thumb_file) {
+        this.thumb_file = thumb_file;
+    }
+
+    public ArticleThumb getNewthumb() {
+        return newthumb;
+    }
+
+    public void setNewthumb(ArticleThumb newthumb) {
+        this.newthumb = newthumb;
+    }
+
+    public String getFormat_view_num() {
+        return format_view_num;
+    }
+
+    public void setFormat_view_num(String format_view_num) {
+        this.format_view_num = format_view_num;
+    }
 
     public int getIs_secret() {
         return is_secret;
@@ -51,7 +78,7 @@ public class FeedInformation {
                 this.secret_desc="公开";
                 break;
             case 2:
-                this.secret_desc="名片好友可见";
+                this.secret_desc="名片圈友可见";
                 break;
             case 3:
                 this.secret_desc="私密";

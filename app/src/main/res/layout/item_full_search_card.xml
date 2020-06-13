@@ -6,6 +6,7 @@
     android:orientation="vertical">
 
     <android.support.v7.widget.CardView
+        android:id="@+id/mCardView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/dp_5"
@@ -33,7 +34,7 @@
                     android:layout_height="68dp"
                     android:layout_marginRight="@dimen/dp_10"
                     android:scaleType="centerCrop"
-                    android:src="@mipmap/img_h"
+                    android:src="@drawable/image_error"
                     app:corner_radius="@dimen/dp_5" />
 
                 <LinearLayout
@@ -51,8 +52,11 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginRight="@dimen/dp_5"
-                            android:text="name"
+                            android:text="暂无数据"
                             android:textColor="@color/text_color_black"
+                            android:maxEms="8"
+                            android:maxLines="1"
+                            android:ellipsize="end"
                             android:textSize="14sp"
                             android:textStyle="bold" />
 
@@ -60,8 +64,11 @@
                             android:id="@+id/occupionTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="职位"
+                            android:text="暂无数据"
                             android:textColor="@color/text_color_grey"
+                            android:maxLines="1"
+                            android:maxEms="10"
+                            android:ellipsize="end"
                             android:textSize="12sp" />
                     </LinearLayout>
 
@@ -76,7 +83,7 @@
                         android:layout_height="wrap_content"
                         android:ellipsize="end"
                         android:maxLines="1"
-                        android:text="马鞍山智域网络科技有限公司"
+                        android:text="暂无数据"
                         android:textColor="@color/text_color_gray"
                         android:textSize="12sp" />
 
@@ -100,8 +107,11 @@
                             android:paddingLeft="7.5dp"
                             android:paddingRight="7.5dp"
                             android:paddingTop="3dp"
-                            android:text="马鞍山市"
+                            android:text="暂无数据"
                             android:textColor="@color/text_color_yellow"
+                            android:maxEms="5"
+                            android:maxLines="1"
+                            android:ellipsize="end"
                             android:textSize="11sp" />
 
                         <TextView
@@ -114,8 +124,11 @@
                             android:paddingLeft="7.5dp"
                             android:paddingRight="7.5dp"
                             android:paddingTop="3dp"
-                            android:text="IT丨互联网"
+                            android:text="暂无数据"
                             android:textColor="@color/text_color_yellow"
+                            android:maxEms="5"
+                            android:maxLines="1"
+                            android:ellipsize="end"
                             android:textSize="11sp" />
 
                     </LinearLayout>

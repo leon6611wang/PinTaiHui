@@ -59,6 +59,9 @@ public class AddressRecyclerAdapter extends RecyclerView.Adapter<AddressRecycler
                 case 2:
                     FailureToast.getInstance(adapter.context).show();
                     break;
+                case 99:
+                    MessageToast.getInstance(adapter.context).show("服务器内部错误，请稍后再试.");
+                    break;
             }
         }
     }
@@ -163,14 +166,12 @@ public class AddressRecyclerAdapter extends RecyclerView.Adapter<AddressRecycler
                 baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
-                System.out.println("deleteAddress: " + result);
             }
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                Message message = myHandler.obtainMessage(1);
+                Message message = myHandler.obtainMessage(99);
                 message.sendToTarget();
-                System.out.println("deleteAddress: " + ex.toString().trim());
 
             }
 

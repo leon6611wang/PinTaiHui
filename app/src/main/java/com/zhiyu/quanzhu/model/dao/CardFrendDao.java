@@ -52,7 +52,6 @@ public class CardFrendDao {
         letterList.add("x");
         letterList.add("y");
         letterList.add("z");
-
     }
 
     public void saveCardFendList(List<CardFrend> list) {
@@ -62,7 +61,7 @@ public class CardFrendDao {
                 if (frend.getId() > 0) {
                     String name = StringUtils.isNullOrEmpty(frend.getNotename()) ? frend.getCard_name() : frend.getNotename();
                     String firstChar = FirstCharUtils.first(name);
-                    System.out.println("firstChar: " + firstChar);
+//                    System.out.println("firstChar: " + firstChar);
                     frend.setLetter(firstChar);
                     try {
                         BaseApplication.db.saveBindingId(frend);

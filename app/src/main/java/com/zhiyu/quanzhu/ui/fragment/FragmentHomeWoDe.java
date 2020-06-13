@@ -13,7 +13,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.leon.chic.utils.SPUtils;
 import com.zhiyu.quanzhu.R;
+import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.model.bean.MyCircle;
 import com.zhiyu.quanzhu.model.bean.OrderDelivery;
 import com.zhiyu.quanzhu.model.result.OrderDeliveryResult;
@@ -21,6 +23,7 @@ import com.zhiyu.quanzhu.model.result.UserResult;
 import com.zhiyu.quanzhu.ui.activity.BuyVIPActivity;
 import com.zhiyu.quanzhu.ui.activity.CartActivity;
 import com.zhiyu.quanzhu.ui.activity.ContactCustomerServiceActivity;
+import com.zhiyu.quanzhu.ui.activity.CreateCircleActivity;
 import com.zhiyu.quanzhu.ui.activity.CreateShopActivity;
 import com.zhiyu.quanzhu.ui.activity.MyCollectionActivity;
 import com.zhiyu.quanzhu.ui.activity.MyProfileActivity;
@@ -34,8 +37,12 @@ import com.zhiyu.quanzhu.ui.activity.SystemSettingActivity;
 import com.zhiyu.quanzhu.ui.activity.MemberCenterActivity;
 import com.zhiyu.quanzhu.ui.activity.MyCouponActivity;
 import com.zhiyu.quanzhu.ui.activity.MyFootprintActivity;
+import com.zhiyu.quanzhu.ui.activity.UserVertifyActivity;
 import com.zhiyu.quanzhu.ui.dialog.CircleSelectDialog;
 import com.zhiyu.quanzhu.ui.dialog.DeliveryInfoDialog;
+import com.zhiyu.quanzhu.ui.dialog.RegTokenDialog;
+import com.zhiyu.quanzhu.ui.dialog.YNDialog;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.CircleImageView;
 import com.zhiyu.quanzhu.ui.widget.NiceImageView;
 import com.zhiyu.quanzhu.ui.widget.VerticalMarqueeLayout;
@@ -61,12 +68,14 @@ public class FragmentHomeWoDe extends Fragment implements View.OnClickListener {
     private View fangkeYuanDian, pinglunYuanDian;
     private TextView quanbudingdanTextView, daifukuanTextView, daifahuoTextView, daishouhuoTextView, daipingjiaTextView, tuihuanhuoTextView,
             userNameTextView, pingxinzhiTextView, pingjifenTextView;
-    private TextView feedCountTextView, fansCountTextView, followCountTextView, priseCountTextView,deliveryTimeTextView;
+    private TextView feedCountTextView, fansCountTextView, followCountTextView, priseCountTextView, deliveryTimeTextView, regTokenTextView;
     private CircleImageView headerImageView;
     private ImageView gouwucheImageView, shezhiImageView;
     private VerticalMarqueeLayout deliveryLayout;
     private DeliveryInfoDialog deliveryInfoDialog;
     private CircleSelectDialog circleSelectDialog;
+    private YNDialog ynDialog;
+    private RegTokenDialog regTokenDialog;
     private MyHandler myHandler = new MyHandler(this);
 
     private static class MyHandler extends Handler {
@@ -81,58 +90,63 @@ public class FragmentHomeWoDe extends Fragment implements View.OnClickListener {
             FragmentHomeWoDe fragment = fragmentHomeWoDeWeakReference.get();
             switch (msg.what) {
                 case 1:
-                    if (null != fragment.getContext())
-                        Glide.with(fragment.getContext()).load(fragment.userResult.getData().getUser().getAvatar()).error(R.mipmap.no_avatar).into(fragment.headerImageView);
-                    fragment.userNameTextView.setText(fragment.userResult.getData().getUser().getUsername());
-                    fragment.pingxinzhiTextView.setText("苹信值 " + String.valueOf(fragment.userResult.getData().getUser().getScore()));
-                    fragment.pingjifenTextView.setText("圈积分 " + String.valueOf(fragment.userResult.getData().getUser().getCredit()));
-                    fragment.feedCountTextView.setText(String.valueOf(fragment.userResult.getData().getUser().getFeeds_count()));
-                    fragment.fansCountTextView.setText(String.valueOf(fragment.userResult.getData().getUser().getFriends_count()));
-                    fragment.followCountTextView.setText(String.valueOf(fragment.userResult.getData().getUser().getFollow_count()));
-                    fragment.priseCountTextView.setText(String.valueOf(fragment.userResult.getData().getUser().getPrise_count()));
-                    if (fragment.userResult.getData().getUser().getOrder_pay() > 0) {
-                        fragment.daifukuanTextView.setVisibility(View.VISIBLE);
-                        fragment.daifukuanTextView.setText(String.valueOf(fragment.userResult.getData().getUser().getOrder_pay()));
-                    } else {
-                        fragment.daifukuanTextView.setVisibility(View.GONE);
+                    if (null != fragment.userResult && null != fragment.userResult.getData() && null != fragment.userResult.getData().getUser()) {
+                        if (null != fragment.getContext())
+                            Glide.with(fragment.getContext()).load(fragment.userResult.getData().getUser().getAvatar()).error(R.mipmap.no_avatar).into(fragment.headerImageView);
+                        fragment.userNameTextView.setText(fragment.userResult.getData().getUser().getUsername());
+//                        fragment.pingxinzhiTextView.setText("苹信值 " + String.valueOf(fragment.userResult.getData().getUser().getScore()));
+                        fragment.pingjifenTextView.setText("圈积分 " + String.valueOf(fragment.userResult.getData().getUser().getCredit()));
+                        fragment.feedCountTextView.setText(String.valueOf(fragment.userResult.getData().getUser().getFeeds_count()));
+                        fragment.fansCountTextView.setText(String.valueOf(fragment.userResult.getData().getUser().getFriends_count()));
+                        fragment.followCountTextView.setText(String.valueOf(fragment.userResult.getData().getUser().getFollow_count()));
+                        fragment.priseCountTextView.setText(String.valueOf(fragment.userResult.getData().getUser().getPrise_count()));
+                        if (fragment.userResult.getData().getUser().getOrder_pay() > 0) {
+                            fragment.daifukuanTextView.setVisibility(View.VISIBLE);
+                            fragment.daifukuanTextView.setText(String.valueOf(fragment.userResult.getData().getUser().getOrder_pay()));
+                        } else {
+                            fragment.daifukuanTextView.setVisibility(View.GONE);
+                        }
+                        if (fragment.userResult.getData().getUser().getOrder_send() > 0) {
+                            fragment.daifahuoTextView.setVisibility(View.VISIBLE);
+                            fragment.daifahuoTextView.setText(String.valueOf(fragment.userResult.getData().getUser().getOrder_send()));
+                        } else {
+                            fragment.daifahuoTextView.setVisibility(View.GONE);
+                        }
+                        if (fragment.userResult.getData().getUser().getOrder_revice() > 0) {
+                            fragment.daishouhuoTextView.setVisibility(View.VISIBLE);
+                            fragment.daishouhuoTextView.setText(String.valueOf(fragment.userResult.getData().getUser().getOrder_revice()));
+                        } else {
+                            fragment.daishouhuoTextView.setVisibility(View.GONE);
+                        }
+                        if (fragment.userResult.getData().getUser().getOrder_comment() > 0) {
+                            fragment.daipingjiaTextView.setVisibility(View.VISIBLE);
+                            fragment.daipingjiaTextView.setText(String.valueOf(fragment.userResult.getData().getUser().getOrder_comment()));
+                        } else {
+                            fragment.daipingjiaTextView.setVisibility(View.GONE);
+                        }
+                        if (fragment.userResult.getData().getUser().getOrder_back() > 0) {
+                            fragment.tuihuanhuoTextView.setVisibility(View.VISIBLE);
+                            fragment.tuihuanhuoTextView.setText(String.valueOf(fragment.userResult.getData().getUser().getOrder_back()));
+                        } else {
+                            fragment.tuihuanhuoTextView.setVisibility(View.GONE);
+                        }
+                        if (fragment.userResult.getData().getUser().isComment_status()) {
+                            fragment.pinglunYuanDian.setVisibility(View.VISIBLE);
+                        } else {
+                            fragment.pinglunYuanDian.setVisibility(View.GONE);
+                        }
+                        if (fragment.userResult.getData().getUser().isCards_status()) {
+                            fragment.fangkeYuanDian.setVisibility(View.VISIBLE);
+                        } else {
+                            fragment.fangkeYuanDian.setVisibility(View.GONE);
+                        }
                     }
-                    if (fragment.userResult.getData().getUser().getOrder_send() > 0) {
-                        fragment.daifahuoTextView.setVisibility(View.VISIBLE);
-                        fragment.daifahuoTextView.setText(String.valueOf(fragment.userResult.getData().getUser().getOrder_send()));
-                    } else {
-                        fragment.daifahuoTextView.setVisibility(View.GONE);
-                    }
-                    if (fragment.userResult.getData().getUser().getOrder_revice() > 0) {
-                        fragment.daishouhuoTextView.setVisibility(View.VISIBLE);
-                        fragment.daishouhuoTextView.setText(String.valueOf(fragment.userResult.getData().getUser().getOrder_revice()));
-                    } else {
-                        fragment.daishouhuoTextView.setVisibility(View.GONE);
-                    }
-                    if (fragment.userResult.getData().getUser().getOrder_comment() > 0) {
-                        fragment.daipingjiaTextView.setVisibility(View.VISIBLE);
-                        fragment.daipingjiaTextView.setText(String.valueOf(fragment.userResult.getData().getUser().getOrder_comment()));
-                    } else {
-                        fragment.daipingjiaTextView.setVisibility(View.GONE);
-                    }
-                    if (fragment.userResult.getData().getUser().getOrder_back() > 0) {
-                        fragment.tuihuanhuoTextView.setVisibility(View.VISIBLE);
-                        fragment.tuihuanhuoTextView.setText(String.valueOf(fragment.userResult.getData().getUser().getOrder_back()));
-                    } else {
-                        fragment.tuihuanhuoTextView.setVisibility(View.GONE);
-                    }
-                    if (fragment.userResult.getData().getUser().isComment_status()) {
-                        fragment.pinglunYuanDian.setVisibility(View.VISIBLE);
-                    } else {
-                        fragment.pinglunYuanDian.setVisibility(View.GONE);
-                    }
-                    if (fragment.userResult.getData().getUser().isCards_status()) {
-                        fragment.fangkeYuanDian.setVisibility(View.VISIBLE);
-                    } else {
-                        fragment.fangkeYuanDian.setVisibility(View.GONE);
-                    }
+
                     break;
                 case 2:
-                    if (fragment.deliveryResult.getCode() == 200)
+                    if (null != fragment.deliveryResult && fragment.deliveryResult.getCode() == 200 &&
+                            null != fragment.deliveryResult.getData() && null != fragment.deliveryResult.getData().getList() &&
+                            fragment.deliveryResult.getData().getList().size() > 0)
                         fragment.initDelivery();
                     break;
             }
@@ -176,12 +190,30 @@ public class FragmentHomeWoDe extends Fragment implements View.OnClickListener {
     private void initDialogs() {
         deliveryInfoDialog = new DeliveryInfoDialog(getActivity(), R.style.dialog);
 
-        circleSelectDialog = new CircleSelectDialog(getContext(), R.style.dialog, new CircleSelectDialog.OnCircleSeletedListener() {
+        circleSelectDialog = new CircleSelectDialog(getContext(), R.style.dialog, 1, new CircleSelectDialog.OnCircleSeletedListener() {
             @Override
             public void onCircleSelected(MyCircle circle) {
-                Intent createShopIntent = new Intent(getActivity(), CreateShopActivity.class);
-                createShopIntent.putExtra("circle_id", circle.getId());
-                startActivity(createShopIntent);
+                if (null != circle) {
+                    Intent createShopIntent = new Intent(getActivity(), CreateShopActivity.class);
+                    createShopIntent.putExtra("circle_id", circle.getId());
+                    startActivity(createShopIntent);
+                }
+
+            }
+        });
+        regTokenDialog = new RegTokenDialog(getContext(), R.style.dialog);
+        ynDialog = new YNDialog(getContext(), R.style.dialog, new YNDialog.OnYNListener() {
+            @Override
+            public void onConfirm() {
+                if (!userResult.getData().getUser().isIs_rz()) {
+                    Intent intent=new Intent(getContext(), UserVertifyActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    getContext().startActivity(intent);
+                } else if (!userResult.getData().getUser().isHas_circle()) {
+                    Intent intent=new Intent(getContext(), CreateCircleActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    getContext().startActivity(intent);
+                }
             }
         });
     }
@@ -192,6 +224,8 @@ public class FragmentHomeWoDe extends Fragment implements View.OnClickListener {
         userNameTextView = view.findViewById(R.id.userNameTextView);
         pingxinzhiTextView = view.findViewById(R.id.pingxinzhiTextView);
         pingjifenTextView = view.findViewById(R.id.pingjifenTextView);
+        regTokenTextView = view.findViewById(R.id.regTokenTextView);
+        regTokenTextView.setOnClickListener(this);
         gouwucheImageView = view.findViewById(R.id.gouwucheImageView);
         feedCountTextView = view.findViewById(R.id.feedCountTextView);
         fansCountTextView = view.findViewById(R.id.fansCountTextView);
@@ -258,8 +292,7 @@ public class FragmentHomeWoDe extends Fragment implements View.OnClickListener {
         gongnenglayout.setOnClickListener(this);
         wuliulayout = view.findViewById(R.id.wuliulayout);
         deliveryLayout = view.findViewById(R.id.deliveryLayout);
-        deliveryTimeTextView=view.findViewById(R.id.deliveryTimeTextView);
-
+        deliveryTimeTextView = view.findViewById(R.id.deliveryTimeTextView);
     }
 
     private void initDelivery() {
@@ -289,8 +322,9 @@ public class FragmentHomeWoDe extends Fragment implements View.OnClickListener {
         NiceImageView orderImageView = view.findViewById(R.id.orderImageView);
         TextView statusDescTextView = view.findViewById(R.id.statusDescTextView);
         TextView deliveryContextTextView = view.findViewById(R.id.deliveryContextTextView);
-        LinearLayout deliveryRootLayut=view.findViewById(R.id.deliveryRootLayut);
-        Glide.with(getContext()).load(deliveryList.get(position).getThumb()).error(R.drawable.image_error).into(orderImageView);
+        LinearLayout deliveryRootLayut = view.findViewById(R.id.deliveryRootLayut);
+        Glide.with(getContext()).load(deliveryList.get(position).getThumb()).error(R.drawable.image_error).placeholder(R.drawable.image_error)
+                .fallback(R.drawable.image_error).into(orderImageView);
         statusDescTextView.setText(deliveryList.get(position).getStatus_desc());
         deliveryContextTextView.setText(deliveryList.get(position).getNewDelivery().getContext());
         deliveryRootLayut.setOnClickListener(new View.OnClickListener() {
@@ -405,7 +439,18 @@ public class FragmentHomeWoDe extends Fragment implements View.OnClickListener {
                 startActivity(qiandaoIntent);
                 break;
             case R.id.dianpulayout:
-                circleSelectDialog.show();
+                if (userResult.getData().getUser().isIs_rz()) {
+                    if (userResult.getData().getUser().isHas_circle()) {
+                        circleSelectDialog.show();
+                    } else {
+                        ynDialog.show();
+                        ynDialog.setTitle("您还未创建圈子，是否立即创建圈子？");
+                    }
+
+                } else {
+                    ynDialog.show();
+                    ynDialog.setTitle("您还未通过认证，是否立即实名认证？");
+                }
                 break;
             case R.id.shangwulayout:
 
@@ -421,6 +466,10 @@ public class FragmentHomeWoDe extends Fragment implements View.OnClickListener {
                 Intent vipIntent = new Intent(getActivity(), BuyVIPActivity.class);
                 startActivity(vipIntent);
                 break;
+            case R.id.regTokenTextView:
+                regTokenDialog.show();
+                regTokenDialog.setRegTokenData(userResult.getData().getUser().getRegtoken(), userResult.getData().getUser().getSharetxt(), null);
+                break;
         }
     }
 
@@ -431,15 +480,16 @@ public class FragmentHomeWoDe extends Fragment implements View.OnClickListener {
      * 首页个人中心
      */
     private void userHome() {
+        final String t1 = SPUtils.getInstance().getUserToken(BaseApplication.applicationContext);
         RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.USER_HOME);
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-//                System.out.println("userHome: " + result);
+                System.out.println("userHome: " + result);
                 userResult = GsonUtils.GsonToBean(result, UserResult.class);
+                String t2 = userResult.getToken();
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
-//                System.out.println("--------> userHome: " + userResult.getData().getUser().getUsername());
             }
 
             @Override

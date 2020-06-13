@@ -1,6 +1,8 @@
 package com.zhiyu.quanzhu.ui.adapter;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -13,9 +15,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.CartGoods;
+import com.zhiyu.quanzhu.model.bean.GoodsNorm;
+import com.zhiyu.quanzhu.ui.dialog.CartGoodsNormsDialog;
 import com.zhiyu.quanzhu.ui.dialog.CartGoodsNormsSelectDialog;
 import com.zhiyu.quanzhu.ui.dialog.GoodsNormsDialog;
 import com.zhiyu.quanzhu.ui.toast.MessageToast;
@@ -29,17 +34,78 @@ import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
 import org.xutils.x;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 public class CartAvailableGoodsRecyclerAdapter extends RecyclerView.Adapter<CartAvailableGoodsRecyclerAdapter.ViewHolder> {
     private List<CartGoods> list;
     private Context context;
     private int itemIndex;
-    private CartGoodsNormsSelectDialog cartGoodsNormsSelectDialog;
+    private boolean manage;
+    private MyHandler myHandler = new MyHandler(this);
+
+    private static class MyHandler extends Handler {
+        WeakReference<CartAvailableGoodsRecyclerAdapter> weakReference;
+
+        public MyHandler(CartAvailableGoodsRecyclerAdapter adapter) {
+            weakReference = new WeakReference<>(adapter);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            CartAvailableGoodsRecyclerAdapter adapter = weakReference.get();
+            switch (msg.what) {
+                case 1:
+                    if (200 == adapter.baseResult.getCode()) {
+                        if (null != adapter.onChangeNormsListener) {
+                            adapter.onChangeNormsListener.onChangeNorms();
+                        }
+                    } else {
+                        MessageToast.getInstance(adapter.context).show(adapter.baseResult.getMsg());
+                    }
+                    break;
+                case 99:
+                    MessageToast.getInstance(adapter.context).show("服务器内部错误，请稍后再试.");
+                    break;
+            }
+        }
+    }
+
+    public void setManage(boolean isManage) {
+        this.manage = isManage;
+        notifyDataSetChanged();
+    }
+
+    private CartGoodsNormsDialog cartGoodsNormsSelectDialog;
 
     public CartAvailableGoodsRecyclerAdapter(Context context) {
         this.context = context;
-        cartGoodsNormsSelectDialog = new CartGoodsNormsSelectDialog(context, R.style.dialog);
+        cartGoodsNormsSelectDialog = new CartGoodsNormsDialog(context, R.style.dialog, new CartGoodsNormsDialog.OnGoodsNormsSelectedListener() {
+            @Override
+            public void onGoodsNormsSelected(String norms_name, String norms_id, int position, int goodsCount) {
+                list.get(position).setNorms_id(norms_id);
+                list.get(position).setNorms_name(norms_name);
+                list.get(position).setCurrentNum(goodsCount);
+                list.get(position).setNum(goodsCount);
+                notifyDataSetChanged();
+                editCartGoods(position);
+
+            }
+        });
+    }
+
+    private OnChangeNormsListener onChangeNormsListener;
+
+    public void setOnChangeNormsListener(OnChangeNormsListener listener) {
+        this.onChangeNormsListener = listener;
+    }
+
+    public interface OnChangeNormsListener {
+        void onChangeNorms();
+    }
+
+    public List<CartGoods> getList() {
+        return list;
     }
 
     public void setData(List<CartGoods> gouWuCheItemItemList, int index) {
@@ -79,26 +145,32 @@ public class CartAvailableGoodsRecyclerAdapter extends RecyclerView.Adapter<Cart
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         if (list.get(position).isSelected()) {
             holder.itemItemSelectedImageView.setImageDrawable(context.getDrawable(R.mipmap.gouwuche_selected));
         } else {
             holder.itemItemSelectedImageView.setImageDrawable(context.getDrawable(R.mipmap.gouwuche_unselect));
         }
         holder.itemItemSelectedLayout.setOnClickListener(new OnItemItemSelectedListener(position, holder.numberTextView));
-
         holder.jianTextView.setOnClickListener(new OnJianClickListener(position, holder.numberTextView, holder.jianTextView, holder.jiaTextView));
         holder.jiaTextView.setOnClickListener(new OnJiaClickListener(position, holder.numberTextView, holder.jianTextView, holder.jiaTextView));
         Glide.with(context).load(list.get(position).getImg())
-                .error(R.mipmap.img_error)
+                .error(R.drawable.image_error)
                 .into(holder.goodsImgImageView);
-        holder.goodsNameTextView.setText(list.get(position).getGoods_name());
-        holder.goodsNormsTextView.setText(list.get(position).getNorms_name());
+        if (!StringUtils.isNullOrEmpty(list.get(position).getGoods_name()))
+            holder.goodsNameTextView.setText(list.get(position).getGoods_name());
+        if (!StringUtils.isNullOrEmpty(list.get(position).getNorms_name())) {
+            holder.goodsNormsTextView.setText(list.get(position).getNorms_name());
+            holder.goodsNormsTextView.setVisibility(View.VISIBLE);
+        } else {
+            holder.goodsNormsTextView.setVisibility(View.INVISIBLE);
+        }
+
         holder.goodsNormsTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 cartGoodsNormsSelectDialog.show();
-                cartGoodsNormsSelectDialog.setGoods(list.get(position));
+                cartGoodsNormsSelectDialog.setGoods(list.get(position), position);
             }
         });
         holder.zhengshuPriceTextView.setText(PriceParseUtils.getInstance().getZhengShu(list.get(position).getPrice()));
@@ -136,17 +208,30 @@ public class CartAvailableGoodsRecyclerAdapter extends RecyclerView.Adapter<Cart
             String numberstr = numberTextView.getText().toString().trim();
             if (!TextUtils.isEmpty(numberstr))
                 currentNumber = Integer.parseInt(numberstr);
-            if (list.get(position).getStock() == 0 || list.get(position).getStock() < currentNumber) {
-                MessageToast.getInstance(context).show("库存不足，无法选定");
-            } else {
+            if (manage) {
                 boolean selected = list.get(position).isSelected();
-                list.get(position).setSelected(!selected);
+                System.out.println("selected: " + selected);
+                list.get(position).setSelected(!selected, true);
+                System.out.println("管理模式，可选: itemIndex: " + itemIndex + " , position: " + position + " , selected: " + list.get(position).isSelected());
                 notifyDataSetChanged();
+//                notifyItemChanged(position);
                 if (null != onItemItemSelected) {
-                    onItemItemSelected.onItemItemSelected(itemIndex, position, !selected);
+                    onItemItemSelected.onItemItemSelected(itemIndex, position, list.get(position).isSelected(), true);
+                }
+            } else {
+                System.out.println("结算模式");
+                if (list.get(position).getStock() == 0 || list.get(position).getStock() < currentNumber) {
+                    MessageToast.getInstance(context).show("库存不足，无法选定");
+                } else {
+                    boolean selected = list.get(position).isSelected();
+                    list.get(position).setSelected(!selected, false);
+                    notifyDataSetChanged();
+//                    notifyItemChanged(position);
+                    if (null != onItemItemSelected) {
+                        onItemItemSelected.onItemItemSelected(itemIndex, position, list.get(position).isSelected(), false);
+                    }
                 }
             }
-
         }
     }
 
@@ -238,14 +323,27 @@ public class CartAvailableGoodsRecyclerAdapter extends RecyclerView.Adapter<Cart
     }
 
     public interface OnItemItemSelected {
-        void onItemItemSelected(int parentPosition, int childPosition, boolean selected);
+        void onItemItemSelected(int parentPosition, int childPosition, boolean selected, boolean isManage);
+    }
+
+    private OnGoodsNumChangeListener onGoodsNumChangeListener;
+
+    public void setOnGoodsNumChangeListener(OnGoodsNumChangeListener listener) {
+        this.onGoodsNumChangeListener = listener;
+    }
+
+    public interface OnGoodsNumChangeListener {
+        void onGoodsNumChange();
     }
 
     private BaseResult baseResult;
 
     //更改购物车商品
     private void editCartGoods(int position) {
-
+        if (null != onGoodsNumChangeListener) {
+            onGoodsNumChangeListener.onGoodsNumChange();
+        }
+        System.out.println("id: " + list.get(position).getId() + " , norms_id: " + list.get(position).getNorms_id() + " , num: " + list.get(position).getCurrentNum());
         RequestParams params = MyRequestParams.getInstance(context).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.CART_GOODS_EDIT);
         params.addBodyParameter("id", String.valueOf(list.get(position).getId()));
         params.addBodyParameter("norms_id", list.get(position).getNorms_id());
@@ -253,13 +351,15 @@ public class CartAvailableGoodsRecyclerAdapter extends RecyclerView.Adapter<Cart
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("edit cart goods: " + result);
                 baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
-                System.out.println("edit cart goods: " + baseResult.getMsg());
+                Message message = myHandler.obtainMessage(1);
+                message.sendToTarget();
             }
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
                 System.out.println("edit cart goods: " + ex.toString());
             }
 

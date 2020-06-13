@@ -34,8 +34,10 @@ public class MyPublishOperatDialog extends Dialog implements View.OnClickListene
         this.isPublish = is_publish;
         if (isPublish) {
             upLayout.setVisibility(View.GONE);
+            downLayout.setVisibility(View.VISIBLE);
         } else {
             upLayout.setVisibility(View.VISIBLE);
+            downLayout.setVisibility(View.GONE);
         }
         switch (type) {
             case 1:

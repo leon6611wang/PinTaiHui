@@ -10,8 +10,10 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.leon.chic.utils.SPUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseActivity;
+import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.model.bean.Feed;
 import com.zhiyu.quanzhu.model.result.FeedResult;
 import com.zhiyu.quanzhu.ui.adapter.MyPublishListAdapter;
@@ -39,8 +41,8 @@ import in.srain.cube.views.ptr.PtrFrameLayout;
  * 我的发布列表
  */
 public class MyPublishListActivity extends BaseActivity implements View.OnClickListener {
-    private LinearLayout backLayout,rightLayout;
-    private TextView titleTextView,rightTextView;
+    private LinearLayout backLayout, rightLayout;
+    private TextView titleTextView, rightTextView;
     private PtrFrameLayout ptrFrameLayout;
     private RecyclerView recyclerView;
     private MyPublishListAdapter adapter;
@@ -80,9 +82,9 @@ public class MyPublishListActivity extends BaseActivity implements View.OnClickL
         backLayout.setOnClickListener(this);
         titleTextView = findViewById(R.id.titleTextView);
         titleTextView.setText("我的发布");
-        rightLayout=findViewById(R.id.rightLayout);
+        rightLayout = findViewById(R.id.rightLayout);
         rightLayout.setOnClickListener(this);
-        rightTextView=findViewById(R.id.rightTextView);
+        rightTextView = findViewById(R.id.rightTextView);
         rightTextView.setText("草稿箱");
         recyclerView = findViewById(R.id.recyclerView);
         adapter = new MyPublishListAdapter(this, this);
@@ -93,13 +95,25 @@ public class MyPublishListActivity extends BaseActivity implements View.OnClickL
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        adapter.setStopVideo(false);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        adapter.setStopVideo(true);
+    }
+
+    @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.backLayout:
                 finish();
                 break;
             case R.id.rightLayout:
-                Intent draftIntent=new Intent(this,DraftsActivity.class);
+                Intent draftIntent = new Intent(this, DraftsActivity.class);
                 startActivity(draftIntent);
                 break;
         }
@@ -137,7 +151,7 @@ public class MyPublishListActivity extends BaseActivity implements View.OnClickL
 
     private void myPublishList() {
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.USER_DONG_TAI_LIST);
-        params.addBodyParameter("uid", SharedPreferencesUtils.getInstance(this).getUserId());
+        params.addBodyParameter("uid", String.valueOf(SPUtils.getInstance().getUserId(BaseApplication.applicationContext)));
         params.addBodyParameter("page", String.valueOf(page));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
@@ -171,4 +185,9 @@ public class MyPublishListActivity extends BaseActivity implements View.OnClickL
         });
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        adapter.setQQShareResult(requestCode, resultCode, data);
+    }
 }

@@ -65,7 +65,8 @@ public class PointGoodsOrderConfirmActivity extends BaseActivity implements View
                         activity.userNameTextView.setText("收货人：" + activity.confirmResult.getData().getAddress().getName());
                         activity.phonenumTextView.setText("电话：" + activity.confirmResult.getData().getAddress().getPhone());
                         activity.addressTextView.setText("地址：" + activity.confirmResult.getData().getAddress().getProvince_name() + " " + activity.confirmResult.getData().getAddress().getCity_name() + " " + activity.confirmResult.getData().getAddress().getAddress());
-                        Glide.with(activity).load(activity.confirmResult.getData().getThumb()).error(R.drawable.image_error).into(activity.goodsImageImageView);
+                        Glide.with(activity).load(activity.confirmResult.getData().getThumb()).error(R.drawable.image_error) .placeholder(R.drawable.image_error)
+                                .fallback(R.drawable.image_error).into(activity.goodsImageImageView);
                         activity.goodsNameTextView.setText(activity.confirmResult.getData().getGoods_name());
                         activity.pointTextView1.setText(String.valueOf(activity.confirmResult.getData().getNeed_inegral()));
                         activity.pointTextView2.setText(String.valueOf(activity.confirmResult.getData().getNeed_inegral()));

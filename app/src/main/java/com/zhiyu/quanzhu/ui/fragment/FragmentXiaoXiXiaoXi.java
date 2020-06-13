@@ -11,14 +11,20 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.leon.chic.utils.SPUtils;
+import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
+import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.model.bean.MyConversation;
 import com.zhiyu.quanzhu.model.dao.ConversationDao;
 import com.zhiyu.quanzhu.ui.adapter.XiaoXiXiaoXiListAdapter;
 import com.zhiyu.quanzhu.ui.dialog.MessageMenuUpDialog;
+import com.zhiyu.quanzhu.utils.BaseDataUtils;
+import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.SharedPreferencesUtils;
 
 import java.lang.ref.WeakReference;
@@ -26,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.rong.imkit.RongIM;
+import io.rong.imkit.manager.IUnReadMessageObserver;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
@@ -35,6 +42,7 @@ import io.rong.message.TextMessage;
 public class FragmentXiaoXiXiaoXi extends Fragment implements View.OnTouchListener, AdapterView.OnItemClickListener {
     private View view;
     private ListView listView;
+    private LinearLayout emptyLayout;
     private XiaoXiXiaoXiListAdapter adapter;
     private List<MyConversation> list = new ArrayList<>();
     private MessageMenuUpDialog upDialog;
@@ -54,7 +62,14 @@ public class FragmentXiaoXiXiaoXi extends Fragment implements View.OnTouchListen
             FragmentXiaoXiXiaoXi fragment = fragmentXiaoXiXiaoXiWeakReference.get();
             switch (msg.what) {
                 case 1:
-                    fragment.adapter.setList(fragment.list);
+                    if (null != fragment.list && fragment.list.size() > 0) {
+                        fragment.adapter.setList(fragment.list);
+                        fragment.listView.setVisibility(View.VISIBLE);
+                        fragment.emptyLayout.setVisibility(View.GONE);
+                    } else {
+                        fragment.listView.setVisibility(View.VISIBLE);
+                        fragment.emptyLayout.setVisibility(View.GONE);
+                    }
                     break;
             }
         }
@@ -67,8 +82,27 @@ public class FragmentXiaoXiXiaoXi extends Fragment implements View.OnTouchListen
         initViews();
         initDialogs();
 //        initData();
+
         return view;
     }
+
+
+    /**
+     * 未读消息监听回调
+     *
+     * @param i
+     */
+    private IUnReadMessageObserver observer = new IUnReadMessageObserver() {
+        @Override
+        public void onCountChanged(int i) {
+            getConversationList();
+//            System.out.println("未读消息："+i);
+//            LogUtil.e("数量变化s：" + i);
+//            //给首页发送未读消息事件，更新未读消息图标
+//            LeaveMessageBean leaveMessageBean = new LeaveMessageBean(i);
+//            EventBusUtils.post(leaveMessageBean);
+        }
+    };
 
     private void initData() {
         headerPicList.add("http://5b0988e595225.cdn.sohucs.com/q_70,c_zoom,w_640/images/20190518/d38fda99a9654dd2b5b60950a1cb9967.jpeg");
@@ -83,7 +117,7 @@ public class FragmentXiaoXiXiaoXi extends Fragment implements View.OnTouchListen
     }
 
     private void initViews() {
-
+        emptyLayout = view.findViewById(R.id.emptyLayout);
         listView = view.findViewById(R.id.listView);
         adapter = new XiaoXiXiaoXiListAdapter();
         listView.setAdapter(adapter);
@@ -133,10 +167,22 @@ public class FragmentXiaoXiXiaoXi extends Fragment implements View.OnTouchListen
         if (list.size() > 0) {
             list.clear();
         }
+        RongIM.getInstance().addUnReadMessageCountChangedObserver(observer, Conversation.ConversationType.PRIVATE);
         getConversationList();
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        RongIM.getInstance().removeUnReadMessageCountChangedObserver(observer);
+    }
+
+    private List<Integer> conversationUserIdList = new ArrayList<>();
+
     private void getConversationList() {
+        if (null != list) {
+            list.clear();
+        }
         RongIMClient.getInstance().getConversationList(new RongIMClient.ResultCallback<List<Conversation>>() {
             @Override
             public void onSuccess(List<Conversation> conversations) {
@@ -147,12 +193,23 @@ public class FragmentXiaoXiXiaoXi extends Fragment implements View.OnTouchListen
                         if (conversation.getConversationType().getName().toLowerCase().equals(SharedPreferencesUtils.IM_PRIVATE)) {
                             myConversation.setType(conversation.getConversationType().getName().toLowerCase());
                             myConversation.setTop(conversation.isTop());
-                            System.out.println("senderId: " + conversation.getSenderUserId() + " , targetId: " + conversation.getTargetId());
-                            if (SharedPreferencesUtils.getInstance(getContext()).getUserId().equals(conversation.getSenderUserId())) {
+                            myConversation.setUnreadCount(conversation.getUnreadMessageCount());
+//                            System.out.println("senderId: " + conversation.getSenderUserId() + " , targetId: " + conversation.getTargetId());
+                            if (String.valueOf(SPUtils.getInstance().getUserId(BaseApplication.applicationContext)).equals(conversation.getSenderUserId())) {
                                 myConversation.setUserId(conversation.getTargetId());
                             } else {
                                 myConversation.setUserId(conversation.getSenderUserId());
                             }
+//                            String lastUserId = "";
+//                            if (null != conversation && null != conversation.getLatestMessage() && null != conversation.getLatestMessage().getUserInfo()) {
+//                                lastUserId = conversation.getLatestMessage().getUserInfo().getUserId();
+//                            } else {
+//                                lastUserId = String.valueOf(SPUtils.getInstance().getUserId(BaseApplication.applicationContext));
+//                            }
+//                            myConversation.setUserId(lastUserId);
+//                            System.out.println("userId: " + myConversation.getUserId());
+                            if (!StringUtils.isNullOrEmpty(myConversation.getUserId()))
+                                conversationUserIdList.add(Integer.parseInt(myConversation.getUserId()));
 //                            System.out.println(ConversationDao.getDao(getContext()).selectById(myConversation.getUserId()).getUser_name());
                             myConversation.setUserName(ConversationDao.getDao(getContext()).selectById(myConversation.getUserId()).getUser_name());
                             myConversation.setHeaderPic(ConversationDao.getDao(getContext()).selectById(myConversation.getUserId()).getHeader_pic());
@@ -173,8 +230,8 @@ public class FragmentXiaoXiXiaoXi extends Fragment implements View.OnTouchListen
 
                                 }
                             });
-
                             list.add(myConversation);
+                            BaseDataUtils.getInstance().initIMConversation(GsonUtils.GsonString(conversationUserIdList));
                         }
 
                     }
@@ -194,16 +251,15 @@ public class FragmentXiaoXiXiaoXi extends Fragment implements View.OnTouchListen
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         RongIM.getInstance().setMessageAttachedUserInfo(true);
         SharedPreferencesUtils.getInstance(getContext()).setConversationType(Conversation.ConversationType.PRIVATE.getName().toLowerCase());
-
-        System.out.println("userId:" + list.get(position).getUserId() + " , userName: " + (TextUtils.isEmpty(list.get(position).getUserName()) ? "聊天界面" : list.get(position).getUserName()));
+//        System.out.println("userId:" + list.get(position).getUserId() + " , userName: " + (TextUtils.isEmpty(list.get(position).getUserName()) ? "聊天界面" : list.get(position).getUserName()));
         try {
             RongIM.getInstance().startPrivateChat(getActivity(), list.get(position).getUserId(),
-                TextUtils.isEmpty(list.get(position).getUserName()) ? "聊天界面" : list.get(position).getUserName());
+                    TextUtils.isEmpty(list.get(position).getUserName()) ? "聊天界面" : list.get(position).getUserName());
 
-//            RongIM.getInstance().startConversation(getContext(), Conversation.ConversationType.PRIVATE, list.get(position).getUserId(), list.get(position).getUserName());
+//            RongIM.getInstance().startConversation(getContext(), Conversation.ConversationType.PRIVATE, list.get(position).getUserId(), list.get(position).getUser_name());
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(getContext(),"无法进入会话界面",Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "无法进入会话界面", Toast.LENGTH_SHORT).show();
         }
     }
 }

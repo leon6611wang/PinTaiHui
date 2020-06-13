@@ -16,6 +16,7 @@ import com.zhiyu.quanzhu.ui.adapter.QuanShangFenLeiRecyclerViewLeftAdapter;
 import com.zhiyu.quanzhu.ui.adapter.QuanShangFenLeiRecyclerViewRightAdapter;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
+import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 
 import org.xutils.common.Callback;
@@ -108,7 +109,7 @@ public class MallGoodsTypeActivity extends BaseActivity implements View.OnClickL
      * 商城商品分类
      */
     private void mallGoodsFenLei() {
-        RequestParams params = new RequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.MALL_GOODS_FENLEI);
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.MALL_GOODS_FENLEI);
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
@@ -140,7 +141,7 @@ public class MallGoodsTypeActivity extends BaseActivity implements View.OnClickL
      * 子类
      */
     private void mallGoodsChildFenLei(long id) {
-        RequestParams params = new RequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.MALL_GOODS_CHILD_FENLEI);
+        RequestParams params =MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.MALL_GOODS_CHILD_FENLEI);
         params.addBodyParameter("id", String.valueOf(id));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override

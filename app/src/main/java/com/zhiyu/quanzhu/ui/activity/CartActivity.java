@@ -24,6 +24,7 @@ import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
+import com.zhiyu.quanzhu.utils.PriceParseUtils;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 
 import org.xutils.common.Callback;
@@ -40,7 +41,7 @@ import io.vov.vitamio.utils.Log;
 /**
  * 购物车
  */
-public class CartActivity extends BaseActivity implements View.OnClickListener {
+public class CartActivity extends BaseActivity implements View.OnClickListener, CartAvailableFragment.OnAvailableGoodsSelectListener {
     private LinearLayout backLayout, rightLayout, availableLayout, invalidLayout;
     private TextView invalidTextView, availabelTextView, rightTextView;
     private View availableLineView, invalidLineView;
@@ -118,6 +119,7 @@ public class CartActivity extends BaseActivity implements View.OnClickListener {
 
         mViewPager = findViewById(R.id.mViewPager);
         availableFragment = new CartAvailableFragment();
+        availableFragment.setOnAvailableGoodsSelectListener(this);
         invalidFragment = new CartInvalidFragment();
         fragmentList.add(availableFragment);
         fragmentList.add(invalidFragment);
@@ -154,7 +156,18 @@ public class CartActivity extends BaseActivity implements View.OnClickListener {
             case R.id.rightLayout:
                 isManage = !isManage;
                 rightTextView.setText(isManage ? "完成" : "管理");
-                showBottomOperationLayout(isManage ? 1 : 0);
+                switch (mViewPager.getCurrentItem()) {
+                    case 0:
+                        showBottomOperationLayout(isManage ? 1 : 0);
+                        availableFragment.setManage(isManage);
+                        break;
+                    case 1:
+                        showBottomOperationLayout(1);
+                        break;
+                }
+                if(!isManage){
+                    availableFragment.setUnSelected();
+                }
                 break;
             case R.id.availableLayout:
                 barChange(0);
@@ -181,6 +194,7 @@ public class CartActivity extends BaseActivity implements View.OnClickListener {
                         invalidFragment.allSelect(isAllSelected);
                         break;
                 }
+                calculateCartPrice();
                 break;
             case R.id.jiesuanTextView:
                 settlement();
@@ -194,7 +208,7 @@ public class CartActivity extends BaseActivity implements View.OnClickListener {
                             for (int i = 0; i < shopList0.size(); i++) {
                                 for (int j = 0; j < shopList0.get(i).getList().size(); j++) {
                                     if (shopList0.get(i).getList().get(j).isSelected())
-                                        ids += shopList0.get(i).getList().get(j).getGoods_id() + ",";
+                                        ids += shopList0.get(i).getList().get(j).getId() + ",";
                                 }
                             }
                             if (!StringUtils.isNullOrEmpty(ids)) {
@@ -211,7 +225,7 @@ public class CartActivity extends BaseActivity implements View.OnClickListener {
                             for (int i = 0; i < shopList1.size(); i++) {
                                 for (int j = 0; j < shopList1.get(i).getList().size(); j++) {
                                     if (shopList1.get(i).getList().get(j).isSelected())
-                                        ids += shopList1.get(i).getList().get(j).getGoods_id() + ",";
+                                        ids += shopList1.get(i).getList().get(j).getId() + ",";
                                 }
                             }
                             if (!StringUtils.isNullOrEmpty(ids)) {
@@ -224,6 +238,32 @@ public class CartActivity extends BaseActivity implements View.OnClickListener {
                 }
                 break;
         }
+    }
+
+
+    @Override
+    public void onAvailableGoodsSelect() {
+        calculateCartPrice();
+    }
+
+    private void calculateCartPrice() {
+        List<Long> idsList = new ArrayList<>();
+        String ids;
+        long totalPrice = 0;
+        List<CartShop> shopList = availableFragment.getList();
+        for (CartShop shop : shopList) {
+            for (CartGoods goods : shop.getList()) {
+                if (goods.isSelected()) {
+                    idsList.add(goods.getId());
+                    System.out.println("price: " + goods.getPrice() + " , num: " + goods.getCurrentNum());
+                    long price = goods.getPrice() * goods.getCurrentNum();
+                    totalPrice += price;
+                }
+            }
+        }
+        zhengshuTextView.setText(PriceParseUtils.getInstance().getZhengShu(totalPrice));
+        xiaoshuTextView.setText(PriceParseUtils.getInstance().getXiaoShu(totalPrice));
+        System.out.println("idsList: " + idsList.toString());
     }
 
     private void barChange(int position) {
@@ -260,6 +300,7 @@ public class CartActivity extends BaseActivity implements View.OnClickListener {
 
     //删除购物车商品
     private void deleteCart(String ids) {
+        System.out.println("删除购物车商品 ids: " + ids);
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.DELETE_CART);
         params.addBodyParameter("ids", ids);
         x.http().post(params, new Callback.CommonCallback<String>() {
@@ -269,7 +310,6 @@ public class CartActivity extends BaseActivity implements View.OnClickListener {
                 baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
-
             }
 
             @Override

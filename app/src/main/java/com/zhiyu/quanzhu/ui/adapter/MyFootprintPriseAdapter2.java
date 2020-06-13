@@ -322,7 +322,7 @@ public class MyFootprintPriseAdapter2 extends RecyclerView.Adapter<RecyclerView.
             article.titleTextView.setText(list.get(position).getContent().getTitle());
             if (null != list.get(position).getContent().getThumb()) {
                 article.coverImageView.setVisibility(View.VISIBLE);
-                Glide.with(context).load(list.get(position).getContent().getThumb().getFile()).error(R.mipmap.img_error).into(article.coverImageView);
+                Glide.with(context).load(list.get(position).getContent().getNewthumb().getFile()).error(R.mipmap.img_error).into(article.coverImageView);
             } else {
                 article.coverImageView.setVisibility(View.GONE);
             }

@@ -68,7 +68,7 @@ final class BitmapUtils {
     private static int mMaxTextureSize;
 
     /**
-     * used to save bitmaps during state save and restore so not to reload them.
+     * used to saveList bitmaps during state saveList and restore so not to reload them.
      */
     static Pair<String, WeakReference<Bitmap>> mStateBitmap;
 

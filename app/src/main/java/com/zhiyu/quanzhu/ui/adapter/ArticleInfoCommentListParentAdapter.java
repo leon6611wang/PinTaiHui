@@ -22,6 +22,7 @@ import com.zhiyu.quanzhu.model.result.FeedChildCommentResult;
 import com.zhiyu.quanzhu.ui.activity.CommentInformationActivity;
 import com.zhiyu.quanzhu.ui.activity.ComplaintActivity;
 import com.zhiyu.quanzhu.ui.popupwindow.CommentMenuWindow;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.CircleImageView;
 import com.zhiyu.quanzhu.ui.widget.MyListView;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
@@ -53,7 +54,7 @@ public class ArticleInfoCommentListParentAdapter extends BaseAdapter implements 
             ArticleInfoCommentListParentAdapter adapter = adapterWeakReference.get();
             switch (msg.what) {
                 case 1:
-                    Toast.makeText(adapter.context, adapter.baseResult.getMsg(), Toast.LENGTH_SHORT).show();
+                    MessageToast.getInstance(adapter.context).show(adapter.baseResult.getMsg());
                     if (adapter.baseResult.getCode() == 200) {
                         int posiiton = (Integer) msg.obj;
                         adapter.list.get(posiiton).setIs_prise(!adapter.list.get(posiiton).isIs_prise());
@@ -63,7 +64,7 @@ public class ArticleInfoCommentListParentAdapter extends BaseAdapter implements 
                     }
                     break;
                 case 2:
-                    Toast.makeText(adapter.context, adapter.baseResult.getMsg(), Toast.LENGTH_SHORT).show();
+                    MessageToast.getInstance(adapter.context).show(adapter.baseResult.getMsg());
                     if (adapter.baseResult.getCode() == 200) {
                         int posiiton = (Integer) msg.obj;
                         adapter.list.get(posiiton).setIs_del(1);

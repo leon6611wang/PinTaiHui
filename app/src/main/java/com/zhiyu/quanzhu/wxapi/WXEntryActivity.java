@@ -2,11 +2,13 @@ package com.zhiyu.quanzhu.wxapi;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+import com.leon.chic.utils.SPUtils;
+import com.tencent.mm.opensdk.constants.ConstantsAPI;
 import com.tencent.mm.opensdk.modelbase.BaseReq;
 import com.tencent.mm.opensdk.modelbase.BaseResp;
 import com.tencent.mm.opensdk.modelmsg.SendAuth;
@@ -15,9 +17,10 @@ import com.tencent.mm.opensdk.openapi.IWXAPIEventHandler;
 import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.model.result.LoginTokenResult;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
-import com.zhiyu.quanzhu.utils.SharedPreferencesUtils;
+import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.WXUtils;
 
 import org.json.JSONObject;
@@ -25,12 +28,34 @@ import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
 import org.xutils.x;
 
+import java.lang.ref.WeakReference;
+
 public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
     public int WX_LOGIN = 1;
 
     private IWXAPI iwxapi;
 
     private SendAuth.Resp resp;
+
+    private MyHandler myHandler = new MyHandler(this);
+
+    private static class MyHandler extends Handler {
+        WeakReference<WXEntryActivity> weakReference;
+
+        public MyHandler(WXEntryActivity activity) {
+            weakReference = new WeakReference<>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            WXEntryActivity activity = weakReference.get();
+            switch (msg.what) {
+                case 99:
+                    MessageToast.getInstance(activity).show("服务器内部错误，请稍后再试.");
+                    break;
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,19 +74,20 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
 
     @Override
     public void onReq(BaseReq baseReq) {
+
     }
 
 
     //请求回调结果处理
     @Override
     public void onResp(BaseResp baseResp) {
-        System.out.println("------------------------" + baseResp.getType());
+//        System.out.println("------------------------" + baseResp.getType());
+        resp = (SendAuth.Resp) baseResp;
         //微信登录为getType为1，分享为0
-        if (baseResp.getType() == WX_LOGIN) {
+        if (resp.getType() == 1) {
             //登录回调
-            System.out.println("------------登陆回调------------");
-            resp = (SendAuth.Resp) baseResp;
-            System.out.println("------------登陆回调的结果------------：" + new Gson().toJson(resp));
+//            System.out.println("------------登陆回调------------");
+//            System.out.println("------------登陆回调的结果------------：" + new Gson().toJson(resp));
             switch (resp.errCode) {
                 case BaseResp.ErrCode.ERR_OK:
                     String code = String.valueOf(resp.code);
@@ -77,25 +103,41 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
                 default:
                     break;
             }
-        } else {
+        } else if (resp.getType() == 0) {
             //分享成功回调
-            System.out.println("------------分享回调------------");
+//            System.out.println("------------分享回调------------");
             switch (baseResp.errCode) {
                 case BaseResp.ErrCode.ERR_OK:
                     //分享成功
-                    Toast.makeText(WXEntryActivity.this, "分享成功", Toast.LENGTH_LONG).show();
+                    MessageToast.getInstance(WXEntryActivity.this).show("分享成功");
                     break;
                 case BaseResp.ErrCode.ERR_USER_CANCEL:
                     //分享取消
-                    Toast.makeText(WXEntryActivity.this, "分享取消", Toast.LENGTH_LONG).show();
+                    MessageToast.getInstance(WXEntryActivity.this).show("分享取消");
                     break;
                 case BaseResp.ErrCode.ERR_AUTH_DENIED:
                     //分享拒绝
-                    Toast.makeText(WXEntryActivity.this, "分享拒绝", Toast.LENGTH_LONG).show();
+                    MessageToast.getInstance(WXEntryActivity.this).show("分享拒绝");
                     break;
+            }
+        } else if (resp.getType() == ConstantsAPI.COMMAND_PAY_BY_WX) {
+            if (resp.errCode == 0) {
+                MessageToast.getInstance(WXEntryActivity.this).show("微信支付成功");
+            } else {
+                MessageToast.getInstance(WXEntryActivity.this).show("微信失败");
+            }
+            if(null!=onWxpayCallbackListener){
+                onWxpayCallbackListener.onWxpayCallback();
             }
         }
         finish();
+    }
+    private static OnWxpayCallbackListener onWxpayCallbackListener;
+    public static   void setOnWxpayCallbackListener(OnWxpayCallbackListener listener){
+        onWxpayCallbackListener=listener;
+    }
+    public  interface OnWxpayCallbackListener{
+        void onWxpayCallback();
     }
 
     private void getAccessToken(String code) {
@@ -105,7 +147,7 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
         x.http().get(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("微信回调： " + result);
+//                System.out.println("微信回调： " + result);
                 String access = null;
                 String openId = null;
                 try {
@@ -241,8 +283,8 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
     private LoginTokenResult loginTokenResult;
 
     private void wxLogin(String openid, String unionid, String avatar, String nickname) {
-        System.out.println("openid: " + openid + " , unionid: " + unionid + " , avatar: " + avatar + " , nickname: " + nickname);
-        RequestParams params = new RequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.WX_LOGIN);
+//        System.out.println("openid: " + openid + " , unionid: " + unionid + " , avatar: " + avatar + " , nickname: " + nickname);
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.WX_LOGIN);
         params.addBodyParameter("openid", openid);
         params.addBodyParameter("unionid", unionid);
         params.addBodyParameter("avatar", avatar);
@@ -250,11 +292,21 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("wxlogin: " + result);
+//                System.out.println("wxlogin: " + result);
                 loginTokenResult = GsonUtils.GsonToBean(result, LoginTokenResult.class);
-                System.out.println("wxlogin token: " + loginTokenResult.getData().getToken());
+//                SPUtils.getInstance().saveUserInfo(WXEntryActivity.this,loginTokenResult.getData().get);
+//                System.out.println("wxlogin token: " + loginTokenResult.getData().getToken());
                 if (loginTokenResult.getCode() == 200) {
-                    SharedPreferencesUtils.getInstance(BaseApplication.applicationContext).saveUserToken(loginTokenResult.getData().getToken());
+                    SPUtils.getInstance().userLogin(BaseApplication.applicationContext);
+                    SPUtils.getInstance().saveUserToken(BaseApplication.applicationContext, loginTokenResult.getToken());
+                    SPUtils.getInstance().saveIMToken(BaseApplication.applicationContext, loginTokenResult.getData().getToken());
+                    SPUtils.getInstance().saveUserAvatar(BaseApplication.applicationContext, loginTokenResult.getData().getUserinfo().getAvatar());
+                    SPUtils.getInstance().saveUserName(BaseApplication.applicationContext, loginTokenResult.getData().getUserinfo().getUsername());
+                    SPUtils.getInstance().saveUserInfoStatus(BaseApplication.applicationContext, loginTokenResult.getData().getUserinfo().isHas_pwd(),
+                            loginTokenResult.getData().getUserinfo().isBind_mobile(),
+                            loginTokenResult.getData().getUserinfo().isFill_profile(),
+                            loginTokenResult.getData().getUserinfo().isChoose_hobby());
+//                    SharedPreferencesUtils.getInstance(BaseApplication.applicationContext).saveUserToken(loginTokenResult.getData().getToken());
                     if (null != onWxLoginSuccessListener) {
                         onWxLoginSuccessListener.onWxLoginSuccess();
                     }
@@ -264,7 +316,9 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                System.out.println("服务器-微信登录: " + ex.toString());
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
+//                System.out.println("服务器-微信登录: " + ex.toString());
             }
 
             @Override

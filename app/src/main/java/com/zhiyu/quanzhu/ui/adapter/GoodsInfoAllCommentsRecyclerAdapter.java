@@ -1,6 +1,8 @@
 package com.zhiyu.quanzhu.ui.adapter;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,10 +16,20 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.zhiyu.quanzhu.R;
+import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.GoodsComment;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.CircleImageView;
+import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GridSpacingItemDecoration;
+import com.zhiyu.quanzhu.utils.GsonUtils;
+import com.zhiyu.quanzhu.utils.MyRequestParams;
 
+import org.xutils.common.Callback;
+import org.xutils.http.RequestParams;
+import org.xutils.x;
+
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 import cn.carbs.android.expandabletextview.library.ExpandableTextView;
@@ -30,6 +42,40 @@ public class GoodsInfoAllCommentsRecyclerAdapter extends RecyclerView.Adapter<Go
     private Context context;
     private int dp_10;
     private SparseArray<Integer> mPositionsAndStates = new SparseArray<>();
+    private MyHandler myHandler = new MyHandler(this);
+
+    private static class MyHandler extends Handler {
+        WeakReference<GoodsInfoAllCommentsRecyclerAdapter> weakReference;
+
+        public MyHandler(GoodsInfoAllCommentsRecyclerAdapter adapter) {
+            weakReference = new WeakReference<>(adapter);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            GoodsInfoAllCommentsRecyclerAdapter adapter = weakReference.get();
+            switch (msg.what) {
+                case 99:
+                    MessageToast.getInstance(adapter.context).show("服务器内部错误，请稍后再试.");
+                    break;
+                case 1:
+                    MessageToast.getInstance(adapter.context).show(adapter.baseResult.getMsg());
+                    if (200 == adapter.baseResult.getCode()) {
+                        int position = (Integer) msg.obj;
+                        adapter.list.get(position).setIs_prise(!adapter.list.get(position).isIs_prise());
+                        int priseCount = adapter.list.get(position).getPnum();
+                        if (adapter.list.get(position).isIs_prise()) {
+                            priseCount++;
+                        } else {
+                            priseCount--;
+                        }
+                        adapter.list.get(position).setPnum(priseCount);
+                        adapter.notifyDataSetChanged();
+                    }
+                    break;
+            }
+        }
+    }
 
     public GoodsInfoAllCommentsRecyclerAdapter(Context context) {
         this.context = context;
@@ -44,7 +90,7 @@ public class GoodsInfoAllCommentsRecyclerAdapter extends RecyclerView.Adapter<Go
     class ViewHolder extends RecyclerView.ViewHolder {
         CircleImageView headerImageView;
         TextView nickNameTextView, dateTextView;
-        ExpandableTextView conentExpandableTextView,replyExpandableTextView;
+        ExpandableTextView conentExpandableTextView, replyExpandableTextView;
         RecyclerView commentImagesRecyclerView;
         ItemGoodsInfoCommentsRecyclerAdapter adapter;
         LinearLayout dianzanLayout;
@@ -68,7 +114,7 @@ public class GoodsInfoAllCommentsRecyclerAdapter extends RecyclerView.Adapter<Go
             dianzanLayout = itemView.findViewById(R.id.dianzanLayout);
             dianzanImageView = itemView.findViewById(R.id.dianzanImageView);
             dianzanTextView = itemView.findViewById(R.id.dianzanTextView);
-            replyExpandableTextView=itemView.findViewById(R.id.replyExpandableTextView);
+            replyExpandableTextView = itemView.findViewById(R.id.replyExpandableTextView);
         }
     }
 
@@ -96,7 +142,7 @@ public class GoodsInfoAllCommentsRecyclerAdapter extends RecyclerView.Adapter<Go
         holder.conentExpandableTextView.setTag(position);
         Integer state = mPositionsAndStates.get(position);
         holder.conentExpandableTextView.updateForRecyclerView(list.get(position).getContent(), etvWidth, state == null ? 0 : state);
-        holder.replyExpandableTextView.updateForRecyclerView(list.get(position).getContent(), etvWidth, state == null ? 0 : state);
+        holder.replyExpandableTextView.updateForRecyclerView("商家回复：" + list.get(position).getReply(), etvWidth, state == null ? 0 : state);
         holder.adapter.setList(list.get(position).getImg());
         holder.normsTextView.setText(list.get(position).getNorms_name());
         holder.dianzanTextView.setText(String.valueOf(list.get(position).getPnum()));
@@ -138,7 +184,42 @@ public class GoodsInfoAllCommentsRecyclerAdapter extends RecyclerView.Adapter<Go
 
         @Override
         public void onClick(View v) {
-
+            prise(position);
         }
+    }
+
+    private BaseResult baseResult;
+
+    private void prise(final int position) {
+        RequestParams params = MyRequestParams.getInstance(context).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.PRISE);
+        params.addBodyParameter("module_type", "ordercomment");
+        params.addBodyParameter("prise_id", String.valueOf(list.get(position).getId()));
+        params.addBodyParameter("type", list.get(position).isIs_prise() ? "1" : "0");
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
+                Message message = myHandler.obtainMessage(1);
+                message.obj = position;
+                message.sendToTarget();
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+
     }
 }

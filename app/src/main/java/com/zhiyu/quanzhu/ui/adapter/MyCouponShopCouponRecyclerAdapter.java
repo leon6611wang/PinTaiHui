@@ -1,6 +1,7 @@
 package com.zhiyu.quanzhu.ui.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,16 +12,22 @@ import android.widget.TextView;
 
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.model.bean.MyCoupon;
+import com.zhiyu.quanzhu.ui.activity.ShopInformationActivity;
 
 import java.util.List;
 
 public class MyCouponShopCouponRecyclerAdapter extends RecyclerView.Adapter<MyCouponShopCouponRecyclerAdapter.ViewHolder> {
     private List<MyCoupon> list;
     private Context context;
+    private int shop_id;
 
     public void setList(List<MyCoupon> couponList) {
         this.list = couponList;
         notifyDataSetChanged();
+    }
+
+    public void setShop_id(int s_id) {
+        this.shop_id = s_id;
     }
 
     public MyCouponShopCouponRecyclerAdapter(Context context) {
@@ -55,10 +62,19 @@ public class MyCouponShopCouponRecyclerAdapter extends RecyclerView.Adapter<MyCo
         holder.amountTextView.setText(list.get(position).getAmount());
         holder.markTextView.setText(list.get(position).getMark());
         holder.descTextView.setText(list.get(position).getTitle());
-        holder.timeTextView.setText(list.get(position).getExp_start() + "-" + list.get(position).getExp_end());
+        holder.timeTextView.setText(list.get(position).getExp_start() + " 至 " + list.get(position).getExp_end());
         holder.usedescTextView.setText(list.get(position).getUsedesc());
         if (list.get(position).getStatus() == 0 || list.get(position).getStatus() == 1) {
             holder.useCouponTextView.setVisibility(View.VISIBLE);
+            holder.useCouponTextView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent shopInfoIntent = new Intent(context, ShopInformationActivity.class);
+                    shopInfoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    shopInfoIntent.putExtra("shop_id", String.valueOf(shop_id));
+                    context.startActivity(shopInfoIntent);
+                }
+            });
         } else {
             holder.useCouponTextView.setVisibility(View.INVISIBLE);
         }

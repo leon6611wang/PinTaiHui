@@ -26,6 +26,7 @@ import com.zhiyu.quanzhu.utils.MyPtrHandlerFooter;
 import com.zhiyu.quanzhu.utils.MyPtrHandlerHeader;
 import com.zhiyu.quanzhu.utils.MyPtrRefresherFooter;
 import com.zhiyu.quanzhu.utils.MyPtrRefresherHeader;
+import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 import com.zhiyu.quanzhu.utils.SoftKeyboardUtil;
 
@@ -72,6 +73,10 @@ public class GoodsSearchActivity extends BaseActivity implements View.OnClickLis
                     if (null != activity.adapter) {
                         activity.adapter.addDatas(activity.list);
                     }
+                    break;
+                case 99:
+                    activity.ptrFrameLayout.refreshComplete();
+                    activity.waitDialog.dismiss();
                     break;
             }
         }
@@ -134,6 +139,8 @@ public class GoodsSearchActivity extends BaseActivity implements View.OnClickLis
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                     SoftKeyboardUtil.hideSoftKeyboard(GoodsSearchActivity.this);
                     keyword = searchEditText.getText().toString().trim();
+                    isRefresh = true;
+                    page = 1;
                     searchGoods();
                     return true;
                 }
@@ -247,7 +254,11 @@ public class GoodsSearchActivity extends BaseActivity implements View.OnClickLis
 
     private void searchGoods() {
         waitDialog.show();
-        RequestParams params = new RequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.GOODS_SEARCH);
+        System.out.println("keyword: " + keyword);
+        if(isRefresh){
+            adapter.clearDatas();
+        }
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.GOODS_SEARCH);
         params.addBodyParameter("keywords", keyword);
         params.addBodyParameter("page", String.valueOf(page));
         params.addBodyParameter("sort", sort);
@@ -256,14 +267,9 @@ public class GoodsSearchActivity extends BaseActivity implements View.OnClickLis
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
+                System.out.println(result);
                 mallAdGoodsResult = GsonUtils.GsonToBean(result, MallAdGoodsResult.class);
-                if (mallAdGoodsResult.getCode() == 200) {
-                    if (isRefresh) {
-                        list = mallAdGoodsResult.getData().getGoods_list();
-                    } else {
-                        list.addAll(mallAdGoodsResult.getData().getGoods_list());
-                    }
-                }
+                list = mallAdGoodsResult.getData().getGoods_list();
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
 
@@ -271,7 +277,8 @@ public class GoodsSearchActivity extends BaseActivity implements View.OnClickLis
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
             }
 
             @Override

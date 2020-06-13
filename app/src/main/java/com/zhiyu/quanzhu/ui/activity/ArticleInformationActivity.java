@@ -78,13 +78,13 @@ public class ArticleInformationActivity extends BaseActivity implements View.OnC
     private TextView userNameTextView, followTextView, titleTextView, complaintTextView, viewCountTextView,
             circleUserNameTextView, circleTimeTextView, circleNameTextView, circleDescTextView, circleCityTextView,
             circleIndustryTextView, chengyuanTextView, dongtaiTextView, commentCountTextView;
-    private ImageView followImageView, shareImageView, complaintImageView;
+    private ImageView followImageView, complaintImageView;
     private CardView circleCardView;
     private NiceImageView circleImageView;
     private ShareDialog shareDialog;
     private int dp_15, dp_5, screenWidth, screenHeight;
     private String commentContent = null;
-    private int article_id,myCommentId;
+    private int article_id, myCommentId;
     private MyHandler myHandler = new MyHandler(this);
 
     private static class MyHandler extends Handler {
@@ -138,8 +138,29 @@ public class ArticleInformationActivity extends BaseActivity implements View.OnC
                         activity.dongtaiTextView.setText(String.valueOf(activity.articleInformationResult.getData().getDetail().getCircle().getFnum()));
                     }
                     activity.commentCountTextView.setText(String.valueOf(activity.articleInformationResult.getData().getDetail().getComment_num()));
-                    activity.collectNumTextView.setText(String.valueOf(activity.articleInformationResult.getData().getDetail().getCollect_num()));
-                    activity.priseNumTextView.setText(String.valueOf(activity.articleInformationResult.getData().getDetail().getPrise_num()));
+                    if (activity.articleInformationResult.getData().getDetail().getCollect_num() > 0) {
+                        activity.collectNumTextView.setVisibility(View.VISIBLE);
+                        activity.collectNumTextView.setText(String.valueOf(activity.articleInformationResult.getData().getDetail().getCollect_num()));
+                    } else {
+                        activity.collectNumTextView.setVisibility(View.INVISIBLE);
+                    }
+                    if (activity.articleInformationResult.getData().getDetail().getPrise_num() > 0) {
+                        activity.priseNumTextView.setVisibility(View.VISIBLE);
+                        activity.priseNumTextView.setText(String.valueOf(activity.articleInformationResult.getData().getDetail().getPrise_num()));
+                    } else {
+                        activity.priseNumTextView.setVisibility(View.INVISIBLE);
+                    }
+
+                    if (activity.articleInformationResult.getData().getDetail().isIs_collect()) {
+                        activity.collectImageView.setImageDrawable(activity.getResources().getDrawable(R.mipmap.collect_yellow_big));
+                    } else {
+                        activity.collectImageView.setImageDrawable(activity.getResources().getDrawable(R.mipmap.collect_gray_big));
+                    }
+                    if (activity.articleInformationResult.getData().getDetail().isIs_prise()) {
+                        activity.priseImageView.setImageDrawable(activity.getResources().getDrawable(R.mipmap.prise_yellow_big));
+                    } else {
+                        activity.priseImageView.setImageDrawable(activity.getResources().getDrawable(R.mipmap.prise_gray_big));
+                    }
                     break;
                 case 1:
                     activity.ptrFrameLayout.refreshComplete();
@@ -183,20 +204,10 @@ public class ArticleInformationActivity extends BaseActivity implements View.OnC
                     }
                     break;
                 case 5:
-                    if (activity.baseResult.getCode() == 200) {
-                        Toast.makeText(activity, activity.articleInformationResult.getData().getDetail().isIs_collect() ? "收藏成功" : "取消收藏成功", Toast.LENGTH_SHORT).show();
-                        activity.operationCollect();
-                    } else {
-                        Toast.makeText(activity, activity.baseResult.getMsg(), Toast.LENGTH_SHORT).show();
-                    }
+
                     break;
+
                 case 6:
-                    if (activity.baseResult.getCode() == 200) {
-                        Toast.makeText(activity, activity.articleInformationResult.getData().getDetail().isIs_prise() ? "点赞成功" : "取消点赞成功", Toast.LENGTH_SHORT).show();
-                        activity.operationPrise();
-                    } else {
-                        Toast.makeText(activity, activity.baseResult.getMsg(), Toast.LENGTH_SHORT).show();
-                    }
                     break;
             }
         }
@@ -254,8 +265,6 @@ public class ArticleInformationActivity extends BaseActivity implements View.OnC
         followLayout.setOnClickListener(this);
         followImageView = findViewById(R.id.followImageView);
         followTextView = findViewById(R.id.followTextView);
-        shareImageView = findViewById(R.id.shareImageView);
-        shareImageView.setOnClickListener(this);
         mleonDrawerMenuLayout = findViewById(R.id.mleonDrawerMenuLayout);
         mleonDrawerMenuLayout.setOnMenuOperationListener(this);
         goodsGridView = findViewById(R.id.goodsGridView);
@@ -362,6 +371,7 @@ public class ArticleInformationActivity extends BaseActivity implements View.OnC
     }
 
     private void createArticleContent() {
+        contentLayout.removeAllViews();
         if (null != articleInformationResult.getData().getDetail().getContent() && articleInformationResult.getData().getDetail().getContent().size() > 0) {
             for (ArticleContent content : articleInformationResult.getData().getDetail().getContent()) {
                 if (!StringUtils.isNullOrEmpty(content.getContent())) {
@@ -416,9 +426,6 @@ public class ArticleInformationActivity extends BaseActivity implements View.OnC
                 break;
             case R.id.followLayout:
                 followMember();
-                break;
-            case R.id.shareImageView:
-                shareDialog.show();
                 break;
             case R.id.complaintLayout:
                 Intent complaintIntent = new Intent(this, ComplaintActivity.class);
@@ -478,7 +485,7 @@ public class ArticleInformationActivity extends BaseActivity implements View.OnC
     private void articleInformation() {
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.FEEDS_INFO);
         params.addBodyParameter("feeds_id", String.valueOf(article_id));
-        params.addBodyParameter("comment_id",String.valueOf(myCommentId));
+        params.addBodyParameter("comment_id", String.valueOf(myCommentId));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
@@ -671,10 +678,8 @@ public class ArticleInformationActivity extends BaseActivity implements View.OnC
             public void onSuccess(String result) {
                 baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
                 if (200 == baseResult.getCode()) {
-                    articleInformationResult.getData().getDetail().setIs_collect(!articleInformationResult.getData().getDetail().isIs_collect());
+                    articleInformation();
                 }
-                Message message = myHandler.obtainMessage(5);
-                message.sendToTarget();
             }
 
             @Override
@@ -704,10 +709,8 @@ public class ArticleInformationActivity extends BaseActivity implements View.OnC
             public void onSuccess(String result) {
                 baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
                 if (200 == baseResult.getCode()) {
-                    articleInformationResult.getData().getDetail().setIs_prise(!articleInformationResult.getData().getDetail().isIs_prise());
+                    articleInformation();
                 }
-                Message message = myHandler.obtainMessage(6);
-                message.sendToTarget();
             }
 
             @Override

@@ -1,5 +1,6 @@
 package com.zhiyu.quanzhu.model.dao;
 
+import com.leon.chic.utils.SPUtils;
 import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.model.bean.FullSearchHistory;
 
@@ -33,7 +34,7 @@ public class FullSearchHistoryDao {
 
     public void deleteFullSearchHistory(FullSearchHistory history) {
         try {
-            BaseApplication.db.delete(FullSearchHistory.class, WhereBuilder.b("history", "=", history.getHistory()));
+            BaseApplication.db.delete(FullSearchHistory.class, WhereBuilder.b("history", "=", history.getHistory()).and("user_id", "=", SPUtils.getInstance().getUserId(BaseApplication.applicationContext)));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -52,7 +53,7 @@ public class FullSearchHistoryDao {
     public List<FullSearchHistory> fullSearchHistoryList() {
         List<FullSearchHistory> list = null;
         try {
-            list = BaseApplication.db.selector(FullSearchHistory.class).orderBy("time", true).findAll();
+            list = BaseApplication.db.selector(FullSearchHistory.class).where("user_id", "=", SPUtils.getInstance().getUserId(BaseApplication.applicationContext)).orderBy("time", true).findAll();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -61,7 +62,8 @@ public class FullSearchHistoryDao {
 
     public void clearFullSearchHistory() {
         try {
-            BaseApplication.db.delete(FullSearchHistory.class);
+            BaseApplication.db.delete(FullSearchHistory.class, WhereBuilder.b("user_id", "=", SPUtils.getInstance().getUserId(BaseApplication.applicationContext)));
+//            BaseApplication.db.dropTable(FullSearchHistory.class);
         } catch (Exception e) {
             e.printStackTrace();
         }

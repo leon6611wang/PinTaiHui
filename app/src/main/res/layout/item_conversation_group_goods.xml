@@ -19,39 +19,51 @@
             android:layout_height="match_parent"
             android:layout_gravity="center"
             app:cardBackgroundColor="@color/white"
+            android:elevation="@dimen/dp_1"
+            app:cardElevation="@dimen/dp_1"
             app:cardCornerRadius="@dimen/dp_10">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:paddingBottom="@dimen/dp_10"
                 android:orientation="vertical">
 
                 <ImageView
+                    android:id="@+id/goodsImageImageView"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="6875"
+                    android:layout_weight="165"
                     android:scaleType="centerCrop"
-                    android:src="@mipmap/header" />
+                    android:src="@drawable/image_error"
+                    />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="3125"
+                    android:layout_weight="65"
+                    android:paddingTop="@dimen/dp_5"
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/mingchengTextView"
+                        android:id="@+id/nameTextView"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="@dimen/dp_10"
-                        android:text="3D环绕音智能蓝牙运动 耳机全面环绕耳机"
+                        android:layout_height="0dp"
+                        android:layout_weight="38"
+                        android:layout_marginLeft="@dimen/dp_10"
+                        android:layout_marginRight="@dimen/dp_10"
                         android:textColor="@color/text_color_black"
+                        android:layout_gravity="center"
+                        android:gravity="top"
+                        android:maxLines="2"
+                        android:ellipsize="end"
                         android:textSize="14sp"
                         android:textStyle="bold" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_weight="22"
                         android:layout_marginLeft="@dimen/dp_10"
                         android:layout_marginRight="@dimen/dp_10"
                         android:orientation="horizontal">
@@ -61,22 +73,26 @@
                             android:layout_height="wrap_content"
                             android:text="¥"
                             android:textColor="@color/text_color_red"
-                            android:textSize="10sp" />
+                            android:textStyle="bold"
+                            android:textSize="11.5sp" />
 
                         <TextView
+                            android:id="@+id/zhengshuTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="549"
+                            android:text="0"
                             android:textColor="@color/text_color_red"
-                            android:textSize="12sp"
+                            android:textSize="15.5sp"
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/xiaoshuTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text=".9"
+                            android:text=".00"
                             android:textColor="@color/text_color_red"
-                            android:textSize="10sp" />
+                            android:textStyle="bold"
+                            android:textSize="11.5sp" />
 
                         <View
                             android:layout_width="0dp"
@@ -86,16 +102,15 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="@dimen/dp_10"
-                            android:text="销量"
+                            android:text="销量 "
                             android:textColor="@color/text_color_gray"
                             android:textSize="12sp" />
 
                         <TextView
-                            android:id="@+id/xiaoliangTextView"
+                            android:id="@+id/saleNumTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="1308"
+                            android:text="0"
                             android:textColor="@color/text_color_gray"
                             android:textSize="12sp" />
                     </LinearLayout>

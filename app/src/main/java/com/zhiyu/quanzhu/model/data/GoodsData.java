@@ -16,9 +16,17 @@ public class GoodsData {
     private List<GoodsGuarantee> guarantee;
     private List<GoodsCoupon> coupon;
     private String max_coupon;
+    private String max_coupon_desc;
     private GoodsCircle circle;
     private List<Goods> goods_list;
 
+    public String getMax_coupon_desc() {
+        return max_coupon_desc;
+    }
+
+    public void setMax_coupon_desc(String max_coupon_desc) {
+        this.max_coupon_desc = max_coupon_desc;
+    }
 
     public List<Goods> getGoods_list() {
         return goods_list;

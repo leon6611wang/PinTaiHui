@@ -3,6 +3,7 @@ package com.zhiyu.quanzhu.model.bean;
 
 public class FullSearchGoods {
     private int id;
+    private int goods_id;
     private String goods_name;
     private int goods_price;
     private int goods_stock;
@@ -12,6 +13,14 @@ public class FullSearchGoods {
     private boolean is_relation;
 
     private boolean isSelected;
+
+    public int getGoods_id() {
+        return goods_id;
+    }
+
+    public void setGoods_id(int goods_id) {
+        this.goods_id = goods_id;
+    }
 
     public boolean isSelected() {
         return isSelected;

@@ -103,6 +103,7 @@ public class TimeDownTextView extends AppCompatTextView {
         this.onTimeDownListener = listener;
         long time = System.currentTimeMillis();
         mTimeLong = over_time * 1000 - time;
+        stopTask();
         initTimerTask();
     }
 

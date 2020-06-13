@@ -12,6 +12,7 @@ import com.zhiyu.quanzhu.model.bean.BikeInsurance;
 import com.zhiyu.quanzhu.model.bean.BikeShop;
 import com.zhiyu.quanzhu.model.bean.BikeUser;
 import com.zhiyu.quanzhu.utils.GsonUtils;
+import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 
 import org.xutils.common.Callback;
@@ -70,7 +71,7 @@ public class InsuranceActivity extends BaseActivity implements View.OnClickListe
     }
 
     private void addShop() {
-        RequestParams params = new RequestParams("http://www.hzlslpweb.cn/bike/shop/insertShop");
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams("http://www.hzlslpweb.cn/bike/shop/insertShop");
         BikeShop shop = new BikeShop();
         shop.setLongitude(118.78f);
         shop.setLatitude(32.04f);

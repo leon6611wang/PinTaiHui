@@ -21,6 +21,7 @@ import com.zhiyu.quanzhu.model.result.PurseRecordResult;
 import com.zhiyu.quanzhu.model.result.PurseResult;
 import com.zhiyu.quanzhu.ui.adapter.MyWalletExpandableListAdapter;
 import com.zhiyu.quanzhu.ui.dialog.CalendarDialog;
+import com.zhiyu.quanzhu.ui.dialog.EndDateDialog;
 import com.zhiyu.quanzhu.ui.dialog.NotificationDialog;
 import com.zhiyu.quanzhu.ui.dialog.StartDateDialog;
 import com.zhiyu.quanzhu.utils.CalendarUtils;
@@ -64,8 +65,8 @@ public class MyPurseActivity extends BaseActivity implements View.OnClickListene
     private View quanbuLineView, shouruLineView, zhichuLineView, quanbuLineLayout, shouruLineLayout, zhichuLineLayout;
     private TextView startDateTextView, endDateTextView, tixianTextView;
     private TextView allMoneyTextView, frozenMoneyTextView, outMoneyTextView, inMoneyTextView;
-    private CalendarDialog endDateDialog;
     private StartDateDialog startDateDialog;
+    private EndDateDialog endDateDialog;
     private PtrFrameLayout ptrLayout;
     private NotificationDialog notificationDialog;
     private ImageView notificationImageView;
@@ -136,7 +137,7 @@ public class MyPurseActivity extends BaseActivity implements View.OnClickListene
                 startDateTextView.setText(month + "月" + day + "日 " + year);
             }
         });
-        endDateDialog = new CalendarDialog(this, R.style.dialog, false, new CalendarDialog.OnCalendarListener() {
+        endDateDialog = new EndDateDialog(this, R.style.dialog, new EndDateDialog.OnCalendarListener() {
             @Override
             public void onCalendar(int year, int month, int day) {
                 endDateTextView.setText(month + "月" + day + "日 " + year);
@@ -454,9 +455,18 @@ public class MyPurseActivity extends BaseActivity implements View.OnClickListene
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        boolean is_ali = false;
+        boolean is_wechar = false;
         if (requestCode == 1031) {
-            boolean is_ali = data.getBooleanExtra("isAlipay", false);
-            boolean is_wechar = data.getBooleanExtra("isWechat", false);
+            if (null != data) {
+                if (data.hasExtra("isAlipay")) {
+                    is_ali = data.getBooleanExtra("isAlipay", false);
+                }
+                if (data.hasExtra("isWechat")) {
+                    is_wechar = data.getBooleanExtra("isWechat", false);
+                }
+            }
+
             purseResult.getData().setIs_ali(is_ali);
             purseResult.getData().setIs_wechar(is_wechar);
         }

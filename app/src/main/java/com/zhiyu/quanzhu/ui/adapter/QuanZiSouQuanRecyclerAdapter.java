@@ -27,10 +27,12 @@ public class QuanZiSouQuanRecyclerAdapter extends RecyclerView.Adapter<QuanZiSou
     private Context context;
 
     private List<Circle> list;
-    public void setList(List<Circle> circleList){
-        this.list=circleList;
+
+    public void setList(List<Circle> circleList) {
+        this.list = circleList;
         notifyDataSetChanged();
     }
+
     public QuanZiSouQuanRecyclerAdapter(Context context) {
         this.context = context;
     }
@@ -38,21 +40,22 @@ public class QuanZiSouQuanRecyclerAdapter extends RecyclerView.Adapter<QuanZiSou
     class ViewHolder extends RecyclerView.ViewHolder {
         CardView mCardView;
         CircleImageView avatarImageView;
-        TextView nameTextView,timeTextView,circleNameTextView,descriptionTextView,cityTextView,industryTextView,chengyuanTextView,dongtaiTextView;
+        TextView nameTextView, timeTextView, circleNameTextView, descriptionTextView, cityTextView, industryTextView, chengyuanTextView, dongtaiTextView;
         NiceImageView circleImageView;
+
         public ViewHolder(View itemView) {
             super(itemView);
-            mCardView=itemView.findViewById(R.id.mCardView);
-            avatarImageView=itemView.findViewById(R.id.avatarImageView);
-            nameTextView=itemView.findViewById(R.id.nameTextView);
-            timeTextView=itemView.findViewById(R.id.timeTextView);
-            circleNameTextView=itemView.findViewById(R.id.circleNameTextView);
-            descriptionTextView=itemView.findViewById(R.id.descriptionTextView);
-            cityTextView=itemView.findViewById(R.id.cityTextView);
-            industryTextView=itemView.findViewById(R.id.industryTextView);
-            chengyuanTextView=itemView.findViewById(R.id.chengyuanTextView);
-            dongtaiTextView=itemView.findViewById(R.id.dongtaiTextView);
-            circleImageView=itemView.findViewById(R.id.circleImageView);
+            mCardView = itemView.findViewById(R.id.mCardView);
+            avatarImageView = itemView.findViewById(R.id.avatarImageView);
+            nameTextView = itemView.findViewById(R.id.nameTextView);
+            timeTextView = itemView.findViewById(R.id.timeTextView);
+            circleNameTextView = itemView.findViewById(R.id.circleNameTextView);
+            descriptionTextView = itemView.findViewById(R.id.descriptionTextView);
+            cityTextView = itemView.findViewById(R.id.cityTextView);
+            industryTextView = itemView.findViewById(R.id.industryTextView);
+            chengyuanTextView = itemView.findViewById(R.id.chengyuanTextView);
+            dongtaiTextView = itemView.findViewById(R.id.dongtaiTextView);
+            circleImageView = itemView.findViewById(R.id.circleImageView);
         }
     }
 
@@ -65,22 +68,33 @@ public class QuanZiSouQuanRecyclerAdapter extends RecyclerView.Adapter<QuanZiSou
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Glide.with(context).load(list.get(position).getUseravatar()).error(R.mipmap.no_avatar).into(holder.avatarImageView);
-        holder.nameTextView.setText(list.get(position).getUsername());
-        holder.timeTextView.setText("创建"+list.get(position).getDays()+"天");
-        Glide.with(context).load(list.get(position).getThumb()).into(holder.circleImageView);
-        holder.circleNameTextView.setText(list.get(position).getName());
-        holder.descriptionTextView.setText(list.get(position).getDescirption());
-        if(!StringUtils.isNullOrEmpty(list.get(position).getCity_name())){
+        Glide.with(context).load(list.get(position).getUser_avatar())
+                .error(R.drawable.image_error)
+                .placeholder(R.drawable.image_error)
+                .fallback(R.drawable.image_error)
+                .into(holder.avatarImageView);
+        if (!StringUtils.isNullOrEmpty(list.get(position).getUser_name()))
+            holder.nameTextView.setText(list.get(position).getUser_name());
+        holder.timeTextView.setText("创建" + list.get(position).getDays() + "天");
+        Glide.with(context).load(list.get(position).getThumb())
+                .error(R.drawable.image_error)
+                .placeholder(R.drawable.image_error)
+                .fallback(R.drawable.image_error)
+                .into(holder.circleImageView);
+        if (!StringUtils.isNullOrEmpty(list.get(position).getName()))
+            holder.circleNameTextView.setText(list.get(position).getName());
+        if (!StringUtils.isNullOrEmpty(list.get(position).getDescirption()))
+            holder.descriptionTextView.setText(list.get(position).getDescirption());
+        if (!StringUtils.isNullOrEmpty(list.get(position).getCity_name())) {
             holder.cityTextView.setVisibility(View.VISIBLE);
             holder.cityTextView.setText(list.get(position).getCity_name());
-        }else{
+        } else {
             holder.cityTextView.setVisibility(View.GONE);
         }
-        if(!StringUtils.isNullOrEmpty(list.get(position).getIndustry())){
+        if (!StringUtils.isNullOrEmpty(list.get(position).getIndustry())) {
             holder.industryTextView.setVisibility(View.VISIBLE);
             holder.industryTextView.setText(list.get(position).getIndustry());
-        }else{
+        } else {
             holder.industryTextView.setVisibility(View.GONE);
         }
         holder.chengyuanTextView.setText(String.valueOf(list.get(position).getPnum()));
@@ -90,10 +104,10 @@ public class QuanZiSouQuanRecyclerAdapter extends RecyclerView.Adapter<QuanZiSou
 
     @Override
     public int getItemCount() {
-        return null==list?0:list.size();
+        return null == list ? 0 : list.size();
     }
 
-    private class OnCircleInfoClickListener implements View.OnClickListener{
+    private class OnCircleInfoClickListener implements View.OnClickListener {
         private int position;
 
         public OnCircleInfoClickListener(int position) {
@@ -102,8 +116,8 @@ public class QuanZiSouQuanRecyclerAdapter extends RecyclerView.Adapter<QuanZiSou
 
         @Override
         public void onClick(View v) {
-            Intent circleInfoIntent=new Intent(context, CircleInfoActivity.class);
-            circleInfoIntent.putExtra("circle_id",list.get(position).getId());
+            Intent circleInfoIntent = new Intent(context, CircleInfoActivity.class);
+            circleInfoIntent.putExtra("circle_id", list.get(position).getId());
             circleInfoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(circleInfoIntent);
         }

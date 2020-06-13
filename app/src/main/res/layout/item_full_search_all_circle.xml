@@ -19,7 +19,7 @@
             android:layout_height="@dimen/dp_50"
             android:layout_gravity="center"
             android:scaleType="centerCrop"
-            android:src="@mipmap/img_h" />
+            android:src="@drawable/image_error" />
 
         <View
             android:layout_width="@dimen/dp_1"
@@ -33,7 +33,7 @@
             android:ellipsize="end"
             android:gravity="center"
             android:maxLines="1"
-            android:text="南京动漫圈"
+            android:text="暂无数据"
             android:textColor="@color/text_color_black"
             android:textSize="12sp" />
     </LinearLayout>

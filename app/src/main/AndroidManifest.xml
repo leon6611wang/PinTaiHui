@@ -7,6 +7,8 @@
         android:name="com.zhiyu.quanzhu.permission.JPUSH_MESSAGE"
         android:protectionLevel="signature" />
 
+    <uses-permission android:name="com.zhiyu.quanzhu.permission.JPUSH_MESSAGE" />
+
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -46,30 +48,52 @@
     <application
         android:name=".base.BaseApplication"
         android:allowBackup="true"
-        android:icon="@mipmap/logo"
+        android:icon="@mipmap/logo_f"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/logo"
+        android:roundIcon="@mipmap/logo_y"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".ui.activity.CustomerServiceActivity"
+            android:name=".ui.activity.InitActivity"
             android:hardwareAccelerated="true"
-            android:launchMode="singleTask">
+            android:theme="@style/AppTheme.customeTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".ui.activity.ZSXQActivity" />
+
+        <activity
+            android:name=".ui.activity.HomeActivity"
+            android:launchMode="singleTop"
+
+            />
+        <activity android:name=".ui.activity.GuideActivity" />
         <activity
             android:name=".ui.widget.zxing.android.CaptureActivity"
             android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.NoTitleBar"></activity>
+            android:theme="@android:style/Theme.NoTitleBar" />
         <activity android:name=".ui.activity.BindPhoneNumberActivity" />
         <activity android:name=".ui.activity.SetLoginPwdActivity" />
-        <activity android:name=".ui.activity.LoginGetVertifyCodeActivity" />
-        <activity android:name=".ui.activity.LoginInputVertifyCodeActivity" />
-        <activity android:name=".ui.activity.LoginByPwdActivity" />
+        <activity android:name=".ui.activity.LoginGetVertifyCodeActivity"
+            android:launchMode="singleTask"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden"
+            />
+        <activity android:name=".ui.activity.LoginInputVertifyCodeActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden"
+            />
+        <activity android:name=".ui.activity.LoginByPwdActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden"
+            />
         <activity android:name=".ui.activity.CityListActivity" />
         <activity android:name=".ui.activity.FeedInformationActivity" />
         <activity android:name=".ui.activity.ShangQuanSettingActivity" />
@@ -135,7 +159,7 @@
         <activity
             android:name=".ui.activity.MingPianGuangChangActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
-        <activity android:name=".ui.activity.MyCardInformationActivity" />
+        <activity android:name=".ui.activity.CardInformationActivity" />
         <activity
             android:name=".ui.activity.EditCardActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
@@ -147,12 +171,21 @@
             android:theme="@android:style/Theme.NoTitleBar"
             android:windowSoftInputMode="stateAlwaysHidden" />
 
-        <activity android:name=".ui.activity.ShareInnerActivity" />
+        <activity
+            android:name=".ui.activity.ShareInnerActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity android:name=".ui.activity.MallGoodsTypeActivity" />
         <activity android:name=".ui.activity.GoodsInformationActivity" />
+        <activity android:name=".ui.activity.GoodsInformationBActivity" />
         <activity android:name=".ui.activity.CartActivity" />
         <activity android:name=".ui.activity.OrderConfirmActivity" />
-        <activity android:name=".ui.activity.MyShangQuanActivity" />
+        <activity
+            android:name=".ui.activity.MyCirclesActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity android:name=".ui.activity.MessageListActivity" />
         <activity android:name=".ui.activity.ConversationPrivateSettingActivity" />
         <activity android:name=".ui.activity.ManageReplyActivity" />
@@ -174,7 +207,11 @@
         <activity android:name=".ui.activity.LargeImageActivity" />
         <activity android:name=".ui.activity.BondPhoneNumberActivity" />
         <activity android:name=".ui.activity.SettingPwdActivity" />
-        <activity android:name=".ui.activity.CompleteUserProfileActivity" />
+        <activity
+            android:name=".ui.activity.CompleteUserProfileActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity android:name=".ui.activity.HobbySelectActivity" />
         <activity android:name=".ui.activity.InterestQuanZiSelectActivity" />
         <activity android:name=".ui.activity.MyQRCodeActivity" />
@@ -228,9 +265,7 @@
         <activity android:name=".ui.activity.FullScreenVideoPlayerActivity" />
         <activity
             android:name=".ui.activity.CommentInformationActivity"
-            android:configChanges="orientation|screenSize"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ui.activity.VideoInformationActivity"
             android:configChanges="orientation|screenSize"
@@ -256,9 +291,7 @@
         <activity android:name=".ui.activity.UserVertifyActivity" />
         <activity
             android:name=".ui.activity.CreateShopActivity"
-            android:configChanges="orientation|screenSize"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustPan|stateHidden" />
         <activity
             android:name=".ui.activity.ShopVertifyActivity"
             android:configChanges="orientation|screenSize"
@@ -317,7 +350,26 @@
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize|stateHidden" />
-
+        <activity
+            android:name=".ui.activity.CustomerServiceActivity"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustPan" />
+        <activity android:name=".ui.activity.CustomerServiceSettingActivity" />
+        <activity android:name=".ui.activity.ShopProfileActivity" />
+        <activity
+            android:name=".ui.activity.SearchServiceChatHistoryActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity android:name=".ui.activity.XiTongXiaoXiQuanZhuAssistantActivity" />
+        <activity android:name=".ui.activity.XiTongXiaoXiZhiFuTongZhiActivity" />
+        <activity android:name=".ui.activity.XiTongXiaoXiTouSuFanKuiActivity" />
+        <activity
+            android:name=".ui.activity.ShenSuActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity android:name=".ui.activity.WebLoginActivity" />
 
         <!-- 支付宝支付start-->
         <activity
@@ -396,7 +448,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data android:scheme="101762258" />
+                <data android:scheme="tencent101762258" />
             </intent-filter>
         </activity>
         <activity
@@ -407,12 +459,16 @@
         <!-- qq end -->
 
         <!-- 高德定位 start -->
-        <service android:name="com.amap.api.location.APSService"></service>
+        <service android:name="com.amap.api.location.APSService" />
         <meta-data
             android:name="com.amap.api.v2.apikey"
-            android:value="dd1c5585e8f23b3eecee05994819446a"></meta-data>
+            android:value="dd1c5585e8f23b3eecee05994819446a" />
         <!-- 高德定位 end -->
 
+        <!-- 全面屏 -->
+        <meta-data
+            android:name="android.max_aspect"
+            android:value="2.1" />
 
         <!-- 极光-->
         <!-- Rich push 核心功能 since 2.0.6-->
@@ -508,6 +564,7 @@
             </intent-filter>
         </receiver>
 
+
         <!-- Required SDK核心功能-->
         <receiver
             android:name="cn.jpush.android.service.AlarmReceiver"
@@ -542,6 +599,15 @@
         <!--<category android:name="com.zhiyu.quanzhu"></category>-->
         <!--</intent-filter>-->
         <!--</receiver>-->
+        <receiver
+            android:name=".ui.jpush.MyJPushMessageReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="cn.jpush.android.intent.RECEIVE_MESSAGE" />
+                <category android:name="com.zhiyu.quanzhu" />
+            </intent-filter>
+        </receiver>
 
         <!--since 3.3.0 Required SDK核心功能-->
         <activity
@@ -558,13 +624,13 @@
         <!-- since 3.3.0 Required SDK 核心功能-->
         <!-- 可配置android:process参数将PushService放在其他进程中 -->
         <!--User defined.  For test only 继承自cn.jpush.android.service.JCommonService-->
-        <!--<service-->
-        <!--android:name=".ui.jpush.PushService"-->
-        <!--android:process=":pushcore">-->
-        <!--<intent-filter>-->
-        <!--<action android:name="cn.jiguang.user.service.action" />-->
-        <!--</intent-filter>-->
-        <!--</service>-->
+        <service
+            android:name=".ui.jpush.PushService"
+            android:process=":pushcore">
+            <intent-filter>
+                <action android:name="cn.jiguang.user.service.action" />
+            </intent-filter>
+        </service>
         <!-- since 3.5.6 新增华硕通道  -->
         <!--<receiver android:name="cn.jpush.android.asus.AsusPushMessageReceiver"></receiver>-->
         <!-- Required  . Enable it you can get statistics data with channel -->
@@ -573,9 +639,10 @@
             android:name="JPUSH_CHANNEL"
             android:value="developer-default" />
         <!-- Required. AppKey copied from Portal -->
+        <!-- appkey : 4a2e305f7622238e98956067 -->
         <meta-data
             android:name="JPUSH_APPKEY"
-            android:value="eea3d84e6b5445216632413e" />
+            android:value="4a2e305f7622238e98956067" />
         <!-- 极光-->
     </application>
 

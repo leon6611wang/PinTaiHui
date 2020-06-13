@@ -63,7 +63,8 @@ public class FangKeRecyclerAdapter extends RecyclerView.Adapter<FangKeRecyclerAd
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
-        Glide.with(activity).load(list.get(position).getAvatar()).error(R.drawable.image_error).into(holder.avatarImageView);
+        Glide.with(activity).load(list.get(position).getAvatar()).error(R.drawable.image_error) .placeholder(R.drawable.image_error)
+                .fallback(R.drawable.image_error).into(holder.avatarImageView);
         holder.nameTextView.setText(list.get(position).getUsername());
         holder.countTextView.setText(String.valueOf(list.get(position).getCount()));
         holder.timeTextView.setText(list.get(position).getDate());

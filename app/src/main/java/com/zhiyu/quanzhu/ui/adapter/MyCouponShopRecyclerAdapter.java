@@ -66,9 +66,11 @@ public class MyCouponShopRecyclerAdapter extends RecyclerView.Adapter<MyCouponSh
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Glide.with(context).load(list.get(position).getIcon()).error(R.drawable.image_error).into(holder.iconImageView);
+        Glide.with(context).load(list.get(position).getIcon()).error(R.drawable.image_error) .placeholder(R.drawable.image_error)
+                .fallback(R.drawable.image_error).into(holder.iconImageView);
         holder.nameTextView.setText(list.get(position).getName());
         holder.adapter.setList(list.get(position).getList());
+        holder.adapter.setShop_id(list.get(position).getShop_id());
         holder.shopInfoTextView.setOnClickListener(new OnShopInfoClick(position));
     }
 
@@ -86,7 +88,6 @@ public class MyCouponShopRecyclerAdapter extends RecyclerView.Adapter<MyCouponSh
 
         @Override
         public void onClick(View v) {
-            System.out.println("shop_id: "+list.get(position).getShop_id());
             Intent shopInfoIntent = new Intent(context, ShopInformationActivity.class);
             shopInfoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             shopInfoIntent.putExtra("shop_id", String.valueOf(list.get(position).getShop_id()));

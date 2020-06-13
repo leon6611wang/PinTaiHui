@@ -55,7 +55,8 @@ public class MemberCenterActivity extends BaseActivity implements View.OnClickLi
             switch (msg.what){
                 case 1:
                     if(activity.memberCenterResult.getCode()==200){
-                        Glide.with(activity).load(activity.memberCenterResult.getData().getAvatar()).error(R.drawable.image_error).into(activity.avatarImageView);
+                        Glide.with(activity).load(activity.memberCenterResult.getData().getAvatar()).error(R.drawable.image_error) .placeholder(R.drawable.image_error)
+                                .fallback(R.drawable.image_error).into(activity.avatarImageView);
                         activity.nameTextView.setText(activity.memberCenterResult.getData().getUsername());
                         activity.pointTextView.setText(activity.memberCenterResult.getData().getCredits()+"积分");
                         activity.growUpTextView.setText(activity.memberCenterResult.getData().getGrow_up());

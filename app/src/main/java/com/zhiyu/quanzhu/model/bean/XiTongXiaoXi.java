@@ -10,6 +10,42 @@ public class XiTongXiaoXi {
     private int msgCount;
     private String time;
     private boolean isGuanFang;
+    private long message_time;
+    private int message_type;
+    private String avatar;
+    private int shop_id;
+
+    public int getShop_id() {
+        return shop_id;
+    }
+
+    public void setShop_id(int shop_id) {
+        this.shop_id = shop_id;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    public int getMessage_type() {
+        return message_type;
+    }
+
+    public void setMessage_type(int message_type) {
+        this.message_type = message_type;
+    }
+
+    public long getMessage_time() {
+        return message_time;
+    }
+
+    public void setMessage_time(long message_time) {
+        this.message_time = message_time;
+    }
 
     public int getIcon() {
         return icon;

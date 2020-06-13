@@ -36,9 +36,9 @@
             <View
                 android:id="@+id/quanbuview"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/dp_3"
+                android:layout_height="@dimen/dp_2"
                 android:layout_gravity="bottom"
-                android:background="@color/text_color_yellow" />
+                android:background="@color/coupon_line" />
         </LinearLayout>
 
         <LinearLayout
@@ -64,9 +64,9 @@
             <View
                 android:id="@+id/shixiaoview"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/dp_3"
+                android:layout_height="@dimen/dp_2"
                 android:layout_gravity="bottom"
-                android:background="@color/text_color_yellow"
+                android:background="@color/coupon_line"
                 android:visibility="invisible" />
         </LinearLayout>
 

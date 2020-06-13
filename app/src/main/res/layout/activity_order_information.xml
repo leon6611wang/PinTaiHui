@@ -28,10 +28,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:layout_marginRight="@dimen/dp_10"
                     android:gravity="center"
                     android:text="订单编号"
                     android:textColor="#3E3E49"
-                    android:layout_marginRight="@dimen/dp_10"
                     android:textSize="14sp" />
 
                 <View
@@ -45,10 +45,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:gravity="center"
-                    android:text="0000001"
-                    android:maxLines="1"
                     android:ellipsize="end"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:text="0000001"
                     android:textColor="@color/text_color_gray"
                     android:textSize="14sp" />
 
@@ -126,31 +126,32 @@
                     android:layout_gravity="center"
                     android:layout_weight="1" />
 
-                <LinearLayout
-                    android:id="@+id/timeDownLayout"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:orientation="horizontal">
+                <!--<LinearLayout-->
+                    <!--android:id="@+id/timeDownLayout"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_gravity="center"-->
+                    <!--android:gravity="center"-->
+                    <!--android:orientation="horizontal">-->
 
-                    <com.zhiyu.quanzhu.ui.widget.TimeDownTextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:gravity="center"
-                        android:textColor="#F6152A"
-                        android:textSize="14sp" />
+                    <!--<com.zhiyu.quanzhu.ui.widget.TimeDownTextView-->
+                        <!--android:id="@+id/timeDownTextView"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_gravity="center"-->
+                        <!--android:gravity="center"-->
+                        <!--android:textColor="#F6152A"-->
+                        <!--android:textSize="14sp" />-->
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:gravity="center"
-                        android:text=" 后将关闭订单"
-                        android:textColor="#F6152A"
-                        android:textSize="14sp" />
-                </LinearLayout>
+                    <!--<TextView-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_gravity="center"-->
+                        <!--android:gravity="center"-->
+                        <!--android:text=" 后将关闭订单"-->
+                        <!--android:textColor="#F6152A"-->
+                        <!--android:textSize="14sp" />-->
+                <!--</LinearLayout>-->
 
                 <TextView
                     android:id="@+id/orderStatusTextView"
@@ -171,7 +172,8 @@
                 android:layout_marginLeft="@dimen/dp_15"
                 android:layout_marginRight="@dimen/dp_15"
                 android:background="@mipmap/order_info_delivery_bg"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:visibility="gone">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -274,6 +276,7 @@
                     android:textSize="14sp" />
 
                 <LinearLayout
+                    android:id="@+id/customerServiceLayout"
                     android:layout_width="83dp"
                     android:layout_height="25dp"
                     android:layout_gravity="center"
@@ -762,9 +765,11 @@
                 android:visibility="gone">
 
                 <TextView
-                    android:layout_width="165dp"
+                    android:id="@+id/cancelOrderTextView"
+                    android:layout_width="0dp"
                     android:layout_height="44dp"
                     android:layout_gravity="center"
+                    android:layout_weight="1"
                     android:background="@drawable/shape_oval_bg_yellow"
                     android:gravity="center"
                     android:text="取消订单"
@@ -772,15 +777,16 @@
                     android:textSize="13sp" />
 
                 <View
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/dp_1"
-                    android:layout_gravity="center"
-                    android:layout_weight="1" />
+                    android:layout_width="15dp"
+                    android:layout_height="match_parent"
+                    />
 
                 <TextView
-                    android:layout_width="165dp"
+                    android:id="@+id/payTextView"
+                    android:layout_width="0dp"
                     android:layout_height="44dp"
                     android:layout_gravity="center"
+                    android:layout_weight="1"
                     android:background="@mipmap/mingpian_fenxiang_button_bg"
                     android:gravity="center"
                     android:text="立即支付"
@@ -796,6 +802,7 @@
                 android:visibility="gone">
 
                 <TextView
+                    android:id="@+id/deleteOrderTextView"
                     android:layout_width="match_parent"
                     android:layout_height="44dp"
                     android:layout_gravity="center"
@@ -815,6 +822,7 @@
                 android:visibility="gone">
 
                 <TextView
+                    android:id="@+id/confirmShouHuoTextView"
                     android:layout_width="match_parent"
                     android:layout_height="44dp"
                     android:layout_gravity="center"
@@ -829,9 +837,11 @@
                 android:id="@+id/daipingjiaLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:visibility="gone">
 
                 <TextView
+                    android:id="@+id/commentTextView"
                     android:layout_width="match_parent"
                     android:layout_height="44dp"
                     android:layout_gravity="center"
@@ -846,9 +856,11 @@
                 android:id="@+id/yiwanchengLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:visibility="gone">
 
                 <TextView
+                    android:id="@+id/orderAgainTextView"
                     android:layout_width="match_parent"
                     android:layout_height="44dp"
                     android:layout_gravity="center"

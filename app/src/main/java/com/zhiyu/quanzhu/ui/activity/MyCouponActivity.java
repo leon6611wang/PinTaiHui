@@ -65,6 +65,7 @@ public class MyCouponActivity extends BaseActivity implements View.OnClickListen
         adapter = new ViewPagerAdapter(getSupportFragmentManager(), fragmentList);
         mViewPager.setAdapter(adapter);
         mViewPager.setOffscreenPageLimit(3);
+        barChange(0);
 
     }
 

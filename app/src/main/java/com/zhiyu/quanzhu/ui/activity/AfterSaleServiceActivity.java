@@ -61,7 +61,7 @@ public class AfterSaleServiceActivity extends BaseActivity implements View.OnCli
     private GoodsStatusDialog goodsStatusDialog;
     private RefundReasonDialog refundReasonDialog;
     private DeleteImageDialog deleteImageDialog;
-    private int serviceTypeIndex, goodsStatusIndex;
+    private int serviceTypeIndex = -1, goodsStatusIndex = -1;
     private String refundReason;
     private int isUpdate;
     private MyHandler myHandler = new MyHandler(this);
@@ -77,6 +77,9 @@ public class AfterSaleServiceActivity extends BaseActivity implements View.OnCli
         public void handleMessage(Message msg) {
             AfterSaleServiceActivity activity = activityWeakReference.get();
             switch (msg.what) {
+                case 99:
+                    MessageToast.getInstance(activity).show("服务器内部错误，请稍后再试.");
+                    break;
                 case 1:
                     MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
                     if (200 == activity.baseResult.getCode()) {
@@ -105,6 +108,7 @@ public class AfterSaleServiceActivity extends BaseActivity implements View.OnCli
             @Override
             public void onServiceType(int typeIndex, String servieType) {
                 serviceTypeIndex = typeIndex;
+                System.out.println("serviceTypeIndex: " + serviceTypeIndex);
                 serviceTypeTextView.setText(servieType);
             }
         });
@@ -113,6 +117,7 @@ public class AfterSaleServiceActivity extends BaseActivity implements View.OnCli
             @Override
             public void onGoodsSatus(int statusIndex, String status) {
                 goodsStatusIndex = statusIndex;
+                System.out.println("goodsStatusIndex: " + goodsStatusIndex);
                 goodsStatusTextView.setText(status);
             }
         });
@@ -120,6 +125,7 @@ public class AfterSaleServiceActivity extends BaseActivity implements View.OnCli
             @Override
             public void onRefundReason(String reason) {
                 refundReason = reason;
+                System.out.println("refundReason: " + refundReason);
                 reasonTextView.setText(reason);
             }
         });
@@ -139,7 +145,8 @@ public class AfterSaleServiceActivity extends BaseActivity implements View.OnCli
         titleTextView = findViewById(R.id.titleTextView);
         titleTextView.setText("售后服务");
         goodsImageImageView = findViewById(R.id.goodsImageImageView);
-        Glide.with(this).load(goods.getGoods_img()).error(R.drawable.image_error).into(goodsImageImageView);
+        Glide.with(this).load(goods.getGoods_img()).error(R.drawable.image_error).placeholder(R.drawable.image_error)
+                .fallback(R.drawable.image_error).into(goodsImageImageView);
         goodsNameTextView = findViewById(R.id.goodsNameTextView);
         goodsNameTextView.setText(goods.getGoods_name());
         goodsNormsTextView = findViewById(R.id.goodsNormsTextView);
@@ -189,11 +196,11 @@ public class AfterSaleServiceActivity extends BaseActivity implements View.OnCli
                 refundReasonDialog.show();
                 break;
             case R.id.confirmTextView:
-                if (serviceTypeIndex == 0) {
+                if (serviceTypeIndex == -1) {
                     MessageToast.getInstance(this).show("请选择服务类型");
                     break;
                 }
-                if (goodsStatusIndex == 0) {
+                if (goodsStatusIndex == -1) {
                     MessageToast.getInstance(this).show("请选择货物状态");
                     break;
                 }
@@ -284,6 +291,10 @@ public class AfterSaleServiceActivity extends BaseActivity implements View.OnCli
                     uploadImageList.add(ImageUtils.getInstance().getUploadImage(key, map.get(key)));
             }
         }
+        if (null == uploadImageList || uploadImageList.size() == 0) {
+            MessageToast.getInstance(this).show("请上传图片凭证.");
+            return;
+        }
         System.out.println(GsonUtils.GsonString(uploadImageList));
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.ORDER_REFUND);
         params.addBodyParameter("oid", String.valueOf(order_id));
@@ -304,6 +315,8 @@ public class AfterSaleServiceActivity extends BaseActivity implements View.OnCli
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
                 System.out.println("refund: " + ex.toString());
             }
 
@@ -325,10 +338,10 @@ public class AfterSaleServiceActivity extends BaseActivity implements View.OnCli
         if (null != map && map.size() > 0) {
             List<String> list = imageGridAdapter.getList();
             uploadImageList.clear();
-            for(String imgStr:list){
-                if(imgStr.startsWith("http://")||imgStr.startsWith("https://")){
+            for (String imgStr : list) {
+                if (imgStr.startsWith("http://") || imgStr.startsWith("https://")) {
 
-                }else{
+                } else {
 
                 }
             }

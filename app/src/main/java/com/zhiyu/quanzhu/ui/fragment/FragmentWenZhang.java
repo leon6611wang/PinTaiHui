@@ -1,5 +1,6 @@
 package com.zhiyu.quanzhu.ui.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -21,6 +22,7 @@ import com.zhiyu.quanzhu.ui.adapter.FooterPrintHistoryArticleListAdapter;
 import com.zhiyu.quanzhu.ui.adapter.FullSearchArticleListAdapter;
 import com.zhiyu.quanzhu.ui.adapter.ShangQuanRecyclerAdapter;
 import com.zhiyu.quanzhu.ui.adapter.WenZhangRecyclerAdapter;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.MyRecyclerView;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
@@ -46,20 +48,26 @@ public class FragmentWenZhang extends Fragment {
     private PtrFrameLayout ptrFrameLayout;
     private ListView mListView;
     private FooterPrintHistoryArticleListAdapter adapter;
-    private MyHandler myHandler=new MyHandler(this);
-    private static class MyHandler extends Handler{
+    private MyHandler myHandler = new MyHandler(this);
+
+    private static class MyHandler extends Handler {
         WeakReference<FragmentWenZhang> fragmentWeakReference;
-        public MyHandler(FragmentWenZhang fragment){
-            fragmentWeakReference=new WeakReference<>(fragment);
+
+        public MyHandler(FragmentWenZhang fragment) {
+            fragmentWeakReference = new WeakReference<>(fragment);
         }
 
         @Override
         public void handleMessage(Message msg) {
-            FragmentWenZhang fragment=fragmentWeakReference.get();
-            switch (msg.what){
+            FragmentWenZhang fragment = fragmentWeakReference.get();
+            switch (msg.what) {
                 case 1:
                     fragment.ptrFrameLayout.refreshComplete();
                     fragment.adapter.setList(fragment.feedList);
+                    break;
+                case 99:
+                    fragment.ptrFrameLayout.refreshComplete();
+                    MessageToast.getInstance(fragment.getContext()).show("服务器内部错误，请稍后重试.");
                     break;
             }
         }
@@ -68,13 +76,13 @@ public class FragmentWenZhang extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        view=inflater.inflate(R.layout.fragment_wenzhang,container,false);
+        view = inflater.inflate(R.layout.fragment_wenzhang, container, false);
         initPtr();
         initViews();
         return view;
     }
 
-    private void initPtr(){
+    private void initPtr() {
         ptrFrameLayout = view.findViewById(R.id.ptr_frame_layout);
         ptrFrameLayout.setHeaderView(new MyPtrRefresherHeader(getContext()));
         ptrFrameLayout.addPtrUIHandler(new MyPtrHandlerHeader(getContext(), ptrFrameLayout));
@@ -102,36 +110,39 @@ public class FragmentWenZhang extends Fragment {
 
     private void initViews() {
         mListView = view.findViewById(R.id.mListView);
-        adapter = new FooterPrintHistoryArticleListAdapter(getActivity(),getContext());
+        adapter = new FooterPrintHistoryArticleListAdapter(getActivity(), getContext());
         mListView.setAdapter(adapter);
     }
 
-    private int page=1;
-    private boolean isRefresh=true;
+    private int page = 1;
+    private boolean isRefresh = true;
     private FeedResult feedResult;
     private List<Feed> feedList;
-    private void myHistory(){
-        RequestParams params= MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL+ConstantsUtils.MY_HISTORY_LIST);
-        params.addBodyParameter("page",String.valueOf(page));
-        params.addBodyParameter("type","feeds");//quanzi商圈 feeds文章 goods商品
+
+    private void myHistory() {
+        RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.MY_HISTORY_LIST);
+        params.addBodyParameter("page", String.valueOf(page));
+        params.addBodyParameter("type", "feeds");//quanzi商圈 feeds文章 goods商品
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("我的历史-文章: "+result);
-                feedResult= GsonUtils.GsonToBean(result,FeedResult.class);
-                if(isRefresh){
-                    feedList=feedResult.getData().getList();
-                }else{
+                System.out.println("我的历史-文章: " + result);
+                feedResult = GsonUtils.GsonToBean(result, FeedResult.class);
+                if (isRefresh) {
+                    feedList = feedResult.getData().getList();
+                } else {
                     feedList.addAll(feedResult.getData().getList());
                 }
-                System.out.println("我的历史-文章: "+feedList.size());
-                Message message=myHandler.obtainMessage(1);
+                System.out.println("我的历史-文章: " + feedList.size());
+                Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
             }
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                System.out.println("我的历史-文章: "+ex.toString());
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
+                System.out.println("我的历史-文章: " + ex.toString());
             }
 
             @Override
@@ -144,5 +155,11 @@ public class FragmentWenZhang extends Fragment {
 
             }
         });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        adapter.setQQShareResult(requestCode, resultCode, data);
     }
 }

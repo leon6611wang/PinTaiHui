@@ -12,19 +12,25 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.leon.chic.dao.PageDao;
+import com.qiniu.android.utils.StringUtils;
 import com.youth.banner.Banner;
 import com.youth.banner.BannerConfig;
 import com.youth.banner.listener.OnBannerListener;
 import com.zhiyu.quanzhu.R;
+import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.model.bean.MallAdGoods;
 import com.zhiyu.quanzhu.model.bean.MallAdImg;
 import com.zhiyu.quanzhu.model.result.MallAdGoodsResult;
 import com.zhiyu.quanzhu.model.result.MallAdResult;
 import com.zhiyu.quanzhu.ui.activity.CartActivity;
+import com.zhiyu.quanzhu.ui.activity.GoodsSearchActivity;
 import com.zhiyu.quanzhu.ui.activity.H5PageActivity;
 import com.zhiyu.quanzhu.ui.activity.MallGoodsTypeActivity;
 import com.zhiyu.quanzhu.ui.adapter.HomeQuanShangRecyclerAdapter;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.HomeQuanShangRecyclerViewHeaderView;
 import com.zhiyu.quanzhu.ui.widget.Indicator;
 import com.zhiyu.quanzhu.ui.widget.MyRecyclerView;
@@ -35,6 +41,7 @@ import com.zhiyu.quanzhu.utils.MyPtrHandlerFooter;
 import com.zhiyu.quanzhu.utils.MyPtrHandlerHeader;
 import com.zhiyu.quanzhu.utils.MyPtrRefresherFooter;
 import com.zhiyu.quanzhu.utils.MyPtrRefresherHeader;
+import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.ThreadPoolUtils;
 
 import org.xutils.common.Callback;
@@ -53,6 +60,7 @@ public class FragmentHomeQuanShang extends Fragment {
     private View view;
     private View headerView;
     private MyRecyclerView mRecyclerView;
+    private TextView searchTextView;
     private ArrayList<MallAdGoods> list = new ArrayList<>();
     private HomeQuanShangRecyclerAdapter adapter;
     private View headerHeaderView;
@@ -80,14 +88,22 @@ public class FragmentHomeQuanShang extends Fragment {
                     fragment.initViews();
                     fragment.startBanner();
                     if (null != fragment.list && fragment.list.size() > 0) {
+                        System.out.println("-" + fragment.list.size());
                         fragment.adapter.addDatas(fragment.list);
                     }
                     break;
                 case 1:
                     fragment.ptrFrameLayout.refreshComplete();
                     if (null != fragment.adapter) {
+                        if (fragment.page == 1) {
+                            fragment.adapter.clearDatas();
+                        }
                         fragment.adapter.addDatas(fragment.list);
                     }
+                    break;
+                case 99:
+                    fragment.ptrFrameLayout.refreshComplete();
+                    MessageToast.getInstance(fragment.getContext()).show("服务器内部错误，请稍后再试.");
                     break;
             }
         }
@@ -101,29 +117,49 @@ public class FragmentHomeQuanShang extends Fragment {
             @Override
             public void run() {
                 requestMallHomeAd();
+                requestMallHomeAdGoods();
             }
         });
-
         return view;
     }
 
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-        if(isVisibleToUser){
-            ThreadPoolUtils.getInstance().init().execute(new Runnable() {
-                @Override
-                public void run() {
-                    requestMallHomeAdGoods();
-                }
-            });
+    private void initLocationData() {
+        String result = PageDao.getInstance().get(MallAdResult.class, BaseApplication.getInstance());
+        String result2 = PageDao.getInstance().get(MallAdGoodsResult.class, BaseApplication.getInstance());
+        if (!StringUtils.isNullOrEmpty(result2)) {
+            mallAdGoodsResult = GsonUtils.GsonToBean(result, MallAdGoodsResult.class);
+            if (null != mallAdGoodsResult && null != mallAdGoodsResult.getData() && null != mallAdGoodsResult.getData().getGoods_list())
+                list.addAll(mallAdGoodsResult.getData().getGoods_list());
+        }
 
+        if (!StringUtils.isNullOrEmpty(result)) {
+            mallAdResult = GsonUtils.GsonToBean(result, MallAdResult.class);
+            if (null != mallAdResult && null != mallAdResult.getData() &&
+                    null != mallAdResult.getData().getList() && null != mallAdResult.getData().getList().get(0) &&
+                    null != mallAdResult.getData().getList().get(0).getContent() && null != mallAdResult.getData().getList().get(0).getContent().getAd_imgs())
+                for (MallAdImg img : mallAdResult.getData().getList().get(0).getContent().getAd_imgs()) {
+                    imageUrl.add(img.getImg());
+                }
+            initViews();
+            startBanner();
+            if (null != list && list.size() > 0) {
+                adapter.addDatas(list);
+            }
         }
     }
 
     private void initViews() {
         mRecyclerView = view.findViewById(R.id.mRecyclerView);
         headerView = view.findViewById(R.id.headerView);
+        searchTextView = view.findViewById(R.id.searchTextView);
+        searchTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent searchIntent = new Intent(getContext(), GoodsSearchActivity.class);
+                searchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                getContext().startActivity(searchIntent);
+            }
+        });
         gouwucheImageView = view.findViewById(R.id.gouwucheImageView);
         gouwucheImageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -197,9 +233,12 @@ public class FragmentHomeQuanShang extends Fragment {
 
             @Override
             public void onRefreshBegin(PtrFrameLayout frame) {
+                page = 1;
+                requestMallHomeAd();
+                requestMallHomeAdGoods();
             }
         });
-        ptrFrameLayout.setMode(PtrFrameLayout.Mode.LOAD_MORE);
+        ptrFrameLayout.setMode(PtrFrameLayout.Mode.BOTH);
     }
 
     private void startBanner() {
@@ -225,8 +264,11 @@ public class FragmentHomeQuanShang extends Fragment {
         banner.setOnBannerListener(new OnBannerListener() {
             @Override
             public void OnBannerClick(int position) {
-                String url = mallAdResult.getData().getList().get(0).getContent().getAd_imgs().get(position).getHandel_url();
-                gotoAdPage(url);
+                if (!StringUtils.isNullOrEmpty(mallAdResult.getData().getList().get(0).getContent().getAd_imgs().get(position).getHandle_url())) {
+                    String url = mallAdResult.getData().getList().get(0).getContent().getAd_imgs().get(position).getHandle_url();
+                    gotoAdPage(url);
+                }
+
             }
         });
         banner.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -273,17 +315,20 @@ public class FragmentHomeQuanShang extends Fragment {
      * 商城广告数据
      */
     private void requestMallHomeAd() {
-        RequestParams params = new RequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.MALL_HOME_AD);
+        RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.MALL_HOME_AD);
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("ad: " + result);
                 mallAdResult = GsonUtils.GsonToBean(result, MallAdResult.class);
+                if (null != imageUrl) {
+                    imageUrl.clear();
+                }
                 for (MallAdImg img : mallAdResult.getData().getList().get(0).getContent().getAd_imgs()) {
                     imageUrl.add(img.getImg());
                 }
                 Message message = myHandler.obtainMessage(0);
                 message.sendToTarget();
+                PageDao.getInstance().save(MallAdResult.class, result, BaseApplication.getInstance());
             }
 
             @Override
@@ -310,22 +355,27 @@ public class FragmentHomeQuanShang extends Fragment {
      * 广告商品
      */
     private void requestMallHomeAdGoods() {
-        RequestParams params = new RequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.MALL_HOME_AD_GOODS);
+        if (page == 1) {
+            if (null != adapter)
+                adapter.clearDatas();
+        }
+        RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.MALL_HOME_AD_GOODS);
         params.addBodyParameter("page", String.valueOf(page));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("ad goods: " + result);
                 mallAdGoodsResult = GsonUtils.GsonToBean(result, MallAdGoodsResult.class);
-                list.addAll(mallAdGoodsResult.getData().getGoods_list());
-                System.out.println("ad goods: " + list.size());
+                list = mallAdGoodsResult.getData().getGoods_list();
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
+                PageDao.getInstance().save(MallAdGoodsResult.class, result, BaseApplication.getInstance());
             }
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                System.out.println("ad goods: " + ex.toString());
+                System.out.println("广告商品: " + ex.toString());
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
             }
 
             @Override

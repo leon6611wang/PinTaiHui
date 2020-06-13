@@ -144,6 +144,7 @@ public class FragmentFullSearchVideo extends Fragment {
             x.http().post(params, new Callback.CommonCallback<String>() {
                 @Override
                 public void onSuccess(String result) {
+                    System.out.println("full video article: " + result);
                     videoResult = GsonUtils.GsonToBean(result, FullSearchVideoResult.class);
                     if (isRefresh) {
                         list = videoResult.getData().getVideo_list();

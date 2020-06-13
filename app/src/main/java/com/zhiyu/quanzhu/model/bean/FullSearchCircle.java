@@ -6,13 +6,32 @@ public class FullSearchCircle {
     private String descirption;
     private int uid;
     private String user_name;
+    private String username;
+    private String avatar;
     private String user_avatar;
     private String city_name;
     private String industry;
-    private String thumb;
+    private ArticleThumb thumb;
     private int pnum;
     private int fnum;
     private int days;
+
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
 
     public int getId() {
         return id;
@@ -78,11 +97,11 @@ public class FullSearchCircle {
         this.industry = industry;
     }
 
-    public String getThumb() {
+    public ArticleThumb getThumb() {
         return thumb;
     }
 
-    public void setThumb(String thumb) {
+    public void setThumb(ArticleThumb thumb) {
         this.thumb = thumb;
     }
 

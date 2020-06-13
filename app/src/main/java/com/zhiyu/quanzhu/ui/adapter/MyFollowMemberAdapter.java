@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.Fans;
@@ -104,7 +105,8 @@ public class MyFollowMemberAdapter extends BaseAdapter {
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
-        Glide.with(parent.getContext()).load(list.get(position).getAvatar()).into(holder.avatarImageView);
+        Glide.with(parent.getContext()).load(list.get(position).getAvatar()).error(R.drawable.image_error).into(holder.avatarImageView);
+        if(!StringUtils.isNullOrEmpty(list.get(position).getUsername()))
         holder.nameTextView.setText(list.get(position).getUsername());
         holder.fansCountTextView.setText(String.valueOf(list.get(position).getFans()));
         if (list.get(position).isIs_follow()) {
@@ -116,7 +118,7 @@ public class MyFollowMemberAdapter extends BaseAdapter {
                 holder.followTextView.setTextColor(parent.getContext().getResources().getColor(R.color.white));
             } else {
                 holder.followLayout.setBackground(parent.getResources().getDrawable(R.drawable.shape_oval_solid_bg_yellow));
-                holder.followImageView.setVisibility(View.VISIBLE);
+                holder.followImageView.setVisibility(View.GONE);
                 holder.followTextView.setText("已关注");
                 holder.followTextView.setTextColor(parent.getContext().getResources().getColor(R.color.white));
             }
@@ -146,8 +148,9 @@ public class MyFollowMemberAdapter extends BaseAdapter {
     }
 
     private BaseResult baseResult;
+
     private void follow(final int position) {
-        System.out.println("follow position: "+position);
+        System.out.println("follow position: " + position);
         RequestParams params = MyRequestParams.getInstance(context).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.FOLLOW);
         params.addBodyParameter("follow_id", String.valueOf(list.get(position).getId()));
         params.addBodyParameter("module_type", "user");
@@ -155,16 +158,16 @@ public class MyFollowMemberAdapter extends BaseAdapter {
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("follow: "+result);
+                System.out.println("follow: " + result);
                 baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
                 Message message = myHandler.obtainMessage(1);
-                message.obj=position;
+                message.obj = position;
                 message.sendToTarget();
             }
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                System.out.println("follow: "+ex.toString());
+                System.out.println("follow: " + ex.toString());
             }
 
             @Override

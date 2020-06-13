@@ -1,5 +1,6 @@
 package com.zhiyu.quanzhu.ui.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -32,7 +33,6 @@ public class PublishChooseGoodsActivity extends BaseActivity implements View.OnC
     private FragmentPublishChooseGoodsSelected selectedFragment;
     private List<Fragment> fragmentList = new ArrayList<>();
     private int feeds_id;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,10 +133,21 @@ public class PublishChooseGoodsActivity extends BaseActivity implements View.OnC
 
     @Override
     public void finish() {
-        if (null != onChooseGoodsListener) {
-            onChooseGoodsListener.onChooseGoods(idSet);
-        }
+        setResultIntent();
+//        if (null != onChooseGoodsListener) {
+//            onChooseGoodsListener.onChooseGoods(idSet);
+//        }
         super.finish();
+    }
+
+    private void setResultIntent() {
+        int c1 = searchFragment.getSelectedGoodsCount();
+        int c2 = selectedFragment.getSelectedGoodsCount();
+        System.out.println("c1: " + c1 + " , c2: " + c2);
+        int count = (c1 > c2) ? c1 : c2;
+        Intent intent = new Intent();
+        intent.putExtra("count", count);
+        setResult(1033, intent);
     }
 
     public static void setOnChooseGoodsListener(OnChooseGoodsListener listener) {

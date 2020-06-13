@@ -64,7 +64,8 @@ public class OrderInformationGoodsRecyclerviewAdapter extends RecyclerView.Adapt
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Glide.with(context).load(list.get(position).getGoods_img()).error(R.drawable.image_error).into(holder.goodsImageImageView);
+        Glide.with(context).load(list.get(position).getGoods_img()).error(R.drawable.image_error) .placeholder(R.drawable.image_error)
+                .fallback(R.drawable.image_error).into(holder.goodsImageImageView);
         holder.goodsNameTextView.setText(list.get(position).getGoods_name());
         holder.goodsNormsTextView.setText(list.get(position).getNorms_name());
         holder.zhengshuTextView.setText(PriceParseUtils.getInstance().getZhengShu(list.get(position).getGoods_price()));

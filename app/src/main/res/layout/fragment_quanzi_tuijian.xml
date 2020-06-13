@@ -40,11 +40,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="visible">
-    <com.zhiyu.quanzhu.ui.widget.MyRecyclerView
-        android:id="@+id/mRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_gravity="center"
-        android:layout_weight="1" />
+
+        <com.zhiyu.quanzhu.ui.widget.MyRecyclerView
+            android:id="@+id/mRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_gravity="center"
+            android:layout_weight="1" />
     </com.scwang.smartrefresh.horizontal.SmartRefreshHorizontal>
 </LinearLayout>

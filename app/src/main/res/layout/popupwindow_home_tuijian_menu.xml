@@ -223,7 +223,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp"
                     android:gravity="center_vertical"
-                    android:text="邀请好友"
+                    android:text="邀请圈友"
                     android:textColor="#31333E"
                     android:textSize="@dimen/sp_14" />
             </LinearLayout>

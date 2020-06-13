@@ -18,7 +18,7 @@
             android:id="@+id/headerImageView"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@mipmap/header" />
+            android:src="@drawable/image_error" />
 
         <View
             android:layout_width="@dimen/dp_10"
@@ -110,7 +110,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/dp_10"
                 android:layout_marginTop="@dimen/dp_10"
-                android:text="在平稳度过2019天猫双11流量峰值后，1流量过2019天猫双1巴巴正式宣布，在平稳度过2019天猫双11流量峰值后，阿里巴巴正式宣布，在平稳度过2019天猫双11流量峰值后，阿里巴巴正式宣布，在平稳度过2019天猫双11流量峰值后，阿里巴巴正式宣布，在平稳度过2019天猫双11流量峰值后，阿里巴巴正式宣布，其核心系统已100%跑在阿里云公共云上，中国唯一自研的飞天云操作系统成功扛住全球最大规模的流量洪峰54.4万笔/秒"
+                android:text="comment"
                 android:textColor="#333333"
                 android:textSize="13sp"
                 app:etv_MaxLinesOnShrink="5"
@@ -146,8 +146,8 @@
                     android:id="@+id/replyExpandableTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="在平稳度过2019天猫双11流量峰值后，1流量过2019天猫双1巴巴正式宣布，在平稳度过2019天猫双11流量峰值后，阿里巴巴正式宣布，在平稳度过2019天猫双11流量峰值后，阿里巴巴正式宣布，在平稳度过2019天猫双11流量峰值后，阿里巴巴正式宣布，在平稳度过2019天猫双11流量峰值后，阿里巴巴正式宣布，其核心系统已100%跑在阿里云公共云上，中国唯一自研的飞天云操作系统成功扛住全球最大规模的流量洪峰54.4万笔/秒"
-                    android:textColor="#333333"
+                    android:text="商家回复"
+                    android:textColor="@color/text_color_yellow"
                     android:textSize="13sp"
                     app:etv_MaxLinesOnShrink="5"
                     app:etv_ToExpandHint="展开↓"

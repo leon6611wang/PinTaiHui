@@ -1,5 +1,6 @@
 package com.zhiyu.quanzhu.ui.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -86,6 +87,18 @@ public class DraftsActivity extends BaseActivity implements View.OnClickListener
         initDialogs();
         initPtr();
         initViews();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        adapter.setVideoStop(false);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        adapter.setVideoStop(true);
     }
 
     private void initDialogs() {
@@ -271,5 +284,11 @@ public class DraftsActivity extends BaseActivity implements View.OnClickListener
 
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        adapter.setQQShareResult(requestCode,resultCode,data);
     }
 }

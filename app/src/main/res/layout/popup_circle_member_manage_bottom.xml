@@ -49,7 +49,7 @@
                 android:layout_height="49.5dp"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:text="添加好友"
+                android:text="添加圈友"
                 android:textColor="@color/white"
                 android:textSize="14sp" />
 

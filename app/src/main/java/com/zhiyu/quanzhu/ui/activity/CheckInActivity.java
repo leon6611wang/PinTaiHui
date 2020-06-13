@@ -66,6 +66,7 @@ public class CheckInActivity extends BaseActivity implements View.OnClickListene
                 case 2:
                     MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
                     if (200 == activity.baseResult.getCode()) {
+                        activity.qiandaoTextView.setText("已签到");
                         activity.daysTextView.setText(String.valueOf(activity.checkInResult.getData().getDays() + 1));
                         activity.checkInSuccessDialog.show();
                         activity.checkInSuccessDialog.setDays(activity.checkInResult.getData().getWeekdays() + 1);
@@ -107,6 +108,8 @@ public class CheckInActivity extends BaseActivity implements View.OnClickListene
         adapter = new CheckInRecyclerAdapter(this);
         adapter.addDatas(list);
         headerView = LayoutInflater.from(this).inflate(R.layout.header_qiandao_recyclerview, null);
+        RecyclerView.LayoutParams layoutParams=new RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT,RecyclerView.LayoutParams.WRAP_CONTENT);
+        headerView.setLayoutParams(layoutParams);
         qiandaoTextView = headerView.findViewById(R.id.qiandaoTextView);
         qiandaoTextView.setOnClickListener(this);
         daysTextView = headerView.findViewById(R.id.daysTextView);

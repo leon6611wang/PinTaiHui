@@ -80,6 +80,12 @@ public class MyOrderAllRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
                         adapter.notifyItemChanged(adapter.mPosition);
                     }
                     break;
+                case 5://倒计时结束
+                    int position = (Integer) msg.obj;
+                    adapter.list.get(position).setStatus(1);
+                    adapter.list.get(position).setTimeCountComplete(true);
+                    adapter.notifyItemChanged(position);
+                    break;
             }
         }
     }
@@ -240,7 +246,7 @@ public class MyOrderAllRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
 
     class ViewHolderYiQuXiao extends RecyclerView.ViewHolder {
         TextView shopNameTextView, goodsCountTextView, zhengshuTextView, xiaoshuTextView, payWayTextView;
-        TextView deleteOrderTextView;
+        TextView deleteOrderTextView, tuikuanSuccessTextView;
         ImageView payWayImageView;
         MyRecyclerView shangpinRecyclerView;
         MyOrderShangPinRecyclerAdapter adapter;
@@ -253,6 +259,7 @@ public class MyOrderAllRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
 
         public ViewHolderYiQuXiao(View itemView) {
             super(itemView);
+            tuikuanSuccessTextView = itemView.findViewById(R.id.tuikuanSuccessTextView);
             shangpinRecyclerView = itemView.findViewById(R.id.shangpinRecyclerView);
             adapter = new MyOrderShangPinRecyclerAdapter(context);
             shangpinRecyclerView.setLayoutManager(linearLayoutManager);
@@ -359,6 +366,9 @@ public class MyOrderAllRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
                 @Override
                 public void onTImeDownFinish() {
                     System.out.println("倒计时完成: " + position);
+                    Message message = myHandler.obtainMessage(5);
+                    message.obj = position;
+                    message.sendToTarget();
                 }
             });
             holder.goodsCountTextView.setText(String.valueOf(list.get(position).getNum()));
@@ -506,6 +516,11 @@ public class MyOrderAllRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
             } else {
                 holder.payWayImageView.setVisibility(View.INVISIBLE);
                 holder.payWayTextView.setVisibility(View.INVISIBLE);
+            }
+            if (list.get(position).isTimeCountComplete()) {
+                holder.tuikuanSuccessTextView.setVisibility(View.INVISIBLE);
+            } else {
+                holder.tuikuanSuccessTextView.setVisibility(View.VISIBLE);
             }
 
             switch (list.get(position).getPay_type()) {
@@ -791,8 +806,8 @@ public class MyOrderAllRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
         @Override
         public void onClick(View v) {
             Intent intent = new Intent(context, OrderGoodsCommentsActivity.class);
-            String json=GsonUtils.GsonString(list.get(position));
-            intent.putExtra("orderShop",json);
+            String json = GsonUtils.GsonString(list.get(position));
+            intent.putExtra("orderShop", json);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
         }

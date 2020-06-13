@@ -16,7 +16,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.leon.chic.utils.SPUtils;
 import com.zhiyu.quanzhu.R;
+import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.QuanZiTuiJianDaoHang;
 import com.zhiyu.quanzhu.model.result.QuanZiTuiJianDaoHangResult;
@@ -52,7 +54,7 @@ public class QuanZiTuiJianLabelDialog extends Dialog implements View.OnClickList
         super(context, themeResId);
         this.context = context;
         this.onDaoHangCallbackListener = listener;
-        cityName = SharedPreferencesUtils.getInstance(context).getLocationCity();
+        cityName = SPUtils.getInstance().getLocationCity(BaseApplication.applicationContext);
     }
 
     public void setCityName(String city_name) {

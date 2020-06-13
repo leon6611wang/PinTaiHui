@@ -19,10 +19,12 @@
             android:layout_height="wrap_content">
 
             <ImageView
+                android:id="@+id/circleImageView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
-                android:src="@mipmap/header" />
+                android:src="@drawable/image_error"
+                />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -58,10 +60,11 @@
                             android:orientation="horizontal">
 
                             <TextView
+                                android:id="@+id/circleNameTextView"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
-                                android:layout_marginLeft="15.5dp"
+                                android:layout_marginLeft="15dp"
                                 android:layout_marginRight="8dp"
                                 android:text="马鞍山钓鱼圈"
                                 android:textColor="@color/white"
@@ -77,6 +80,7 @@
                                 android:textSize="11sp" />
 
                             <TextView
+                                android:id="@+id/countTextView"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
@@ -96,19 +100,21 @@
                                 android:src="@mipmap/quanzi_zhibo" />
 
                             <com.zhiyu.quanzhu.ui.widget.CircleImageView
+                                android:id="@+id/userAvatarImageView"
                                 android:layout_width="20dp"
                                 android:layout_height="20dp"
                                 android:layout_gravity="center"
                                 android:layout_marginLeft="@dimen/dp_5"
                                 android:layout_marginRight="@dimen/dp_5"
-                                android:src="@mipmap/header" />
+                                android:src="@drawable/image_error" />
 
                             <TextView
+                                android:id="@+id/userNameTextView"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
                                 android:layout_marginRight="10.5dp"
-                                android:text="钱堂主"
+                                android:text="圈主"
                                 android:textColor="@color/white"
                                 android:textSize="11sp" />
 
@@ -116,10 +122,11 @@
                         </LinearLayout>
 
                         <TextView
+                            android:id="@+id/newMsgCountTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="right"
-                            android:layout_marginRight="10.5dp"
+                            android:layout_gravity="left"
+                            android:layout_marginLeft="@dimen/dp_15"
                             android:text="[0条新消息]"
                             android:textColor="@color/white"
                             android:textSize="11sp" />
@@ -130,11 +137,12 @@
                             android:layout_weight="1" />
 
                         <TextView
+                            android:id="@+id/noticeTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="9.5dp"
-                            android:layout_marginLeft="16dp"
-                            android:text="叶枫：今天去海钓拉~~~"
+                            android:layout_marginLeft="15dp"
+                            android:text="【公告】暂无公告"
                             android:textColor="@color/text_color_gold"
                             android:textSize="12sp" />
 

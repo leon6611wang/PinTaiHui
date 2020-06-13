@@ -1,11 +1,22 @@
 package com.zhiyu.quanzhu.model.bean;
 
+import java.util.List;
+
 public class Feed {
     private int feed_type;
     private int feeds_type;
     private int type;
     private FeedContent content;
     private boolean isSelected;
+    private List<GuanZhuCircle> quanzi;
+
+    public List<GuanZhuCircle> getQuanzi() {
+        return quanzi;
+    }
+
+    public void setQuanzi(List<GuanZhuCircle> quanzi) {
+        this.quanzi = quanzi;
+    }
 
     public boolean isSelected() {
         return isSelected;

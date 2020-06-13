@@ -15,6 +15,8 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_marginRight="@dimen/dp_10"
+            android:scaleType="centerCrop"
+            android:src="@drawable/image_error"
             app:corner_radius="@dimen/dp_5" />
 
         <LinearLayout
@@ -33,7 +35,7 @@
                 android:layout_weight="1"
                 android:ellipsize="end"
                 android:maxLines="2"
-                android:text="3D环绕音智能蓝牙运动耳机全面环绕 耳机魔音极致智能耳机"
+                android:text="商品名称"
                 android:textColor="#333333"
                 android:textSize="14sp"
                 android:textStyle="bold" />
@@ -76,7 +78,7 @@
                         android:id="@+id/origPriceTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="549"
+                        android:text="0"
                         android:textColor="#999999"
                         android:textSize="16sp" />
 
@@ -84,7 +86,7 @@
                         android:id="@+id/origDecimTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text=".9"
+                        android:text=".0"
                         android:textColor="#999999"
                         android:textSize="12sp" />
                 </LinearLayout>
@@ -105,7 +107,7 @@
                         android:id="@+id/zhengshuTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="435"
+                        android:text="0"
                         android:textColor="#D90000"
                         android:textSize="16sp" />
 
@@ -113,7 +115,7 @@
                         android:id="@+id/xiaoshuTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text=".7"
+                        android:text=".0"
                         android:textColor="#D90000"
                         android:textSize="12sp" />
                 </LinearLayout>

@@ -6,7 +6,9 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.Gravity;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import com.weigan.loopview.LoopView;
 import com.weigan.loopview.OnItemSelectedListener;
@@ -112,6 +114,7 @@ public class StartDateDialog extends Dialog {
             }
         });
     }
+
 
     private void setDayView(int year, int month) {
         if (null != dayList && dayList.size() > 0) {

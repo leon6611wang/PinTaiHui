@@ -12,6 +12,7 @@ public class FeedContent {
     private List<String> circle_tags;
     private int id;
     private int uid;
+    private int feed_id;
     private String username;
     private String avatar;
     private String time;
@@ -28,11 +29,19 @@ public class FeedContent {
     private boolean is_follow;
     private boolean is_prise;
     private boolean is_collect;
-    private ArticleThumb thumb;
+    private String thumb;
+    private ArticleThumb newthumb;
     private String circle_name;
     private String video_thumb;
     private boolean is_publish;
 
+    public int getFeed_id() {
+        return feed_id;
+    }
+
+    public void setFeed_id(int feed_id) {
+        this.feed_id = feed_id;
+    }
 
     private FrameLayout.LayoutParams layoutParams = null;
 
@@ -268,12 +277,20 @@ public class FeedContent {
         this.is_collect = is_collect;
     }
 
-    public ArticleThumb getThumb() {
+    public String getThumb() {
         return thumb;
     }
 
-    public void setThumb(ArticleThumb thumb) {
+    public void setThumb(String thumb) {
         this.thumb = thumb;
+    }
+
+    public ArticleThumb getNewthumb() {
+        return newthumb;
+    }
+
+    public void setNewthumb(ArticleThumb newthumb) {
+        this.newthumb = newthumb;
     }
 
     public String getCircle_name() {

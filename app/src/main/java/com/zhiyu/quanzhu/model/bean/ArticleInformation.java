@@ -8,7 +8,8 @@ import java.util.List;
 public class ArticleInformation {
     private int id;
     private String title;
-    private ArticleThumb thumb;
+    private ArticleThumb newthumb;
+    private String thumb;
     private List<ArticleContent> content;
     private String desc;
     private int uid;
@@ -60,11 +61,19 @@ public class ArticleInformation {
         this.title = title;
     }
 
-    public ArticleThumb getThumb() {
+    public ArticleThumb getNewthumb() {
+        return newthumb;
+    }
+
+    public void setNewthumb(ArticleThumb newthumb) {
+        this.newthumb = newthumb;
+    }
+
+    public String getThumb() {
         return thumb;
     }
 
-    public void setThumb(ArticleThumb thumb) {
+    public void setThumb(String thumb) {
         this.thumb = thumb;
     }
 

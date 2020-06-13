@@ -120,7 +120,12 @@ public class ShangQuanInformationActivity extends BaseActivity implements MyScro
                 int member_shangquan_type=2;
                 switch (member_shangquan_type){
                     case 0:
-                        new CircleInfoUnjoinWindow(this).showAtBottom(menuLayout);
+                        new CircleInfoUnjoinWindow(this, new CircleInfoUnjoinWindow.OnMenuSelectListener() {
+                            @Override
+                            public void onMenuSelect(int index, String menu) {
+
+                            }
+                        }).showAtBottom(menuLayout);
                         break;
                     case 1:
                         new CircleInfoJoinedWindow(this, new CircleInfoJoinedWindow.OnMenuSelectListener() {

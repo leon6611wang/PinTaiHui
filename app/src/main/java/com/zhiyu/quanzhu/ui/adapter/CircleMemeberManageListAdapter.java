@@ -11,13 +11,14 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.leon.chic.utils.SPUtils;
 import com.zhiyu.quanzhu.R;
+import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.model.bean.CircleInfoUser;
 import com.zhiyu.quanzhu.ui.popupwindow.CircleMemberManageBottomMenuWindow;
 import com.zhiyu.quanzhu.ui.popupwindow.CircleMemberManageTopMenuWindow;
 import com.zhiyu.quanzhu.ui.widget.CircleImageView;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
-import com.zhiyu.quanzhu.utils.SharedPreferencesUtils;
 
 import java.util.List;
 
@@ -40,15 +41,30 @@ public class CircleMemeberManageListAdapter extends BaseAdapter {
     public void setTopLayoutHeight(int height, int own) {
         this.topLayoutHeight = height;
         this.own = own;
-        this.own=0;
+        String myown="";
+        switch (own){
+            case -1:
+                myown="啥都不是";
+                break;
+            case 0:
+                myown="圈主";
+                break;
+            case 1:
+                myown="管理员";
+                break;
+            case 2:
+                myown="老百姓";
+                break;
+        }
+        System.out.println(myown);
     }
 
-    public CircleMemeberManageListAdapter(ListView listView, Context context,int circle_id) {
+    public CircleMemeberManageListAdapter(ListView listView, Context context, int circle_id) {
         this.listView = listView;
         this.context = context;
-        this.circle_id=circle_id;
+        this.circle_id = circle_id;
         screenHeight = ScreentUtils.getInstance().getScreenHeight(context);
-        String userId = SharedPreferencesUtils.getInstance(context).getUserId();
+        String userId = String.valueOf(SPUtils.getInstance().getUserId(BaseApplication.applicationContext));
         my_user_id = Integer.parseInt(userId);
 
     }
@@ -92,8 +108,8 @@ public class CircleMemeberManageListAdapter extends BaseAdapter {
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
-        Glide.with(convertView).load(list.get(position).getAvatar()).error(R.mipmap.no_avatar).into(holder.avatarImageView);
-        holder.nameTextView.setText(list.get(position).getName() + list.get(position).getId());
+        Glide.with(convertView).load(list.get(position).getAvatar()).error(R.drawable.image_error).into(holder.avatarImageView);
+        holder.nameTextView.setText(list.get(position).getName());
         switch (list.get(position).getRole()) {
             case 0://圈主
                 holder.circlerTextView.setVisibility(View.VISIBLE);
@@ -129,16 +145,40 @@ public class CircleMemeberManageListAdapter extends BaseAdapter {
 
         @Override
         public void onClick(View v) {
+            System.out.println("own: "+own+"role: "+list.get(position).getRole()+" , circle_id: "+circle_id+" , tuid: "+list.get(position).getId());
             int itemHeight = v.getHeight();
             int count = position - listView.getFirstVisiblePosition() + 1;
             int disY = topLayoutHeight + itemHeight * count;
             if (disY > (screenHeight - topLayoutHeight) / 2) {
-                new CircleMemberManageTopMenuWindow(context, own, list.get(position).getRole(),circle_id,list.get(position).getId()).showAtTop(menuLayout);
+                new CircleMemberManageTopMenuWindow(context, own, list.get(position).getRole(), circle_id, list.get(position).getId(), new CircleMemberManageTopMenuWindow.CircleMemberManageTopListener() {
+                    @Override
+                    public void onComplete() {
+                        if (null != onRefreshUserListener) {
+                            onRefreshUserListener.onRefreshUserList();
+                        }
+                    }
+                }).showAtTop(menuLayout);
             } else {
-                new CircleMemberManageBottomMenuWindow(context, own, list.get(position).getRole(),circle_id,list.get(position).getId()).showAtBottom(menuLayout);
+                new CircleMemberManageBottomMenuWindow(context, own, list.get(position).getRole(), circle_id, list.get(position).getId(), new CircleMemberManageBottomMenuWindow.CircleMemberManageBottomListener() {
+                    @Override
+                    public void onComplete() {
+                        if (null != onRefreshUserListener) {
+                            onRefreshUserListener.onRefreshUserList();
+                        }
+                    }
+                }).showAtBottom(menuLayout);
             }
         }
     }
 
+    private OnRefreshUserListener onRefreshUserListener;
+
+    public void setOnRefreshUserListener(OnRefreshUserListener listener) {
+        this.onRefreshUserListener = listener;
+    }
+
+    public interface OnRefreshUserListener {
+        void onRefreshUserList();
+    }
 
 }

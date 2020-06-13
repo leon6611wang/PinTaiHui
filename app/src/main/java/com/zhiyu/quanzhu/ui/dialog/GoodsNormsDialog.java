@@ -16,7 +16,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.zhiyu.quanzhu.R;
@@ -26,10 +25,12 @@ import com.zhiyu.quanzhu.model.bean.GoodsNorm;
 import com.zhiyu.quanzhu.model.bean.GoodsNormGroup;
 import com.zhiyu.quanzhu.model.bean.GoodsStock;
 import com.zhiyu.quanzhu.model.dao.GoodsNormStockDao;
+import com.zhiyu.quanzhu.ui.activity.LargeImageActivity;
 import com.zhiyu.quanzhu.ui.activity.OrderConfirmActivity;
 import com.zhiyu.quanzhu.ui.adapter.GoodsNormsRecyclerAdapter;
 import com.zhiyu.quanzhu.ui.listener.OnShangPinInformationGuiGePiPeiListener;
 import com.zhiyu.quanzhu.ui.toast.FailureToast;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.toast.SuccessToast;
 import com.zhiyu.quanzhu.ui.widget.RoundImageView;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
@@ -68,6 +69,7 @@ public class GoodsNormsDialog extends Dialog implements View.OnClickListener, Go
     private GoodsStock selectedGoodsStock;
     private boolean hasNorm = true;
     private int type = 0;//0:直接点开规格进入,1:加入购物车,2:立即购买
+    private int stock;
     private LoadingDialog loadingDialog;
 
     private MyHandler myHandler = new MyHandler(this);
@@ -84,10 +86,12 @@ public class GoodsNormsDialog extends Dialog implements View.OnClickListener, Go
             GoodsNormsDialog dialog = dialogWeakReference.get();
             switch (msg.what) {
                 case 1:
-                    Glide.with(dialog.getContext()).load(dialog.selectedGoodsStock.getImg()).error(R.drawable.image_error).into(dialog.mImageView);
+                    Glide.with(dialog.getContext()).load(dialog.selectedGoodsStock.getImg()).error(R.drawable.image_error).placeholder(R.drawable.image_error)
+                            .fallback(R.drawable.image_error).into(dialog.mImageView);
                     dialog.stockTextView.setText(String.valueOf(dialog.selectedGoodsStock.getStock()));
                     dialog.priceTextView.setText(PriceParseUtils.getInstance().parsePrice(dialog.selectedGoodsStock.getPrice()));
                     dialog.selectTextView.setText("选择：" + msg.obj);
+                    dialog.changeBottomButton(dialog.selectedGoodsStock.getStock() > 0);
                     break;
                 case 2:
                     SuccessToast.getInstance(dialog.getContext()).show("加入成功");
@@ -116,11 +120,32 @@ public class GoodsNormsDialog extends Dialog implements View.OnClickListener, Go
         this.type = t;
     }
 
+    private void changeBottomButton(boolean isCanBuy) {
+        if (isCanBuy) {
+            gouwucheTextView.setClickable(true);
+            goumaiTextView.setClickable(true);
+            gouwucheTextView.setBackground(getContext().getResources().getDrawable(R.drawable.shape_oval_bg_yellow));
+            gouwucheTextView.setTextColor(getContext().getResources().getColor(R.color.text_color_yellow));
+            goumaiTextView.setBackground(getContext().getResources().getDrawable(R.mipmap.mingpian_fenxiang_button_bg));
+            goumaiTextView.setTextColor(getContext().getResources().getColor(R.color.white));
+        } else {
+            gouwucheTextView.setClickable(false);
+            goumaiTextView.setClickable(false);
+            gouwucheTextView.setBackground(getContext().getResources().getDrawable(R.drawable.shape_oval_bg_gray));
+            gouwucheTextView.setTextColor(getContext().getResources().getColor(R.color.text_color_gray));
+            goumaiTextView.setBackground(getContext().getResources().getDrawable(R.drawable.shape_oval_solid_bg_gray));
+            goumaiTextView.setTextColor(getContext().getResources().getColor(R.color.white));
+        }
+    }
+
     public void setGoods(Goods goods, boolean hasNorms) {
         this.goods = goods;
         this.hasNorm = hasNorms;
-        Glide.with(getContext()).load(goods.getImg_list().get(0).getUrl()).error(R.drawable.image_error).into(mImageView);
-        priceTextView.setText(PriceParseUtils.getInstance().parsePrice(goods.getGoods_price()));
+        this.stock = goods.getGoods_stock();
+        this.imageUrl = goods.getImg_list().get(0).getUrl();
+        Glide.with(getContext()).load(goods.getImg_list().get(0).getUrl()).error(R.drawable.image_error).placeholder(R.drawable.image_error)
+                .fallback(R.drawable.image_error).into(mImageView);
+        priceTextView.setText(PriceParseUtils.getInstance().parsePrice(goods.getGoods_price() == 0 ? goods.getMin_price() : goods.getGoods_price()));
         titleTextView.setText(goods.getGoods_name());
         stockTextView.setText(String.valueOf(goods.getGoods_stock()));
         selectTextView.setText("选择：默认");
@@ -131,7 +156,9 @@ public class GoodsNormsDialog extends Dialog implements View.OnClickListener, Go
             mRecyclerView.setVisibility(View.GONE);
             nullView.setVisibility(View.VISIBLE);
         }
+        changeBottomButton(!hasNorms && goods.getGoods_stock() > 0);
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,11 +177,14 @@ public class GoodsNormsDialog extends Dialog implements View.OnClickListener, Go
     }
 
     public void setGuiGeList(List<GoodsNormGroup> guiGeList) {
+//        System.out.println("setGuiGeList -> guiGeList: " + GsonUtils.GsonString(guiGeList));
         list = GoodsNormStockDao.getInstance().initGoodsNormsStock(guiGeList);
+//        System.out.println("setGuiGeList -> list: "+GsonUtils.GsonString(list));
     }
 
     private void initViews() {
         mImageView = findViewById(R.id.mImageView);
+        mImageView.setOnClickListener(this);
         priceTextView = findViewById(R.id.priceTextView);
         titleTextView = findViewById(R.id.titleTextView);
         stockTextView = findViewById(R.id.stockTextView);
@@ -206,25 +236,32 @@ public class GoodsNormsDialog extends Dialog implements View.OnClickListener, Go
                 } else {
                     jianTextView.setBackground(mContext.getResources().getDrawable(R.drawable.shape_buy_count_unusable));
                 }
+                jiaTextView.setBackground(mContext.getResources().getDrawable(R.drawable.shape_buy_count_usable));
                 break;
             case R.id.jiaTextView:
                 String numberstr2 = numberTextView.getText().toString().trim();
                 if (!TextUtils.isEmpty(numberstr2))
                     currentNumber = Integer.parseInt(numberstr2);
-                currentNumber++;
-                numberTextView.setText(String.valueOf(currentNumber));
-                if (currentNumber > 1) {
-                    jianTextView.setBackground(mContext.getResources().getDrawable(R.drawable.shape_buy_count_usable));
+                if (currentNumber < stock) {
+                    currentNumber++;
+                    numberTextView.setText(String.valueOf(currentNumber));
+                    jiaTextView.setBackground(mContext.getResources().getDrawable(R.drawable.shape_buy_count_usable));
+                    if (currentNumber > 1) {
+                        jianTextView.setBackground(mContext.getResources().getDrawable(R.drawable.shape_buy_count_usable));
+                    } else {
+                        jianTextView.setBackground(mContext.getResources().getDrawable(R.drawable.shape_buy_count_unusable));
+                    }
                 } else {
-                    jianTextView.setBackground(mContext.getResources().getDrawable(R.drawable.shape_buy_count_unusable));
+                    jiaTextView.setBackground(mContext.getResources().getDrawable(R.drawable.shape_buy_count_unusable));
                 }
+
                 break;
             case R.id.gouwucheTextView:
                 if (hasNorm) {
                     if (null != selectedGoodsStock) {
                         addCart();
                     } else {
-                        Toast.makeText(getContext(), "请选择规格", Toast.LENGTH_SHORT);
+                        MessageToast.getInstance(getContext()).show("请选择规格");
                     }
                 } else {
                     addCart();
@@ -232,11 +269,24 @@ public class GoodsNormsDialog extends Dialog implements View.OnClickListener, Go
 
                 break;
             case R.id.goumaiTextView:
-                goodsSettlement();
+                if (hasNorm) {
+                    if (null != selectedGoodsStock) {
+                        lijigoumai();
+                    } else {
+                        MessageToast.getInstance(getContext()).show("请选择规格");
+                    }
+                } else {
+                    lijigoumai();
+                }
+
                 break;
             case R.id.closelayout:
                 dismiss();
                 break;
+            case R.id.mImageView:
+                reviewLargeImage();
+                break;
+
         }
     }
 
@@ -244,6 +294,21 @@ public class GoodsNormsDialog extends Dialog implements View.OnClickListener, Go
         Intent orderConfirmIntent = new Intent(getContext(), OrderConfirmActivity.class);
         orderConfirmIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         getContext().startActivity(orderConfirmIntent);
+    }
+
+    public void clearSelectedNorms() {
+        if (null != list && list.size() > 0) {
+            for (GoodsNormGroup group : list) {
+                if (null != group && null != group.getList() && group.getList().size() > 0) {
+                    for (GoodsNorm norm : group.getList()) {
+                        norm.setSelected(false);
+                    }
+                }
+            }
+            if (null != adapter)
+                adapter.setData(list);
+        }
+
     }
 
     @Override
@@ -263,6 +328,8 @@ public class GoodsNormsDialog extends Dialog implements View.OnClickListener, Go
         }
         if (selectedGoodsNormList.size() == list.size()) {
             selectedGoodsStock = GoodsNormStockDao.getInstance().getSelectedStock(selectedGoodsNormList);
+            stock = selectedGoodsStock.getStock();
+            imageUrl = selectedGoodsStock.getImg();
             Message message = myHandler.obtainMessage(1);
             message.obj = selectedNorm;
             message.sendToTarget();
@@ -338,11 +405,13 @@ public class GoodsNormsDialog extends Dialog implements View.OnClickListener, Go
         });
     }
 
-    private void goodsSettlement() {
-        loadingDialog.show();
+    /**
+     * 立即购买
+     */
+    private void lijigoumai() {
         String norms_id = "";
         if (hasNorm) {
-            if (null != selectedGoodsStock.getNormas_id() && selectedGoodsStock.getNormas_id().size() > 0) {
+            if (null != selectedGoodsStock && null != selectedGoodsStock.getNormas_id() && selectedGoodsStock.getNormas_id().size() > 0) {
                 for (int i = 0; i < selectedGoodsStock.getNormas_id().size(); i++) {
                     norms_id += selectedGoodsStock.getNormas_id().get(i);
                     if (i < selectedGoodsStock.getNormas_id().size() - 1) {
@@ -351,35 +420,22 @@ public class GoodsNormsDialog extends Dialog implements View.OnClickListener, Go
                 }
             }
         }
-        RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.GOODS_SETTLEMENT);
-        params.addBodyParameter("goods_id", String.valueOf(goods.getId()));
-        params.addBodyParameter("norms_id", norms_id);
-        params.addBodyParameter("num", numberTextView.getText().toString().trim());
-        x.http().post(params, new Callback.CommonCallback<String>() {
-            @Override
-            public void onSuccess(String result) {
-                System.out.println("goodsSettlement: " + result);
-                Message message = myHandler.obtainMessage(4);
-                message.sendToTarget();
-
-            }
-
-            @Override
-            public void onError(Throwable ex, boolean isOnCallback) {
-                System.out.println("goodsSettlement: " + ex.toString());
-            }
-
-            @Override
-            public void onCancelled(CancelledException cex) {
-
-            }
-
-            @Override
-            public void onFinished() {
-
-            }
-        });
+        Intent intent = new Intent(getContext(), OrderConfirmActivity.class);
+        intent.putExtra("goods_id", String.valueOf(goods.getId()));
+        intent.putExtra("norms_id", norms_id);
+        intent.putExtra("goods_num", numberTextView.getText().toString());
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        getContext().startActivity(intent);
+        dismiss();
     }
 
+    private String imageUrl;
+
+    private void reviewLargeImage() {
+        Intent intent = new Intent(getContext(), LargeImageActivity.class);
+        intent.putExtra("imgUrl", imageUrl);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        getContext().startActivity(intent);
+    }
 
 }

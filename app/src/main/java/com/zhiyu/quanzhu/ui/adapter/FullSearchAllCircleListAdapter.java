@@ -54,7 +54,9 @@ public class FullSearchAllCircleListAdapter extends BaseAdapter {
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
-        Glide.with(parent.getContext()).load(list.get(position).getThumb()).into(holder.iconImageView);
+        Glide.with(parent.getContext()).load(list.get(position).getThumb().getFile())
+                .error(R.drawable.image_error)
+                .into(holder.iconImageView);
         holder.nameTextView.setText(list.get(position).getName());
         return convertView;
     }

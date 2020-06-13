@@ -15,8 +15,8 @@ import com.zhiyu.quanzhu.utils.ScreentUtils;
  * 联系客服
  */
 public class ContactCustomerServiceActivity extends BaseActivity implements View.OnClickListener {
-    private LinearLayout backLayout;
-    private TextView titleTextView, callServiceTextView;
+    private LinearLayout backLayout,rightLayout;
+    private TextView titleTextView, callServiceTextView,rightTextView;
     private final String phoneNumber = "17375081781";
 
     @Override
@@ -30,6 +30,10 @@ public class ContactCustomerServiceActivity extends BaseActivity implements View
     private void initViews() {
         backLayout = findViewById(R.id.backLayout);
         backLayout.setOnClickListener(this);
+        rightLayout=findViewById(R.id.rightLayout);
+        rightLayout.setOnClickListener(this);
+        rightTextView=findViewById(R.id.rightTextView);
+        rightTextView.setText("确定");
         titleTextView = findViewById(R.id.titleTextView);
         titleTextView.setText("联系客服");
         callServiceTextView = findViewById(R.id.callServiceTextView);
@@ -44,6 +48,9 @@ public class ContactCustomerServiceActivity extends BaseActivity implements View
                 break;
             case R.id.callServiceTextView:
                 callService2();
+                break;
+            case R.id.rightLayout:
+
                 break;
         }
     }

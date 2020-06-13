@@ -7,7 +7,9 @@ import android.support.annotation.NonNull;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.zhiyu.quanzhu.R;
 
@@ -17,8 +19,11 @@ import com.zhiyu.quanzhu.R;
 public class CardInfoMenuDialog extends Dialog implements View.OnClickListener {
     private Context mContext;
     private int menuImageY;
-    private LinearLayout sharelayout, editlayout;
+    private LinearLayout sharelayout, editlayout, collectlayout, tousulayout, followlayout;
+    private ImageView collectImageView, followImageView;
+    private TextView collectTextView, followTextView;
     private View topMarginView;
+    private boolean isMyCard, isCollect, isFollow;
 
     public CardInfoMenuDialog(@NonNull Context context) {
         super(context);
@@ -29,6 +34,23 @@ public class CardInfoMenuDialog extends Dialog implements View.OnClickListener {
         super(context, themeResId);
         this.mContext = context;
         this.onMyMingPianMenuChooseListener = listener;
+    }
+
+    public void setInitData(boolean myCard, boolean collect, boolean follow) {
+        this.isMyCard = myCard;
+        this.isCollect = collect;
+        this.isFollow = follow;
+        editlayout.setVisibility(isMyCard ? View.VISIBLE : View.GONE);
+        collectlayout.setVisibility(isMyCard ? View.GONE : View.VISIBLE);
+        tousulayout.setVisibility(isMyCard ? View.GONE : View.VISIBLE);
+        collectImageView.setImageDrawable(collect ? getContext().getResources().getDrawable(R.mipmap.mymingpian_menu_collect_yellow) :
+                getContext().getResources().getDrawable(R.mipmap.mymingpian_menu_collect_gra));
+        collectTextView.setText(collect ? "取消收藏" : "收藏名片");
+        followlayout.setVisibility(isMyCard ? View.GONE : View.VISIBLE);
+        followImageView.setImageDrawable(follow ? getContext().getResources().getDrawable(R.mipmap.mymingpian_menu_follow_yellow) :
+                getContext().getResources().getDrawable(R.mipmap.mymingpian_menu_follow_white));
+        followTextView.setText(follow ? "取消关注" : "关注用户");
+
     }
 
     public void setMenuImageY(int y) {
@@ -57,6 +79,16 @@ public class CardInfoMenuDialog extends Dialog implements View.OnClickListener {
         editlayout = findViewById(R.id.editlayout);
         editlayout.setOnClickListener(this);
         topMarginView = findViewById(R.id.topMarginView);
+        collectlayout = findViewById(R.id.collectlayout);
+        collectlayout.setOnClickListener(this);
+        collectImageView = findViewById(R.id.collectImageView);
+        collectTextView = findViewById(R.id.collectTextView);
+        tousulayout = findViewById(R.id.tousulayout);
+        tousulayout.setOnClickListener(this);
+        followlayout = findViewById(R.id.followlayout);
+        followlayout.setOnClickListener(this);
+        followImageView = findViewById(R.id.followImageView);
+        followTextView = findViewById(R.id.followTextView);
     }
 
     @Override
@@ -71,6 +103,24 @@ public class CardInfoMenuDialog extends Dialog implements View.OnClickListener {
             case R.id.editlayout:
                 if (null != onMyMingPianMenuChooseListener) {
                     onMyMingPianMenuChooseListener.onMyMingPianMenuChoose(2, "编辑");
+                    dismiss();
+                }
+                break;
+            case R.id.collectlayout:
+                if (null != onMyMingPianMenuChooseListener) {
+                    onMyMingPianMenuChooseListener.onMyMingPianMenuChoose(3, "收藏");
+                    dismiss();
+                }
+                break;
+            case R.id.tousulayout:
+                if (null != onMyMingPianMenuChooseListener) {
+                    onMyMingPianMenuChooseListener.onMyMingPianMenuChoose(4, "投诉");
+                    dismiss();
+                }
+                break;
+            case R.id.followlayout:
+                if (null != onMyMingPianMenuChooseListener) {
+                    onMyMingPianMenuChooseListener.onMyMingPianMenuChoose(5, "关注");
                     dismiss();
                 }
                 break;

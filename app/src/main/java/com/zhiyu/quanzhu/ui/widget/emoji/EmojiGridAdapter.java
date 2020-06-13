@@ -15,6 +15,9 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.zhiyu.quanzhu.R;
+import com.zhiyu.quanzhu.utils.ScreentUtils;
+
 import java.util.List;
 
 public class EmojiGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -41,7 +44,18 @@ public class EmojiGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     //创建ViewHolder并返回，后续item布局里控件都是从ViewHolder中取出
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        int screenWidth = ScreentUtils.getInstance().getScreenWidth(parent.getContext());
+        int dp_80 = (int) parent.getContext().getResources().getDimension(R.dimen.dp_80);
+        int imgWidth = Math.round((int) (screenWidth - dp_80 * 2.2) / 7);
+        int dp_10 = (int) parent.getContext().getResources().getDimension(R.dimen.dp_10);
         ImageView img = new ImageView(context);
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(imgWidth, imgWidth);
+        layoutParams.gravity = Gravity.CENTER;
+        layoutParams.topMargin = dp_10;
+
+//        layoutParams.topMargin = (int) (10 * context.getResources().getDisplayMetrics().density + 0.5f);
+        img.setLayoutParams(layoutParams);
+//        img.setPadding(10, 10, 10, 10);
         RecyclerView.ViewHolder holder = new MyHolder(img);
         return holder;
     }
@@ -49,11 +63,7 @@ public class EmojiGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     //通过方法提供的ViewHolder，将数据绑定到ViewHolder中
     @Override
     public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder viewHolder, final int position) {
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        layoutParams.gravity = Gravity.CENTER;
-        layoutParams.topMargin = (int) (10 * context.getResources().getDisplayMetrics().density + 0.5f);
-        ((MyHolder) viewHolder).img.setLayoutParams(layoutParams);
-        ((MyHolder) viewHolder).img.setPadding(10, 10, 10, 10);
+
         ((MyHolder) viewHolder).img.setImageResource(resList.get(position));
         ((MyHolder) viewHolder).img.setOnClickListener(new View.OnClickListener() {
             @Override

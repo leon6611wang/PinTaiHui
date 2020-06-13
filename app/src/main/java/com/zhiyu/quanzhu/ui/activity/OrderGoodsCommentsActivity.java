@@ -55,6 +55,9 @@ public class OrderGoodsCommentsActivity extends BaseActivity implements View.OnC
         public void handleMessage(Message msg) {
             OrderGoodsCommentsActivity activity = activityWeakReference.get();
             switch (msg.what) {
+                case 99:
+                    MessageToast.getInstance(activity).show("服务器内部错误，请稍后再试.");
+                    break;
                 case 1:
                     MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
                     if (200 == activity.baseResult.getCode()) {
@@ -192,7 +195,7 @@ public class OrderGoodsCommentsActivity extends BaseActivity implements View.OnC
             }
         }
         String json = GsonUtils.GsonString(paramList);
-//        System.out.println("json: " + json);
+        System.out.println("json: " + json);
 //        System.out.println("oid: " + orderShop.getId());
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.ORDER_COMMENT);
         params.addBodyParameter("oid", String.valueOf(orderShop.getId()));
@@ -200,6 +203,7 @@ public class OrderGoodsCommentsActivity extends BaseActivity implements View.OnC
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
+                System.out.println("商品评价: " + result);
                 baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
@@ -207,7 +211,9 @@ public class OrderGoodsCommentsActivity extends BaseActivity implements View.OnC
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-//                System.out.println("comment order: " + ex.toString());
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
+                System.out.println("comment order: " + ex.toString());
             }
 
             @Override

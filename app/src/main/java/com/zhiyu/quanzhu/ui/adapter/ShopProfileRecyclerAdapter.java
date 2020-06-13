@@ -24,14 +24,15 @@ public class ShopProfileRecyclerAdapter extends BaseRecyclerAdapter<String> {
 
     @Override
     public RecyclerView.ViewHolder onCreate(ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_shop_profile_recycler, parent,false));
+        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_shop_profile_recycler, parent, false));
     }
 
     @Override
     public void onBind(RecyclerView.ViewHolder viewHolder, int RealPosition, String data) {
         if (viewHolder instanceof ViewHolder) {
             ViewHolder myHolder = (ViewHolder) viewHolder;
-            Glide.with(context).load(data).into(myHolder.mImageView);
+            Glide.with(context).load(data).error(R.drawable.image_error) .placeholder(R.drawable.image_error)
+                    .fallback(R.drawable.image_error).into(myHolder.mImageView);
         }
     }
 

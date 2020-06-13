@@ -230,7 +230,7 @@ public class ShopVertifyActivity extends BaseActivity implements View.OnClickLis
      * 商店认证
      */
     private void shopVertify() {
-        String other = null;
+        String other = "";
         if (shopEnclosureList.size() > 4) {
             List<String> otherList = new ArrayList<>();
             for (int i = 4; i < shopEnclosureList.size(); i++) {
@@ -261,13 +261,13 @@ public class ShopVertifyActivity extends BaseActivity implements View.OnClickLis
             @Override
             public void onSuccess(String result) {
                 baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
-                Message message=myHandler.obtainMessage(2);
+                Message message = myHandler.obtainMessage(2);
                 message.sendToTarget();
             }
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                Message message=myHandler.obtainMessage(99);
+                Message message = myHandler.obtainMessage(99);
                 message.sendToTarget();
             }
 

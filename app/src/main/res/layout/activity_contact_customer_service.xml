@@ -5,7 +5,7 @@
     android:background="#F8F8F8"
     android:orientation="vertical">
 
-    <include layout="@layout/header_left_center_black" />
+    <include layout="@layout/header_left_center_right_black" />
 
     <TextView
         android:layout_width="match_parent"

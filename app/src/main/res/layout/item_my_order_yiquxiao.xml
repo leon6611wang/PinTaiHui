@@ -93,6 +93,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1" />
             <TextView
+                android:id="@+id/tuikuanSuccessTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="退款成功"
@@ -139,7 +140,7 @@
                 android:id="@+id/zhengshuTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="598"
+                android:text="0"
                 android:textColor="#E21F1F"
                 android:textSize="15sp"
                 android:textStyle="bold" />
@@ -147,7 +148,7 @@
                 android:id="@+id/xiaoshuTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text=".90"
+                android:text=".00"
                 android:textColor="#E21F1F"
                 android:textSize="13sp"
                 android:textStyle="bold" />

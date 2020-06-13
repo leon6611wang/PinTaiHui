@@ -6,8 +6,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 
+import com.leon.chic.listener.NotificationActionListener;
+import com.leon.chic.utils.MessageTypeUtils;
+import com.leon.chic.utils.MessageUtils;
+import com.leon.chic.utils.SPUtils;
 import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.ui.activity.HomeActivity;
+import com.zhiyu.quanzhu.utils.NotificationUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,12 +35,30 @@ public class MyReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         try {
             Bundle bundle = intent.getExtras();
-            System.out.println("JPush: " + "[MyReceiver] onReceive - " + intent.getAction() + ", extras: " + printBundle(bundle));
             if (JPushInterface.ACTION_REGISTRATION_ID.equals(intent.getAction())) {
                 String regId = bundle.getString(JPushInterface.EXTRA_REGISTRATION_ID);
                 System.out.println("JPush: " + "[MyReceiver] 接收Registration Id : " + regId);
             } else if (JPushInterface.ACTION_MESSAGE_RECEIVED.equals(intent.getAction())) {
-                System.out.println("JPush: " + "[MyReceiver] 接收到推送下来的自定义消息: " + bundle.getString(JPushInterface.EXTRA_MESSAGE));
+                MessageUtils.getInstance().getMessage(bundle, BaseApplication.getInstance(), new NotificationActionListener() {
+                    @Override
+                    public void onNotificationAction(int total_type, int system_type, int id, String avatar, String name, String content, String time) {
+                        switch (total_type) {
+                            case MessageTypeUtils.TOTAL_SYSTEM_MESSAGE:
+                                System.out.println("系统消息: " + name + " , " + content + " , " + time);
+                                if (!SPUtils.getInstance().messageSilence(BaseApplication.applicationContext, system_type)) {
+                                    NotificationUtils.getInstance().showSystemMessage(system_type, name, content);
+                                }
+                                break;
+                            case MessageTypeUtils.TOTAL_CUSTOMER_SERVICE:
+                                System.out.println("客服消息: " + name + " , " + content + " , " + time);
+                                NotificationUtils.getInstance().showServiceMessage(id, name, content);
+                                break;
+                            case MessageTypeUtils.TOTAL_CARD:
+                                System.out.println("名片消息: " + name + " , " + content + " , " + time+" (名片透传消息，不做提示)");
+                                break;
+                        }
+                    }
+                });
             } else if (JPushInterface.ACTION_NOTIFICATION_RECEIVED.equals(intent.getAction())) {
                 int notifactionId = bundle.getInt(JPushInterface.EXTRA_NOTIFICATION_ID);
                 System.out.println("JPush: " + "[MyReceiver] 接收到推送下来的通知的ID: " + notifactionId);
@@ -59,6 +82,7 @@ public class MyReceiver extends BroadcastReceiver {
         }
 
     }
+
 
     // 打印所有的 intent extra 数据
     private static String printBundle(Bundle bundle) {

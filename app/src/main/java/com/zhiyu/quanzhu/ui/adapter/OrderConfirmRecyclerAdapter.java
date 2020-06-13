@@ -10,20 +10,36 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.model.bean.OrderConfirmShop;
+import com.zhiyu.quanzhu.ui.dialog.OrderConfirmUseCouponDialog;
 import com.zhiyu.quanzhu.utils.PriceParseUtils;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class OrderConfirmRecyclerAdapter extends BaseRecyclerAdapter<OrderConfirmShop> {
     private Context context;
+    private OrderConfirmUseCouponDialog useCouponDialog;
+    private Map<Integer, Boolean> map = new HashMap<>();
 
     public OrderConfirmRecyclerAdapter(Context context) {
         this.context = context;
+        useCouponDialog = new OrderConfirmUseCouponDialog(context, R.style.dialog, new OrderConfirmUseCouponDialog.OnSelectCouponListener() {
+            @Override
+            public void onSelectCoupon(int index, boolean isUseCoupon) {
+                if (null != onUseCouponListener) {
+                    onUseCouponListener.onUseCoupon(index, isUseCoupon);
+                }
+                map.put(index, isUseCoupon);
+                notifyDataSetChanged();
+            }
+        });
     }
 
     @Override
@@ -37,13 +53,51 @@ public class OrderConfirmRecyclerAdapter extends BaseRecyclerAdapter<OrderConfir
     }
 
     @Override
-    public void onBind(RecyclerView.ViewHolder viewHolder, final int RealPosition, OrderConfirmShop data) {
+    public void onBind(RecyclerView.ViewHolder viewHolder, final int RealPosition, final OrderConfirmShop data) {
         final ViewHolder holder = (ViewHolder) viewHolder;
-        Glide.with(context).load(data.getIcon()).error(R.drawable.image_error).into(holder.iconImageView);
+        Glide.with(context).load(data.getIcon()).error(R.drawable.image_error).placeholder(R.drawable.image_error)
+                .fallback(R.drawable.image_error).into(holder.iconImageView);
         holder.nameTextView.setText(data.getName());
         holder.goodsCountTextView.setText(String.valueOf(data.getGoods_num()));
-        holder.zhengshuTextView.setText(PriceParseUtils.getInstance().getZhengShu(data.getAll_price()));
-        holder.xiaoshuTextView.setText(PriceParseUtils.getInstance().getXiaoShu(data.getAll_price()));
+        long payPrice = 0;
+        if (map.containsKey(RealPosition)) {
+            if (map.get(RealPosition)) {
+                holder.useCouponTextView.setText("组合优惠");
+                holder.discountPriceTextView.setText("-￥" + PriceParseUtils.getInstance().parsePrice(data.getDiscount_price()));
+                payPrice = data.getPay_price();
+            } else {
+                holder.useCouponTextView.setText("不使用优惠");
+                holder.discountPriceTextView.setText("-￥0.00");
+                payPrice = data.getAll_price() + data.getPostage_price();
+            }
+        } else {
+            holder.useCouponTextView.setText("组合优惠");
+            holder.discountPriceTextView.setText("-￥" + PriceParseUtils.getInstance().parsePrice(data.getDiscount_price()));
+            payPrice = data.getPay_price();
+        }
+        holder.zhengshuTextView.setText(PriceParseUtils.getInstance().getZhengShu(payPrice));
+        holder.xiaoshuTextView.setText(PriceParseUtils.getInstance().getXiaoShu(payPrice));
+        if (data.getDiscount_price() > 0) {
+            holder.couponLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    useCouponDialog.show();
+                    useCouponDialog.setIndex(RealPosition, data.getDiscount_price());
+                    boolean use = true;
+                    if (map.containsKey(RealPosition)) {
+                        use = map.get(RealPosition);
+                    }
+                    useCouponDialog.setUseCoupon(use);
+                }
+            });
+        }
+        if (data.getPostage_price() == -1) {
+            holder.postagePriceTextView.setText("超出范围，不予配送");
+        } else if (data.getPostage_price() == 0) {
+            holder.postagePriceTextView.setText("包邮");
+        } else {
+            holder.postagePriceTextView.setText("￥" + PriceParseUtils.getInstance().parsePrice(data.getPostage_price()));
+        }
         holder.mRecyclerView.setLayoutManager(holder.linearLayoutManager);
         holder.adapter.setList(data.getList());
         holder.remarkEditText.addTextChangedListener(new TextWatcher() {
@@ -71,11 +125,16 @@ public class OrderConfirmRecyclerAdapter extends BaseRecyclerAdapter<OrderConfir
         OrderConfirmItemRecyclerAdapter adapter;
         LinearLayoutManager linearLayoutManager;
         ImageView iconImageView;
-        TextView nameTextView, goodsCountTextView, zhengshuTextView, xiaoshuTextView;
+        TextView nameTextView, goodsCountTextView, zhengshuTextView, xiaoshuTextView, discountPriceTextView,
+                postagePriceTextView;
         EditText remarkEditText;
+        LinearLayout couponLayout;
+        TextView useCouponTextView;
 
         public ViewHolder(View itemView) {
             super(itemView);
+            couponLayout = itemView.findViewById(R.id.couponLayout);
+            useCouponTextView = itemView.findViewById(R.id.useCouponTextView);
             iconImageView = itemView.findViewById(R.id.iconImageView);
             nameTextView = itemView.findViewById(R.id.nameTextView);
             goodsCountTextView = itemView.findViewById(R.id.goodsCountTextView);
@@ -87,6 +146,8 @@ public class OrderConfirmRecyclerAdapter extends BaseRecyclerAdapter<OrderConfir
             linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
             mRecyclerView.setAdapter(adapter);
             remarkEditText = itemView.findViewById(R.id.remarkEditText);
+            discountPriceTextView = itemView.findViewById(R.id.discountPriceTextView);
+            postagePriceTextView = itemView.findViewById(R.id.postagePriceTextView);
 
         }
     }
@@ -99,5 +160,15 @@ public class OrderConfirmRecyclerAdapter extends BaseRecyclerAdapter<OrderConfir
 
     public interface OnRemarkEditListener {
         void onRemarkEdit(int position, String remark);
+    }
+
+    private OnUseCouponListener onUseCouponListener;
+
+    public void setOnUseCouponListener(OnUseCouponListener listener) {
+        this.onUseCouponListener = listener;
+    }
+
+    public interface OnUseCouponListener {
+        void onUseCoupon(int position, boolean isUse);
     }
 }

@@ -98,8 +98,8 @@ public class FragmentLiShi extends Fragment implements View.OnClickListener {
         mViewPager.setCurrentItem(position);
     }
 
-    private void myHistory(){
-        RequestParams params= MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL+ConstantsUtils.MY_HISTORY_LIST);
+    private void myHistory() {
+        RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.MY_HISTORY_LIST);
 
 
     }

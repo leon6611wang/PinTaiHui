@@ -17,29 +17,44 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.leon.myvideoplaerlibrary.view.VideoPlayerTrackView;
+import com.qiniu.android.utils.StringUtils;
 import com.youth.banner.Banner;
 import com.youth.banner.BannerConfig;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseActivity;
+import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.CircleInfoFeed;
+import com.zhiyu.quanzhu.model.bean.Feed;
+import com.zhiyu.quanzhu.model.result.AlipayOrderInfo;
 import com.zhiyu.quanzhu.model.result.CircleInfoFeedResult;
 import com.zhiyu.quanzhu.model.result.CircleInfoResult;
+import com.zhiyu.quanzhu.model.result.CircleInfoShopResult;
 import com.zhiyu.quanzhu.model.result.CircleInfoUserResult;
+import com.zhiyu.quanzhu.model.result.FeedResult;
+import com.zhiyu.quanzhu.model.result.OrderAddResult;
+import com.zhiyu.quanzhu.model.result.StoreResult;
+import com.zhiyu.quanzhu.model.result.WxpayOrderInfo;
+import com.zhiyu.quanzhu.ui.adapter.CircleInfoFeedsAdapter;
 import com.zhiyu.quanzhu.ui.adapter.CircleInfoListAdapter;
 import com.zhiyu.quanzhu.ui.adapter.CircleInfoMemberListAdapter;
 import com.zhiyu.quanzhu.ui.adapter.CircleInfoShopListAdapter;
 import com.zhiyu.quanzhu.ui.dialog.CircleInfoEditDialog;
 import com.zhiyu.quanzhu.ui.dialog.CircleInfoJoinPayDialog;
+import com.zhiyu.quanzhu.ui.dialog.PasswordCheckDialog;
+import com.zhiyu.quanzhu.ui.dialog.PayWayDialog;
 import com.zhiyu.quanzhu.ui.dialog.ReviewFullTextDialog;
 import com.zhiyu.quanzhu.ui.dialog.ShareDialog;
 import com.zhiyu.quanzhu.ui.dialog.YNDialog;
 import com.zhiyu.quanzhu.ui.popupwindow.CircleInfoCirclerWindow;
 import com.zhiyu.quanzhu.ui.popupwindow.CircleInfoJoinedWindow;
 import com.zhiyu.quanzhu.ui.popupwindow.CircleInfoUnjoinWindow;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.CircleImageView;
 import com.zhiyu.quanzhu.ui.widget.HorizontalListView;
+import com.zhiyu.quanzhu.ui.widget.Indicator;
 import com.zhiyu.quanzhu.ui.widget.MyListView;
+import com.zhiyu.quanzhu.utils.AliPayUtils;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GlideImageLoader;
 import com.zhiyu.quanzhu.utils.GsonUtils;
@@ -48,7 +63,10 @@ import com.zhiyu.quanzhu.utils.MyPtrHandlerHeader;
 import com.zhiyu.quanzhu.utils.MyPtrRefresherFooter;
 import com.zhiyu.quanzhu.utils.MyPtrRefresherHeader;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
+import com.zhiyu.quanzhu.utils.PriceParseUtils;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
+import com.zhiyu.quanzhu.utils.WxPayUtils;
+import com.zhiyu.quanzhu.wxapi.WXEntryActivity;
 
 import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
@@ -64,12 +82,14 @@ import in.srain.cube.views.ptr.PtrFrameLayout;
 /**
  * 圈子详情
  */
-public class CircleInfoActivity extends BaseActivity implements AbsListView.OnScrollListener, View.OnClickListener {
+public class CircleInfoActivity extends BaseActivity implements AbsListView.OnScrollListener, View.OnClickListener,
+        AliPayUtils.OnAlipayCallbackListener, WXEntryActivity.OnWxpayCallbackListener {
     private Banner banner;
     private List<String> imageUrl = new ArrayList<>();
     private PtrFrameLayout ptrFrameLayout;
     private ListView mListView;
-    private CircleInfoListAdapter adapter;
+    //    private CircleInfoListAdapter adapter;
+    private CircleInfoFeedsAdapter adapter;
     private View headerView;
     private View topMenuView1, topMenuView2;
     private HorizontalListView memberListView;
@@ -79,15 +99,19 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
     private ReviewFullTextDialog reviewFullTextDialog;
     private TextView introduceTextView, noticeTextView, titleTextView2, joinCircleTextView;
     private LinearLayout rightLayout1, rightLayout2, backLayout1, backLayout2;
-    private boolean isCircler = true;//是否圈主
-    private boolean isJoined = true;//是否加入
+    private boolean isCircler = false;//是否圈主
+    private boolean isJoined = false;//是否加入
     private CircleInfoEditDialog editDialog;
     private YNDialog ynDialog;
     private ShareDialog shareDialog;
     private CircleInfoJoinPayDialog circleInfoJoinPayDialog;
+    private PayWayDialog payWayDialog;
+    private PasswordCheckDialog passwordCheckDialog;
     private long circle_id;
     private CircleImageView avatarImageView;
     private TextView nameTextView, cityTextView, industryTextViwe, pnumTextView, createDaysTextView, pCountTextView;
+    private LinearLayout indicatorlayout;
+    private Indicator indicator;
     private VideoPlayerTrackView videoPlayer;
     private MyHandler myHandler = new MyHandler(this);
     private int own = -1;
@@ -104,27 +128,45 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
             CircleInfoActivity activity = circleInfoActivityWeakReference.get();
             switch (msg.what) {
                 case 1:
-                    activity.imageUrl = activity.circleInfoResult.getData().getImgs();
-                    activity.initBanner();
-                    Glide.with(activity).load(activity.circleInfoResult.getData().getAvatar())
-                            .error(R.mipmap.no_avatar)
-                            .into(activity.avatarImageView);
-                    activity.nameTextView.setText(activity.circleInfoResult.getData().getName());
-                    activity.cityTextView.setText(activity.circleInfoResult.getData().getProvince() + "/" + activity.circleInfoResult.getData().getCity_name());
-                    activity.industryTextViwe.setText(activity.circleInfoResult.getData().getTwo_industry() + "/" + activity.circleInfoResult.getData().getThree_industry());
-                    activity.noticeTextView.setText(activity.circleInfoResult.getData().getNotice());
-                    activity.introduceTextView.setText(activity.circleInfoResult.getData().getDescirption());
-                    activity.videoPlayer.setVisibility(com.qiniu.android.utils.StringUtils.isNullOrEmpty(activity.circleInfoResult.getData().getVideo()) ? View.GONE : View.VISIBLE);
-                    activity.videoPlayer.setDataSource(activity.circleInfoResult.getData().getVideo(), "");
-                    activity.pnumTextView.setText(activity.circleInfoResult.getData().getPnum() + "人");
-                    activity.createDaysTextView.setText("已创建 " + activity.circleInfoResult.getData().getDays() + " 天");
-                    activity.pCountTextView.setText(activity.circleInfoResult.getData().getPnum() + "人加入");
+                    if (200 == activity.circleInfoResult.getCode()) {
+                        activity.imageUrl = activity.circleInfoResult.getData().getImgs();
+                        activity.initBanner();
+                        Glide.with(activity).load(activity.circleInfoResult.getData().getAvatar())
+                                .error(R.drawable.image_error)
+                                .into(activity.avatarImageView);
+                        if (!StringUtils.isNullOrEmpty(activity.circleInfoResult.getData().getName()))
+                            activity.nameTextView.setText(activity.circleInfoResult.getData().getName());
+                        if (!StringUtils.isNullOrEmpty(activity.circleInfoResult.getData().getCity_name())) {
+                            activity.cityTextView.setText(activity.circleInfoResult.getData().getCity_name());
+                            activity.cityTextView.setVisibility(View.VISIBLE);
+                        } else {
+                            activity.cityTextView.setVisibility(View.GONE);
+                        }
+                        if (!StringUtils.isNullOrEmpty(activity.circleInfoResult.getData().getThree_industry())) {
+                            activity.industryTextViwe.setText(activity.circleInfoResult.getData().getThree_industry());
+                            activity.industryTextViwe.setVisibility(View.VISIBLE);
+                        } else {
+                            activity.industryTextViwe.setVisibility(View.GONE);
+                        }
+                        if (!StringUtils.isNullOrEmpty(activity.circleInfoResult.getData().getNotice()))
+                            activity.noticeTextView.setText(activity.circleInfoResult.getData().getNotice());
+                        if (!StringUtils.isNullOrEmpty(activity.circleInfoResult.getData().getDescirption()))
+                            activity.introduceTextView.setText(activity.circleInfoResult.getData().getDescirption());
+                        activity.videoPlayer.setVisibility(com.qiniu.android.utils.StringUtils.isNullOrEmpty(activity.circleInfoResult.getData().getVideo()) ? View.GONE : View.VISIBLE);
+                        activity.videoPlayer.setDataSource(activity.circleInfoResult.getData().getVideo(), "");
+                        Glide.with(activity).load(activity.circleInfoResult.getData().getVideo()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(activity.videoPlayer.getCoverController().getVideoCover());
+                        activity.pnumTextView.setText(activity.circleInfoResult.getData().getPnum() + "人");
+                        activity.createDaysTextView.setText("已创建 " + activity.circleInfoResult.getData().getDays() + " 天");
+                        activity.pCountTextView.setText(activity.circleInfoResult.getData().getPnum() + "人加入");
 //                    activity.shopListAdapter.setList(activity.circleInfoResult.getData().getStores());
-                    activity.titleTextView2.setText(activity.circleInfoResult.getData().getName());
-                    if (!activity.circleInfoResult.getData().isIs_join()) {
-                        activity.joinCircleTextView.setVisibility(View.VISIBLE);
+                        activity.titleTextView2.setText(activity.circleInfoResult.getData().getName());
+                        if (!activity.circleInfoResult.getData().isIs_join()) {
+                            activity.joinCircleTextView.setVisibility(View.VISIBLE);
+                        } else {
+                            activity.joinCircleTextView.setVisibility(View.GONE);
+                        }
                     } else {
-                        activity.joinCircleTextView.setVisibility(View.GONE);
+                        MessageToast.getInstance(activity).show(activity.circleInfoResult.getMsg());
                     }
                     break;
                 case 2:
@@ -132,14 +174,49 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
                     activity.adapter.setList(activity.feedList);
                     break;
                 case 3:
-                    Toast.makeText(activity, activity.baseResult.getMsg(), Toast.LENGTH_SHORT).show();
+                    MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
                     if (activity.baseResult.getCode() == 200) {
                         activity.circleBase();
                     }
                     break;
                 case 4:
-                    activity.memberListAdapter.setList(activity.userResult.getData().getList());
+                    if (null != activity.userResult && null != activity.userResult.getData() && null != activity.userResult.getData().getList())
+                        activity.memberListAdapter.setList(activity.userResult.getData().getList());
                     break;
+                case 5:
+                    if (null != activity.shopResult && null != activity.shopResult.getData() && null != activity.shopResult.getData().getStores())
+                        activity.shopListAdapter.setList(activity.shopResult.getData().getStores());
+                    break;
+                case 6:
+                    MessageToast.getInstance(activity).show(activity.orderAddResult.getMsg());
+                    break;
+                case 10:
+                    activity.circleInfoJoinPayDialog.show();
+                    break;
+                case 11://微信支付订单详情回调
+                    if (200 == activity.wxpayOrderInfo.getCode()) {
+                        WxPayUtils.getInstance().wxPay(activity, activity.wxpayOrderInfo.getData());
+                    } else {
+                        MessageToast.getInstance(activity).show(activity.wxpayOrderInfo.getMsg());
+                    }
+                    break;
+                case 12://支付宝支付订单详情回调
+                    if (200 == activity.alipayOrderInfo.getCode()) {
+                        AliPayUtils.getInstance(activity).aliPay(activity, activity.alipayOrderInfo.getData());
+                    } else {
+                        MessageToast.getInstance(activity).show(activity.alipayOrderInfo.getMsg());
+                    }
+                    break;
+                case 13:
+                    MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
+                    if (activity.baseResult.getCode() == 200) {
+                        activity.circleBase();
+                    }
+                    break;
+                case 99:
+                    MessageToast.getInstance(activity).show("服务器内部错误，请稍后再试");
+                    break;
+
             }
         }
     }
@@ -149,27 +226,41 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_circle_info);
         circle_id = getIntent().getLongExtra("circle_id", 0l);
-        circle_id = 16;
         ScreentUtils.getInstance().setStatusBarLightMode(this, false);
+        AliPayUtils.getInstance(this).setOnAlipayCallbackListener(this);
+        WXEntryActivity.setOnWxpayCallbackListener(this);
         initPtr();
         initViews();
-        circleBase();
-        userList();
         shopList();
         feedList();
     }
 
-    private void initDatas() {
-        imageUrl.add("https://c-ssl.duitang.com/uploads/item/201711/23/20171123005542_4ZvXh.jpeg");
-        imageUrl.add("https://c-ssl.duitang.com/uploads/item/201901/25/20190125133246_reiqi.jpg");
-        imageUrl.add("https://c-ssl.duitang.com/uploads/item/201805/31/20180531100518_yrtgi.jpg");
-        imageUrl.add("https://c-ssl.duitang.com/uploads/item/201808/19/20180819144607_bhmtu.jpg");
-        imageUrl.add("https://c-ssl.duitang.com/uploads/item/201708/10/20170810190105_hx23Z.jpeg");
-        imageUrl.add("https://c-ssl.duitang.com/uploads/item/201906/16/20190616121851_rbhei.jpg");
-        imageUrl.add("https://c-ssl.duitang.com/uploads/item/201904/30/20190430205649_vbbtf.jpg");
-        imageUrl.add("https://c-ssl.duitang.com/uploads/item/201901/05/20190105152941_qjlkm.jpg");
-        imageUrl.add("https://c-ssl.duitang.com/uploads/item/201206/09/20120609152914_F2RAR.jpeg");
+    @Override
+    public void onAlipayCallBack() {
+        circleBase();
     }
+
+    @Override
+    public void onWxpayCallback() {
+        circleBase();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        circleBase();
+        userList();
+        if (null != adapter)
+            adapter.setVideoStop(false);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (null != adapter)
+            adapter.setVideoStop(true);
+    }
+
 
     private void initPtr() {
         ptrFrameLayout = findViewById(R.id.ptr_frame_layout);
@@ -206,7 +297,8 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
         backLayout2.setOnClickListener(this);
         mListView = findViewById(R.id.mListView);
         mListView.setOnScrollListener(this);
-        adapter = new CircleInfoListAdapter(this, this);
+//        adapter = new CircleInfoListAdapter(this, this);
+        adapter = new CircleInfoFeedsAdapter(this, this);
         mListView.setAdapter(adapter);
         headerView = LayoutInflater.from(this).inflate(R.layout.header_circle_info, null);
         avatarImageView = headerView.findViewById(R.id.avatarImageView);
@@ -223,10 +315,15 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
         memberListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent memberManageIntent = new Intent(CircleInfoActivity.this, CircleMemberManageActivity.class);
-                memberManageIntent.putExtra("circle_id", circle_id);
-                memberManageIntent.putExtra("own", own);
-                startActivity(memberManageIntent);
+                if (circleInfoResult.getData().isIs_join()) {
+                    Intent memberManageIntent = new Intent(CircleInfoActivity.this, CircleMemberManageActivity.class);
+                    memberManageIntent.putExtra("circle_id", circle_id);
+                    memberManageIntent.putExtra("own", own);
+                    startActivity(memberManageIntent);
+                } else {
+                    MessageToast.getInstance(CircleInfoActivity.this).show("只有圈子成员才能查看，请先加入此圈。");
+                }
+
             }
         });
         shopListView = headerView.findViewById(R.id.shopListView);
@@ -241,31 +338,32 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
         topMenuView2 = findViewById(R.id.topMenuView2);
         mListView.addHeaderView(headerView);
         banner = headerView.findViewById(R.id.banner);
+        indicator = headerView.findViewById(R.id.indicator);
 //        initDatas();
 //        initBanner();
         initDialogs();
     }
+
+    private String apply_content;
+    private int balancePayType;
 
     private void initDialogs() {
         reviewFullTextDialog = new ReviewFullTextDialog(this, R.style.dialog);
         editDialog = new CircleInfoEditDialog(this, R.style.dialog, new CircleInfoEditDialog.OnEditListener() {
             @Override
             public void onEdit(int editType, String content) {
+                apply_content = content;
                 if (editType == 1 || editType == 2) {
                     updateCircleProfile(editType, content);
                 } else if (editType == 3) {
-                    if (circleInfoResult.getData().getIs_price() == 1) {
-                        circleInfoJoinPayDialog.show();
-                        circleInfoJoinPayDialog.setPrice(String.valueOf(circleInfoResult.getData().getPrice()));
-                    }
+                    joinCircle();
                 }
-
             }
         });
         ynDialog = new YNDialog(this, R.style.dialog, new YNDialog.OnYNListener() {
             @Override
             public void onConfirm() {
-
+                outCircle();
             }
         });
         shareDialog = new ShareDialog(this, this, R.style.dialog);
@@ -273,14 +371,49 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
         circleInfoJoinPayDialog = new CircleInfoJoinPayDialog(this, R.style.dialog, new CircleInfoJoinPayDialog.OnPayListener() {
             @Override
             public void onPay() {
+                payWayDialog.show();
+                payWayDialog.setMoney(circleInfoResult.getData().getPrice());
 
+            }
+        });
+        payWayDialog = new PayWayDialog(this, R.style.dialog, new PayWayDialog.OnPayWayListener() {
+            @Override
+            public void onPayWay(int payWay, String payWayStr) {
+                switch (payWay) {
+                    case 1://微信支付
+                        wxpayRequest();
+                        break;
+                    case 2://支付宝支付
+                        alipayRequest();
+                        break;
+                    case 3://微信余额支付
+                        passwordCheckDialog.show();
+                        passwordCheckDialog.setPasswordType(2);
+                        balancePayType = 1;
+                        break;
+                    case 4://支付宝余额支付
+                        passwordCheckDialog.show();
+                        passwordCheckDialog.setPasswordType(2);
+                        balancePayType = 2;
+                        break;
+                }
+            }
+        });
+        passwordCheckDialog = new PasswordCheckDialog(this, R.style.dialog, new PasswordCheckDialog.OnPayPwdListener() {
+            @Override
+            public void onPayPwd(String password) {
+                if (payWayDialog.isShowing()) {
+                    payWayDialog.dismiss();
+                }
+                balancePay(password);
             }
         });
     }
 
 
     private void initBanner() {
-//        indicator.addParams(imageUrl.size(), 0, 0);
+        indicator.removeAllViews();
+        indicator.addParams(imageUrl.size(), 0, 0);
         //设置banner样式(显示圆形指示器)
         banner.setBannerStyle(BannerConfig.NOT_INDICATOR);
         //设置指示器位置（指示器居右）
@@ -313,7 +446,7 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
                 if (position == 0) {
                     position = 1;
                 }
-//                indicator.setCurrent(position - 1);
+                indicator.setCurrent(position - 1);
             }
 
             @Override
@@ -361,11 +494,11 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
                 break;
             case R.id.noticeTextView:
                 reviewFullTextDialog.show();
-                reviewFullTextDialog.setData("圈公告", "黄飞鸿不好听没硬胶囊剂热回复，后退货太弱鸡推蒙混过关官方后，台他好核桃仁突然投入突然柔荑花投入和人热人员而已二人太热塔尔，轻微的无无任务区人防千万人我确认我。黄飞鸿不好听没硬胶囊剂热回复，后退货太弱鸡推蒙混过关官方后，台他好核桃仁突然投入突然柔荑花投入和人热人员而已二人太热塔尔，轻微的无无任务区人防千万人我确认我。黄飞鸿不好听没硬胶囊剂热回复，后退货太弱鸡推蒙混过关官方后，台他好核桃仁突然投入突然柔荑花投入和人热人员而已二人太热塔尔，轻微的无无任务区人防千万人我确认我。");
+                reviewFullTextDialog.setData("圈公告", circleInfoResult.getData().getNotice());
                 break;
             case R.id.introduceTextView:
                 reviewFullTextDialog.show();
-                reviewFullTextDialog.setData("圈子介绍", "圈主是基于APP上的一个重要组成部分，通过圈主可以吸引 粉丝入圈，圈内举办线上线下活动，商圈建立后圈主可以自 行建群并实行管理，并且具有唯一性，并且圈主在APP内会 有很多变现形式，可能您在放松时间在商圈内聊聊天，就能 轻松赚钱。 圈主是基于APP上的一个重要组成部分，通过圈主可以吸引 粉丝入圈，圈内举办线上线下活动，商圈建立后圈主可以自 行建群并实行管理。圈主是基于APP上的一个重要组成部分，通过圈主可以吸引 粉丝入圈，圈内举办线上线下活动，商圈建立后圈主可以自 行建群并实行管理，并且具有唯一性，并且圈主在APP内会 有很多变现形式，可能您在放松时间在商圈内聊聊天，就能 轻松赚钱。 圈主是基于APP上的一个重要组成部分，通过圈主可以吸引 粉丝入圈，圈内举办线上线下活动，商圈建立后圈主可以自 行建群并实行管理。圈主是基于APP上的一个重要组成部分，通过圈主可以吸引 粉丝入圈，圈内举办线上线下活动，商圈建立后圈主可以自 行建群并实行管理，并且具有唯一性，并且圈主在APP内会 有很多变现形式，可能您在放松时间在商圈内聊聊天，就能 轻松赚钱。 圈主是基于APP上的一个重要组成部分，通过圈主可以吸引 粉丝入圈，圈内举办线上线下活动，商圈建立后圈主可以自 行建群并实行管理。");
+                reviewFullTextDialog.setData("圈子介绍", circleInfoResult.getData().getDescirption());
                 break;
             case R.id.rightLayout1:
                 if (isCircler) {
@@ -389,10 +522,10 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
                                     break;
                                 case 5:
                                     Intent settingIntent = new Intent(CircleInfoActivity.this, CircleSettingActivity.class);
+                                    settingIntent.putExtra("circle_id", circle_id);
                                     startActivity(settingIntent);
                                     break;
                             }
-                            System.out.println(menu);
                         }
                     }).showAtBottom(rightLayout1);
                 } else {
@@ -409,6 +542,8 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
                                         break;
                                     case 3:
                                         Intent complaintIntent = new Intent(CircleInfoActivity.this, ComplaintActivity.class);
+                                        complaintIntent.putExtra("report_id", (int) circle_id);
+                                        complaintIntent.putExtra("module_type", "quanzi");
                                         startActivity(complaintIntent);
                                         break;
                                     case 4:
@@ -419,7 +554,22 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
                             }
                         }).showAtBottom(rightLayout1);
                     } else {
-                        new CircleInfoUnjoinWindow(this).showAtBottom(rightLayout1);
+                        new CircleInfoUnjoinWindow(this, new CircleInfoUnjoinWindow.OnMenuSelectListener() {
+                            @Override
+                            public void onMenuSelect(int index, String menu) {
+                                switch (index) {
+                                    case 1:
+                                        shareDialog.show();
+                                        break;
+                                    case 2:
+                                        Intent complaintIntent = new Intent(CircleInfoActivity.this, ComplaintActivity.class);
+                                        complaintIntent.putExtra("report_id", (int) circle_id);
+                                        complaintIntent.putExtra("module_type", "quanzi");
+                                        startActivity(complaintIntent);
+                                        break;
+                                }
+                            }
+                        }).showAtBottom(rightLayout1);
                     }
                 }
                 break;
@@ -445,6 +595,7 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
                                     break;
                                 case 5:
                                     Intent settingIntent = new Intent(CircleInfoActivity.this, CircleSettingActivity.class);
+                                    settingIntent.putExtra("circle_id", circle_id);
                                     startActivity(settingIntent);
                                     break;
                             }
@@ -464,6 +615,8 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
                                         break;
                                     case 3:
                                         Intent complaintIntent = new Intent(CircleInfoActivity.this, ComplaintActivity.class);
+                                        complaintIntent.putExtra("report_id", (int) circle_id);
+                                        complaintIntent.putExtra("module_type", "quanzi");
                                         startActivity(complaintIntent);
                                         break;
                                     case 4:
@@ -474,7 +627,22 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
                             }
                         }).showAtBottom(rightLayout1);
                     } else {
-                        new CircleInfoUnjoinWindow(this).showAtBottom(rightLayout1);
+                        new CircleInfoUnjoinWindow(this, new CircleInfoUnjoinWindow.OnMenuSelectListener() {
+                            @Override
+                            public void onMenuSelect(int index, String menu) {
+                                switch (index) {
+                                    case 1:
+                                        shareDialog.show();
+                                        break;
+                                    case 2:
+                                        Intent complaintIntent = new Intent(CircleInfoActivity.this, ComplaintActivity.class);
+                                        complaintIntent.putExtra("report_id", (int) circle_id);
+                                        complaintIntent.putExtra("module_type", "quanzi");
+                                        startActivity(complaintIntent);
+                                        break;
+                                }
+                            }
+                        }).showAtBottom(rightLayout1);
                     }
                 }
                 break;
@@ -494,7 +662,8 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
         int height = 0;
         for (int i = 0; i < mCurrentfirstVisibleItem; i++) {
             ItemRecod itemRecod = (ItemRecod) recordSp.get(i);
-            height += itemRecod.height;
+            if (null != itemRecod)
+                height += itemRecod.height;
         }
         ItemRecod itemRecod = (ItemRecod) recordSp.get(mCurrentfirstVisibleItem);
         if (null == itemRecod) {
@@ -537,6 +706,8 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
             public void onSuccess(String result) {
                 System.out.println("circle info : " + result);
                 circleInfoResult = GsonUtils.GsonToBean(result, CircleInfoResult.class);
+                isCircler = circleInfoResult.getData().isIs_own();
+                isJoined = circleInfoResult.getData().isIs_join();
                 own = circleInfoResult.getData().getOwn();
                 System.out.println(" --- > own: " + own);
                 Message message = myHandler.obtainMessage(1);
@@ -595,6 +766,8 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
         });
     }
 
+    private CircleInfoShopResult shopResult;
+
     /**
      * 商店列表
      */
@@ -605,6 +778,10 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
             @Override
             public void onSuccess(String result) {
                 System.out.println("shopList : " + result);
+                shopResult = GsonUtils.GsonToBean(result, CircleInfoShopResult.class);
+                System.out.println("shopList : " + shopResult.getData().getStores().size());
+                Message message = myHandler.obtainMessage(5);
+                message.sendToTarget();
 //                circleInfoResult = GsonUtils.GsonToBean(result, CircleInfoResult.class);
 //                own = circleInfoResult.getData().getOwn();
 //                System.out.println(" --- > own: " + own);
@@ -629,9 +806,9 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
         });
     }
 
-    private CircleInfoFeedResult circleInfoFeedResult;
+    private FeedResult circleInfoFeedResult;
     private int page = 1;
-    private List<CircleInfoFeed> feedList = new ArrayList<>();
+    private List<Feed> feedList = new ArrayList<>();
 
     /**
      * 圈子-动态列表
@@ -644,7 +821,7 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
             @Override
             public void onSuccess(String result) {
                 System.out.println("圈子-动态列表: " + result);
-                circleInfoFeedResult = GsonUtils.GsonToBean(result, CircleInfoFeedResult.class);
+                circleInfoFeedResult = GsonUtils.GsonToBean(result, FeedResult.class);
                 feedList.addAll(circleInfoFeedResult.getData().getFeeds());
                 Message message = myHandler.obtainMessage(2);
                 message.sendToTarget();
@@ -677,7 +854,7 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
                 params.addBodyParameter("notice", content);
                 break;
             case 2:
-                params.addBodyParameter("describetion", content);
+                params.addBodyParameter("descirption", content);
                 break;
         }
         x.http().post(params, new Callback.CommonCallback<String>() {
@@ -690,6 +867,126 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
+    private OrderAddResult orderAddResult;
+
+    private void joinCircle() {
+        System.out.println("circle_id: " + circle_id + " , content: " + apply_content);
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.JOIN_CIRCLE);
+        params.addBodyParameter("circle_id", String.valueOf(circle_id));
+        params.addBodyParameter("apply_content", apply_content);
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                System.out.println("加入圈子: " + result);
+                orderAddResult = GsonUtils.GsonToBean(result, OrderAddResult.class);
+                if (orderAddResult.getCode() == 200) {
+                    Message message = myHandler.obtainMessage(6);
+                    message.sendToTarget();
+                    circleBase();
+                    userList();
+                } else if (orderAddResult.getCode() == 1006) {
+                    Message message = myHandler.obtainMessage(10);
+                    message.sendToTarget();
+                }
+
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
+                System.out.println("加入圈子: " + ex.toString());
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
+    private void outCircle() {
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.OUT_CIRCLE);
+        params.addBodyParameter("circle_id", String.valueOf(circle_id));
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                System.out.println("退出圈子: " + result);
+                baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
+                if (baseResult.getCode() == 200) {
+                    circleBase();
+                    userList();
+                }
+                Message message = myHandler.obtainMessage(6);
+                message.sendToTarget();
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
+                System.out.println("退出圈子: " + ex.toString());
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        shareDialog.setQQShareCallback(requestCode, resultCode, data);
+        adapter.setShareResultCode(requestCode, resultCode, data);
+    }
+
+    private AlipayOrderInfo alipayOrderInfo;
+
+    private void alipayRequest() {
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.CIRCLE_ALIPAY);
+        params.addBodyParameter("oid", String.valueOf(orderAddResult.getData().getOid()));
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                System.out.println("alipay: " + result);
+                alipayOrderInfo = GsonUtils.GsonToBean(result, AlipayOrderInfo.class);
+                Message message = myHandler.obtainMessage(12);
+                message.sendToTarget();
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
+                System.out.println("alipay: " + ex.toString());
 
             }
 
@@ -705,4 +1002,69 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
         });
     }
 
+    private WxpayOrderInfo wxpayOrderInfo;
+
+    private void wxpayRequest() {
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.CIRCLE_WXPAY);
+        params.addBodyParameter("oid", String.valueOf(orderAddResult.getData().getOid()));
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                System.out.println("wxpay: " + result);
+                wxpayOrderInfo = GsonUtils.GsonToBean(result, WxpayOrderInfo.class);
+                Message message = myHandler.obtainMessage(11);
+                message.sendToTarget();
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+                System.out.println("wxpay: " + ex.toString());
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
+
+    private void balancePay(String pwd) {
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.CIRCLE_BALANCE_PAY);
+        params.addBodyParameter("oid", String.valueOf(orderAddResult.getData().getOid()));
+        params.addBodyParameter("password", pwd);
+        params.addBodyParameter("type", balancePayType == 1 ? "wechat" : "ali");//ali,wechat
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                System.out.println("余额支付: " + result);
+                baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
+                Message message = myHandler.obtainMessage(13);
+                message.sendToTarget();
+
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+                System.out.println("余额支付: " + ex.toString());
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
 }

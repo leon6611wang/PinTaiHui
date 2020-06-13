@@ -23,7 +23,7 @@
             android:id="@+id/avatarImageView"
             android:layout_width="@dimen/dp_30"
             android:layout_height="@dimen/dp_30"
-            android:src="@mipmap/no_avatar" />
+            android:src="@drawable/image_error" />
 
         <View
             android:layout_width="@dimen/dp_10"
@@ -33,7 +33,7 @@
             android:id="@+id/nameTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="昵称"
+            android:text="暂无数据"
             android:textColor="@color/text_color_black"
             android:textSize="12sp" />
 
@@ -114,7 +114,7 @@
             android:id="@+id/sourceTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="上海酿酒圈"
+            android:text="暂无数据"
             android:textColor="#009DE0"
             android:textSize="12sp" />
 

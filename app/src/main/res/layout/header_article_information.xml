@@ -46,13 +46,13 @@
                 android:layout_width="@dimen/dp_25"
                 android:layout_height="@dimen/dp_25"
                 android:layout_marginRight="@dimen/dp_10"
-                android:src="@mipmap/no_avatar" />
+                android:src="@drawable/image_error" />
 
             <TextView
                 android:id="@+id/userNameTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="name"
+                android:text="暂无数据"
                 android:textColor="@color/text_color_black"
                 android:textSize="16sp" />
 
@@ -96,12 +96,7 @@
                 android:layout_height="@dimen/dp_1"
                 />
 
-            <ImageView
-                android:id="@+id/shareImageView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="@dimen/dp_15"
-                android:src="@mipmap/mymingpian_menu_share" />
+
         </LinearLayout>
 
 

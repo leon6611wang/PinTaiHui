@@ -5,6 +5,13 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
+import com.leon.chic.utils.LogUtils;
+import com.leon.chic.utils.SPUtils;
+import com.qiniu.android.utils.StringUtils;
+import com.zhiyu.quanzhu.base.BaseApplication;
+import com.zhiyu.quanzhu.base.BaseResult;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,10 +49,41 @@ public class GsonUtils {
      */
     public static <T> T GsonToBean(String gsonString, Class<T> cls) {
         T t = null;
+//        t = GsonToBeanPrivate(gsonString, cls);
+        BaseResult baseResult = GsonToBeanPrivate(gsonString, BaseResult.class);
+        if (401 == baseResult.getCode()) {
+            LogoutUtils.getInstance().logout();
+        } else {
+            t = GsonToBeanPrivate(gsonString, cls);
+        }
+        return t;
+    }
+
+    private static <T> T GsonToBeanPrivate(String gsonString, Class<T> cls) {
+        parseToken(gsonString);
+        T t = null;
         if (gson != null) {
             t = gson.fromJson(gsonString, cls);
         }
         return t;
+    }
+
+
+    private static void parseToken(String json) {
+        try {
+            JSONObject jo = new JSONObject(json);
+            if (jo.has("token")) {
+                String token = jo.getString("token");
+                String t = SPUtils.getInstance().getUserToken(BaseApplication.applicationContext);
+                if (!StringUtils.isNullOrEmpty(token) && !token.equals(t)) {
+//                    LogUtils.getInstance().show("parseToken", "new_token: " + token + " , old_token: " + t);
+                    SPUtils.getInstance().saveUserToken(BaseApplication.applicationContext, token);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     /**
@@ -65,7 +103,7 @@ public class GsonUtils {
         return list;
     }
 
-    public static <T> List<T> getObjectList(String jsonString,Class<T> cls){
+    public static <T> List<T> getObjectList(String jsonString, Class<T> cls) {
         List<T> list = new ArrayList<T>();
         try {
             Gson gson = new Gson();
@@ -89,7 +127,7 @@ public class GsonUtils {
      * @param <T>
      * @return
      */
-    public static  <T> List<T> jsonToList(String json, Class<T> cls) {
+    public static <T> List<T> jsonToList(String json, Class<T> cls) {
         Gson gson = new Gson();
         List<T> list = new ArrayList<T>();
         JsonArray array = new JsonParser().parse(json).getAsJsonArray();

@@ -1,7 +1,6 @@
 package com.zhiyu.quanzhu.ui.activity;
 
 import android.content.Intent;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -15,6 +14,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.leon.chic.utils.H5Utils;
+import com.leon.chic.utils.SPUtils;
 import com.tencent.connect.UserInfo;
 import com.tencent.connect.auth.QQToken;
 import com.tencent.connect.common.Constants;
@@ -23,18 +24,18 @@ import com.tencent.tauth.Tencent;
 import com.tencent.tauth.UiError;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseActivity;
+import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.result.LoginTokenResult;
 import com.zhiyu.quanzhu.model.result.PaymentResult;
 import com.zhiyu.quanzhu.ui.dialog.ShareDialog;
-import com.zhiyu.quanzhu.ui.listener.BaseUIListener;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.PhoneNumberUtils;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
-import com.zhiyu.quanzhu.utils.SharedPreferencesUtils;
-import com.zhiyu.quanzhu.utils.ThreadPoolUtils;
+import com.zhiyu.quanzhu.utils.SoftKeyboardUtil;
 import com.zhiyu.quanzhu.utils.WXUtils;
 import com.zhiyu.quanzhu.wxapi.WXEntryActivity;
 
@@ -51,11 +52,8 @@ import java.util.TimerTask;
 
 import io.vov.vitamio.utils.Log;
 
-import static com.zhiyu.quanzhu.utils.WXUtils.WECHAT_FRIEND;
-
 public class LoginGetVertifyCodeActivity extends BaseActivity implements View.OnClickListener, WXEntryActivity.OnWxLoginSuccessListener {
-
-    private TextView getVertifyCodeTextView, loginByPwdTextView,yoonghuxieyiTextView,yinsizhengceTextView;
+    private TextView getVertifyCodeTextView, loginByPwdTextView, yoonghuxieyiTextView, yinsizhengceTextView;
     private EditText phoneNumberEdit;
     private ImageView closeImageView, wxLoginImageView, qqLoginImageView;
     private RelativeLayout clearPhoneNumberLayout;
@@ -67,6 +65,8 @@ public class LoginGetVertifyCodeActivity extends BaseActivity implements View.On
     private Tencent mTencent;
     private MyHandler myHandler = new MyHandler(this);
     private ShareDialog shareDialog;
+    private String xieyi_url = H5Utils.getInstance().yongHuXieYi(),//用户协议
+            yinsi_url = H5Utils.getInstance().yinSiZhengCe();//隐私政策
 
     private static class MyHandler extends Handler {
         WeakReference<LoginGetVertifyCodeActivity> loginGetVertifyCodeActivityWeakReference;
@@ -96,14 +96,18 @@ public class LoginGetVertifyCodeActivity extends BaseActivity implements View.On
                         activity.goToInputCode();
                         activity.finish();
                     }
-                    Toast.makeText(activity, activity.baseResult.getMsg(), Toast.LENGTH_SHORT).show();
+                    MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
                     break;
                 case 2:
-                    Toast.makeText(activity, activity.loginTokenResult.getMsg(), Toast.LENGTH_SHORT).show();
+                    MessageToast.getInstance(activity).show(activity.loginTokenResult.getMsg());
                     if (activity.loginTokenResult.getCode() == 200) {
-                        SharedPreferencesUtils.getInstance(activity).saveUserToken(activity.loginTokenResult.getData().getToken());
+                        SPUtils.getInstance().setUserBindType(BaseApplication.applicationContext, SPUtils.QQ);
+                        activity.pageChange();
                         activity.finish();
                     }
+                    break;
+                case 99:
+                    MessageToast.getInstance(activity).show("服务器内部错误，请稍后再试.");
                     break;
             }
         }
@@ -141,8 +145,17 @@ public class LoginGetVertifyCodeActivity extends BaseActivity implements View.On
                 phoneNumber = phoneNumberEdit.getText().toString();
                 if (!TextUtils.isEmpty(phoneNumber)) {
                     clearPhoneNumberLayout.setVisibility(View.VISIBLE);
+                    if (PhoneNumberUtils.getInstance().isMobileNO(phoneNumber)) {
+                        getVertifyCodeTextView.setBackground(getResources().getDrawable(R.mipmap.create_shangquan_btn_bg));
+                        getVertifyCodeTextView.setClickable(true);
+                    } else {
+                        getVertifyCodeTextView.setBackground(getResources().getDrawable(R.drawable.shape_oval_solid_bg_bbbbbbb));
+                        getVertifyCodeTextView.setClickable(false);
+                    }
                 } else {
                     clearPhoneNumberLayout.setVisibility(View.INVISIBLE);
+                    getVertifyCodeTextView.setBackground(getResources().getDrawable(R.drawable.shape_oval_solid_bg_bbbbbbb));
+                    getVertifyCodeTextView.setClickable(false);
                 }
             }
 
@@ -161,9 +174,9 @@ public class LoginGetVertifyCodeActivity extends BaseActivity implements View.On
         wxLoginImageView.setOnClickListener(this);
         qqLoginImageView = findViewById(R.id.qqLoginImageView);
         qqLoginImageView.setOnClickListener(this);
-        yoonghuxieyiTextView=findViewById(R.id.yoonghuxieyiTextView);
+        yoonghuxieyiTextView = findViewById(R.id.yoonghuxieyiTextView);
         yoonghuxieyiTextView.setOnClickListener(this);
-        yinsizhengceTextView=findViewById(R.id.yinsizhengceTextView);
+        yinsizhengceTextView = findViewById(R.id.yinsizhengceTextView);
         yinsizhengceTextView.setOnClickListener(this);
     }
 
@@ -195,6 +208,7 @@ public class LoginGetVertifyCodeActivity extends BaseActivity implements View.On
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.getVertifyCodeTextView:
+                SoftKeyboardUtil.hideSoftKeyBoard(getWindow());
                 if (PhoneNumberUtils.getInstance().isMobileNO(phoneNumber)) {
                     getVertifiyCode();
                     timeCount = COUNT;
@@ -210,11 +224,13 @@ public class LoginGetVertifyCodeActivity extends BaseActivity implements View.On
                     }
                     timer.schedule(task, 0, 1000);
                 } else {
-                    Toast.makeText(this, "请输入正确手机号", Toast.LENGTH_SHORT).show();
+                    MessageToast.getInstance(this).show("请输入正确手机号");
                 }
 
                 break;
             case R.id.closeImageView:
+                Intent homeIntent = new Intent(this, HomeActivity.class);
+                startActivity(homeIntent);
                 finish();
                 break;
             case R.id.clearPhoneNumberLayout:
@@ -227,27 +243,19 @@ public class LoginGetVertifyCodeActivity extends BaseActivity implements View.On
                 break;
             case R.id.wxLoginImageView:
                 WXUtils.WxLogin(LoginGetVertifyCodeActivity.this);
-//                requestPayment();
-//                WXUtils.WxTextShare(this,"文本分享测试",WECHAT_FRIEND);
-//                WXUtils.WxBitmapShare(this, BitmapFactory.decodeResource(getResources(),R.mipmap.timg),WECHAT_FRIEND);
-//                ThreadPoolUtils.getInstance().init().execute(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        WXUtils.WxUrlShare(LoginGetVertifyCodeActivity.this,"https://xw.qq.com/partner/gdtadf/20191220A0KBN4/20191220A0KBN400?ADTAG=gdtadf&pgv_ref=gdtadf","《庆余年》全集遭泄露，公安机关已立案，网友：这下不用超前点映了","热播剧《庆余年》46集全集在网上突然被泄露。有越来越多的网友，发现有人在社交网站上传播热播剧《庆余年》全集，甚至有人晒出了相关截图，而当前爱奇艺、腾讯视频两大平台才更新至33集。","https://inews.gtimg.com/newsapp_bt/0/11019914276/641",WECHAT_FRIEND);
-//                    }
-//                });
-
                 break;
             case R.id.qqLoginImageView:
-//                pay();
                 qqLogin();
-//                shareDialog.show();
                 break;
             case R.id.yoonghuxieyiTextView:
-
+                Intent xieyiIntent = new Intent(this, H5PageActivity.class);
+                xieyiIntent.putExtra("url", xieyi_url);
+                startActivity(xieyiIntent);
                 break;
             case R.id.yinsizhengceTextView:
-
+                Intent yinsiIntent = new Intent(this, H5PageActivity.class);
+                yinsiIntent.putExtra("url", yinsi_url);
+                startActivity(yinsiIntent);
                 break;
         }
     }
@@ -262,18 +270,18 @@ public class LoginGetVertifyCodeActivity extends BaseActivity implements View.On
     private IUiListener loginListener = new IUiListener() {
         @Override
         public void onComplete(Object o) {
-            System.out.println(GsonUtils.GsonString(o));
+//            System.out.println(GsonUtils.GsonString(o));
             final String uniqueCode = ((JSONObject) o).optString("openid"); //QQ的openid
             String token = null;
             String expires_in = null;
-            System.out.println("uniqueCode： " + uniqueCode);
+//            System.out.println("uniqueCode： " + uniqueCode);
             try {
                 token = ((JSONObject) o).getString("access_token");
                 expires_in = ((JSONObject) o).getString("expires_in");
-                System.out.println("token: " + token + " , expires_in:" + expires_in);
+//                System.out.println("token: " + token + " , expires_in:" + expires_in);
                 //在这里直接可以处理登录
             } catch (JSONException e) {
-                System.out.println("exception: " + e.toString());
+//                System.out.println("exception: " + e.toString());
                 e.printStackTrace();
             }
             QQToken qqtoken = mTencent.getQQToken();
@@ -294,7 +302,7 @@ public class LoginGetVertifyCodeActivity extends BaseActivity implements View.On
                     }
                     //QQ第三方登录（5个参数）
                     qqLogin(uniqueCode, headImg, nickname);
-                    System.out.println("nickname:" + nickname + " , headImg: " + headImg + " , sexStr: " + sexStr);
+//                    System.out.println("nickname:" + nickname + " , headImg: " + headImg + " , sexStr: " + sexStr);
                 }
 
                 @Override
@@ -320,11 +328,12 @@ public class LoginGetVertifyCodeActivity extends BaseActivity implements View.On
     private BaseResult baseResult;
 
     private void getVertifiyCode() {
-        RequestParams params = new RequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.GET_VERTIFY_CODE);
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.GET_VERTIFY_CODE);
         params.addBodyParameter("mobile", phoneNumber);
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
+                System.out.println("验证码: " + result);
                 baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
@@ -332,12 +341,13 @@ public class LoginGetVertifyCodeActivity extends BaseActivity implements View.On
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-
+                System.out.println("验证码: " + ex.toString());
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
             }
 
             @Override
             public void onCancelled(CancelledException cex) {
-
             }
 
             @Override
@@ -348,6 +358,7 @@ public class LoginGetVertifyCodeActivity extends BaseActivity implements View.On
     }
 
     private void goToInputCode() {
+        SPUtils.getInstance().saveUserPhoneNum(BaseApplication.applicationContext, phoneNumber);
         Intent intent = new Intent(this, LoginInputVertifyCodeActivity.class);
         intent.putExtra("phonenumber", phoneNumber);
         startActivity(intent);
@@ -415,23 +426,39 @@ public class LoginGetVertifyCodeActivity extends BaseActivity implements View.On
 
 
     private LoginTokenResult loginTokenResult;
+
     private void qqLogin(String openid, String avatar, String nickname) {
-        RequestParams params = new RequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.QQ_LOGIN);
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.QQ_LOGIN);
         params.addBodyParameter("openid", openid);
         params.addBodyParameter("avatar", avatar);
         params.addBodyParameter("nickname", nickname);
+        params.addBodyParameter("unionid", openid);
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
                 loginTokenResult = GsonUtils.GsonToBean(result, LoginTokenResult.class);
-                Message message=myHandler.obtainMessage(2);
+                if (200 == loginTokenResult.getCode()) {
+                    SPUtils.getInstance().userLogin(BaseApplication.applicationContext);
+                    SPUtils.getInstance().saveUserToken(BaseApplication.applicationContext, loginTokenResult.getToken());
+                    SPUtils.getInstance().saveIMToken(BaseApplication.applicationContext, loginTokenResult.getData().getToken());
+                    SPUtils.getInstance().saveUserAvatar(BaseApplication.applicationContext, loginTokenResult.getData().getUserinfo().getAvatar());
+                    SPUtils.getInstance().saveUserName(BaseApplication.applicationContext, loginTokenResult.getData().getUserinfo().getUsername());
+                    SPUtils.getInstance().saveUserInfoStatus(BaseApplication.applicationContext, loginTokenResult.getData().getUserinfo().isHas_pwd(),
+                            loginTokenResult.getData().getUserinfo().isBind_mobile(),
+                            loginTokenResult.getData().getUserinfo().isFill_profile(),
+                            loginTokenResult.getData().getUserinfo().isChoose_hobby());
+                }
+
+                Message message = myHandler.obtainMessage(2);
                 message.sendToTarget();
-                System.out.println("qqLogin: " + result);
+
             }
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
+                System.out.println("QQ登录接口回调: " + ex.toString());
             }
 
             @Override
@@ -448,7 +475,29 @@ public class LoginGetVertifyCodeActivity extends BaseActivity implements View.On
 
     @Override
     public void onWxLoginSuccess() {
-        Toast.makeText(this, "登录成功.", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "登录成功.", Toast.LENGTH_SHORT).show();
+        SPUtils.getInstance().setUserBindType(BaseApplication.applicationContext, SPUtils.WX);
+        pageChange();
         finish();
+    }
+
+    private void pageChange() {
+        if (SPUtils.getInstance().getUserBindPhone(BaseApplication.applicationContext) &&
+                SPUtils.getInstance().getUserFillProfile(BaseApplication.applicationContext) &&
+                SPUtils.getInstance().getUserChooseInterest(BaseApplication.applicationContext)) {
+            Intent homeIntent = new Intent(this, HomeActivity.class);
+            startActivity(homeIntent);
+        } else {
+            if (!SPUtils.getInstance().getUserBindPhone(BaseApplication.applicationContext)) {
+                Intent intent = new Intent(this, BondPhoneNumberActivity.class);
+                startActivity(intent);
+            } else if (!SPUtils.getInstance().getUserFillProfile(BaseApplication.applicationContext)) {
+                Intent intent = new Intent(this, CompleteUserProfileActivity.class);
+                startActivity(intent);
+            } else if (!SPUtils.getInstance().getUserChooseInterest(BaseApplication.applicationContext)) {
+                Intent intent = new Intent(this, HobbySelectActivity.class);
+                startActivity(intent);
+            }
+        }
     }
 }

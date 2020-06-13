@@ -55,7 +55,7 @@ public class PrivacySelectDialog extends Dialog implements View.OnClickListener 
     private void initData() {
         list.add("不公开");
         list.add("公开（任何人可见）");
-        list.add("仅好友可见");
+        list.add("仅圈友可见");
         list.add("仅实名认证用户可见");
         list.add("保密（任何人不可见）");
         privacy = list.get(0);

@@ -3,13 +3,15 @@ package com.zhiyu.quanzhu.model.bean;
 public class OrderConfirmGoods {
     private int goods_id;
     private int num;
-    private int nid;
+    private String nid;
+    private String norms_id;
     private int goods_feight;
     private String goods_name;
     private int goods_status;
     private String norms_name;
     private int stock;
     private int price;
+    private int market_price;
     private String img;
 
     public int getGoods_id() {
@@ -28,12 +30,28 @@ public class OrderConfirmGoods {
         this.num = num;
     }
 
-    public int getNid() {
+    public String getNid() {
         return nid;
     }
 
-    public void setNid(int nid) {
+    public void setNid(String nid) {
         this.nid = nid;
+    }
+
+    public String getNorms_id() {
+        return norms_id;
+    }
+
+    public void setNorms_id(String norms_id) {
+        this.norms_id = norms_id;
+    }
+
+    public int getMarket_price() {
+        return market_price;
+    }
+
+    public void setMarket_price(int market_price) {
+        this.market_price = market_price;
     }
 
     public int getGoods_feight() {

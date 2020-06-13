@@ -107,6 +107,7 @@ public class FragmentFullSearchCircle extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent circleInfoIntent = new Intent(getContext(), CircleInfoActivity.class);
+                circleInfoIntent.putExtra("circle_id",(long)list.get(position).getId());
                 circleInfoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 getContext().startActivity(circleInfoIntent);
             }
@@ -153,6 +154,7 @@ public class FragmentFullSearchCircle extends Fragment {
             x.http().post(params, new Callback.CommonCallback<String>() {
                 @Override
                 public void onSuccess(String result) {
+                    System.out.println("full circle article: " + result);
                     circleResult = GsonUtils.GsonToBean(result, FullSearchCircleResult.class);
                     if (isRefresh) {
                         list = circleResult.getData().getCircle_list();

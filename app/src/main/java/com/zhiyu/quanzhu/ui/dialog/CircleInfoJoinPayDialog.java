@@ -58,6 +58,9 @@ public class CircleInfoJoinPayDialog extends Dialog implements View.OnClickListe
                 dismiss();
                 break;
             case R.id.confirmTextView:
+                if(null!=onPayListener){
+                    onPayListener.onPay();
+                }
                 dismiss();
                 break;
         }

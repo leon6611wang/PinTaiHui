@@ -13,6 +13,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp_15"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:text="暂无数据"
         android:textColor="@color/text_color_black"
         android:textSize="16sp"
         android:textStyle="bold" />
@@ -88,7 +91,7 @@
         android:id="@+id/circleCardView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone"
+        android:visibility="visible"
         android:layout_marginLeft="@dimen/dp_1"
         android:layout_marginRight="@dimen/dp_1"
         android:layout_marginBottom="@dimen/dp_1"
@@ -119,7 +122,7 @@
                     android:id="@+id/circleUserNameTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="name"
+                    android:text="暂无数据"
                     android:textColor="@color/text_color_black"
                     android:textSize="13sp" />
 
@@ -132,7 +135,7 @@
                     android:id="@+id/circleTimeTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="创建372天"
+                    android:text="创建1天"
                     android:textColor="@color/text_color_gray"
                     android:textSize="12sp" />
             </LinearLayout>
@@ -149,7 +152,7 @@
                     android:layout_height="88dp"
                     android:layout_marginRight="@dimen/dp_10"
                     android:scaleType="centerCrop"
-                    android:src="@mipmap/img_h"
+                    android:src="@drawable/image_error"
                     app:corner_radius="@dimen/dp_5" />
 
                 <LinearLayout
@@ -164,7 +167,7 @@
                         android:layout_height="wrap_content"
                         android:ellipsize="end"
                         android:maxLines="1"
-                        android:text="圈子名称"
+                        android:text="暂无数据"
                         android:textColor="@color/text_color_black"
                         android:textSize="15sp"
                         android:textStyle="bold" />
@@ -178,7 +181,7 @@
                         android:ellipsize="end"
                         android:gravity="center|left"
                         android:maxLines="2"
-                        android:text="圈子简介"
+                        android:text="暂无数据"
                         android:textColor="#707070"
                         android:textSize="12sp" />
 
@@ -277,6 +280,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp_20"
+        android:layout_marginBottom="@dimen/dp_10"
         android:layout_gravity="center"
         android:gravity="center|left"
         android:orientation="horizontal">
@@ -292,7 +296,7 @@
             android:id="@+id/commentCountTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="221"
+            android:text="0"
             android:textColor="@color/text_color_black"
             android:textSize="15sp" />
 

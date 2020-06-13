@@ -165,7 +165,7 @@ public class MyCollectionShopAdapter extends BaseAdapter {
         @Override
         public void onClick(View v) {
             Intent shopInfoIntent = new Intent(context, ShopInformationActivity.class);
-            shopInfoIntent.putExtra("shop_id", list.get(position).getId());
+            shopInfoIntent.putExtra("shop_id", String.valueOf(list.get(position).getId()));
             shopInfoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(shopInfoIntent);
         }

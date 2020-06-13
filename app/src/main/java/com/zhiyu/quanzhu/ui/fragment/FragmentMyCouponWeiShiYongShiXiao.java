@@ -118,7 +118,6 @@ public class FragmentMyCouponWeiShiYongShiXiao extends Fragment {
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("未使用-失效: "+result);
                 couponResult = GsonUtils.GsonToBean(result, MyCouponResult.class);
                 if(isRefresh){
                     list=couponResult.getData().getList();

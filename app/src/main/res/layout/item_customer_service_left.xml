@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:background="#F8F8F8"
     android:orientation="vertical">
 
@@ -12,7 +12,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:gravity="center"
-        android:text="2018/04/18 11:03"
         android:textColor="@color/text_color_gray"
         android:textSize="13sp" />
 
@@ -48,15 +47,15 @@
             <FrameLayout
                 android:id="@+id/contentLayout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dp_10">
+                android:layout_height="wrap_content">
                 <!-- 文字-->
-                <TextView
+                <com.zhiyu.quanzhu.ui.widget.emoji.widget.EmojiTextview
                     android:id="@+id/mTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/dp_10"
+                    android:layout_marginTop="@dimen/dp_10"
                     android:background="@drawable/service_im_left_bg"
-                    android:text="亲，欢迎光亲，欢迎光临奥美汽车专营亲，欢迎光临奥美汽车专营亲，欢迎光临奥美汽车专营亲，欢迎光临奥美汽车专营亲，欢迎光临奥美汽车专营亲，欢迎光临奥美汽车专营亲，欢迎光临奥美汽车专营临奥美汽车专营"
                     android:textColor="@color/text_color_black"
                     android:textSize="14sp"
                     android:visibility="gone" />
@@ -65,170 +64,268 @@
                     android:id="@+id/imageLayout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/service_im_left_bg"
-                    android:visibility="gone">
+                    android:visibility="visible">
 
-                    <com.zhiyu.quanzhu.ui.widget.WrapImageView
-                        android:id="@+id/mWrapImageView"
+                    <android.support.v7.widget.CardView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@mipmap/img_h" />
+                        android:layout_marginBottom="@dimen/dp_10"
+                        android:layout_marginLeft="@dimen/dp_2"
+                        android:layout_marginRight="@dimen/dp_2"
+                        android:layout_marginTop="@dimen/dp_10"
+                        android:elevation="@dimen/dp_3"
+                        app:cardCornerRadius="@dimen/dp_10"
+                        app:cardElevation="@dimen/dp_3">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <ImageView
+                                android:id="@+id/mWrapImageView"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:scaleType="fitXY" />
+                        </LinearLayout>
+                    </android.support.v7.widget.CardView>
                 </RelativeLayout>
                 <!-- 订单-->
                 <LinearLayout
                     android:id="@+id/orderLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/service_im_left_bg"
                     android:orientation="vertical"
                     android:visibility="visible">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="订单信息确认"
-                        android:textColor="@color/text_color_black"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-
-                    <android.support.v7.widget.RecyclerView
-                        android:id="@+id/orderRecyclerView"
+                    <android.support.v7.widget.CardView
+                        android:id="@+id/orderCardView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:visibility="gone" />
+                        android:layout_margin="@dimen/dp_5"
+                        app:cardCornerRadius="@dimen/dp_10">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/dp_10"
-                        android:orientation="horizontal">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_margin="@dimen/dp_15"
+                            android:orientation="vertical">
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="购买数量："
-                            android:textColor="@color/text_color_black"
-                            android:textSize="14sp" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="订单信息确认"
+                                android:textColor="@color/text_color_black"
+                                android:textSize="14sp"
+                                android:layout_marginBottom="@dimen/dp_10"
+                                android:textStyle="bold" />
 
-                        <TextView
-                            android:id="@+id/goodsCountTextView"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="2"
-                            android:textColor="@color/text_color_black"
-                            android:textSize="14sp" />
+                            <android.support.v7.widget.RecyclerView
+                                android:id="@+id/orderRecyclerView"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:visibility="visible" />
 
-                        <View
-                            android:layout_width="0dp"
-                            android:layout_height="@dimen/dp_1"
-                            android:layout_weight="1" />
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="@dimen/dp_10"
+                                android:orientation="horizontal">
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="合计："
-                            android:textColor="@color/text_color_black"
-                            android:textSize="14sp" />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="购买数量："
+                                    android:textColor="@color/text_color_black"
+                                    android:textSize="14sp" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="￥"
-                            android:textColor="#F6152A"
-                            android:textSize="12sp" />
+                                <TextView
+                                    android:id="@+id/orderGoodsCountTextView"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="0"
+                                    android:textColor="@color/text_color_black"
+                                    android:textSize="14sp" />
 
-                        <TextView
-                            android:id="@+id/orderPriceTextView"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0.00"
-                            android:textColor="#F6152A"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
+                                <View
+                                    android:layout_width="0dp"
+                                    android:layout_height="@dimen/dp_1"
+                                    android:layout_weight="1" />
 
-                    </LinearLayout>
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="合计："
+                                    android:textColor="@color/text_color_black"
+                                    android:textSize="14sp" />
 
-                    <TextView
-                        android:id="@+id/addressNameTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/dp_5"
-                        android:text="收件人：鲁迅"
-                        android:textColor="@color/text_color_grey"
-                        android:textSize="13sp" />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="￥"
+                                    android:textColor="#F6152A"
+                                    android:textSize="12sp" />
 
-                    <TextView
-                        android:id="@+id/addressPhoneTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/dp_5"
-                        android:text="电话：18757591055"
-                        android:textColor="@color/text_color_grey"
-                        android:textSize="13sp" />
+                                <TextView
+                                    android:id="@+id/orderPriceTextView"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="0.00"
+                                    android:textColor="#F6152A"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold" />
 
-                    <TextView
-                        android:id="@+id/addressAddressTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/dp_5"
-                        android:text="地址：浙江省绍兴市鲁迅故居纪念馆"
-                        android:textColor="@color/text_color_grey"
-                        android:textSize="13sp" />
+                            </LinearLayout>
 
-                    <TextView
-                        android:id="@+id/orderButtonTextView"
-                        android:layout_width="60dp"
-                        android:layout_height="25dp"
-                        android:layout_gravity="right"
-                        android:layout_marginTop="@dimen/dp_10"
-                        android:background="@mipmap/bond_button_bg"
-                        android:gravity="center"
-                        android:text="确认"
-                        android:textColor="@color/white"
-                        android:textSize="13sp" />
+                            <TextView
+                                android:id="@+id/orderAddressNameTextView"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="@dimen/dp_5"
+                                android:text="收件人："
+                                android:textColor="@color/text_color_grey"
+                                android:textSize="13sp" />
+
+                            <TextView
+                                android:id="@+id/orderAddressPhoneTextView"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="@dimen/dp_5"
+                                android:text="电话："
+                                android:textColor="@color/text_color_grey"
+                                android:textSize="13sp" />
+
+                            <TextView
+                                android:id="@+id/orderAddressAddressTextView"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="@dimen/dp_5"
+                                android:text="地址："
+                                android:textColor="@color/text_color_grey"
+                                android:textSize="13sp" />
+
+                            <TextView
+                                android:id="@+id/orderButtonTextView"
+                                android:layout_width="60dp"
+                                android:layout_height="25dp"
+                                android:layout_gravity="right"
+                                android:layout_marginTop="@dimen/dp_10"
+                                android:background="@mipmap/bond_button_bg"
+                                android:gravity="center"
+                                android:text="确认"
+                                android:textColor="@color/white"
+                                android:textSize="13sp" />
+                        </LinearLayout>
+                    </android.support.v7.widget.CardView>
                 </LinearLayout>
                 <!-- 商品-->
                 <LinearLayout
                     android:id="@+id/goodsLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/service_im_left_bg"
                     android:orientation="vertical"
                     android:visibility="gone">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/dp_10"
-                        android:text="商品信息"
-                        android:textColor="@color/text_color_black"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+                    <android.support.v7.widget.CardView
+                        android:id="@+id/goodsCardView"
+                        android:layout_width="240dp"
+                        android:layout_height="323dp"
+                        android:layout_margin="@dimen/dp_5"
+                        app:cardCornerRadius="@dimen/dp_10">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <com.zhiyu.quanzhu.ui.widget.NiceImageView
-                            android:id="@+id/goodsImageImageView"
-                            android:layout_width="@dimen/dp_40"
-                            android:layout_height="@dimen/dp_40"
-                            android:layout_marginRight="@dimen/dp_10"
-                            android:src="@drawable/image_error"
-                            app:corner_radius="@dimen/dp_2" />
-
-                        <TextView
-                            android:id="@+id/goodsNameTextView"
-                            android:layout_width="0dp"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:ellipsize="end"
-                            android:maxLines="2"
-                            android:text="商品名称商品名称商品名称商品名称商品名称商品名称商品名称商品名称商品名称商品名称商品名称商品名称商品名称商品名称商品名称商品名称"
-                            android:textColor="@color/text_color_black"
-                            android:textSize="14sp" />
-                    </LinearLayout>
+                            android:orientation="vertical">
+
+                            <ImageView
+                                android:id="@+id/goodsImageImageView"
+                                android:layout_width="match_parent"
+                                android:layout_height="0dp"
+                                android:layout_weight="240"
+                                android:scaleType="centerCrop"
+                                android:src="@drawable/image_error" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="0dp"
+                                android:layout_weight="83"
+                                android:background="@color/white"
+                                android:orientation="vertical"
+                                android:paddingLeft="@dimen/dp_10"
+                                android:paddingRight="@dimen/dp_10">
+
+                                <TextView
+                                    android:id="@+id/goodsTitleTextView"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="0dp"
+                                    android:layout_marginBottom="@dimen/dp_5"
+                                    android:layout_marginTop="@dimen/dp_5"
+                                    android:layout_weight="1"
+                                    android:ellipsize="end"
+                                    android:maxLines="2"
+                                    android:textColor="@color/text_color_grey"
+                                    android:textSize="15sp"
+                                    android:textStyle="bold" />
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginBottom="@dimen/dp_10"
+                                    android:orientation="horizontal">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="¥"
+                                        android:textColor="#DD1041"
+                                        android:textSize="12sp"
+                                        android:textStyle="bold" />
+
+                                    <TextView
+                                        android:id="@+id/goodsZhengShuTextView"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="0"
+                                        android:textColor="#DD1041"
+                                        android:textSize="17sp"
+                                        android:textStyle="bold" />
+
+                                    <TextView
+                                        android:id="@+id/goodsXiaoShuTextView"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text=".00"
+                                        android:textColor="#DD1041"
+                                        android:textSize="12sp"
+                                        android:textStyle="bold" />
+
+                                    <View
+                                        android:layout_width="0dp"
+                                        android:layout_height="@dimen/dp_1"
+                                        android:layout_weight="1" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="销量 "
+                                        android:textColor="@color/text_color_gray"
+                                        android:textSize="12sp" />
+
+                                    <TextView
+                                        android:id="@+id/goodsSaleNumTextView"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="0"
+                                        android:textColor="@color/text_color_gray"
+                                        android:textSize="12sp" />
+
+
+                                </LinearLayout>
+                            </LinearLayout>
+
+                        </LinearLayout>
+                    </android.support.v7.widget.CardView>
 
                 </LinearLayout>
 

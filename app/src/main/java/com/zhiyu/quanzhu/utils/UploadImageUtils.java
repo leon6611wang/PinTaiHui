@@ -7,6 +7,7 @@ import com.qiniu.android.http.ResponseInfo;
 import com.qiniu.android.storage.Configuration;
 import com.qiniu.android.storage.UpCompletionHandler;
 import com.qiniu.android.storage.UploadManager;
+import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.model.result.QiNiuTokenResult;
 
 import org.json.JSONObject;
@@ -49,19 +50,20 @@ public class UploadImageUtils {
     }
 
     public void uploadFile(final String imageType, final String path, final OnUploadCallback onUploadCallback) {
-        System.out.println("上传图片 path: " +path);
-        RequestParams params = new RequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.QI_NIU_TOKEN);
+        RequestParams params = MyRequestParams.getInstance(BaseApplication.applicationContext).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.QI_NIU_TOKEN);
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("上传图片: " +result);
+                System.out.println("上传图片-获取七牛token: " +result);
                 qiNiuTokenResult = GsonUtils.GsonToBean(result, QiNiuTokenResult.class);
+                System.out.println("上传图片-获取七牛token: "+qiNiuTokenResult.getMsg()+" , "+qiNiuTokenResult.getCode());
                 upload(imageType, path, onUploadCallback);
             }
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                System.out.println("上传图片: " + ex.toString());
+//                System.out.println("上传图片-获取七牛token: " + ex.toString());
+                System.out.println("上传图片-获取七牛token error");
             }
 
             @Override
@@ -109,7 +111,7 @@ public class UploadImageUtils {
 
     private void qiniuToken(String path) {
         String type = parsePath2Type(path);
-        RequestParams params = new RequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.QI_NIU_TOKEN);
+        RequestParams params = MyRequestParams.getInstance(BaseApplication.applicationContext).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.QI_NIU_TOKEN);
         params.addBodyParameter("type", type);
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override

@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,11 +19,13 @@ import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.Card;
 import com.zhiyu.quanzhu.model.bean.Feed;
+import com.zhiyu.quanzhu.model.bean.MyCardFriend;
 import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.NiceImageView;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
+import com.zhiyu.quanzhu.utils.SharedPreferencesUtils;
 
 import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
@@ -32,44 +35,50 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.rong.imkit.RongIM;
+import io.rong.imlib.model.Conversation;
+
 public class MyCollectionCardRecyclerAdapter extends RecyclerView.Adapter<MyCollectionCardRecyclerAdapter.ViewHolder> {
     private List<Card> list;
     private Context context;
     private MyHandler myHandler = new MyHandler(this);
     private boolean isSelectModel;
 
-    public void setAllSelect(boolean isAllSelected){
-        for(Card feed:list){
+    public void setAllSelect(boolean isAllSelected) {
+        for (Card feed : list) {
             feed.setSelected(isAllSelected);
         }
         notifyDataSetChanged();
     }
 
-    public String getCancelCollectIds(){
-        String ids="";
-        for(Card feed:list){
-            if(feed.isSelected()){
-                ids+=feed.getId()+",";
+    public String getCancelCollectIds() {
+        String ids = "";
+        for (Card feed : list) {
+            if (feed.isSelected()) {
+                ids += feed.getId() + ",";
             }
         }
         return ids;
     }
+
     public void cancelCollectSuccess() {
         List<Integer> positionList = new ArrayList<>();
-        for (int i = list.size()-1; i >0; i--) {
+        for (int i = list.size() - 1; i > 0; i--) {
             if (list.get(i).isSelected()) {
                 positionList.add(i);
             }
         }
         for (Integer position : positionList) {
-            list.remove((int)position);
+            list.remove((int) position);
         }
         notifyDataSetChanged();
     }
+
     public void setSelectModel(boolean isSelected) {
         this.isSelectModel = isSelected;
         notifyDataSetChanged();
     }
+
     private static class MyHandler extends Handler {
         WeakReference<MyCollectionCardRecyclerAdapter> adapterWeakReference;
 
@@ -100,7 +109,7 @@ public class MyCollectionCardRecyclerAdapter extends RecyclerView.Adapter<MyColl
     class ViewHolder extends RecyclerView.ViewHolder {
         NiceImageView avatarImageView;
         TextView nameTextView, occupionTextView, companyTextView, cityTextView, industryTextView;
-        ImageView cardRightImageView,selectImageView;
+        ImageView cardRightImageView, selectImageView;
         RelativeLayout selectLayout;
 
         public ViewHolder(View itemView) {
@@ -112,8 +121,8 @@ public class MyCollectionCardRecyclerAdapter extends RecyclerView.Adapter<MyColl
             cityTextView = itemView.findViewById(R.id.cityTextView);
             industryTextView = itemView.findViewById(R.id.industryTextView);
             cardRightImageView = itemView.findViewById(R.id.cardRightImageView);
-            selectImageView=itemView.findViewById(R.id.selectImageView);
-            selectLayout=itemView.findViewById(R.id.selectLayout);
+            selectImageView = itemView.findViewById(R.id.selectImageView);
+            selectLayout = itemView.findViewById(R.id.selectLayout);
         }
     }
 
@@ -125,10 +134,14 @@ public class MyCollectionCardRecyclerAdapter extends RecyclerView.Adapter<MyColl
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Glide.with(context).load(list.get(position).getCard_thumb()).error(R.drawable.image_error).into(holder.avatarImageView);
-        holder.nameTextView.setText(list.get(position).getCard_name());
-        holder.occupionTextView.setText(list.get(position).getOccupation());
-        holder.companyTextView.setText(list.get(position).getCompany());
+        Glide.with(context).load(list.get(position).getCard_thumb()).error(R.drawable.image_error).placeholder(R.drawable.image_error)
+                .fallback(R.drawable.image_error).into(holder.avatarImageView);
+        if (!StringUtils.isNullOrEmpty(list.get(position).getCard_name()))
+            holder.nameTextView.setText(list.get(position).getCard_name());
+        if (!StringUtils.isNullOrEmpty(list.get(position).getOccupation()))
+            holder.occupionTextView.setText(list.get(position).getOccupation());
+        if (!StringUtils.isNullOrEmpty(list.get(position).getCompany()))
+            holder.companyTextView.setText(list.get(position).getCompany());
         if (!StringUtils.isNullOrEmpty(list.get(position).getCity_name())) {
             holder.cityTextView.setText(list.get(position).getCity_name());
             holder.cityTextView.setVisibility(View.VISIBLE);
@@ -176,7 +189,7 @@ public class MyCollectionCardRecyclerAdapter extends RecyclerView.Adapter<MyColl
         @Override
         public void onClick(View v) {
             if (list.get(position).isIs_follow()) {//聊天
-
+                onChat(list.get(position));
             } else {
                 addCard(position);
             }
@@ -184,6 +197,7 @@ public class MyCollectionCardRecyclerAdapter extends RecyclerView.Adapter<MyColl
     }
 
     private BaseResult baseResult;
+
     private void addCard(final int position) {
         RequestParams params = MyRequestParams.getInstance(context).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.CARD_EXCHANGE);
         params.addBodyParameter("tuid", String.valueOf(list.get(position).getId()));
@@ -212,7 +226,7 @@ public class MyCollectionCardRecyclerAdapter extends RecyclerView.Adapter<MyColl
         });
     }
 
-    private class OnSelectClick implements View.OnClickListener{
+    private class OnSelectClick implements View.OnClickListener {
         private int position;
 
         public OnSelectClick(int position) {
@@ -223,6 +237,21 @@ public class MyCollectionCardRecyclerAdapter extends RecyclerView.Adapter<MyColl
         public void onClick(View v) {
             list.get(position).setSelected(!list.get(position).isSelected());
             notifyDataSetChanged();
+        }
+    }
+
+    private void onChat(Card cardFriend) {
+        RongIM.getInstance().setMessageAttachedUserInfo(true);
+        SharedPreferencesUtils.getInstance(context).setConversationType(Conversation.ConversationType.PRIVATE.getName().toLowerCase());
+        try {
+            String name = cardFriend.getCard_name();
+            RongIM.getInstance().startPrivateChat(context, String.valueOf(cardFriend.getUid()),
+                    TextUtils.isEmpty(name) ? "聊天界面" : name);
+
+//            RongIM.getInstance().startConversation(getContext(), Conversation.ConversationType.PRIVATE, list.get(position).getUserId(), list.get(position).getUser_name());
+        } catch (Exception e) {
+            e.printStackTrace();
+            MessageToast.getInstance(context).show("无法进入会话界面");
         }
     }
 }

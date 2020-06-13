@@ -1,18 +1,22 @@
 package com.zhiyu.quanzhu.ui.activity;
 
 import android.content.Intent;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
@@ -20,6 +24,7 @@ import com.zhiyu.quanzhu.base.BaseActivity;
 import com.zhiyu.quanzhu.model.bean.AreaCity;
 import com.zhiyu.quanzhu.model.bean.AreaProvince;
 import com.zhiyu.quanzhu.model.bean.ShopType;
+import com.zhiyu.quanzhu.model.dao.FullSearchHistoryDao;
 import com.zhiyu.quanzhu.model.result.ShopSearchResult;
 import com.zhiyu.quanzhu.ui.adapter.CreateShopListAdapter;
 import com.zhiyu.quanzhu.ui.dialog.LoadingDialog;
@@ -31,6 +36,7 @@ import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
+import com.zhiyu.quanzhu.utils.SoftKeyBoardListener;
 import com.zhiyu.quanzhu.utils.SoftKeyboardUtil;
 
 import org.xutils.common.Callback;
@@ -43,7 +49,7 @@ import java.lang.ref.WeakReference;
  * 开店申请
  */
 public class CreateShopActivity extends BaseActivity implements View.OnClickListener {
-    private LinearLayout backLayout;
+    private LinearLayout backLayout, mainLayout, shopNameLayout;
     private TextView titleTextView, nextTextView;
     private EditText yingyezhizhaoEditText, dianhuaEditText, mingchengEditText;
     private TextView xinyongdaimaTextView, farenTextView, dizhiTextView, guishudiTextView, leixingTextView;
@@ -57,6 +63,7 @@ public class CreateShopActivity extends BaseActivity implements View.OnClickList
     private ShopType shopType;
     private AreaProvince areaProvince;
     private AreaCity areaCity;
+    private View softBoardView;
     private int circle_id;
 
     private MyHandler myHandler = new MyHandler(this);
@@ -74,20 +81,27 @@ public class CreateShopActivity extends BaseActivity implements View.OnClickList
             switch (msg.what) {
                 case 99:
                     activity.loadingDialog.dismiss();
+                    activity.clearData();
                     FailureToast.getInstance(activity).show();
                     activity.isSearching = false;
                     break;
                 case 100:
                     activity.loadingDialog.dismiss();
+                    activity.clearData();
                     MessageToast.getInstance(activity).show(activity.shopSearchResult.getMsg());
                     activity.isSearching = false;
                     break;
                 case 1:
                     activity.isSearching = false;
                     if (200 == activity.shopSearchResult.getCode()) {
-                        activity.adapter.setList(activity.shopSearchResult.getData().getList());
-                        activity.nameListView.setVisibility(View.VISIBLE);
-                        activity.contentLayout.setVisibility(View.GONE);
+                        if (null != activity.shopSearchResult.getData().getList() && activity.shopSearchResult.getData().getList().size() > 0) {
+                            activity.adapter.setList(activity.shopSearchResult.getData().getList());
+                            activity.nameListView.setVisibility(View.VISIBLE);
+                            activity.contentLayout.setVisibility(View.GONE);
+                        } else {
+                            MessageToast.getInstance(activity).show("未查询到数据，请确认名称是否正确.");
+                        }
+
                     } else {
                         activity.nameListView.setVisibility(View.GONE);
                         activity.contentLayout.setVisibility(View.VISIBLE);
@@ -105,6 +119,12 @@ public class CreateShopActivity extends BaseActivity implements View.OnClickList
         }
     }
 
+    private void clearData() {
+        xinyongdaimaTextView.setText(null);
+        farenTextView.setText(null);
+        dizhiTextView.setText(null);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -113,11 +133,35 @@ public class CreateShopActivity extends BaseActivity implements View.OnClickList
         circle_id = getIntent().getIntExtra("circle_id", 0);
         initViews();
         initDialogs();
+        setSoftKeyBoardListener();
+    }
+
+    private SoftKeyBoardListener softKeyBoardListener;
+    private boolean isSetLayoutParams = false;
+
+    /**
+     * 添加软键盘的监听
+     */
+    private void setSoftKeyBoardListener() {
+        softKeyBoardListener = new SoftKeyBoardListener(this);
+        softKeyBoardListener.setOnSoftKeyBoardChangeListener(new SoftKeyBoardListener.OnSoftKeyBoardChangeListener() {
+            @Override
+            public void keyBoardShow(int height) {
+                nextTextView.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void keyBoardHide(int height) {
+                nextTextView.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     private void initViews() {
+        mainLayout = findViewById(R.id.mainLayout);
         backLayout = findViewById(R.id.backLayout);
         backLayout.setOnClickListener(this);
+        softBoardView = findViewById(R.id.softBoardView);
         titleTextView = findViewById(R.id.titleTextView);
         titleTextView.setText("开店申请");
         closeLayout = findViewById(R.id.closeLayout);
@@ -155,6 +199,7 @@ public class CreateShopActivity extends BaseActivity implements View.OnClickList
         dizhiTextView = findViewById(R.id.dizhiTextView);
         dianhuaEditText = findViewById(R.id.dianhuaEditText);
         mingchengEditText = findViewById(R.id.mingchengEditText);
+        shopNameLayout = findViewById(R.id.shopNameLayout);
         guishudiLayout = findViewById(R.id.guishudiLayout);
         guishudiLayout.setOnClickListener(this);
         guishudiTextView = findViewById(R.id.guishudiTextView);
@@ -281,14 +326,13 @@ public class CreateShopActivity extends BaseActivity implements View.OnClickList
         }
 
         isSearching = true;
-        System.out.println("keywords: " + keywords + " , type: " + type);
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.QI_CHA_CHA);
         params.addBodyParameter("keywords", keywords);
         params.addBodyParameter("type", String.valueOf(type));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println(result);
+                System.out.println("企查查: " + result);
                 shopSearchResult = GsonUtils.GsonToBean(result, ShopSearchResult.class);
                 if (shopSearchResult.getCode() == 200 && null != shopSearchResult.getData() && null != shopSearchResult.getData().getList() && shopSearchResult.getData().getList().size() > 0) {
                     Message message = myHandler.obtainMessage(type);
@@ -321,10 +365,44 @@ public class CreateShopActivity extends BaseActivity implements View.OnClickList
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 10231) {
-            int close = data.getIntExtra("close", 0);
-            if (close == 1) {
-                finish();
+            if (null != data && data.hasExtra("close")) {
+                int close = data.getIntExtra("close", 0);
+                if (close == 1) {
+                    finish();
+                }
             }
         }
+    }
+
+    /**
+     * addLayoutListener方法如下
+     *
+     * @param main   根布局
+     * @param scroll 需要显示的最下方View
+     */
+    public void addLayoutListener(final View main, final View scroll) {
+        main.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                Rect rect = new Rect();
+                //1、获取main在窗体的可视区域
+                main.getWindowVisibleDisplayFrame(rect);
+                //2、获取main在窗体的不可视区域高度，在键盘没有弹起时，main.getRootView().getHeight()调节度应该和rect.bottom高度一样
+                int mainInvisibleHeight = main.getRootView().getHeight() - rect.bottom;
+                int screenHeight = main.getRootView().getHeight();//屏幕高度
+                //3、不可见区域大于屏幕本身高度的1/4：说明键盘弹起了
+                if (mainInvisibleHeight > screenHeight / 4) {
+                    int[] location = new int[2];
+                    scroll.getLocationInWindow(location);
+                    // 4､获取Scroll的窗体坐标，算出main需要滚动的高度
+                    int srollHeight = (location[1] + scroll.getHeight()) - rect.bottom;
+                    //5､让界面整体上移键盘的高度
+                    main.scrollTo(0, srollHeight);
+                } else {
+                    //3、不可见区域小于屏幕高度1/4时,说明键盘隐藏了，把界面下移，移回到原有高度
+                    main.scrollTo(0, 0);
+                }
+            }
+        });
     }
 }

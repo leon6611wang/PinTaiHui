@@ -1,78 +1,59 @@
 package com.zhiyu.quanzhu.ui.activity;
 
-import android.Manifest;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
-import android.media.MediaMetadataRetriever;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.load.resource.gif.GifDrawable;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
+import com.lcw.library.imagepicker.ImagePicker;
+import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseActivity;
 import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.AreaCity;
 import com.zhiyu.quanzhu.model.bean.AreaProvince;
 import com.zhiyu.quanzhu.model.bean.IndustryChild;
+import com.zhiyu.quanzhu.model.bean.IndustryHobby;
 import com.zhiyu.quanzhu.model.bean.IndustryParent;
 import com.zhiyu.quanzhu.model.result.CardResult;
 import com.zhiyu.quanzhu.ui.dialog.ChoosePhotoDialog;
 import com.zhiyu.quanzhu.ui.dialog.IndustryDialog;
+import com.zhiyu.quanzhu.ui.dialog.IndustryHobbyDialog;
 import com.zhiyu.quanzhu.ui.dialog.ProvinceCityDialog;
 import com.zhiyu.quanzhu.ui.dialog.VideoFullScreenDialog;
 import com.zhiyu.quanzhu.ui.dialog.VideoPlayDialog;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.CircleImageView;
 import com.zhiyu.quanzhu.ui.widget.RoundImageView;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
-import com.zhiyu.quanzhu.utils.GetPhotoFromPhotoAlbum;
+import com.zhiyu.quanzhu.utils.GlideLoader;
 import com.zhiyu.quanzhu.utils.GsonUtils;
-import com.zhiyu.quanzhu.utils.MediaUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 import com.zhiyu.quanzhu.utils.UploadImageUtils;
+import com.zhiyu.quanzhu.utils.VideoUtils;
 
 import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
 import org.xutils.x;
 
-import java.io.File;
 import java.lang.ref.WeakReference;
-import java.util.HashMap;
-import java.util.List;
-
-import pub.devrel.easypermissions.EasyPermissions;
-
-import static android.view.View.VISIBLE;
+import java.util.ArrayList;
 
 /**
  * 编辑名片
  */
-public class EditCardActivity extends BaseActivity implements View.OnClickListener, CompoundButton.OnCheckedChangeListener, EasyPermissions.PermissionCallbacks {
+public class EditCardActivity extends BaseActivity implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
     private LinearLayout backLayout;
     private TextView titleTextView;
     private ToggleButton gongkaiToggleButton, yanzhengToggleButton;
@@ -81,19 +62,17 @@ public class EditCardActivity extends BaseActivity implements View.OnClickListen
     private LinearLayout chengshilayout, hangyelayout;
     private TextView chengshitextview, hangyetextview, saveButtonTextView;
     private String xingming, shouji, weixin, youxiang, gongsi, zhiwei, chengshi, hangye, neirong;
+    private String province_name, city_name;
+    private int province_code, city_code;
     private int is_open, is_verifiy;
     private ProvinceCityDialog provinceCityDialog;
-    private IndustryDialog industryDialog;
+    private IndustryHobbyDialog industryDialog;
     private ChoosePhotoDialog choosePhotoDialog;
     private RoundImageView cardImageView;
     private CircleImageView headerpicImageView;
     private VideoPlayDialog videoPlayDialog;
-    private String[] permissions = {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
-    private File cameraSavePath;
-    private Uri image_uri, video_uri;
-    private String video_path;
-    private int chooseType = 0;//1:头像；2：名片介绍图片；3：名片介绍视频
-    private String upload_avatar_name, upload_cover_name, upload_video_name;
+    private String avatarUrl, imageUrl, videoUrl;
+    private int video_width, video_height;
     private RoundImageView uploadvideoImageView;
     private long card_id;
     private AreaProvince areaProvince;
@@ -113,17 +92,15 @@ public class EditCardActivity extends BaseActivity implements View.OnClickListen
             EditCardActivity activity = activityWeakReference.get();
             switch (msg.what) {
                 case 1:
-                    if (!TextUtils.isEmpty(activity.cardResult.getData().getDetail().getCard_thumb())) {
-                        Glide.with(activity).load(activity.cardResult.getData().getDetail().getCard_thumb()).into(activity.headerpicImageView);
-                    }
-                    if (!TextUtils.isEmpty(activity.cardResult.getData().getDetail().getImg())) {
-                        Glide.with(activity).load(activity.cardResult.getData().getDetail().getImg()).into(activity.cardImageView);
-                    }
-
-                    if (!TextUtils.isEmpty(activity.cardResult.getData().getDetail().getVideo_intro())) {
-                        activity.uploadvideoImageView.setBackgroundColor(activity.getResources().getColor(R.color.black));
-                        Glide.with(activity).load(activity.cardResult.getData().getDetail().getVideo_intro() + "?vframe/jpg/offset/10").into(activity.uploadvideoImageView);
-                    }
+                    if (!StringUtils.isNullOrEmpty(activity.avatarUrl))
+                        Glide.with(activity).load(activity.avatarUrl).error(R.drawable.image_error).placeholder(R.drawable.image_error)
+                                .fallback(R.drawable.image_error).into(activity.headerpicImageView);
+                    if (!StringUtils.isNullOrEmpty(activity.imageUrl))
+                        Glide.with(activity).load(activity.imageUrl).error(R.drawable.image_error).placeholder(R.drawable.image_error)
+                                .fallback(R.drawable.image_error).into(activity.cardImageView);
+                    if (!StringUtils.isNullOrEmpty(activity.videoUrl))
+                        Glide.with(activity).load(activity.videoUrl).error(R.drawable.image_error).placeholder(R.drawable.image_error)
+                                .fallback(R.drawable.image_error).into(activity.uploadvideoImageView);
                     activity.xingmingedittext.setText(activity.cardResult.getData().getDetail().getCard_name());
                     activity.shoujiedittext.setText(activity.cardResult.getData().getDetail().getMobile());
                     activity.weixinedittext.setText(activity.cardResult.getData().getDetail().getWx());
@@ -136,12 +113,8 @@ public class EditCardActivity extends BaseActivity implements View.OnClickListen
                     activity.gongkaiToggleButton.setChecked(activity.cardResult.getData().getDetail().getIs_open() == 1 ? true : false);
                     activity.yanzhengToggleButton.setChecked(activity.cardResult.getData().getDetail().getIs_verifiy() == 1 ? true : false);
                     break;
-                case 2:
-                    activity.videoFullScreenDialog.show();
-                    activity.videoFullScreenDialog.setVideoPath(activity.video_path);
-                    break;
                 case 3:
-                    Toast.makeText(activity,activity.baseResult.getMsg(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, activity.baseResult.getMsg(), Toast.LENGTH_SHORT).show();
                     if (activity.baseResult.getCode() == 200) {
                         activity.finish();
                     }
@@ -170,37 +143,25 @@ public class EditCardActivity extends BaseActivity implements View.OnClickListen
             public void onCityChoose(AreaProvince province, AreaCity city) {
                 areaProvince = province;
                 areaCity = city;
+                province_code = areaProvince.getCode();
+                province_name = areaProvince.getName();
+                city_code = (int) areaCity.getCode();
+                city_name = areaCity.getName();
                 chengshi = areaProvince.getName() + " " + areaCity.getName();
                 chengshitextview.setText(chengshi);
             }
         });
-        industryDialog = new IndustryDialog(this, R.style.dialog, new IndustryDialog.OnHangYeChooseListener() {
+        industryDialog = new IndustryHobbyDialog(this, R.style.dialog,true, new IndustryHobbyDialog.OnIndustryHobbySelectedListener() {
             @Override
-            public void onHangYeChoose(IndustryParent parent, IndustryChild child) {
+            public void onIndustryHobbySelected(IndustryHobby parent, IndustryHobby child) {
                 hangye = parent.getName() + " " + child.getName();
                 hangyetextview.setText(hangye);
             }
         });
-        choosePhotoDialog = new ChoosePhotoDialog(this, R.style.dialog, new ChoosePhotoDialog.OnChoosePhotoListener() {
-            @Override
-            public void xiangce() {
-                goPhotoAlbum();
-            }
-
-            @Override
-            public void paizhao() {
-                goCamera();
-            }
-        });
         videoPlayDialog = new VideoPlayDialog(this, EditCardActivity.this, R.style.dialog);
-
         videoFullScreenDialog = new VideoFullScreenDialog(this, R.style.dialog);
     }
 
-    private void showVideoFullScreenDialog() {
-//        videoFullScreenDialog.show();
-//        videoFullScreenDialog.setVideoPath(video_path);
-    }
 
     private void initViews() {
         backLayout = findViewById(R.id.backLayout);
@@ -246,8 +207,7 @@ public class EditCardActivity extends BaseActivity implements View.OnClickListen
                 finish();
                 break;
             case R.id.headerpicImageView:
-                chooseType = 1;
-                getPermission();
+                selectAvatar();
                 break;
             case R.id.chengshilayout:
                 provinceCityDialog.show();
@@ -261,35 +221,77 @@ public class EditCardActivity extends BaseActivity implements View.OnClickListen
                 }
                 break;
             case R.id.cardImageView:
-                chooseType = 2;
-                getPermission();
+                selectImage();
                 break;
             case R.id.uploadvideoImageView:
-                chooseType = 3;
-                getVideo();
-//                videoFullScreenDialog.show();
-//                videoFullScreenDialog.setVideoPath(video_path);
-//                showVideoFullScreenDialog();
+                selectVideo();
                 break;
         }
     }
+
+    private final int REQUEST_SELECT_AVATAR_CODE = 1000;
+    private final int REQUEST_SELECT_IMAGES_CODE = 1001;
+    private final int REQUEST_SELECT_VIDEO_CODE = 1002;
+    private ArrayList<String> avatarList = new ArrayList<>();
+    private ArrayList<String> imageList = new ArrayList<>();
+    private ArrayList<String> videoList = new ArrayList<>();
+
+    private void selectAvatar() {
+        ImagePicker.getInstance()
+                .setTitle("图片选择")//设置标题
+                .showCamera(true)//设置是否显示拍照按钮
+                .showImage(true)//设置是否展示图片
+                .showVideo(false)//设置是否展示视频
+                .setSingleType(true)//设置图片视频不能同时选择
+                .setMaxCount(1)//设置最大选择图片数目(默认为1，单选)
+                .setImagePaths(avatarList)//保存上一次选择图片的状态，如果不需要可以忽略
+                .setImageLoader(new GlideLoader())//设置自定义图片加载器
+                .start(EditCardActivity.this, REQUEST_SELECT_AVATAR_CODE);//REQEST_SELECT_IMAGES_CODE为Intent调用的requestCode
+    }
+
+    private void selectImage() {
+        ImagePicker.getInstance()
+                .setTitle("图片选择")//设置标题
+                .showCamera(true)//设置是否显示拍照按钮
+                .showImage(true)//设置是否展示图片
+                .showVideo(false)//设置是否展示视频
+                .setSingleType(true)//设置图片视频不能同时选择
+                .setMaxCount(1)//设置最大选择图片数目(默认为1，单选)
+                .setImagePaths(imageList)//保存上一次选择图片的状态，如果不需要可以忽略
+                .setImageLoader(new GlideLoader())//设置自定义图片加载器
+                .start(EditCardActivity.this, REQUEST_SELECT_IMAGES_CODE);//REQEST_SELECT_IMAGES_CODE为Intent调用的requestCode
+    }
+
+    private void selectVideo() {
+        ImagePicker.getInstance()
+                .setTitle("视频选择")//设置标题
+                .showCamera(true)//设置是否显示拍照按钮
+                .showImage(false)//设置是否展示图片
+                .showVideo(true)//设置是否展示视频
+                .setSingleType(true)//设置图片视频不能同时选择
+                .setMaxCount(1)//设置最大选择图片数目(默认为1，单选)
+                .setImagePaths(videoList)//保存上一次选择图片的状态，如果不需要可以忽略
+                .setImageLoader(new GlideLoader())//设置自定义图片加载器
+                .start(EditCardActivity.this, REQUEST_SELECT_VIDEO_CODE);//REQEST_SELECT_IMAGES_CODE为Intent调用的requestCode
+    }
+
 
     private boolean checkValues() {
         boolean checked = true;
         xingming = xingmingedittext.getText().toString().trim();
         if (TextUtils.isEmpty(xingming)) {
             checked = false;
-            Toast.makeText(this, "请输入姓名", Toast.LENGTH_SHORT).show();
+            MessageToast.getInstance(this).show("请输入姓名");
             return checked;
         }
-        if (TextUtils.isEmpty(chengshi)) {
+        if (TextUtils.isEmpty(city_name)) {
             checked = false;
-            Toast.makeText(this, "请选择城市", Toast.LENGTH_SHORT).show();
+            MessageToast.getInstance(this).show("请选择城市");
             return checked;
         }
         if (TextUtils.isEmpty(hangye)) {
             checked = false;
-            Toast.makeText(this, "请选择行业", Toast.LENGTH_SHORT).show();
+            MessageToast.getInstance(this).show("请选择行业");
             return checked;
         }
         shouji = shoujiedittext.getText().toString().trim();
@@ -309,11 +311,9 @@ public class EditCardActivity extends BaseActivity implements View.OnClickListen
         switch (buttonView.getId()) {
             case R.id.gongkaiToggleButton:
                 gongkaiChecked = isChecked;
-                Log.i("addeditmingpian", "公开: " + isChecked);
                 break;
             case R.id.yanzhengToggleButton:
                 yanzhengChecked = isChecked;
-                Log.i("addeditmingpian", "验证: " + isChecked);
                 break;
         }
     }
@@ -326,182 +326,82 @@ public class EditCardActivity extends BaseActivity implements View.OnClickListen
         super.onDestroy();
     }
 
-    //获取权限
-    private void getPermission() {
-        if (EasyPermissions.hasPermissions(this, permissions)) {
-            //已经打开权限
-            choosePhotoDialog.show();
-//            Toast.makeText(this, "已经申请相关权限", Toast.LENGTH_SHORT).show();
-        } else {
-            //没有打开相关权限、申请权限
-            EasyPermissions.requestPermissions(this, "需要获取您的相册、照相使用权限", 1, permissions);
-        }
-
-    }
-
-
-    //激活相册操作
-    private void goPhotoAlbum() {
-        Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_PICK);
-        intent.setType("image/*");
-        startActivityForResult(intent, 2);
-    }
-
-    private void getVideo() {
-        Intent intent = new Intent(Intent.ACTION_PICK, null);
-        intent.setType("video/*");
-        startActivityForResult(intent, 3);
-    }
-
-    //激活相机操作
-    private void goCamera() {
-        cameraSavePath = new File(Environment.getExternalStorageDirectory().getPath() + "/" + System.currentTimeMillis() + ".jpg");
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            image_uri = FileProvider.getUriForFile(this, "com.example.hxd.pictest.fileprovider", cameraSavePath);
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        } else {
-            image_uri = Uri.fromFile(cameraSavePath);
-        }
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, image_uri);
-        this.startActivityForResult(intent, 1);
-    }
-
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        //框架要求必须这么写
-        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
-    }
-
-
-    //成功打开权限
-    @Override
-    public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
-        choosePhotoDialog.show();
-    }
-
-    //用户未同意权限
-    @Override
-    public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
-        Toast.makeText(this, "请同意相关权限，否则功能无法使用", Toast.LENGTH_SHORT).show();
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        String path = null;
-        if (requestCode == 1 && resultCode == RESULT_OK) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                path = String.valueOf(cameraSavePath);
-            } else {
-                path = image_uri.getEncodedPath();
-            }
-        } else if (requestCode == 2 && resultCode == RESULT_OK) {
-            path = GetPhotoFromPhotoAlbum.getRealPathFromUri(this, data.getData());
+        if (requestCode == REQUEST_SELECT_AVATAR_CODE && resultCode == RESULT_OK) {
+            avatarList = data.getStringArrayListExtra(ImagePicker.EXTRA_SELECT_IMAGES);
+            Glide.with(EditCardActivity.this).load(avatarList.get(0)).error(R.drawable.image_error).placeholder(R.drawable.image_error)
+                    .fallback(R.drawable.image_error).into(headerpicImageView);
+            upload(avatarList.get(0), 1);
         }
-        switch (chooseType) {
-            case 1:
-                UploadImageUtils.getInstance().uploadFile(UploadImageUtils.AVATAR, path, new UploadImageUtils.OnUploadCallback() {
-                    @Override
-                    public void onUploadSuccess(String name) {
-                        upload_avatar_name = name;
-                    }
-                });
-                Glide.with(this).load(path).listener(new RequestListener<Drawable>() {
-                    @Override
-                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                        if (resource instanceof GifDrawable) {
-                            ((GifDrawable) resource).setLoopCount(0);
-                        }
-                        return false;
-                    }
-                }).into(headerpicImageView);
-                break;
-            case 2:
-                UploadImageUtils.getInstance().uploadFile(UploadImageUtils.CARDS, path, new UploadImageUtils.OnUploadCallback() {
-                    @Override
-                    public void onUploadSuccess(String name) {
-                        upload_cover_name = name;
-                    }
-                });
-                Glide.with(this).load(path).listener(new RequestListener<Drawable>() {
-                    @Override
-                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                        if (resource instanceof GifDrawable) {
-                            ((GifDrawable) resource).setLoopCount(0);
-                        }
-                        return false;
-                    }
-                }).into(cardImageView);
-                break;
+        if (requestCode == REQUEST_SELECT_IMAGES_CODE && resultCode == RESULT_OK) {
+            imageList = data.getStringArrayListExtra(ImagePicker.EXTRA_SELECT_IMAGES);
+            Glide.with(EditCardActivity.this).load(imageList.get(0)).error(R.drawable.image_error).placeholder(R.drawable.image_error)
+                    .fallback(R.drawable.image_error).into(cardImageView);
+            upload(imageList.get(0), 2);
         }
 
+        if (requestCode == REQUEST_SELECT_VIDEO_CODE && resultCode == RESULT_OK) {
+            videoList = data.getStringArrayListExtra(ImagePicker.EXTRA_SELECT_IMAGES);
+            Glide.with(EditCardActivity.this).load(videoList.get(0)).error(R.drawable.image_error).placeholder(R.drawable.image_error)
+                    .fallback(R.drawable.image_error).into(uploadvideoImageView);
+            upload(videoList.get(0), 3);
+//            UploadImageUtils.getInstance().uploadFile(UploadImageUtils.CIRCLEFEES, videoList.get(0), new UploadImageUtils.OnUploadCallback() {
+//                @Override
+//                public void onUploadSuccess(String name) {
+//                    videoUrl = name;
+//                    VideoUtils.getInstance().getVideoWidthAndHeightAndVideoTimes(videoUrl, new VideoUtils.OnCaculateVideoWidthHeightListener() {
+//                        @Override
+//                        public void onVideoWidthHeight(float w, float h, float vt) {
+//                            video_width = (int) w;
+//                            video_height = (int) h;
+//                        }
+//                    });
+//                }
+//            });
+        }
+    }
 
-        if (requestCode == 3 && resultCode == RESULT_OK) {
-            video_path = GetPhotoFromPhotoAlbum.getRealPathFromUri(this, data.getData());
-            UploadImageUtils.getInstance().uploadFile(UploadImageUtils.CARDS, video_path, new UploadImageUtils.OnUploadCallback() {
-                @Override
-                public void onUploadSuccess(String name) {
-                    upload_video_name = name;
+    private void upload(String path, final int type) {
+        UploadImageUtils.getInstance().uploadFile(UploadImageUtils.CIRCLEFEES, path, new UploadImageUtils.OnUploadCallback() {
+            @Override
+            public void onUploadSuccess(String name) {
+                switch (type) {
+                    case 1:
+                        avatarUrl = name;
+                        break;
+                    case 2:
+                        imageUrl = name;
+                        break;
+                    case 3:
+                        videoUrl = name;
+                        break;
                 }
-            });
-            Bitmap bitmap = MediaUtils.getInstance().getVideoThumb(video_path);
-            if (null != bitmap) {
-                uploadvideoImageView.setBackgroundColor(getResources().getColor(R.color.black));
-                uploadvideoImageView.setImageBitmap(bitmap);
             }
-            System.out.println("video_path: " + video_path);
-//            Message message=myHandler.obtainMessage(2);
-//            message.sendToTarget();
-//            showVideoFullScreenDialog();
-//            initVideo(video_path);
-        }
-        super.onActivityResult(requestCode, resultCode, data);
+        });
     }
 
     private BaseResult baseResult;
 
     private void editCard() {
-        System.out.println("编辑名片");
+        System.out.println("编辑名片 videoUrl: " + videoUrl);
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.CARD_UPDATE);
         params.addBodyParameter("card_id", String.valueOf(card_id));
         params.addBodyParameter("card_name", xingming);
-        if (null != areaProvince) {
-            params.addBodyParameter("province", String.valueOf(areaProvince.getCode()));
-            params.addBodyParameter("province_name", areaProvince.getName());
-        }
-        if (null != areaCity) {
-            params.addBodyParameter("city", String.valueOf(areaCity.getCode()));
-            params.addBodyParameter("city_name", areaCity.getName());
-        }
-
+        params.addBodyParameter("province", String.valueOf(province_code));
+        params.addBodyParameter("province_name", province_name);
+        params.addBodyParameter("city", String.valueOf(city_code));
+        params.addBodyParameter("city_name", city_name);
         params.addBodyParameter("industry", hangye);
         params.addBodyParameter("mobile", shouji);
-        if (!upload_avatar_name.startsWith("http")) {
-            params.addBodyParameter("card_thumb", upload_avatar_name);
-        }
+        params.addBodyParameter("card_thumb", avatarUrl);
         params.addBodyParameter("occupation", zhiwei);
         params.addBodyParameter("wx", weixin);
         params.addBodyParameter("email", youxiang);
         params.addBodyParameter("company", gongsi);
-        if (!upload_video_name.startsWith("http")) {
-            params.addBodyParameter("video_intro", upload_video_name);
-        }
-        if (!upload_cover_name.startsWith("http")) {
-            params.addBodyParameter("img", upload_cover_name);
-        }
+        params.addBodyParameter("video_intro", videoUrl);
+        params.addBodyParameter("img", imageUrl);
         params.addBodyParameter("intro", neirong);
         params.addBodyParameter("is_open", String.valueOf(is_open));
         params.addBodyParameter("is_verifiy", String.valueOf(is_verifiy));
@@ -543,16 +443,19 @@ public class EditCardActivity extends BaseActivity implements View.OnClickListen
             public void onSuccess(String result) {
                 cardResult = GsonUtils.GsonToBean(result, CardResult.class);
                 xingming = cardResult.getData().getDetail().getCard_name();
-                upload_avatar_name = cardResult.getData().getDetail().getCard_thumb();
-                chengshi = cardResult.getData().getDetail().getCity_name();
+                avatarUrl = cardResult.getData().getDetail().getCard_thumb();
+                city_name = cardResult.getData().getDetail().getCity_name();
+                city_code = cardResult.getData().getDetail().getCity();
+                province_name = cardResult.getData().getDetail().getProvince_name();
+                province_code = cardResult.getData().getDetail().getProvince();
                 hangye = cardResult.getData().getDetail().getIndustry();
                 shouji = cardResult.getData().getDetail().getMobile();
                 weixin = cardResult.getData().getDetail().getWx();
                 youxiang = cardResult.getData().getDetail().getEmail();
                 gongsi = cardResult.getData().getDetail().getCompany();
                 zhiwei = cardResult.getData().getDetail().getOccupation();
-                upload_cover_name = cardResult.getData().getDetail().getImg();
-                upload_video_name = cardResult.getData().getDetail().getVideo_intro();
+                imageUrl = cardResult.getData().getDetail().getImg();
+                videoUrl = cardResult.getData().getDetail().getVideo_intro();
                 neirong = cardResult.getData().getDetail().getIntro();
                 is_open = cardResult.getData().getDetail().getIs_open();
                 is_verifiy = cardResult.getData().getDetail().getIs_verifiy();

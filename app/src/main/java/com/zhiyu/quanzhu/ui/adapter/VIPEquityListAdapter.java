@@ -53,7 +53,8 @@ public class VIPEquityListAdapter extends BaseAdapter {
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
-        Glide.with(parent.getContext()).load(list.get(position).getIcon()).error(R.drawable.image_error).into(holder.vipEquityIconImageView);
+        Glide.with(parent.getContext()).load(list.get(position).getIcon()).error(R.drawable.image_error) .placeholder(R.drawable.image_error)
+                .fallback(R.drawable.image_error).into(holder.vipEquityIconImageView);
         holder.vipEquityNameTextView.setText(list.get(position).getName());
         return convertView;
     }

@@ -12,14 +12,23 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.leon.chic.utils.MessageTypeUtils;
+import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
+import com.zhiyu.quanzhu.model.bean.SystemMessage;
 import com.zhiyu.quanzhu.model.bean.XiTongXiaoXi;
+import com.zhiyu.quanzhu.ui.activity.CustomerServiceActivity;
+import com.zhiyu.quanzhu.ui.activity.XiTongXiaoXiQuanZhuAssistantActivity;
+import com.zhiyu.quanzhu.ui.activity.XiTongXiaoXiTouSuFanKuiActivity;
 import com.zhiyu.quanzhu.ui.activity.XiTongXiaoXiGuanZhuDianPuActivity;
 import com.zhiyu.quanzhu.ui.activity.XiTongXiaoXiKaQuanTongZhiActivity;
 import com.zhiyu.quanzhu.ui.activity.XiTongXiaoXiQuanYouShenHeActivity;
 import com.zhiyu.quanzhu.ui.activity.XiTongXiaoXiQuanZiShenHeActivity;
-import com.zhiyu.quanzhu.ui.activity.XiTongXiaoXiTuiKuanTongZhiActivity;
+import com.zhiyu.quanzhu.ui.activity.XiTongXiaoXiZhiFuTongZhiActivity;
+import com.zhiyu.quanzhu.ui.widget.CircleImageView;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class XiaoXiXiTongRecyclerAdapter extends RecyclerView.Adapter<XiaoXiXiTongRecyclerAdapter.ViewHolder> {
@@ -32,11 +41,19 @@ public class XiaoXiXiTongRecyclerAdapter extends RecyclerView.Adapter<XiaoXiXiTo
 
     public void setList(List<XiTongXiaoXi> xiaoXiList) {
         this.list = xiaoXiList;
+        Collections.sort(list, new Comparator<XiTongXiaoXi>() {
+            @Override
+            public int compare(XiTongXiaoXi o1, XiTongXiaoXi o2) {
+                int sort = (int) (o2.getMessage_time() - o1.getMessage_time());
+//                System.out.println("--> sort: "+sort);
+                return sort;
+            }
+        });
         notifyDataSetChanged();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
-        ImageView iconImageView;
+        CircleImageView iconImageView;
         TextView nameTextView, labelTextView, timeTextView, msgTextView, msgCountTextView;
         CardView mCardView;
 
@@ -60,11 +77,18 @@ public class XiaoXiXiTongRecyclerAdapter extends RecyclerView.Adapter<XiaoXiXiTo
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-//        Glide.with(context).load(list.get(position)).into(holder.iconImageView);
-        holder.iconImageView.setImageDrawable(context.getResources().getDrawable(list.get(position).getIcon()));
+        if (list.get(position).getMessage_type() > 0) {
+            holder.iconImageView.setImageDrawable(context.getResources().getDrawable(list.get(position).getIcon()));
+        } else {
+            Glide.with(context).load(list.get(position).getAvatar()).error(R.drawable.image_error) .placeholder(R.drawable.image_error)
+                    .fallback(R.drawable.image_error).into(holder.iconImageView);
+        }
+
         holder.nameTextView.setText(list.get(position).getName());
-        holder.timeTextView.setText(list.get(position).getTime());
-        holder.msgTextView.setText(list.get(position).getMsg());
+        if (!StringUtils.isNullOrEmpty(list.get(position).getTime()))
+            holder.timeTextView.setText(list.get(position).getTime());
+        if (!StringUtils.isNullOrEmpty(list.get(position).getMsg()))
+            holder.msgTextView.setText(list.get(position).getMsg());
         if (list.get(position).getMsgCount() > 0) {
             holder.msgCountTextView.setVisibility(View.VISIBLE);
             if (list.get(position).getMsgCount() < 10) {
@@ -102,36 +126,47 @@ public class XiaoXiXiTongRecyclerAdapter extends RecyclerView.Adapter<XiaoXiXiTo
 
         @Override
         public void onClick(View v) {
-            switch (position) {
+            switch (list.get(position).getMessage_type()) {
                 case 0:
-//                    Intent dianpuIntent = new Intent(context, XiTongXiaoXiGuanZhuDianPuActivity.class);
-//                    dianpuIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                    context.startActivity(dianpuIntent);
+                    Intent serviceIntent = new Intent(context, CustomerServiceActivity.class);
+                    serviceIntent.putExtra("shop_id", list.get(position).getShop_id());
+                    serviceIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(serviceIntent);
                     break;
-                case 1:
+                case MessageTypeUtils.XIAO_MI_SHU:
+                    Intent assistantIntent = new Intent(context, XiTongXiaoXiQuanZhuAssistantActivity.class);
+                    assistantIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(assistantIntent);
+                    break;
+                case MessageTypeUtils.QUAN_YOU_QING_QIU:
                     Intent quanyouIntent = new Intent(context, XiTongXiaoXiQuanYouShenHeActivity.class);
                     quanyouIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(quanyouIntent);
                     break;
-                case 2:
+                case MessageTypeUtils.QUAN_ZI_SHEN_HE:
                     Intent quanziIntent = new Intent(context, XiTongXiaoXiQuanZiShenHeActivity.class);
                     quanziIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(quanziIntent);
                     break;
-                case 3:
-                    Intent tuikuanIntent = new Intent(context, XiTongXiaoXiTuiKuanTongZhiActivity.class);
+                case MessageTypeUtils.FU_KUAN_TONG_ZHI:
+                    Intent tuikuanIntent = new Intent(context, XiTongXiaoXiZhiFuTongZhiActivity.class);
                     tuikuanIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(tuikuanIntent);
                     break;
-                case 4:
+                case MessageTypeUtils.KA_QUAN_TONG_ZHI:
                     Intent kaquanIntent = new Intent(context, XiTongXiaoXiKaQuanTongZhiActivity.class);
                     kaquanIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(kaquanIntent);
                     break;
-                case 5:
+                case MessageTypeUtils.GUAN_ZHU_DIAN_PU:
                     Intent dianpuIntent = new Intent(context, XiTongXiaoXiGuanZhuDianPuActivity.class);
                     dianpuIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(dianpuIntent);
+                    break;
+                case MessageTypeUtils.TOU_SU_FAN_KUI:
+                    Intent touSuIntent = new Intent(context, XiTongXiaoXiTouSuFanKuiActivity.class);
+                    touSuIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(touSuIntent);
                     break;
             }
         }

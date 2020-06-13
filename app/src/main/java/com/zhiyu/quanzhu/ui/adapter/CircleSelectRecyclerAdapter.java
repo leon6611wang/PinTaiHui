@@ -23,14 +23,16 @@ import java.util.List;
 public class CircleSelectRecyclerAdapter extends RecyclerView.Adapter<CircleSelectRecyclerAdapter.ViewHolder> {
     private List<MyCircle> list;
     private Context context;
+    private int type;
 
     public void setList(List<MyCircle> myCircleList) {
         this.list = myCircleList;
         notifyDataSetChanged();
     }
 
-    public CircleSelectRecyclerAdapter(Context context) {
+    public CircleSelectRecyclerAdapter(Context context,int type) {
         this.context = context;
+        this.type=type;
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -65,19 +67,38 @@ public class CircleSelectRecyclerAdapter extends RecyclerView.Adapter<CircleSele
         Glide.with(context).load(list.get(position).getThumb()).into(holder.circleImageView);
         holder.circleNameTextView.setText(list.get(position).getName());
         holder.identifyTextView.setText(list.get(position).getRoleName());
-        holder.circleSelectRootLayout.setOnClickListener(new OnSelectCircleClick(position));
+        if(type==1){
+            if (list.get(position).isHas_shop()) {
+                holder.circleNameTextView.setTextColor(context.getResources().getColor(R.color.color_bbbbbb));
+                holder.identifyTextView.setTextColor(context.getResources().getColor(R.color.color_bbbbbb));
+                holder.circleSelectRootLayout.setClickable(false);
+            } else {
+                holder.circleNameTextView.setTextColor(context.getResources().getColor(R.color.text_color_black));
+                holder.circleSelectRootLayout.setClickable(false);
+                holder.circleSelectRootLayout.setOnClickListener(new OnSelectCircleClick(position));
+            }
+        }else{
+            holder.circleSelectRootLayout.setOnClickListener(new OnSelectCircleClick(position));
+        }
+        if(list.get(position).getStatus()==3){
+            holder.circleNameTextView.setTextColor(context.getResources().getColor(R.color.color_bbbbbb));
+            holder.identifyTextView.setTextColor(context.getResources().getColor(R.color.color_bbbbbb));
+            holder.circleSelectRootLayout.setClickable(false);
+        }
+
+
     }
 
-    public MyCircle getSelectedCircle(){
-        MyCircle circle=null;
-        if(null!=list&&list.size()>0){
-            for(MyCircle myCircle:list){
-                if(myCircle.isSelected()){
-                    circle=myCircle;
+    public MyCircle getSelectedCircle() {
+        MyCircle circle = null;
+        if (null != list && list.size() > 0) {
+            for (MyCircle myCircle : list) {
+                if (myCircle.isSelected()) {
+                    circle = myCircle;
                 }
             }
         }
-        return  circle;
+        return circle;
     }
 
     @Override
@@ -85,7 +106,7 @@ public class CircleSelectRecyclerAdapter extends RecyclerView.Adapter<CircleSele
         return null == list ? 0 : list.size();
     }
 
-    private class OnSelectCircleClick implements View.OnClickListener{
+    private class OnSelectCircleClick implements View.OnClickListener {
         private int position;
 
         public OnSelectCircleClick(int position) {
@@ -94,7 +115,7 @@ public class CircleSelectRecyclerAdapter extends RecyclerView.Adapter<CircleSele
 
         @Override
         public void onClick(View v) {
-            for(MyCircle circle:list){
+            for (MyCircle circle : list) {
                 circle.setSelected(false);
             }
             list.get(position).setSelected(true);

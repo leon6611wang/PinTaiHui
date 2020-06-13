@@ -116,6 +116,16 @@ public class DraftsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         notifyDataSetChanged();
     }
 
+    public void setQQShareResult(int requestCode,int resultCode,Intent data){
+        shareDialog.setQQShareCallback(requestCode,resultCode,data);
+    }
+
+    private boolean isStop;
+    public void setVideoStop(boolean stop){
+        this.isStop=stop;
+        notifyDataSetChanged();
+    }
+
     public void onDeleteSuccess() {
         List<Feed> feedList = new ArrayList<>();
         for (Feed feed : list) {
@@ -364,6 +374,9 @@ public class DraftsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     context.startActivity(editFeedIntent);
                 }
             });
+            if(isStop&&feed.videoPlayer.isPlaying()){
+                feed.videoPlayer.pause();
+            }
         } else if (holder instanceof ArticleViewHolder) {
             ArticleViewHolder article = (ArticleViewHolder) holder;
             if (isDeleteStatus) {
@@ -386,9 +399,9 @@ public class DraftsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 article.titleTextView.setVisibility(View.GONE);
             }
             article.sourceTextView.setText(list.get(position).getContent().getCircle_name());
-            if (null != list.get(position).getContent().getThumb()) {
+            if (null != list.get(position).getContent().getNewthumb()) {
                 article.coverImageView.setVisibility(View.VISIBLE);
-                Glide.with(context).load(list.get(position).getContent().getThumb().getFile()).error(R.mipmap.img_error).into(article.coverImageView);
+                Glide.with(context).load(list.get(position).getContent().getNewthumb().getFile()).error(R.mipmap.img_error).into(article.coverImageView);
             } else {
                 article.coverImageView.setVisibility(View.GONE);
             }
@@ -486,6 +499,9 @@ public class DraftsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     context.startActivity(videoInfoIntent);
                 }
             });
+            if(isStop&&video.videoPlayer.isPlaying()){
+                video.videoPlayer.pause();
+            }
         }
     }
 
@@ -496,7 +512,7 @@ public class DraftsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public int getItemViewType(int position) {
-        return list.get(position).getFeed_type();
+        return list.get(position).getFeeds_type();
     }
 
     private final int ARTICLE = 1, VIDEO = 2, FEED = 3;

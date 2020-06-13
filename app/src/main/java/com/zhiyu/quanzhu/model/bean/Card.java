@@ -17,6 +17,7 @@ public class Card {
     private int share;
     private int view;
     private int prise;
+    private boolean is_prise;
     private int collect;
     private int is_verifiy;
     private int is_open;
@@ -24,9 +25,62 @@ public class Card {
     private String img;
     private String video_intro;
     private String city_name;
+    private String province_name;
+    private int province;
+    private int city;
     private String industry;
     private boolean is_follow;
     private boolean isSelected;
+    private boolean is_collect;
+    private boolean is_friends;
+
+    public String getProvince_name() {
+        return province_name;
+    }
+
+    public void setProvince_name(String province_name) {
+        this.province_name = province_name;
+    }
+
+    public int getProvince() {
+        return province;
+    }
+
+    public void setProvince(int province) {
+        this.province = province;
+    }
+
+    public int getCity() {
+        return city;
+    }
+
+    public void setCity(int city) {
+        this.city = city;
+    }
+
+    public boolean isIs_friends() {
+        return is_friends;
+    }
+
+    public void setIs_friends(boolean is_friends) {
+        this.is_friends = is_friends;
+    }
+
+    public boolean isIs_collect() {
+        return is_collect;
+    }
+
+    public void setIs_collect(boolean is_collect) {
+        this.is_collect = is_collect;
+    }
+
+    public boolean isIs_prise() {
+        return is_prise;
+    }
+
+    public void setIs_prise(boolean is_prise) {
+        this.is_prise = is_prise;
+    }
 
     public boolean isSelected() {
         return isSelected;

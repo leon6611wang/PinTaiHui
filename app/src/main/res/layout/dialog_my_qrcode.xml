@@ -33,7 +33,8 @@
                         android:id="@+id/headerImageView"
                         android:layout_width="@dimen/dp_60"
                         android:layout_height="@dimen/dp_60"
-                        android:src="@mipmap/header" />
+                        android:src="@drawable/image_error"
+                        />
 
                     <View
                         android:layout_width="7dp"
@@ -58,8 +59,10 @@
                                 android:id="@+id/nameTextView"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Queena"
                                 android:textColor="@color/text_color_black"
+                                android:maxLines="1"
+                                android:maxEms="5"
+                                android:ellipsize="end"
                                 android:textSize="19sp"
                                 android:textStyle="bold" />
 
@@ -71,8 +74,9 @@
                                 android:id="@+id/positionTextView"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="产品经理"
                                 android:textColor="@color/text_color_grey"
+                                android:maxLines="1"
+                                android:ellipsize="end"
                                 android:textSize="13sp" />
                         </LinearLayout>
 
@@ -84,7 +88,6 @@
                             android:ellipsize="end"
                             android:gravity="center|left"
                             android:maxLines="1"
-                            android:text="马鞍山智域网络科技有限公司"
                             android:textColor="@color/text_color_gray"
                             android:textSize="13sp" />
                     </LinearLayout>
@@ -99,8 +102,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:background="@color/colorAccent"
-                    android:src="@mipmap/qr_code" />
+                    android:background="@color/white"
+                    android:src="@drawable/image_error" />
 
                 <LinearLayout
                     android:id="@+id/bottomLayout"

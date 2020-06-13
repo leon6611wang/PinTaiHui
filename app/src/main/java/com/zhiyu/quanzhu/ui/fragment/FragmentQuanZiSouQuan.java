@@ -1,8 +1,6 @@
 package com.zhiyu.quanzhu.ui.fragment;
 
 import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -17,16 +15,19 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.leon.chic.dao.PageDao;
+import com.leon.chic.utils.SPUtils;
+import com.qiniu.android.utils.StringUtils;
 import com.weigan.loopview.LoopView;
 import com.weigan.loopview.OnItemSelectedListener;
 import com.zhiyu.quanzhu.R;
+import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.model.bean.AreaCity;
 import com.zhiyu.quanzhu.model.bean.AreaProvince;
 import com.zhiyu.quanzhu.model.bean.Circle;
 import com.zhiyu.quanzhu.model.dao.AreaDao;
 import com.zhiyu.quanzhu.model.result.CircleResult;
 import com.zhiyu.quanzhu.ui.adapter.QuanZiSouQuanRecyclerAdapter;
-import com.zhiyu.quanzhu.ui.popupwindow.QuanZiSouQuanTypePopupWindow;
 import com.zhiyu.quanzhu.ui.widget.MyRecyclerView;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
@@ -35,7 +36,6 @@ import com.zhiyu.quanzhu.utils.MyPtrHandlerHeader;
 import com.zhiyu.quanzhu.utils.MyPtrRefresherFooter;
 import com.zhiyu.quanzhu.utils.MyPtrRefresherHeader;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
-import com.zhiyu.quanzhu.utils.SharedPreferencesUtils;
 import com.zhiyu.quanzhu.utils.SpaceItemDecoration;
 
 import org.xutils.common.Callback;
@@ -80,6 +80,9 @@ public class FragmentQuanZiSouQuan extends Fragment implements View.OnClickListe
                     fragment.ptrFrameLayout.refreshComplete();
                     fragment.adapter.setList(fragment.list);
                     break;
+                case 99:
+                    fragment.ptrFrameLayout.refreshComplete();
+                    break;
             }
         }
     }
@@ -90,6 +93,7 @@ public class FragmentQuanZiSouQuan extends Fragment implements View.OnClickListe
         dp_5 = (int) getContext().getResources().getDimension(R.dimen.dp_5);
         dp_200 = (int) getContext().getResources().getDimension(R.dimen.dp_200);
         initViews();
+        initData();
         initPtr();
         initMenuLayout();
         initAreaMenu();
@@ -104,6 +108,8 @@ public class FragmentQuanZiSouQuan extends Fragment implements View.OnClickListe
         orderMenuLayout = view.findViewById(R.id.orderMenuLayout);
         mRecyclerView = view.findViewById(R.id.mRecyclerView);
         adapter = new QuanZiSouQuanRecyclerAdapter(getContext());
+
+
         LinearLayoutManager lm = new LinearLayoutManager(getContext());
         lm.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(lm);
@@ -119,13 +125,13 @@ public class FragmentQuanZiSouQuan extends Fragment implements View.OnClickListe
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                if(orderMenuShow){
+                if (orderMenuShow) {
                     hideOrderMenu();
                 }
-                if(areaMenuShow){
+                if (areaMenuShow) {
                     hideAreaMenu();
                 }
-                if(typeMenuShow){
+                if (typeMenuShow) {
                     hideTypeMenu();
                 }
             }
@@ -143,6 +149,17 @@ public class FragmentQuanZiSouQuan extends Fragment implements View.OnClickListe
         typeImage = view.findViewById(R.id.typeImage);
         areaImage = view.findViewById(R.id.areaImage);
         orderImage = view.findViewById(R.id.orderImage);
+    }
+
+    private void initData() {
+        String result = PageDao.getInstance().get(CircleResult.class, BaseApplication.getInstance());
+        if (!StringUtils.isNullOrEmpty(result)) {
+            circleResult = GsonUtils.GsonToBean(result, CircleResult.class);
+            if (null != circleResult && null != circleResult.getData() && null != circleResult.getData().getList()) {
+                list = circleResult.getData().getList();
+                adapter.setList(list);
+            }
+        }
     }
 
     private void initPtr() {
@@ -194,6 +211,7 @@ public class FragmentQuanZiSouQuan extends Fragment implements View.OnClickListe
                     hideTypeMenu();
                 }
                 type = 1;
+                typeTextView.setText("行业");
                 changeTpeMenuText(type);
                 searchCircle();
                 break;
@@ -202,6 +220,7 @@ public class FragmentQuanZiSouQuan extends Fragment implements View.OnClickListe
                     hideTypeMenu();
                 }
                 type = 2;
+                typeTextView.setText("兴趣");
                 changeTpeMenuText(type);
                 searchCircle();
                 break;
@@ -210,6 +229,7 @@ public class FragmentQuanZiSouQuan extends Fragment implements View.OnClickListe
                     hideTypeMenu();
                 }
                 type = 0;
+                typeTextView.setText("全部");
                 changeTpeMenuText(type);
                 searchCircle();
                 break;
@@ -218,6 +238,7 @@ public class FragmentQuanZiSouQuan extends Fragment implements View.OnClickListe
                     hideOrderMenu();
                 }
                 order_type = 1;
+                orderTextView.setText("时间");
                 changeOrderMenuText(order_type);
                 searchCircle();
                 break;
@@ -226,6 +247,7 @@ public class FragmentQuanZiSouQuan extends Fragment implements View.OnClickListe
                     hideOrderMenu();
                 }
                 order_type = 2;
+                orderTextView.setText("人数");
                 changeOrderMenuText(order_type);
                 searchCircle();
                 break;
@@ -234,6 +256,7 @@ public class FragmentQuanZiSouQuan extends Fragment implements View.OnClickListe
                     hideOrderMenu();
                 }
                 order_type = 3;
+                orderTextView.setText("动态");
                 changeOrderMenuText(order_type);
                 searchCircle();
                 break;
@@ -242,17 +265,18 @@ public class FragmentQuanZiSouQuan extends Fragment implements View.OnClickListe
                     hideOrderMenu();
                 }
                 order_type = 4;
+                orderTextView.setText("综合");
                 changeOrderMenuText(order_type);
                 searchCircle();
                 break;
         }
     }
 
-    private void changeTpeMenuText(int index){
+    private void changeTpeMenuText(int index) {
         typeIndustryTextView.setTextColor(getContext().getResources().getColor(R.color.text_color_black));
         typeHobbyTextView.setTextColor(getContext().getResources().getColor(R.color.text_color_black));
         typeAllTextView.setTextColor(getContext().getResources().getColor(R.color.text_color_black));
-        switch (index){
+        switch (index) {
             case 1:
                 typeIndustryTextView.setTextColor(getContext().getResources().getColor(R.color.text_color_yellow));
                 break;
@@ -264,12 +288,13 @@ public class FragmentQuanZiSouQuan extends Fragment implements View.OnClickListe
                 break;
         }
     }
-    private void changeOrderMenuText(int index){
+
+    private void changeOrderMenuText(int index) {
         orderTimeTextView.setTextColor(getContext().getResources().getColor(R.color.text_color_black));
         orderMemberCountTextView.setTextColor(getContext().getResources().getColor(R.color.text_color_black));
         orderFeedCountTextView.setTextColor(getContext().getResources().getColor(R.color.text_color_black));
         orderAllTextView.setTextColor(getContext().getResources().getColor(R.color.text_color_black));
-        switch (index){
+        switch (index) {
             case 1:
                 orderTimeTextView.setTextColor(getContext().getResources().getColor(R.color.text_color_yellow));
                 break;
@@ -431,11 +456,12 @@ public class FragmentQuanZiSouQuan extends Fragment implements View.OnClickListe
     private boolean isRefresh = true;
     private int type = 0;
     private int order_type = 4;
-    private String cityName = SharedPreferencesUtils.getInstance(getContext()).getLocationCity();
+    private String cityName = SPUtils.getInstance().getLocationCity(BaseApplication.applicationContext);
     private CircleResult circleResult;
     private List<Circle> list;
 
     private void searchCircle() {
+        System.out.println("搜圈-cityName" + cityName+" , type: "+type+" , order_type: "+order_type);
         RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.SEARCH_CIRCLE);
         params.addBodyParameter("type", String.valueOf(type));//1行业 2兴趣 默认0全部
         params.addBodyParameter("city_name", cityName);
@@ -444,6 +470,7 @@ public class FragmentQuanZiSouQuan extends Fragment implements View.OnClickListe
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
+                System.out.println("搜圈: " + result);
                 circleResult = GsonUtils.GsonToBean(result, CircleResult.class);
                 if (isRefresh) {
                     list = circleResult.getData().getList();
@@ -452,13 +479,14 @@ public class FragmentQuanZiSouQuan extends Fragment implements View.OnClickListe
                 }
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
-                System.out.println("搜圈： " + circleResult.getData().getList().size());
-                System.out.println("搜圈： " + result);
+                PageDao.getInstance().save(CircleResult.class, result, BaseApplication.getInstance());
             }
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                System.out.println("搜圈： " + ex.toString());
+                System.out.println("搜圈: " + ex.toString());
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
             }
 
             @Override
@@ -489,7 +517,6 @@ public class FragmentQuanZiSouQuan extends Fragment implements View.OnClickListe
 
     private void initAreaData() {
         areaProvinceList = AreaDao.getInstance().provinceList();
-        System.out.println("province list: " + areaProvinceList.size());
         if (null != areaProvinceList && areaProvinceList.size() > 0) {
             areaProvince = areaProvinceList.get(0);
             for (AreaProvince p : areaProvinceList) {
@@ -497,13 +524,16 @@ public class FragmentQuanZiSouQuan extends Fragment implements View.OnClickListe
             }
         }
 
-        areaCityList = AreaDao.getInstance().cityList(areaProvinceList.get(0).getCode());
-        if (null != areaCityList && areaCityList.size() > 0) {
-            areaCity = areaCityList.get(0);
-            for (AreaCity c : areaCityList) {
-                cityList.add(c.getName());
+        if (null != areaProvinceList && areaProvinceList.size() > 0) {
+            areaCityList = AreaDao.getInstance().cityList(areaProvinceList.get(0).getCode());
+            if (null != areaCityList && areaCityList.size() > 0) {
+                areaCity = areaCityList.get(0);
+                for (AreaCity c : areaCityList) {
+                    cityList.add(c.getName());
+                }
             }
         }
+
     }
 
     private void initAreaViews() {
@@ -535,7 +565,8 @@ public class FragmentQuanZiSouQuan extends Fragment implements View.OnClickListe
                 }
             }
         });
-        province = provinceList.get(provinceView.getSelectedItem());
+        if (null != provinceList && provinceList.size() > 0)
+            province = provinceList.get(0);
         cityView.setItems(cityList);
         cityView.setInitPosition(0);
         cityView.setListener(new OnItemSelectedListener() {
@@ -543,6 +574,7 @@ public class FragmentQuanZiSouQuan extends Fragment implements View.OnClickListe
             public void onItemSelected(int index) {
                 if (!TextUtils.isEmpty(cityList.get(index))) {
                     city = cityList.get(index);
+                    areaTextView.setText(city);
                     if (areaMenuShow) {
                         hideAreaMenu();
                     }

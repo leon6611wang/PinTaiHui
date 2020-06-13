@@ -27,6 +27,7 @@ public class FullSearchVideoContent {
     private boolean is_collect;
     private List<FeedTag> feeds_tags;
     private String thumb;
+    private ArticleThumb newthumb;
     private String circle_name;
 
     private LinearLayout.LayoutParams layoutParams;
@@ -220,5 +221,13 @@ public class FullSearchVideoContent {
 
     public void setCircle_name(String circle_name) {
         this.circle_name = circle_name;
+    }
+
+    public ArticleThumb getNewthumb() {
+        return newthumb;
+    }
+
+    public void setNewthumb(ArticleThumb newthumb) {
+        this.newthumb = newthumb;
     }
 }

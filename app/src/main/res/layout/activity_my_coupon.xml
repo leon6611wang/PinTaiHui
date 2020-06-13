@@ -22,6 +22,11 @@
             android:gravity="center"
             android:orientation="vertical">
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
             <TextView
                 android:id="@+id/weishiyongtextview"
                 android:layout_width="wrap_content"
@@ -37,9 +42,13 @@
             <View
                 android:id="@+id/weishiyongview"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/dp_1"
-                android:layout_gravity="bottom"
-                android:background="@color/text_color_yellow" />
+                android:layout_height="1dp"
+                android:background="@color/coupon_line" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
         </LinearLayout>
 
         <LinearLayout
@@ -50,6 +59,11 @@
             android:layout_weight="1"
             android:gravity="center"
             android:orientation="vertical">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
 
             <TextView
                 android:id="@+id/yiguoqitextview"
@@ -67,9 +81,13 @@
                 android:id="@+id/yiguoqiview"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/dp_1"
-                android:layout_gravity="bottom"
-                android:visibility="invisible"
-                android:background="@color/text_color_yellow" />
+                android:background="@color/coupon_line"
+                android:visibility="invisible" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
         </LinearLayout>
 
         <LinearLayout
@@ -80,6 +98,11 @@
             android:layout_weight="1"
             android:gravity="center"
             android:orientation="vertical">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
 
             <TextView
                 android:id="@+id/shiyongjilutextview"
@@ -97,9 +120,13 @@
                 android:id="@+id/shiyongjiluview"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/dp_1"
-                android:layout_gravity="bottom"
-                android:visibility="invisible"
-                android:background="@color/text_color_yellow" />
+                android:background="@color/coupon_line"
+                android:visibility="invisible" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
         </LinearLayout>
     </LinearLayout>
 
@@ -107,7 +134,6 @@
         android:id="@+id/mViewPager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        />
+        android:layout_weight="1" />
 
 </LinearLayout>

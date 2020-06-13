@@ -3,6 +3,8 @@ package com.zhiyu.quanzhu.ui.dialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -16,10 +18,23 @@ import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.model.bean.IndustryChild;
 import com.zhiyu.quanzhu.model.bean.IndustryParent;
 import com.zhiyu.quanzhu.model.dao.IndustryDao;
+import com.zhiyu.quanzhu.model.result.IndustryResult;
+import com.zhiyu.quanzhu.ui.activity.MingPianGuangChangActivity;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
+import com.zhiyu.quanzhu.utils.ConstantsUtils;
+import com.zhiyu.quanzhu.utils.GsonUtils;
+import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
+import com.zhiyu.quanzhu.utils.ThreadPoolUtils;
 
+import org.xutils.common.Callback;
+import org.xutils.http.RequestParams;
+import org.xutils.x;
+
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * 行业
@@ -35,11 +50,31 @@ public class IndustryDialog extends Dialog implements View.OnClickListener {
     private List<IndustryChild> industryChildList;
     private IndustryParent industryParent;
     private IndustryChild industryChild;
+    private MyHandler myHandler = new MyHandler(this);
+
+    private static class MyHandler extends Handler {
+        WeakReference<IndustryDialog> dialogWeakReference;
+
+        public MyHandler(IndustryDialog dialog) {
+            dialogWeakReference = new WeakReference<>(dialog);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            IndustryDialog dialog = dialogWeakReference.get();
+            switch (msg.what) {
+                case 1:
+                    dialog.initData();
+                    break;
+            }
+        }
+    }
 
     public IndustryDialog(@NonNull Context context, int themeResId, OnHangYeChooseListener listener) {
         super(context, themeResId);
         this.mContext = context;
         this.onHangYeChooseListener = listener;
+        industryParentList = IndustryDao.getInstance().industryParentList();
     }
 
     public void setIndustry(String pIndustry, String cIndustry) {
@@ -89,8 +124,13 @@ public class IndustryDialog extends Dialog implements View.OnClickListener {
         getWindow().setGravity(Gravity.BOTTOM);
         getWindow().setWindowAnimations(R.style.dialogBottomShow);
         getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        initData();
         initViews();
+        industryList();
+//        if (null != industryParentList && industryParentList.size() > 0) {
+//            initData();
+//        } else {
+//            industryList();
+//        }
     }
 
     private void initData() {
@@ -109,6 +149,14 @@ public class IndustryDialog extends Dialog implements View.OnClickListener {
                 childList.add(child.getName());
             }
         }
+
+        parentView.setItems(parentList);
+        parentView.setInitPosition(0);
+        childView.setItems(childList);
+        childView.setInitPosition(0);
+        parent = parentList.get(parentView.getSelectedItem());
+        child = childList.get(childView.getSelectedItem());
+
     }
 
     private void initViews() {
@@ -116,16 +164,13 @@ public class IndustryDialog extends Dialog implements View.OnClickListener {
         parentView.setNotLoop();
         childView = findViewById(R.id.childView);
         childView.setNotLoop();
-        parentView.setItems(parentList);
-        parentView.setInitPosition(0);
+
         parentView.setListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(int index) {
                 if (!TextUtils.isEmpty(parentList.get(index))) {
                     parent = parentList.get(index);
                     industryParent = IndustryDao.getInstance().industryParent(parent);
-
-
                     if (null != industryChildList) {
                         industryChildList.clear();
                     }
@@ -139,22 +184,23 @@ public class IndustryDialog extends Dialog implements View.OnClickListener {
                         }
                     }
                     childView.setItems(childList);
+                    if (null != industryChildList && industryChildList.size() > 0)
+                        industryChild = industryChildList.get(0);
                 }
             }
         });
-        parent = parentList.get(parentView.getSelectedItem());
-        childView.setItems(childList);
-        childView.setInitPosition(0);
+
+
         childView.setListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(int index) {
-                if (!TextUtils.isEmpty(childList.get(index))) {
-                    child = childList.get(index);
-                    industryChild = IndustryDao.getInstance().industryChild(child);
-                }
+                if (null != childList && childList.size() > 0)
+                    if (!TextUtils.isEmpty(childList.get(index))) {
+                        child = childList.get(index);
+                        industryChild = IndustryDao.getInstance().industryChild(child);
+                    }
             }
         });
-        child = childList.get(childView.getSelectedItem());
         cancelTextView = findViewById(R.id.cancelTextView);
         cancelTextView.setOnClickListener(this);
         confirmTextView = findViewById(R.id.confirmTextView);
@@ -168,10 +214,18 @@ public class IndustryDialog extends Dialog implements View.OnClickListener {
                 dismiss();
                 break;
             case R.id.confirmTextView:
-                if (null != onHangYeChooseListener) {
-                    onHangYeChooseListener.onHangYeChoose(industryParent, industryChild);
-                    dismiss();
+                if (null == industryChildList || industryChildList.size() == 0) {
+                    MessageToast.getInstance(getContext()).show("当前行业无二级分类，请选择其他行业");
+                } else {
+                    if (null != onHangYeChooseListener) {
+                        if (null != industryParent && null != industryChild) {
+                            onHangYeChooseListener.onHangYeChoose(industryParent, industryChild);
+                            dismiss();
+                        }
+                    }
                 }
+
+
                 break;
         }
     }
@@ -180,5 +234,58 @@ public class IndustryDialog extends Dialog implements View.OnClickListener {
 
     public interface OnHangYeChooseListener {
         void onHangYeChoose(IndustryParent parent, IndustryChild child);
+    }
+
+    private IndustryResult industryResult;
+
+    /**
+     * 行业列表
+     */
+    private void industryList() {
+        final RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.HOBBY_LIST);
+        params.addBodyParameter("type", "1");
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                System.out.println("industry list: " + result);
+                industryResult = GsonUtils.GsonToBean(result, IndustryResult.class);
+                if (null != industryResult) {
+                    IndustryDao.getInstance().saveIndustryParent(industryResult.getData().getList().get(0).getChild());
+                    final CountDownLatch cdl = new CountDownLatch(industryResult.getData().getList().get(0).getChild().size());
+                    for (final IndustryParent parent : industryResult.getData().getList().get(0).getChild()) {
+                        ThreadPoolUtils.getInstance().init().execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                IndustryDao.getInstance().saveIndustryChild(parent.getChild());
+                                cdl.countDown();
+                            }
+                        });
+                    }
+                    try {
+                        cdl.await();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                Message message = myHandler.obtainMessage(1);
+                message.sendToTarget();
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+                System.out.println("industry list error: " + ex.toString());
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
     }
 }

@@ -68,6 +68,10 @@ public class MyCollectionArticleAdapter extends RecyclerView.Adapter<RecyclerVie
         notifyDataSetChanged();
     }
 
+    public void setQQShareResult(int requestCode,int resultCode,Intent data){
+        shareDialog.setQQShareCallback(requestCode,resultCode,data);
+    }
+
     public String getCancelCollectIds() {
         String ids = "";
         for (Feed feed : list) {
@@ -299,7 +303,8 @@ public class MyCollectionArticleAdapter extends RecyclerView.Adapter<RecyclerVie
         if (holder instanceof FeedViewHolder) {
             FeedViewHolder feed = (FeedViewHolder) holder;
             Glide.with(context).load(list.get(position).getContent().getAvatar()).error(R.mipmap.no_avatar).into(feed.avatarImageView);
-            feed.nameTextView.setText(list.get(position).getContent().getUsername());
+            if (!StringUtils.isNullOrEmpty(list.get(position).getContent().getUsername()))
+                feed.nameTextView.setText(list.get(position).getContent().getUsername());
             feed.timeTextView.setText(list.get(position).getContent().getTime());
             if (!StringUtils.isNullOrEmpty(list.get(position).getContent().getContent())) {
                 feed.mTextView.setVisibility(View.VISIBLE);
@@ -337,7 +342,11 @@ public class MyCollectionArticleAdapter extends RecyclerView.Adapter<RecyclerVie
                 Glide.with(context).load(list.get(position).getContent().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(feed.videoPlayer.getCoverController().getVideoCover());
                 feed.videoPlayer.setLayoutParams(list.get(position).getContent().getLayoutParams(dp_240, true));
             } else {
-                if (list.get(position).getContent().getImgs().size() == 1) {
+                if (null==list.get(position).getContent().getImgs()||list.get(position).getContent().getImgs().size() == 0) {
+                    feed.feedImageView.setVisibility(View.GONE);
+                    feed.imageGridView.setVisibility(View.GONE);
+                    feed.videoPlayer.setVisibility(View.GONE);
+                } else if (list.get(position).getContent().getImgs().size() == 1) {
                     feed.feedImageView.setVisibility(View.VISIBLE);
                     feed.imageGridView.setVisibility(View.GONE);
                     feed.videoPlayer.setVisibility(View.GONE);
@@ -360,12 +369,12 @@ public class MyCollectionArticleAdapter extends RecyclerView.Adapter<RecyclerVie
             feed.closeLayout.setOnClickListener(new OnDeleteFeedClick(position));
         } else if (holder instanceof ArticleViewHolder) {
             ArticleViewHolder article = (ArticleViewHolder) holder;
-            Glide.with(context).load(list.get(position).getContent().getAvatar()).error(R.mipmap.no_avatar).into(article.avatarImageView);
+            Glide.with(context).load(list.get(position).getContent().getAvatar()).error(R.drawable.image_error).into(article.avatarImageView);
             article.nameTextView.setText(list.get(position).getContent().getUsername());
             article.titleTextView.setText(list.get(position).getContent().getTitle());
-            if (null != list.get(position).getContent().getThumb()) {
+            if (null != list.get(position).getContent().getNewthumb()) {
                 article.coverImageView.setVisibility(View.VISIBLE);
-                Glide.with(context).load(list.get(position).getContent().getThumb().getFile()).error(R.mipmap.img_error).into(article.coverImageView);
+                Glide.with(context).load(list.get(position).getContent().getNewthumb().getFile()).error(R.drawable.image_error).into(article.coverImageView);
             } else {
                 article.coverImageView.setVisibility(View.GONE);
             }
@@ -415,7 +424,7 @@ public class MyCollectionArticleAdapter extends RecyclerView.Adapter<RecyclerVie
             article.closeLayout.setOnClickListener(new OnDeleteFeedClick(position));
         } else if (holder instanceof VideoViewHolder) {
             VideoViewHolder video = (VideoViewHolder) holder;
-            Glide.with(context).load(list.get(position).getContent().getAvatar()).error(R.mipmap.no_avatar).into(video.avatarImageView);
+            Glide.with(context).load(list.get(position).getContent().getAvatar()).error(R.drawable.image_error).into(video.avatarImageView);
             video.nameTextView.setText(list.get(position).getContent().getUsername());
             video.timeTextView.setText(list.get(position).getContent().getTime());
             video.mTextView.setText(list.get(position).getContent().getContent());
@@ -544,7 +553,7 @@ public class MyCollectionArticleAdapter extends RecyclerView.Adapter<RecyclerVie
         public void onClick(View v) {
             Intent articleInfoIntent = new Intent(context, ArticleInformationActivity.class);
             articleInfoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            articleInfoIntent.putExtra("article_id", list.get(position).getContent().getId());
+            articleInfoIntent.putExtra("article_id", list.get(position).getContent().getFeed_id());
             context.startActivity(articleInfoIntent);
         }
     }

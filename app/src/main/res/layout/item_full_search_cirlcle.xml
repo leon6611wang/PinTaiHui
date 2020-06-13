@@ -36,13 +36,13 @@
                     android:layout_width="@dimen/dp_20"
                     android:layout_height="@dimen/dp_20"
                     android:layout_marginRight="5.5dp"
-                    android:src="@mipmap/no_avatar" />
+                    android:src="@drawable/image_error" />
 
                 <TextView
                     android:id="@+id/nameTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="name"
+                    android:text="暂无数据"
                     android:textColor="@color/text_color_black"
                     android:textSize="13sp" />
 
@@ -85,7 +85,7 @@
                     android:layout_height="86dp"
                     android:layout_marginRight="@dimen/dp_10"
                     android:scaleType="centerCrop"
-                    android:src="@mipmap/img_h"
+                    android:src="@drawable/image_error"
                     app:corner_radius="@dimen/dp_5" />
 
                 <LinearLayout
@@ -99,7 +99,7 @@
                         android:layout_height="wrap_content"
                         android:ellipsize="end"
                         android:maxLines="1"
-                        android:text="苹苔汇官方圈主交流商圈"
+                        android:text="暂无数据"
                         android:textColor="@color/text_color_black"
                         android:textSize="15sp"
                         android:textStyle="bold" />
@@ -111,7 +111,7 @@
                         android:layout_gravity="center"
                         android:layout_weight="1"
                         android:gravity="center|left"
-                        android:text="圈主是基于我们APP上的一个重要组成部分，通过圈主可以吸引粉丝进入我..."
+                        android:text="暂无数据"
                         android:textColor="@color/text_color_gray"
                         android:textSize="12sp" />
 
@@ -136,7 +136,7 @@
                             android:paddingLeft="7.5dp"
                             android:paddingRight="7.5dp"
                             android:paddingTop="3dp"
-                            android:text="马鞍山市"
+                            android:text="暂无数据"
                             android:textColor="@color/text_color_yellow"
                             android:textSize="11sp" />
 
@@ -150,7 +150,7 @@
                             android:paddingLeft="7.5dp"
                             android:paddingRight="7.5dp"
                             android:paddingTop="3dp"
-                            android:text="IT丨互联网"
+                            android:text="暂无数据"
                             android:textColor="@color/text_color_yellow"
                             android:textSize="11sp" />
 

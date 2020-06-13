@@ -28,6 +28,7 @@ import com.zhiyu.quanzhu.model.result.GoodsResult;
 import com.zhiyu.quanzhu.model.result.GoodsStockResult;
 import com.zhiyu.quanzhu.ui.adapter.GoodsInfoCommentsRecyclerAdapter;
 import com.zhiyu.quanzhu.ui.adapter.GoodsInfoLikeGoodsAdapter;
+import com.zhiyu.quanzhu.ui.adapter.GoodsInfoTagAdapter;
 import com.zhiyu.quanzhu.ui.adapter.GoodsInformationGoodsImagesAdapter;
 import com.zhiyu.quanzhu.ui.dialog.LoadingDialog;
 import com.zhiyu.quanzhu.ui.dialog.PayWayDialog;
@@ -41,6 +42,7 @@ import com.zhiyu.quanzhu.ui.widget.CircleImageView;
 import com.zhiyu.quanzhu.ui.widget.GoodsInfoBanner;
 import com.zhiyu.quanzhu.ui.widget.ListViewForScrollView;
 import com.zhiyu.quanzhu.ui.widget.MaxRecyclerView;
+import com.zhiyu.quanzhu.ui.widget.MyRecyclerView;
 import com.zhiyu.quanzhu.ui.widget.NiceImageView;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GridSpacingItemDecoration;
@@ -65,12 +67,14 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
     private FrameLayout.LayoutParams ll;
     private ScrollView mScrollView;
     private View headerLayout;
-    private LinearLayout guigelayout, backLayout, youhuiquanlayout;
+    private LinearLayout guigelayout, backLayout, youhuiquanlayout, baozhanglayout, circleLayout;
     private ImageView backImageView, gouwucheImageView, collectImageView;
     private LinearLayout titleLayout, commentsLayout;
     private GoodsInfoBanner goodsInfoBanner;
-    private TextView titleTextView, priceTextView, tagTextView1, tagTextView2, goodsNameTextView, cityTextView, kucunTextView, xiaoliangTextView,
-            maxCouponTextView, guaranteeTextView;
+    private MyRecyclerView tagRecyclerView;
+    private GoodsInfoTagAdapter tagAdapter;
+    private TextView titleTextView, priceTextView, goodsNameTextView, cityTextView, kucunTextView, xiaoliangTextView,
+            maxCouponTextView, maxCouponDescTextView, guaranteeTextView;
     private GoodsNormsDialog normsDialog;
     private GoodsCouponsDialog youHuiQuanDialog;
 
@@ -114,11 +118,12 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
                             null != activity.goodsResult.getData().getDetail()) {
                         activity.goodsInfoLikeGoods(activity.goodsResult.getData().getDetail().getShop_id());
                         List<GoodsImg> bannerList = new ArrayList<>();
-                        if(!StringUtils.isNullOrEmpty(activity.goodsResult.getData().getDetail().getVideo())){
+                        if (!StringUtils.isNullOrEmpty(activity.goodsResult.getData().getDetail().getVideo())) {
                             GoodsImg goodsVideo = new GoodsImg();
                             goodsVideo.setUrl(activity.goodsResult.getData().getDetail().getVideo());
                             goodsVideo.setWidth(activity.goodsResult.getData().getDetail().getVideo_width());
                             goodsVideo.setHeight(activity.goodsResult.getData().getDetail().getVideo_height());
+                            goodsVideo.setVideo(true);
                             bannerList.add(goodsVideo);
                         }
                         bannerList.addAll(activity.goodsResult.getData().getDetail().getImg_list());
@@ -129,8 +134,45 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
                         } else {
                             activity.priceTextView.setText(PriceParseUtils.getInstance().parsePrice(activity.goodsResult.getData().getDetail().getGoods_price()));
                         }
+                        if (null != activity.goodsResult.getData().getCoupon() && activity.goodsResult.getData().getCoupon().size() > 0) {
+                            activity.youhuiquanlayout.setVisibility(View.VISIBLE);
+                        } else {
+                            activity.youhuiquanlayout.setVisibility(View.GONE);
+                        }
+                        if (null != activity.goodsResult.getData().getGuarantee() && activity.goodsResult.getData().getGuarantee().size() > 0) {
+                            activity.baozhanglayout.setVisibility(View.VISIBLE);
+                            String baozhang = "";
+                            for (int i = 0; i < activity.goodsResult.getData().getGuarantee().size(); i++) {
+                                baozhang += activity.goodsResult.getData().getGuarantee().get(i).getName();
+                                if (i < activity.goodsResult.getData().getGuarantee().size() - 1) {
+                                    baozhang += " | ";
+                                }
+                            }
+                            activity.guaranteeTextView.setText(baozhang);
+                        } else {
+                            activity.baozhanglayout.setVisibility(View.GONE);
+                        }
+                        if (activity.goodsResult.getData().isHas_norms()) {
+                            activity.guigelayout.setVisibility(View.VISIBLE);
+                        } else {
+                            activity.guigelayout.setVisibility(View.GONE);
+                        }
                         activity.goodsNameTextView.setText(activity.goodsResult.getData().getDetail().getGoods_name());
                         activity.titleTextView.setText(activity.goodsResult.getData().getDetail().getGoods_name());
+                        activity.tagAdapter.setList(activity.goodsResult.getData().getDetail().getTags());
+                        if (activity.goodsResult.getData().getDetail().isIs_collect()) {
+                            if (!activity.statusColorWhite) {
+                                activity.collectImageView.setImageDrawable(activity.getResources().getDrawable(R.mipmap.goods_info_collect_yellow_yellow));
+                            } else {
+                                activity.collectImageView.setImageDrawable(activity.getResources().getDrawable(R.mipmap.goods_info_collect_yellow));
+                            }
+                        } else {
+                            if (!activity.statusColorWhite) {
+                                activity.collectImageView.setImageDrawable(activity.getResources().getDrawable(R.mipmap.goods_info_collect_black));
+                            } else {
+                                activity.collectImageView.setImageDrawable(activity.getResources().getDrawable(R.mipmap.goods_info_collect_white));
+                            }
+                        }
                         activity.cityTextView.setText(activity.goodsResult.getData().getDetail().getSend_city());
                         activity.kucunTextView.setText(String.valueOf(activity.goodsResult.getData().getDetail().getGoods_stock()));
                         activity.xiaoliangTextView.setText(String.valueOf(activity.goodsResult.getData().getDetail().getSale_num()));
@@ -144,13 +186,27 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
                             }
                             activity.guaranteeTextView.setText("#" + guarantee);
                         }
-                        activity.maxCouponTextView.setText(activity.goodsResult.getData().getMax_coupon());
+                        if (!StringUtils.isNullOrEmpty(activity.goodsResult.getData().getMax_coupon())) {
+                            activity.maxCouponTextView.setText(activity.goodsResult.getData().getMax_coupon());
+                            activity.maxCouponTextView.setVisibility(View.VISIBLE);
+                        } else {
+                            activity.maxCouponTextView.setVisibility(View.GONE);
+                        }
+                        if (!StringUtils.isNullOrEmpty(activity.goodsResult.getData().getMax_coupon_desc())) {
+                            activity.maxCouponDescTextView.setText(activity.goodsResult.getData().getMax_coupon_desc());
+                            activity.maxCouponDescTextView.setVisibility(View.VISIBLE);
+                        } else {
+                            activity.maxCouponDescTextView.setVisibility(View.GONE);
+                        }
+
                         activity.goodsImgsAdapter.setList(activity.goodsResult.getData().getDetail().getImg_json());
 
-                        Glide.with(activity).load(activity.goodsResult.getData().getCircle().getUser_avatar()).error(R.drawable.image_error).into(activity.circleUserAvatarImageView);
+                        Glide.with(activity).load(activity.goodsResult.getData().getCircle().getUser_avatar()).error(R.drawable.image_error).placeholder(R.drawable.image_error)
+                                .fallback(R.drawable.image_error).into(activity.circleUserAvatarImageView);
                         activity.circleUserNameTextView.setText(activity.goodsResult.getData().getCircle().getUser_name());
                         activity.circleCreateTextView.setText(String.valueOf(activity.goodsResult.getData().getCircle().getDays()));
-                        Glide.with(activity).load(activity.goodsResult.getData().getCircle().getThumb()).error(R.drawable.image_error).into(activity.circleIconImageView);
+                        Glide.with(activity).load(activity.goodsResult.getData().getCircle().getThumb()).error(R.drawable.image_error).placeholder(R.drawable.image_error)
+                                .fallback(R.drawable.image_error).into(activity.circleIconImageView);
                         activity.circleNameTextView.setText(activity.goodsResult.getData().getCircle().getName());
                         activity.circleDescTextView.setText(activity.goodsResult.getData().getCircle().getDescirption());
                         activity.circleCityTextView.setText(activity.goodsResult.getData().getCircle().getCity_name());
@@ -224,6 +280,9 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
                 case 6:
                     FailureToast.getInstance(activity).show();
                     break;
+                case 99:
+                    MessageToast.getInstance(activity).show("服务器内部错误，请稍后再试.");
+                    break;
 
             }
         }
@@ -234,19 +293,29 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_goods_information);
         goods_id = getIntent().getIntExtra("goods_id", 0);
-        System.out.println("goodsInformation goods_id: " + goods_id);
         ScreentUtils.getInstance().setStatusBarLightMode(this, false);
         initDatas();
         initViews();
         initDialogs();
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
         loadingDialog.show();
+        if(null!=normsDialog){
+            normsDialog.clearSelectedNorms();
+        }
         goodsInformation();
         goodsInfoComments();
         goodsInfoGoodsNorms();
         goodsInfoGoodsStock();
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
 
     private void initDialogs() {
         normsDialog = new GoodsNormsDialog(this, R.style.dialog);
@@ -286,6 +355,7 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
         headerLayout = findViewById(R.id.headerLayout);
         guigelayout = findViewById(R.id.guigelayout);
         youhuiquanlayout = findViewById(R.id.youhuiquanlayout);
+        baozhanglayout = findViewById(R.id.baozhanglayout);
         backLayout = findViewById(R.id.backLayout);
         youhuiquanlayout.setOnClickListener(this);
         guigelayout.setOnClickListener(this);
@@ -295,16 +365,21 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
         gouwucheImageView.setOnClickListener(this);
         collectImageView = findViewById(R.id.collectImageView);
         collectImageView.setOnClickListener(this);
+        tagRecyclerView = findViewById(R.id.tagRecyclerView);
+        LinearLayoutManager tagLayoutManager = new LinearLayoutManager(this);
+        tagLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        tagRecyclerView.setLayoutManager(tagLayoutManager);
+        tagAdapter = new GoodsInfoTagAdapter();
+        tagRecyclerView.setAdapter(tagAdapter);
         titleLayout = findViewById(R.id.titleLayout);
         titleTextView = findViewById(R.id.titleTextView);
         priceTextView = findViewById(R.id.priceTextView);
-        tagTextView1 = findViewById(R.id.tagTextView1);
-        tagTextView2 = findViewById(R.id.tagTextView2);
         goodsNameTextView = findViewById(R.id.goodsNameTextView);
         cityTextView = findViewById(R.id.cityTextView);
         kucunTextView = findViewById(R.id.kucunTextView);
         xiaoliangTextView = findViewById(R.id.xiaoliangTextView);
         maxCouponTextView = findViewById(R.id.maxCouponTextView);
+        maxCouponDescTextView = findViewById(R.id.maxCouponDescTextView);
         guaranteeTextView = findViewById(R.id.guaranteeTextView);
         //精选评论
         commentsRecyclerView = findViewById(R.id.commentsRecyclerView);
@@ -315,6 +390,8 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
         commentsRecyclerView.setAdapter(commentsAdapter);
         commentsRecyclerView.setLayoutManager(commentsLayoutManager);
 
+        circleLayout = findViewById(R.id.circleLayout);
+        circleLayout.setOnClickListener(this);
         circleUserAvatarImageView = findViewById(R.id.circleUserAvatarImageView);
         circleUserNameTextView = findViewById(R.id.circleUserNameTextView);
         circleCreateTextView = findViewById(R.id.circleCreateTextView);
@@ -373,7 +450,8 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
             case R.id.youhuiquanlayout:
                 if (null != goodsResult.getData().getCoupon() && goodsResult.getData().getCoupon().size() > 0) {
                     youHuiQuanDialog.show();
-                    youHuiQuanDialog.setList(goodsResult.getData().getCoupon());
+                    youHuiQuanDialog.setShopId((int) goodsResult.getData().getDetail().getShop_id());
+//                    youHuiQuanDialog.setList(goodsResult.getData().getCoupon());
                 } else {
                     MessageToast.getInstance(this).show("暂无优惠券");
                 }
@@ -394,12 +472,12 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
                 break;
             case R.id.bottomShopTextView:
                 Intent shopIntent = new Intent(this, ShopInformationActivity.class);
-                shopIntent.putExtra("shop_id", goodsResult.getData().getDetail().getShop_id());
+                shopIntent.putExtra("shop_id", String.valueOf(goodsResult.getData().getDetail().getShop_id()));
                 startActivity(shopIntent);
                 break;
             case R.id.bottomKeFuTextView:
-                Intent goodsIntent = new Intent(this, GoodsInformationActivity.class);
-                goodsIntent.putExtra("goods_id", "46");
+                Intent goodsIntent = new Intent(this, CustomerServiceActivity.class);
+                goodsIntent.putExtra("shop_id", (int) goodsResult.getData().getDetail().getShop_id());
                 startActivity(goodsIntent);
                 break;
             case R.id.bottomShareTextView:
@@ -415,6 +493,13 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
                 normsDialog.setGoods(goodsResult.getData().getDetail(), goodsResult.getData().isHas_norms());
                 normsDialog.setType(2);
                 break;
+            case R.id.circleLayout:
+                if (null != goodsResult && null != goodsResult.getData().getCircle()) {
+                    Intent intent = new Intent(this, CircleInfoActivity.class);
+                    intent.putExtra("circle_id", goodsResult.getData().getCircle().getId());
+                    startActivity(intent);
+                }
+                break;
         }
     }
 
@@ -425,7 +510,12 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
             headerLayout.setBackgroundColor(getResources().getColor(R.color.white));
             backImageView.setImageDrawable(getResources().getDrawable(R.mipmap.goods_info_back_black));
             gouwucheImageView.setImageDrawable(getResources().getDrawable(R.mipmap.goods_info_gouwuche_black));
-            collectImageView.setImageDrawable(getResources().getDrawable(R.mipmap.goods_info_collect_black));
+            if (goodsResult.getData().getDetail().isIs_collect()) {
+                collectImageView.setImageDrawable(getResources().getDrawable(R.mipmap.goods_info_collect_yellow_yellow));
+            } else {
+                collectImageView.setImageDrawable(getResources().getDrawable(R.mipmap.goods_info_collect_black));
+            }
+
             titleLayout.setVisibility(View.VISIBLE);
             float alpha = (float) Math.abs(totalDy) / (float) 300;
             headerLayout.setAlpha(alpha);
@@ -440,27 +530,32 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
             }
             backImageView.setImageDrawable(getResources().getDrawable(R.mipmap.goods_info_back));
             gouwucheImageView.setImageDrawable(getResources().getDrawable(R.mipmap.goods_info_gouwuche));
-            collectImageView.setImageDrawable(getResources().getDrawable(R.mipmap.goods_info_collect_white));
+            if (goodsResult.getData().getDetail().isIs_collect()) {
+                collectImageView.setImageDrawable(getResources().getDrawable(R.mipmap.goods_info_collect_yellow));
+            } else {
+                collectImageView.setImageDrawable(getResources().getDrawable(R.mipmap.goods_info_collect_white));
+            }
+
             titleLayout.setVisibility(View.INVISIBLE);
             headerLayout.setBackgroundColor(getResources().getColor(R.color.transparent));
             headerLayout.setAlpha(1);
         }
     }
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        setIntent(intent);
-        goods_id = getIntent().getIntExtra("goods_id", 0);
-        System.out.println("onNewIntent goods_id: " + goods_id);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        goods_id = getIntent().getIntExtra("goods_id", 0);
-        System.out.println("onResume goods_id: " + goods_id);
-    }
+//    @Override
+//    protected void onNewIntent(Intent intent) {
+//        super.onNewIntent(intent);
+//        setIntent(intent);
+//        goods_id = getIntent().getIntExtra("goods_id", 0);
+//        System.out.println("onNewIntent goods_id: " + goods_id);
+//    }
+//
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        goods_id = getIntent().getIntExtra("goods_id", 0);
+//        System.out.println("onResume goods_id: " + goods_id);
+//    }
 
     private void scrollTop() {
         mScrollView.scrollTo(0, 0);
@@ -473,7 +568,7 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
      */
     private void goodsInformation() {
         isInfo = false;
-        RequestParams params = new RequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.GOODS_INFO);
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.GOODS_INFO);
         params.addBodyParameter("goods_id", String.valueOf(goods_id));
         params.addBodyParameter("spm", "");
         x.http().post(params, new Callback.CommonCallback<String>() {
@@ -513,7 +608,7 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
      */
     private void goodsInfoLikeGoods(long shop_id) {
         isLikeGoods = false;
-        RequestParams params = new RequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.GOODS_INFO_LIKE_GOODS);
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.GOODS_INFO_LIKE_GOODS);
         params.addBodyParameter("shop_id", String.valueOf(shop_id));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
@@ -553,7 +648,7 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
      */
     private void goodsInfoComments() {
         isComments = false;
-        RequestParams params = new RequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.GOODS_INFO_COMMENTS);
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.GOODS_INFO_COMMENTS);
         params.addBodyParameter("goods_id", String.valueOf(goods_id));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
@@ -591,7 +686,7 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
      */
     private void goodsInfoGoodsNorms() {
         isGuiGe = false;
-        RequestParams params = new RequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.GOODS_INFO_GOODS_NORMS);
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.GOODS_INFO_GOODS_NORMS);
         params.addBodyParameter("goods_id", String.valueOf(goods_id));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
@@ -599,19 +694,19 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
                 isGuiGe = true;
                 System.out.println("商品规格:" + result);
                 goodsNormResult = GsonUtils.GsonToBean(result, GoodsNormResult.class);
-                if (null != goodsNormResult && null != goodsNormResult.getData() && null != goodsNormResult.getData().getList() && goodsNormResult.getData().getList().size() > 0) {
-                    List<GoodsNorm> goodsNormList = new ArrayList<>();
-                    goodsNormList.add(goodsNormResult.getData().getList().get(0).getList().get(1));
-                    goodsNormList.add(goodsNormResult.getData().getList().get(1).getList().get(1));
+//                if (null != goodsNormResult && null != goodsNormResult.getData() && null != goodsNormResult.getData().getList() && goodsNormResult.getData().getList().size() > 0) {
+//                    List<GoodsNorm> goodsNormList = new ArrayList<>();
+//                    goodsNormList.add(goodsNormResult.getData().getList().get(0).getList().get(1));
+//                    goodsNormList.add(goodsNormResult.getData().getList().get(1).getList().get(1));
 //                    goodsNormList.add(goodsNormResult.getData().getList().get(2));
-                }
+//                }
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
             }
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                System.out.println("norms: "+ex.toString());
+                System.out.println("norms: " + ex.toString());
                 isGuiGe = true;
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
@@ -636,11 +731,12 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
      * 商品规格对应库存
      */
     private void goodsInfoGoodsStock() {
-        RequestParams params = new RequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.GOODS_INFO_GOODS_STOCK);
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.GOODS_INFO_GOODS_STOCK);
         params.addBodyParameter("goods_id", String.valueOf(goods_id));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
+                System.out.println("商品规格对应库存:" + result);
                 goodsStockResult = GsonUtils.GsonToBean(result, GoodsStockResult.class);
                 GoodsNormStockDao.getInstance().saveStockList(goodsStockResult.getData().getList());
             }
@@ -680,7 +776,8 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
             }
 
             @Override
@@ -717,7 +814,7 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                Message message = myHandler.obtainMessage(6);
+                Message message = myHandler.obtainMessage(99);
                 message.sendToTarget();
             }
 
@@ -731,5 +828,11 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
 
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        shareDialog.setQQShareCallback(requestCode, resultCode, data);
     }
 }

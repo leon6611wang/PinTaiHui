@@ -138,6 +138,7 @@ public class FragmentFullSearchCard extends Fragment {
             x.http().post(params, new Callback.CommonCallback<String>() {
                 @Override
                 public void onSuccess(String result) {
+                    System.out.println("full card article: " + result);
                     cardResult= GsonUtils.GsonToBean(result,FullSearchCardResult.class);
                     if(isRefresh){
                         list=cardResult.getData().getCards_list();

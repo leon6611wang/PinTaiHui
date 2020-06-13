@@ -21,6 +21,7 @@ import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.FeedCommentChild;
 import com.zhiyu.quanzhu.ui.activity.ComplaintActivity;
 import com.zhiyu.quanzhu.ui.popupwindow.CommentMenuWindow;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.CircleImageView;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.CopyBoardUtils;
@@ -51,7 +52,7 @@ public class ArticleInfoCommentListChildAdapter extends BaseAdapter {
             ArticleInfoCommentListChildAdapter adapter = adapterWeakReference.get();
             switch (msg.what) {
                 case 1:
-                    Toast.makeText(adapter.context, adapter.baseResult.getMsg(), Toast.LENGTH_SHORT).show();
+                    MessageToast.getInstance(adapter.context).show(adapter.baseResult.getMsg());
                     if (adapter.baseResult.getCode() == 200) {
                         int posiiton = (Integer) msg.obj;
                         adapter.list.get(posiiton).setIs_prise(!adapter.list.get(posiiton).isIs_prise());
@@ -61,7 +62,7 @@ public class ArticleInfoCommentListChildAdapter extends BaseAdapter {
                     }
                     break;
                 case 2:
-                    Toast.makeText(adapter.context, adapter.baseResult.getMsg(), Toast.LENGTH_SHORT).show();
+                    MessageToast.getInstance(adapter.context).show(adapter.baseResult.getMsg());
                     if (adapter.baseResult.getCode() == 200) {
                         int posiiton = (Integer) msg.obj;
                         adapter.list.get(posiiton).setIs_del(1);
@@ -81,10 +82,10 @@ public class ArticleInfoCommentListChildAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-    public int getLastId(){
-        int last_id=0;
-        if(null!=list&&list.size()>0){
-            last_id=list.get(list.size()-1).getId();
+    public int getLastId() {
+        int last_id = 0;
+        if (null != list && list.size() > 0) {
+            last_id = list.get(list.size() - 1).getId();
         }
         return last_id;
     }
@@ -138,9 +139,9 @@ public class ArticleInfoCommentListChildAdapter extends BaseAdapter {
             holder.priseImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.dianzan_gray));
         }
         holder.priseTextView.setText(String.valueOf(list.get(position).getPnum()));
-        if(list.get(position).getIs_del()==1){
+        if (list.get(position).getIs_del() == 1) {
             holder.contentTextView.setText("该评论已删除");
-        }else{
+        } else {
             if (!StringUtils.isNullOrEmpty(list.get(position).getPcontent()) && !StringUtils.isNullOrEmpty(list.get(position).getReply_username())) {
                 String str = list.get(position).getContent() + " ｜<font color='#009DE0'>回复@" + list.get(position).getReply_username() + "：</font>" + list.get(position).getPcontent();
                 holder.contentTextView.setText(Html.fromHtml(str));
@@ -153,7 +154,6 @@ public class ArticleInfoCommentListChildAdapter extends BaseAdapter {
 
         holder.timeTextView.setText(list.get(position).getDateline());
         holder.replyTextView.setOnClickListener(new OnReplyCommentListener(position));
-
         return convertView;
     }
 
@@ -166,7 +166,9 @@ public class ArticleInfoCommentListChildAdapter extends BaseAdapter {
 
         @Override
         public void onClick(View v) {
+            System.out.println("点击回复");
             if (null != onReplyChildCommentListener) {
+                System.out.println("点击回复-回调");
                 onReplyChildCommentListener.onReplyChildComment(list.get(position).getId());
             }
         }
@@ -276,15 +278,15 @@ public class ArticleInfoCommentListChildAdapter extends BaseAdapter {
     }
 
 
-    private void deleteComment(final int position){
-        RequestParams params=MyRequestParams.getInstance(context).getRequestParams(ConstantsUtils.BASE_URL+ConstantsUtils.DELETE_COMMENT);
-        params.addBodyParameter("comment_id",String.valueOf(list.get(position).getId()));
+    private void deleteComment(final int position) {
+        RequestParams params = MyRequestParams.getInstance(context).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.DELETE_COMMENT);
+        params.addBodyParameter("comment_id", String.valueOf(list.get(position).getId()));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                baseResult=GsonUtils.GsonToBean(result,BaseResult.class);
-                Message message=myHandler.obtainMessage(2);
-                message.obj=position;
+                baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
+                Message message = myHandler.obtainMessage(2);
+                message.obj = position;
                 message.sendToTarget();
             }
 

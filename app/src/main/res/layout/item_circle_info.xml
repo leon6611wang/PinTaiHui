@@ -20,7 +20,7 @@
             android:id="@+id/avatarImageView"
             android:layout_width="@dimen/dp_30"
             android:layout_height="@dimen/dp_30"
-            android:src="@mipmap/no_avatar" />
+            android:src="@drawable/image_error" />
 
         <View
             android:layout_width="@dimen/dp_10"
@@ -30,7 +30,7 @@
             android:id="@+id/nameTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="昵称"
+            android:text="暂无数据"
             android:textColor="@color/text_color_black"
             android:textSize="12sp" />
 
@@ -57,7 +57,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/dp_10"
-        android:text="喝纯粮酒能够改善睡眠质量，喝纯粮酒能够改善睡眠质量喝纯粮酒能够改善睡眠质量喝纯粮酒能够改善睡眠质量喝纯粮酒能够改善睡眠质量喝纯粮酒能够改善睡眠质量好多人由于平时的生活压力、工作压力，经常失眠，长期如此，对生活质量也有很大的影响，工作也会受到一定影响。而喝纯粮酒可以改善人的睡眠质量，五谷中营养成分比较全，可以均衡膳食营养，纯粮酒具有以调节人体激素分泌，均衡激素分泌，从而达到人"
+        android:text="暂无数据"
         android:textColor="#333333"
         android:textSize="13sp"
         app:etv_MaxLinesOnShrink="5"
@@ -73,7 +73,7 @@
             android:layout_height="@dimen/dp_240"
             android:adjustViewBounds="true"
             android:scaleType="fitCenter"
-            android:src="@mipmap/cover"
+            android:src="@drawable/image_error"
             android:visibility="visible" />
 
         <com.zhiyu.quanzhu.ui.widget.MyGridView

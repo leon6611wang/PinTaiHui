@@ -22,7 +22,7 @@ import com.zhiyu.quanzhu.utils.ScreentUtils;
 
 import java.util.List;
 
-public class HomeQuanShangRecyclerViewHeaderView extends LinearLayout implements View.OnClickListener{
+public class HomeQuanShangRecyclerViewHeaderView extends LinearLayout implements View.OnClickListener {
     private LinearLayout rootLayout, toplayout;
     private Context context;
     private LinearLayout.LayoutParams params1, params2, params3, params4, paramsBanner;
@@ -94,9 +94,9 @@ public class HomeQuanShangRecyclerViewHeaderView extends LinearLayout implements
         bannerCardView = rootLayout.findViewById(R.id.bannerCardView);
         bannerCardView.setLayoutParams(paramsBanner);
         toplayout = rootLayout.findViewById(R.id.toplayout);
-        searchTextView=rootLayout.findViewById(R.id.searchTextView);
+        searchTextView = rootLayout.findViewById(R.id.searchTextView);
         searchTextView.setOnClickListener(this);
-        saoyisaolayout=rootLayout.findViewById(R.id.saoyisaolayout);
+        saoyisaolayout = rootLayout.findViewById(R.id.saoyisaolayout);
         saoyisaolayout.setOnClickListener(this);
 
         for (MallAd ad : list) {
@@ -104,191 +104,253 @@ public class HomeQuanShangRecyclerViewHeaderView extends LinearLayout implements
                 View view1 = LayoutInflater.from(context).inflate(R.layout.header_home_quanshang_recyclerview_1, null);
                 view1.setLayoutParams(params1);
                 ImageView adImageView = view1.findViewById(R.id.adImageView);
-                final String url0 = ad.getContent().getAd_imgs().get(0).getHandel_url();
+                String url = "";
+                if (null != ad.getContent().getAd_imgs() && ad.getContent().getAd_imgs().size() > 0) {
+                    url = ad.getContent().getAd_imgs().get(0).getHandle_url();
+                }
+                final String url0 = url;
                 adImageView.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         gotoAdPage(url0);
                     }
                 });
-                if (null != ad.getContent().getAd_imgs() && ad.getContent().getAd_imgs().size() > 0)
-                    Glide.with(context).load(ad.getContent().getAd_imgs().get(0).getImg())
-                            //异常时候显示的图片
-                            .error(R.mipmap.img_h)
-                            //加载成功前显示的图片
-                            .placeholder(R.mipmap.img_h)
-                            //url为空的时候,显示的图片
-                            .fallback(R.mipmap.img_h)
-                            .into(adImageView);
+                String imgUrl = "";
+                if (null != ad.getContent().getAd_imgs() && ad.getContent().getAd_imgs().size() > 0) {
+                    imgUrl = ad.getContent().getAd_imgs().get(0).getImg();
+                }
+                Glide.with(context).load(imgUrl)
+                        //异常时候显示的图片
+                        .error(R.drawable.image_error)
+                        //加载成功前显示的图片
+                        .placeholder(R.drawable.image_error)
+                        //url为空的时候,显示的图片
+                        .fallback(R.drawable.image_error)
+                        .into(adImageView);
                 toplayout.addView(view1);
+
             }
             if (ad.getType().equals("2")) {
                 View view2 = LayoutInflater.from(context).inflate(R.layout.header_home_quanshang_recyclerview_2, null);
                 view2.setLayoutParams(params2);
                 ImageView leftImageView = view2.findViewById(R.id.leftImageView);
-                final String url0 = ad.getContent().getAd_imgs().get(0).getHandel_url();
+                String pageUrl0 = "";
+                if (null != ad.getContent().getAd_imgs() && ad.getContent().getAd_imgs().size() > 0) {
+                    pageUrl0 = ad.getContent().getAd_imgs().get(0).getHandle_url();
+                }
+                final String url0 = pageUrl0;
                 leftImageView.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         gotoAdPage(url0);
                     }
                 });
-                if (null != ad.getContent().getAd_imgs() && ad.getContent().getAd_imgs().size() > 0)
-                    Glide.with(context).load(ad.getContent().getAd_imgs().get(0).getImg())
-                            //异常时候显示的图片
-                            .error(R.mipmap.img_h)
-                            //加载成功前显示的图片
-                            .placeholder(R.mipmap.img_h)
-                            //url为空的时候,显示的图片
-                            .fallback(R.mipmap.img_h)
-                            .into(leftImageView);
-
+                String imgUrl0 = "";
+                if (null != ad.getContent().getAd_imgs() && ad.getContent().getAd_imgs().size() > 0) {
+                    imgUrl0 = ad.getContent().getAd_imgs().get(0).getImg();
+                }
+                Glide.with(context).load(imgUrl0)
+                        //异常时候显示的图片
+                        .error(R.drawable.image_error)
+                        //加载成功前显示的图片
+                        .placeholder(R.drawable.image_error)
+                        //url为空的时候,显示的图片
+                        .fallback(R.drawable.image_error)
+                        .into(leftImageView);
                 ImageView rightImageViwe = view2.findViewById(R.id.rightImageView);
-                final String url1 = ad.getContent().getAd_imgs().get(1).getHandel_url();
+
+                String pageUrl1 = "";
+                if (null != ad.getContent().getAd_imgs() && ad.getContent().getAd_imgs().size() > 1) {
+                    pageUrl1 = ad.getContent().getAd_imgs().get(1).getHandle_url();
+                }
+                final String url1 = pageUrl1;
                 rightImageViwe.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         gotoAdPage(url1);
                     }
                 });
-                if (null != ad.getContent().getAd_imgs() && ad.getContent().getAd_imgs().size() > 1)
-                    Glide.with(context).load(ad.getContent().getAd_imgs().get(1).getImg())
-                            //异常时候显示的图片
-                            .error(R.mipmap.img_h)
-                            //加载成功前显示的图片
-                            .placeholder(R.mipmap.img_h)
-                            //url为空的时候,显示的图片
-                            .fallback(R.mipmap.img_h)
-                            .into(rightImageViwe);
+                String imageUrl1 = "";
+                if (null != ad.getContent().getAd_imgs() && ad.getContent().getAd_imgs().size() > 1) {
+                    imageUrl1 = ad.getContent().getAd_imgs().get(1).getImg();
+                }
+                Glide.with(context).load(imageUrl1)
+                        //异常时候显示的图片
+                        .error(R.drawable.image_error)
+                        //加载成功前显示的图片
+                        .placeholder(R.drawable.image_error)
+                        //url为空的时候,显示的图片
+                        .fallback(R.drawable.image_error)
+                        .into(rightImageViwe);
+
                 rootLayout.addView(view2);
             }
             if (ad.getType().equals("3")) {
                 View view3 = LayoutInflater.from(context).inflate(R.layout.header_home_quanshang_recyclerview_3, null);
                 view3.setLayoutParams(params3);
                 ImageView leftImageView = view3.findViewById(R.id.leftImageView);
-                final String url0 = ad.getContent().getAd_imgs().get(0).getHandel_url();
+                String pageUrl0 = "";
+                if (null != ad.getContent().getAd_imgs() && ad.getContent().getAd_imgs().size() > 0) {
+                    pageUrl0 = ad.getContent().getAd_imgs().get(0).getHandle_url();
+                }
+                final String url0 = pageUrl0;
                 leftImageView.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         gotoAdPage(url0);
                     }
                 });
-                if (null != ad.getContent().getAd_imgs() && ad.getContent().getAd_imgs().size() > 0)
-                    Glide.with(context).load(ad.getContent().getAd_imgs().get(0).getImg())
-                            //异常时候显示的图片
-                            .error(R.mipmap.img_h)
-                            //加载成功前显示的图片
-                            .placeholder(R.mipmap.img_h)
-                            //url为空的时候,显示的图片
-                            .fallback(R.mipmap.img_h)
-                            .into(leftImageView);
+                String imageUrl0 = "";
+                if (null != ad.getContent().getAd_imgs() && ad.getContent().getAd_imgs().size() > 0) {
+                    imageUrl0 = ad.getContent().getAd_imgs().get(0).getImg();
+                }
+                Glide.with(context).load(imageUrl0)
+                        //异常时候显示的图片
+                        .error(R.drawable.image_error)
+                        //加载成功前显示的图片
+                        .placeholder(R.drawable.image_error)
+                        //url为空的时候,显示的图片
+                        .fallback(R.drawable.image_error)
+                        .into(leftImageView);
                 ImageView rightTopImageView = view3.findViewById(R.id.rightTopImageView);
-                final String url1 = ad.getContent().getAd_imgs().get(1).getHandel_url();
+                String pageUrl1 = "";
+                if (null != ad.getContent().getAd_imgs() && ad.getContent().getAd_imgs().size() > 1) {
+                    pageUrl1 = ad.getContent().getAd_imgs().get(1).getHandle_url();
+                }
+                final String url1 = pageUrl1;
                 rightTopImageView.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         gotoAdPage(url1);
                     }
                 });
+                String imageUrl1 = "";
                 if (null != ad.getContent().getAd_imgs() && ad.getContent().getAd_imgs().size() > 1)
-                    Glide.with(context).load(ad.getContent().getAd_imgs().get(1).getImg())
-                            //异常时候显示的图片
-                            .error(R.mipmap.img_h)
-                            //加载成功前显示的图片
-                            .placeholder(R.mipmap.img_h)
-                            //url为空的时候,显示的图片
-                            .fallback(R.mipmap.img_h)
-                            .into(rightTopImageView);
+                    imageUrl1 = ad.getContent().getAd_imgs().get(1).getImg();
+                Glide.with(context).load(imageUrl1)
+                        //异常时候显示的图片
+                        .error(R.drawable.image_error)
+                        //加载成功前显示的图片
+                        .placeholder(R.drawable.image_error)
+                        //url为空的时候,显示的图片
+                        .fallback(R.drawable.image_error)
+                        .into(rightTopImageView);
                 ImageView rightBottomImageView = view3.findViewById(R.id.rightBottomImageView);
-                final String url2 = ad.getContent().getAd_imgs().get(2).getHandel_url();
+                String pageUrl2 = "";
+                if (null != ad.getContent().getAd_imgs() && ad.getContent().getAd_imgs().size() > 2) {
+                    pageUrl2 = ad.getContent().getAd_imgs().get(2).getHandle_url();
+                }
+                final String url2 = pageUrl2;
                 rightBottomImageView.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         gotoAdPage(url2);
                     }
                 });
+                String imageUrl2 = "";
                 if (null != ad.getContent().getAd_imgs() && ad.getContent().getAd_imgs().size() > 2)
-                    Glide.with(context).load(ad.getContent().getAd_imgs().get(2).getImg())
-                            //异常时候显示的图片
-                            .error(R.mipmap.img_h)
-                            //加载成功前显示的图片
-                            .placeholder(R.mipmap.img_h)
-                            //url为空的时候,显示的图片
-                            .fallback(R.mipmap.img_h)
-                            .into(rightBottomImageView);
+                    imageUrl2 = ad.getContent().getAd_imgs().get(2).getImg();
+                Glide.with(context).load(imageUrl2)
+                        //异常时候显示的图片
+                        .error(R.drawable.image_error)
+                        //加载成功前显示的图片
+                        .placeholder(R.drawable.image_error)
+                        //url为空的时候,显示的图片
+                        .fallback(R.drawable.image_error)
+                        .into(rightBottomImageView);
                 rootLayout.addView(view3);
             }
             if (ad.getType().equals("4")) {
                 View view4 = LayoutInflater.from(context).inflate(R.layout.header_home_quanshang_recyclerview_4, null);
                 view4.setLayoutParams(params4);
                 ImageView topLeftImageView = view4.findViewById(R.id.topLeftImageView);
-                final String url0 = ad.getContent().getAd_imgs().get(0).getHandel_url();
+                String pageUrl0 = "";
+                if (null != ad.getContent().getAd_imgs() && ad.getContent().getAd_imgs().size() > 0) {
+                    pageUrl0 = ad.getContent().getAd_imgs().get(0).getHandle_url();
+                }
+                final String url0 = pageUrl0;
                 topLeftImageView.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         gotoAdPage(url0);
                     }
                 });
+                String imageUrl0 = "";
                 if (null != ad.getContent().getAd_imgs() && ad.getContent().getAd_imgs().size() > 0)
-                    Glide.with(context).load(ad.getContent().getAd_imgs().get(0).getImg())
-                            //异常时候显示的图片
-                            .error(R.mipmap.img_h)
-                            //加载成功前显示的图片
-                            .placeholder(R.mipmap.img_h)
-                            //url为空的时候,显示的图片
-                            .fallback(R.mipmap.img_h)
-                            .into(topLeftImageView);
+                    imageUrl0 = ad.getContent().getAd_imgs().get(0).getImg();
+                Glide.with(context).load(imageUrl0)
+                        //异常时候显示的图片
+                        .error(R.drawable.image_error)
+                        //加载成功前显示的图片
+                        .placeholder(R.drawable.image_error)
+                        //url为空的时候,显示的图片
+                        .fallback(R.drawable.image_error)
+                        .into(topLeftImageView);
                 ImageView topRightImageView = view4.findViewById(R.id.topRightImageView);
-                final String url1 = ad.getContent().getAd_imgs().get(1).getHandel_url();
+                String pageUrl1 = "";
+                if (null != ad.getContent().getAd_imgs() && ad.getContent().getAd_imgs().size() > 1) {
+                    pageUrl1 = ad.getContent().getAd_imgs().get(1).getHandle_url();
+                }
+                final String url1 = pageUrl1;
                 topRightImageView.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         gotoAdPage(url1);
                     }
                 });
+                String imgeUrl1 = "";
                 if (null != ad.getContent().getAd_imgs() && ad.getContent().getAd_imgs().size() > 1)
-                    Glide.with(context).load(ad.getContent().getAd_imgs().get(1).getImg())
-                            //异常时候显示的图片
-                            .error(R.mipmap.img_h)
-                            //加载成功前显示的图片
-                            .placeholder(R.mipmap.img_h)
-                            //url为空的时候,显示的图片
-                            .fallback(R.mipmap.img_h)
-                            .into(topRightImageView);
+                    imgeUrl1 = ad.getContent().getAd_imgs().get(1).getImg();
+                Glide.with(context).load(imgeUrl1)
+                        //异常时候显示的图片
+                        .error(R.drawable.image_error)
+                        //加载成功前显示的图片
+                        .placeholder(R.drawable.image_error)
+                        //url为空的时候,显示的图片
+                        .fallback(R.drawable.image_error)
+                        .into(topRightImageView);
                 ImageView bottomLeftImageView = view4.findViewById(R.id.bottomLeftImageView);
-                final String url2 = ad.getContent().getAd_imgs().get(2).getHandel_url();
+                String pageUrl2 = "";
+                if (null != ad.getContent().getAd_imgs() && ad.getContent().getAd_imgs().size() > 2) {
+                    pageUrl2 = ad.getContent().getAd_imgs().get(2).getHandle_url();
+                }
+                final String url2 = pageUrl2;
                 bottomLeftImageView.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         gotoAdPage(url2);
                     }
                 });
+                String imageUrl2 = "";
                 if (null != ad.getContent().getAd_imgs() && ad.getContent().getAd_imgs().size() > 2)
-                    Glide.with(context).load(ad.getContent().getAd_imgs().get(2).getImg())
-                            //异常时候显示的图片
-                            .error(R.mipmap.img_h)
-                            //加载成功前显示的图片
-                            .placeholder(R.mipmap.img_h)
-                            //url为空的时候,显示的图片
-                            .fallback(R.mipmap.img_h)
-                            .into(bottomLeftImageView);
+                    imageUrl2 = ad.getContent().getAd_imgs().get(2).getImg();
+                Glide.with(context).load(imageUrl2)
+                        //异常时候显示的图片
+                        .error(R.drawable.image_error)
+                        //加载成功前显示的图片
+                        .placeholder(R.drawable.image_error)
+                        //url为空的时候,显示的图片
+                        .fallback(R.drawable.image_error)
+                        .into(bottomLeftImageView);
                 ImageView bottomRightImageView = view4.findViewById(R.id.bottomRightImageView);
-                final String url3 = ad.getContent().getAd_imgs().get(3).getHandel_url();
-                bottomRightImageView.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        gotoAdPage(url3);
-                    }
-                });
-                if (null != ad.getContent().getAd_imgs() && ad.getContent().getAd_imgs().size() > 3)
+
+                if (null != ad.getContent().getAd_imgs() && ad.getContent().getAd_imgs().size() > 3) {
+                    final String url3 = ad.getContent().getAd_imgs().get(3).getHandle_url();
+                    bottomRightImageView.setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            gotoAdPage(url3);
+                        }
+                    });
                     Glide.with(context).load(ad.getContent().getAd_imgs().get(3).getImg())
                             //异常时候显示的图片
-                            .error(R.mipmap.img_h)
+                            .error(R.drawable.image_error)
                             //加载成功前显示的图片
-                            .placeholder(R.mipmap.img_h)
+                            .placeholder(R.drawable.image_error)
                             //url为空的时候,显示的图片
-                            .fallback(R.mipmap.img_h)
+                            .fallback(R.drawable.image_error)
                             .into(bottomRightImageView);
+                }
                 rootLayout.addView(view4);
             }
         }
@@ -305,14 +367,14 @@ public class HomeQuanShangRecyclerViewHeaderView extends LinearLayout implements
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.searchTextView:
-                Intent searchIntent=new Intent(context, GoodsSearchActivity.class);
+                Intent searchIntent = new Intent(context, GoodsSearchActivity.class);
                 searchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(searchIntent);
                 break;
             case R.id.saoyisaolayout:
-                Intent scanIntent=new Intent(context, ScanActivity.class);
+                Intent scanIntent = new Intent(context, ScanActivity.class);
                 scanIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(scanIntent);
                 break;

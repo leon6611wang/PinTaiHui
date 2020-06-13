@@ -183,7 +183,7 @@ public class UpdatePhoneNumberSecondActivity extends BaseActivity implements Vie
     private BaseResult baseResult;
 
     private void getVertifiyCode() {
-        RequestParams params = new RequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.GET_VERTIFY_CODE);
+        RequestParams params =MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.GET_VERTIFY_CODE);
         params.addBodyParameter("mobile", phoneNumberEditText.getText().toString().trim());
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override

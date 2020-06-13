@@ -1,18 +1,157 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.zhiyu.quanzhu.ui.widget.MyRecyclerView
-        android:id="@+id/mRecyclerView"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="visible" />
+        android:layout_height="match_parent">
 
-    <include
+        <com.zhiyu.quanzhu.ui.widget.MyRecyclerView
+            android:id="@+id/mRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="visible" />
+
+        <ListView
+            android:id="@+id/letterListView"
+            android:layout_width="@dimen/dp_15"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|bottom"
+            android:layout_marginBottom="@dimen/dp_35"
+            android:divider="@color/white"
+            android:dividerHeight="0dp" />
+    </FrameLayout>
+
+    <LinearLayout
         android:id="@+id/headerLayout"
-        layout="@layout/header_renmai"
-        android:visibility="gone" />
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/text_color_yellow"
+        android:orientation="vertical"
+        android:visibility="visible">
+
+        <View
+            android:id="@+id/statusHeightView"
+            android:layout_width="match_parent"
+            android:layout_height="37dp"
+            android:visibility="visible" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/wallLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="visible">
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/dp_1"
+                    android:layout_weight="1" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/dp_1"
+                    android:layout_weight="3" />
+
+                <LinearLayout
+                    android:id="@+id/rightLayout"
+                    android:layout_width="0dp"
+                    android:layout_height="29dp"
+                    android:layout_marginBottom="7.5dp"
+                    android:layout_marginTop="7.5dp"
+                    android:layout_weight="3"
+                    android:gravity="right|center"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/sousuoImageView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="@dimen/dp_20"
+                        android:src="@mipmap/search_white" />
+
+                    <ImageView
+                        android:id="@+id/guangchangImageView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="@dimen/dp_25"
+                        android:src="@mipmap/add_person_white" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/searchLayout"
+                android:layout_width="match_parent"
+                android:layout_height="29dp"
+                android:layout_marginBottom="7.5dp"
+                android:layout_marginTop="7.5dp"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="29dp"
+                    android:layout_marginLeft="@dimen/dp_15"
+                    android:layout_weight="1"
+                    android:background="@drawable/shape_oval_solid_bg_white"
+                    android:descendantFocusability="afterDescendants"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="@dimen/dp_15"
+                        android:layout_marginRight="@dimen/dp_3"
+                        android:src="@mipmap/search_grey_small" />
+
+                    <EditText
+                        android:id="@+id/searchEditText2"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@null"
+                        android:hint="输入关键字"
+                        android:imeOptions="actionSearch"
+                        android:singleLine="true"
+                        android:textColor="@color/text_color_black"
+                        android:textColorHint="@color/text_color_gray"
+                        android:textSize="12sp" />
+
+                    <ImageView
+                        android:id="@+id/clearImageView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="@dimen/dp_3"
+                        android:layout_marginRight="@dimen/dp_15"
+                        android:src="@mipmap/close_gray" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/cancelTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:paddingLeft="@dimen/dp_15"
+                    android:paddingRight="@dimen/dp_15"
+                    android:text="取消"
+                    android:textColor="@color/white"
+                    android:textSize="12sp" />
+
+            </LinearLayout>
+
+        </FrameLayout>
+
+
+    </LinearLayout>
 
 </FrameLayout>

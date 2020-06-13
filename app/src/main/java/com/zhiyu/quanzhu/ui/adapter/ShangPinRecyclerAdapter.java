@@ -56,7 +56,8 @@ public class ShangPinRecyclerAdapter extends RecyclerView.Adapter<ShangPinRecycl
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
-        Glide.with(context).load(list.get(position).getImg().getUrl()).error(R.drawable.image_error).into(holder.goodsImageImageView);
+        Glide.with(context).load(list.get(position).getImg().getUrl()).error(R.drawable.image_error) .placeholder(R.drawable.image_error)
+                .fallback(R.drawable.image_error).into(holder.goodsImageImageView);
         holder.nameTextView.setText(list.get(position).getGoods_name());
         holder.priceTextView.setText(PriceParseUtils.getInstance().getZhengShu(list.get(position).getGoods_price()));
         holder.price2TextView.setText(PriceParseUtils.getInstance().getXiaoShu(list.get(position).getGoods_price()));

@@ -77,11 +77,19 @@ public class FragmentPublishChooseGoodsSelected extends Fragment {
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-        if(isVisibleToUser){
-            page=1;
-            isRefresh=true;
+        if (isVisibleToUser) {
+            page = 1;
+            isRefresh = true;
             searchGoodsShop();
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        page = 1;
+        isRefresh = true;
+        searchGoodsShop();
     }
 
     private void initViews() {
@@ -127,7 +135,16 @@ public class FragmentPublishChooseGoodsSelected extends Fragment {
         ptrFrameLayout.autoRefresh();
         ptrFrameLayout.setMode(PtrFrameLayout.Mode.BOTH);
     }
-
+    private int selectGoodsCount;
+    public int getSelectedGoodsCount(){
+        selectGoodsCount=0;
+        if(null!=list&&list.size()>0){
+            for(LinkShop shop:list){
+                selectGoodsCount+=shop.getCount();
+            }
+        }
+        return selectGoodsCount;
+    }
 
     private int page = 1;
     private boolean isRefresh = true;
@@ -142,7 +159,7 @@ public class FragmentPublishChooseGoodsSelected extends Fragment {
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("我搜索过的商店: " + result);
+                System.out.println("已选: " + result);
                 shopResult = GsonUtils.GsonToBean(result, LinkShopResult.class);
                 if (isRefresh) {
                     list = shopResult.getData().getList();

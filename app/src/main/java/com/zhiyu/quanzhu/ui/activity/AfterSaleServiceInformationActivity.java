@@ -101,7 +101,8 @@ public class AfterSaleServiceInformationActivity extends BaseActivity implements
                             activity.serviceDescTextView.setVisibility(View.GONE);
                         }
                         activity.serviceDescTextView.setText(activity.informationResult.getData().getData().getDesc());
-                        Glide.with(activity).load(activity.informationResult.getData().getData().getGoods_img()).error(R.drawable.image_error).into(activity.goodsImageImageView);
+                        Glide.with(activity).load(activity.informationResult.getData().getData().getGoods_img()).error(R.drawable.image_error) .placeholder(R.drawable.image_error)
+                                .fallback(R.drawable.image_error).into(activity.goodsImageImageView);
                         activity.goodsNameTextView.setText(activity.informationResult.getData().getData().getGoods_name());
 //                        activity.goodsNormsTextView.setText(activity.informationResult.getData().getData().get);
                         activity.goodsCountTextView.setText("X" + activity.informationResult.getData().getData().getGoods_num());

@@ -9,17 +9,30 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.leon.chic.dao.MessageDao;
+import com.leon.chic.utils.MessageTypeUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseActivity;
+import com.zhiyu.quanzhu.base.BaseApplication;
+import com.zhiyu.quanzhu.model.bean.GuanZhuDianPu;
+import com.zhiyu.quanzhu.model.result.GuanZhuDianPuResult;
 import com.zhiyu.quanzhu.ui.adapter.XiTongXiaoXiGuanZhuDianPuRecyclerAdapter;
+import com.zhiyu.quanzhu.utils.ConstantsUtils;
+import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyPtrHandlerFooter;
 import com.zhiyu.quanzhu.utils.MyPtrHandlerHeader;
 import com.zhiyu.quanzhu.utils.MyPtrRefresherFooter;
 import com.zhiyu.quanzhu.utils.MyPtrRefresherHeader;
+import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 import com.zhiyu.quanzhu.utils.SpaceItemDecoration;
 
+import org.xutils.common.Callback;
+import org.xutils.http.RequestParams;
+import org.xutils.x;
+
 import java.lang.ref.WeakReference;
+import java.util.List;
 
 import in.srain.cube.views.ptr.PtrDefaultHandler2;
 import in.srain.cube.views.ptr.PtrFrameLayout;
@@ -46,6 +59,7 @@ public class XiTongXiaoXiGuanZhuDianPuActivity extends BaseActivity implements V
             switch (msg.what){
                 case 1:
                     activity.ptrFrameLayout.refreshComplete();
+                    activity.adapter.setList(activity.list);
                     break;
             }
         }
@@ -55,6 +69,7 @@ public class XiTongXiaoXiGuanZhuDianPuActivity extends BaseActivity implements V
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_xitongxiaoxi_inner_list);
         ScreentUtils.getInstance().setStatusBarLightMode(this, true);
+        MessageDao.getInstance().readAllUnReadSystemMessage(MessageTypeUtils.GUAN_ZHU_DIAN_PU, BaseApplication.getInstance());
         initPtr();
         initViews();
     }
@@ -68,7 +83,7 @@ public class XiTongXiaoXiGuanZhuDianPuActivity extends BaseActivity implements V
         LinearLayoutManager linearLayoutManager=new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         SpaceItemDecoration spaceItemDecoration=new SpaceItemDecoration((int) getResources().getDimension(R.dimen.dp_10));
-        adapter=new XiTongXiaoXiGuanZhuDianPuRecyclerAdapter();
+        adapter=new XiTongXiaoXiGuanZhuDianPuRecyclerAdapter(this);
         mRecyclerView.setAdapter(adapter);
         mRecyclerView.setLayoutManager(linearLayoutManager);
 //        mRecyclerView.addItemDecoration(spaceItemDecoration);
@@ -83,37 +98,20 @@ public class XiTongXiaoXiGuanZhuDianPuActivity extends BaseActivity implements V
         ptrFrameLayout.setPtrHandler(new PtrDefaultHandler2() {
             @Override
             public void onLoadMoreBegin(PtrFrameLayout frame) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Thread.sleep(2000);
-                            Message message = myHandler.obtainMessage(1);
-                            message.sendToTarget();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }).start();
+                page++;
+                isRefresh=false;
+                list();
 
             }
 
             @Override
             public void onRefreshBegin(PtrFrameLayout frame) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Thread.sleep(2000);
-                            Message message = myHandler.obtainMessage(1);
-                            message.sendToTarget();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }).start();
+              page=1;
+              isRefresh=true;
+              list();
             }
         });
+        ptrFrameLayout.autoRefresh();
         ptrFrameLayout.setMode(PtrFrameLayout.Mode.BOTH);
     }
 
@@ -124,5 +122,44 @@ public class XiTongXiaoXiGuanZhuDianPuActivity extends BaseActivity implements V
                 finish();
                 break;
         }
+    }
+
+    private int page=1;
+    private boolean isRefresh=true;
+    private GuanZhuDianPuResult guanZhuDianPuResult;
+    private List<GuanZhuDianPu> list;
+
+    private void list(){
+        RequestParams params= MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL+ConstantsUtils.XI_TONG_XIAO_XI_GUAN_ZHU_DIAN_PU);
+        params.addBodyParameter("page",String.valueOf(page));
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                System.out.println("关注店铺"+result);
+                guanZhuDianPuResult= GsonUtils.GsonToBean(result,GuanZhuDianPuResult.class);
+                if(isRefresh){
+                    list=guanZhuDianPuResult.getData().getList();
+                }else{
+                    list.addAll(guanZhuDianPuResult.getData().getList());
+                }
+                Message message=myHandler.obtainMessage(1);
+                message.sendToTarget();
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+                System.out.println("关注店铺"+ex.toString());
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
     }
 }

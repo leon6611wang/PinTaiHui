@@ -44,7 +44,8 @@
                     android:id="@+id/goodsImgImageView"
                     android:layout_width="@dimen/dp_100"
                     android:layout_height="@dimen/dp_100"
-                    android:src="@mipmap/header" />
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/image_error" />
 
                 <LinearLayout
                     android:id="@+id/noStockLayout"
@@ -85,7 +86,7 @@
                     android:ellipsize="end"
                     android:gravity="center|left"
                     android:maxLines="2"
-                    android:text="3D环绕音智能蓝牙运动耳机全面 环绕耳机魔音极致智能耳机绕耳机魔音极致智能耳机"
+                    android:text="暂无数据"
                     android:textColor="#3E3E49"
                     android:textSize="14sp"
                     android:textStyle="bold" />
@@ -107,7 +108,7 @@
                     android:maxLines="1"
                     android:paddingLeft="@dimen/dp_10"
                     android:paddingRight="@dimen/dp_10"
-                    android:text="魔音尊享版"
+                    android:text="暂无数据"
                     android:textColor="#999999"
                     android:textSize="12sp" />
 
@@ -130,7 +131,7 @@
                         android:id="@+id/zhengshuPriceTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="8999"
+                        android:text="0"
                         android:textColor="#D90000"
                         android:textSize="16sp"
                         android:textStyle="bold" />
@@ -139,7 +140,7 @@
                         android:id="@+id/xiaoshuPriceTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text=".9"
+                        android:text=".00"
                         android:textColor="#D90000"
                         android:textSize="12sp"
                         android:textStyle="bold" />

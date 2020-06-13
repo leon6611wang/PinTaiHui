@@ -5,13 +5,23 @@
     android:gravity="center"
     android:orientation="vertical">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="圈友"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:textSize="30sp"
-        />
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.zhiyu.quanzhu.ui.widget.hoverExpandableListView.HoverExpandableListView
+            android:id="@+id/mExpandableListView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
+
+        <ListView
+            android:id="@+id/letterListView"
+            android:layout_width="@dimen/dp_20"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|center"
+            android:divider="@color/white"
+            android:dividerHeight="0dp" />
+    </FrameLayout>
 
 </LinearLayout>

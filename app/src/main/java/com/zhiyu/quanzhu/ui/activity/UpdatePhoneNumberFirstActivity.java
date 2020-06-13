@@ -10,9 +10,11 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.leon.chic.utils.SPUtils;
 import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseActivity;
+import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
@@ -38,7 +40,7 @@ public class UpdatePhoneNumberFirstActivity extends BaseActivity implements View
     private TextView contentTextView, timeCountTextView, nextTextView;
     private EditText vertifyCodeEditText;
     private String content;
-    private String phoneNumber = "18757591055";
+    private String phoneNumber;
     private Timer timer;
     private TimerTask task;
     private final int COUNT = 60;
@@ -87,7 +89,7 @@ public class UpdatePhoneNumberFirstActivity extends BaseActivity implements View
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_phonenumber_first);
         ScreentUtils.getInstance().setStatusBarLightMode(this, true);
-//         phoneNumber = SharedPreferencesUtils.getInstance(this).getUserPhoneNumber();
+         phoneNumber = SPUtils.getInstance().getUserPhoneNum(BaseApplication.applicationContext);
         String subPhoneNumber = phoneNumber.substring(phoneNumber.length() - 4, phoneNumber.length());
         content = "我们已经发送了一条包含验证码数字的短信到您尾号 <font color='#FE8627'>" + subPhoneNumber + "</font> 的手机上，请在下方输入您收到的验证码信息";
         initViews();
@@ -179,7 +181,7 @@ public class UpdatePhoneNumberFirstActivity extends BaseActivity implements View
     private BaseResult baseResult;
 
     private void getVertifiyCode() {
-        RequestParams params = new RequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.GET_VERTIFY_CODE);
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.GET_VERTIFY_CODE);
         params.addBodyParameter("mobile", phoneNumber);
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override

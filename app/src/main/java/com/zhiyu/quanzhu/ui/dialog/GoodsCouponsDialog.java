@@ -9,11 +9,14 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Gravity;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.GoodsCoupon;
+import com.zhiyu.quanzhu.model.result.ShopCouponResult;
 import com.zhiyu.quanzhu.ui.adapter.GoodsCouponsRecyclerAdapter;
 import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
@@ -32,13 +35,15 @@ import java.util.List;
 /**
  * 商品详情-优惠券
  */
-public class GoodsCouponsDialog extends Dialog implements GoodsCouponsRecyclerAdapter.OnGetCouponListener {
+public class GoodsCouponsDialog extends Dialog implements GoodsCouponsRecyclerAdapter.OnGetCouponListener, View.OnClickListener {
     private Context mContext;
+    private TextView confirmTextView;
     private float heightRatio = 1.07f;
     private int screenHeight, dialogHeight, dp_10;
     private RecyclerView mRecyclerView;
     private GoodsCouponsRecyclerAdapter adapter;
     private List<GoodsCoupon> list;
+    private int shop_id;
     private MyHandler myHandler = new MyHandler(this);
 
     private static class MyHandler extends Handler {
@@ -52,6 +57,11 @@ public class GoodsCouponsDialog extends Dialog implements GoodsCouponsRecyclerAd
         public void handleMessage(Message msg) {
             GoodsCouponsDialog dialog = dialogWeakReference.get();
             switch (msg.what) {
+                case 0:
+                    if (dialog.shopCouponResult.getCode() == 200) {
+                        dialog.adapter.setList(dialog.list);
+                    }
+                    break;
                 case 1:
                     MessageToast.getInstance(dialog.getContext()).show(dialog.baseResult.getMsg());
                     if (dialog.baseResult.getCode() == 200) {
@@ -75,6 +85,13 @@ public class GoodsCouponsDialog extends Dialog implements GoodsCouponsRecyclerAd
         dialogHeight = (int) (heightRatio * screenHeight);
     }
 
+    public void setShopId(int shopId) {
+        this.shop_id = shopId;
+        if (null == list || list.size() == 0) {
+            shopCoupons();
+        }
+    }
+
     public void setList(List<GoodsCoupon> couponList) {
         this.list = couponList;
         adapter.setList(list);
@@ -96,6 +113,8 @@ public class GoodsCouponsDialog extends Dialog implements GoodsCouponsRecyclerAd
     }
 
     private void initViews() {
+        confirmTextView = findViewById(R.id.confirmTextView);
+        confirmTextView.setOnClickListener(this);
         mRecyclerView = findViewById(R.id.mRecyclerView);
         adapter = new GoodsCouponsRecyclerAdapter(mContext);
         adapter.setOnGetCouponListener(this);
@@ -105,6 +124,15 @@ public class GoodsCouponsDialog extends Dialog implements GoodsCouponsRecyclerAd
         mRecyclerView.setLayoutManager(linearLayoutManager);
         mRecyclerView.setAdapter(adapter);
         mRecyclerView.addItemDecoration(spaceItemDecoration);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.confirmTextView:
+                dismiss();
+                break;
+        }
     }
 
     @Override
@@ -122,7 +150,7 @@ public class GoodsCouponsDialog extends Dialog implements GoodsCouponsRecyclerAd
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("getCoupon: " + result);
+//                System.out.println("getCoupon: " + result);
                 baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
@@ -131,6 +159,39 @@ public class GoodsCouponsDialog extends Dialog implements GoodsCouponsRecyclerAd
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
 
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
+    private ShopCouponResult shopCouponResult;
+
+    private void shopCoupons() {
+        RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.SHOP_COUPONS);
+        params.addBodyParameter("shop_id", String.valueOf(shop_id));
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                System.out.println("coupons: " + result);
+                shopCouponResult = GsonUtils.GsonToBean(result, ShopCouponResult.class);
+                list = shopCouponResult.getData().getCoupon();
+                Message message = myHandler.obtainMessage(0);
+                message.sendToTarget();
+
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+                System.out.println("coupons: " + ex.toString());
             }
 
             @Override

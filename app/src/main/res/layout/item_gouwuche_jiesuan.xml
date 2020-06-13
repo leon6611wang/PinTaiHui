@@ -24,7 +24,8 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginRight="5.5dp"
-                android:src="@mipmap/header" />
+                android:scaleType="centerCrop"
+                android:src="@drawable/image_error" />
 
             <TextView
                 android:id="@+id/nameTextView"
@@ -33,7 +34,7 @@
                 android:layout_weight="1"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:text="金基软件开发服务工作室"
+                android:text="店铺名称"
                 android:textColor="#666666"
                 android:textSize="14sp" />
 
@@ -85,6 +86,7 @@
                 android:layout_weight="1" />
 
             <TextView
+                android:id="@+id/postagePriceTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="包邮"
@@ -94,6 +96,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/couponLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -110,6 +113,7 @@
                 android:textSize="13sp" />
 
             <TextView
+                android:id="@+id/useCouponTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="组合优惠"
@@ -122,11 +126,12 @@
                 android:layout_weight="1" />
 
             <TextView
+                android:id="@+id/discountPriceTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:drawablePadding="@dimen/dp_10"
                 android:drawableRight="@mipmap/arrow_right_gray_small"
-                android:text="-￥10.00"
+                android:text="-￥0.00"
                 android:textColor="#D90000"
                 android:textSize="13sp" />
 

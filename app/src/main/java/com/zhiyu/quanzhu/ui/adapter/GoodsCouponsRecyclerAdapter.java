@@ -19,15 +19,16 @@ import java.util.List;
 public class GoodsCouponsRecyclerAdapter extends RecyclerView.Adapter<GoodsCouponsRecyclerAdapter.ViewHolder> {
     private List<GoodsCoupon> list;
     private Context context;
-    private LinearLayout.LayoutParams leftParams,rightParams;
+    private LinearLayout.LayoutParams leftParams, rightParams;
+
     public GoodsCouponsRecyclerAdapter(Context context) {
         this.context = context;
-        int screenWidth= ScreentUtils.getInstance().getScreenWidth(context);
-        int dp_30=(int)context.getResources().getDimension(R.dimen.dp_30);
-        int leftWidth=(int)Math.round(0.6377*(screenWidth-dp_30));
-        int rightWidth=(int)Math.round((screenWidth-dp_30)*0.3623);
-        leftParams=new LinearLayout.LayoutParams(leftWidth, LinearLayout.LayoutParams.MATCH_PARENT);
-        rightParams=new LinearLayout.LayoutParams(rightWidth, LinearLayout.LayoutParams.MATCH_PARENT);
+        int screenWidth = ScreentUtils.getInstance().getScreenWidth(context);
+        int dp_30 = (int) context.getResources().getDimension(R.dimen.dp_30);
+        int leftWidth = (int) Math.round(0.6377 * (screenWidth - dp_30));
+        int rightWidth = (int) Math.round((screenWidth - dp_30) * 0.3623);
+        leftParams = new LinearLayout.LayoutParams(leftWidth, LinearLayout.LayoutParams.MATCH_PARENT);
+        rightParams = new LinearLayout.LayoutParams(rightWidth, LinearLayout.LayoutParams.MATCH_PARENT);
     }
 
     public void setList(List<GoodsCoupon> couponList) {
@@ -37,12 +38,13 @@ public class GoodsCouponsRecyclerAdapter extends RecyclerView.Adapter<GoodsCoupo
 
     class ViewHolder extends RecyclerView.ViewHolder {
         TextView lingquTextView, yilingquTextView, amountTextView, titleTextView, descTextView, expTextView;
-        LinearLayout leftLayout,rightLayout;
+        LinearLayout leftLayout, rightLayout;
+
         public ViewHolder(View itemView) {
             super(itemView);
-            leftLayout=itemView.findViewById(R.id.leftLayout);
+            leftLayout = itemView.findViewById(R.id.leftLayout);
             leftLayout.setLayoutParams(leftParams);
-            rightLayout=itemView.findViewById(R.id.rightLayout);
+            rightLayout = itemView.findViewById(R.id.rightLayout);
             rightLayout.setLayoutParams(rightParams);
             amountTextView = itemView.findViewById(R.id.amountTextView);
             titleTextView = itemView.findViewById(R.id.titleTextView);

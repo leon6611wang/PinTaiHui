@@ -77,7 +77,6 @@ public class MyPublishListAdapter extends RecyclerView.Adapter<RecyclerView.View
         myPublishOperatDialog = new MyPublishOperatDialog(context, R.style.dialog, new MyPublishOperatDialog.OnArticleOperatListener() {
             @Override
             public void onArticleOperat(int index, int position, int type, String desc) {
-                System.out.println("index: " + index + " , desc: " + desc + " , position: " + position);
                 switch (index) {
                     case 1:
                         myPublishSet(position);
@@ -165,6 +164,17 @@ public class MyPublishListAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     public void setList(List<Feed> feedList) {
         this.list = feedList;
+        notifyDataSetChanged();
+    }
+
+    public void setQQShareResult(int requestCode, int resultCode, Intent data) {
+        shareDialog.setQQShareCallback(requestCode, resultCode, data);
+    }
+
+    private boolean isStop = false;
+
+    public void setStopVideo(boolean stop) {
+        this.isStop = stop;
         notifyDataSetChanged();
     }
 
@@ -331,12 +341,16 @@ public class MyPublishListAdapter extends RecyclerView.Adapter<RecyclerView.View
                 Glide.with(context).load(list.get(position).getContent().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(feed.videoPlayer.getCoverController().getVideoCover());
                 feed.videoPlayer.setLayoutParams(list.get(position).getContent().getLayoutParams(dp_240, true));
             } else {
-                if (list.get(position).getContent().getImgs().size() == 1) {
+                if (null == list.get(position).getContent().getImgs() || list.get(position).getContent().getImgs().size() == 0) {
+                    feed.feedImageView.setVisibility(View.GONE);
+                    feed.imageGridView.setVisibility(View.GONE);
+                    feed.videoPlayer.setVisibility(View.GONE);
+                } else if (list.get(position).getContent().getImgs().size() == 1) {
                     feed.feedImageView.setVisibility(View.VISIBLE);
                     feed.imageGridView.setVisibility(View.GONE);
                     feed.videoPlayer.setVisibility(View.GONE);
                     feed.feedImageView.setLayoutParams(list.get(position).getContent().getLayoutParams(dp_240, false));
-                    Glide.with(context).load(list.get(position).getContent().getImgs().get(0).getFile()).error(R.mipmap.img_error)
+                    Glide.with(context).load(list.get(position).getContent().getImgs().get(0).getFile()).error(R.drawable.image_error)
                             .into(feed.feedImageView);
                     feed.feedImageView.setOnClickListener(new OnLargeImageClick(list.get(position).getContent().getImgs().get(0).getFile()));
                 } else {
@@ -354,6 +368,7 @@ public class MyPublishListAdapter extends RecyclerView.Adapter<RecyclerView.View
             feed.operatLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    deletePosition = position;
                     ynDialog.show();
                     ynDialog.setTitle("确定删除动态？");
                 }
@@ -361,19 +376,24 @@ public class MyPublishListAdapter extends RecyclerView.Adapter<RecyclerView.View
             feed.itemRootLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent=new Intent(context, FeedInformationActivity.class);
-                    intent.putExtra("feed_id",list.get(position).getContent().getId());
+                    Intent intent = new Intent(context, FeedInformationActivity.class);
+                    intent.putExtra("feed_id", list.get(position).getContent().getId());
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(intent);
                 }
             });
+
+            if (isStop && feed.videoPlayer.isPlaying()) {
+                feed.videoPlayer.pause();
+            }
+
         } else if (holder instanceof ArticleViewHolder) {
             ArticleViewHolder article = (ArticleViewHolder) holder;
             article.titleTextView.setText(list.get(position).getContent().getTitle());
             article.sourceTextView.setText(list.get(position).getContent().getCircle_name());
-            if (null != list.get(position).getContent().getThumb()) {
+            if (null != list.get(position).getContent().getNewthumb()) {
                 article.coverImageView.setVisibility(View.VISIBLE);
-                Glide.with(context).load(list.get(position).getContent().getThumb().getFile()).error(R.mipmap.img_error).into(article.coverImageView);
+                Glide.with(context).load(list.get(position).getContent().getNewthumb().getFile()).error(R.drawable.image_error).into(article.coverImageView);
             } else {
                 article.coverImageView.setVisibility(View.GONE);
             }
@@ -400,9 +420,9 @@ public class MyPublishListAdapter extends RecyclerView.Adapter<RecyclerView.View
                 article.priseImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.dianzan_gray));
             }
             if (list.get(position).getContent().isIs_publish()) {
-                article.operatTextView.setText("文章下架");
+                article.operatTextView.setText("已上架");
             } else {
-                article.operatTextView.setText("文章上架");
+                article.operatTextView.setText("已下架");
             }
 
             article.collectImageView.setOnClickListener(new OnCollectListener(position));
@@ -428,9 +448,9 @@ public class MyPublishListAdapter extends RecyclerView.Adapter<RecyclerView.View
             }
 
             if (list.get(position).getContent().isIs_publish()) {
-                video.operatTextView.setText("视频下架");
+                video.operatTextView.setText("已上架");
             } else {
-                video.operatTextView.setText("视频上架");
+                video.operatTextView.setText("已下架");
             }
             video.shareTextView.setText(String.valueOf(list.get(position).getContent().getShare_num()));
             video.commentTextView.setText(String.valueOf(list.get(position).getContent().getComment_num()));
@@ -451,12 +471,15 @@ public class MyPublishListAdapter extends RecyclerView.Adapter<RecyclerView.View
             video.itemRootLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent=new Intent(context,VideoInformationActivity.class);
-                    intent.putExtra("feeds_id",list.get(position).getContent().getId());
+                    Intent intent = new Intent(context, VideoInformationActivity.class);
+                    intent.putExtra("feeds_id", list.get(position).getContent().getId());
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(intent);
                 }
             });
+            if (isStop && video.videoPlayer.isPlaying()) {
+                video.videoPlayer.pause();
+            }
         }
     }
 
@@ -467,7 +490,7 @@ public class MyPublishListAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     @Override
     public int getItemViewType(int position) {
-        return list.get(position).getFeed_type();
+        return list.get(position).getFeeds_type();
     }
 
     private final int ARTICLE = 1, VIDEO = 2, FEED = 3;
@@ -675,7 +698,7 @@ public class MyPublishListAdapter extends RecyclerView.Adapter<RecyclerView.View
         public void onClick(View v) {
             deletePosition = position;
             myPublishOperatDialog.show();
-            myPublishOperatDialog.setPosition(position, list.get(position).getFeed_type(), list.get(position).getContent().isIs_publish());
+            myPublishOperatDialog.setPosition(position, list.get(position).getFeeds_type(), list.get(position).getContent().isIs_publish());
         }
     }
 

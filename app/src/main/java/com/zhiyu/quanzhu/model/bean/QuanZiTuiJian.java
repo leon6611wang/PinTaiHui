@@ -22,7 +22,7 @@ public class QuanZiTuiJian {
     private boolean isSetVideoUrl = false;
 
     private int type = -1;
-    private int feed_type;
+    private int feeds_type;
     private QuanZiTuiJianContent content;
     private List<QuanZiTuiJianQuanZi> quanzi;
 
@@ -44,6 +44,7 @@ public class QuanZiTuiJian {
             int dp_5 = (int) context.getResources().getDimension(R.dimen.dp_5);
             int dp_10 = (int) context.getResources().getDimension(R.dimen.dp_10);
             cardViewParams = new LinearLayout.LayoutParams(width, height);
+            cardViewParams.gravity = Gravity.CENTER;
             cardViewParams.topMargin = dp_10;
             cardViewParams.bottomMargin = dp_10;
             cardViewParams.leftMargin = dp_5;
@@ -78,8 +79,8 @@ public class QuanZiTuiJian {
                     videoParams = new FrameLayout.LayoutParams(width, params_height);
                 }
             }
-            videoParams.gravity = Gravity.CENTER;
         }
+        videoParams.gravity=Gravity.CENTER;
         return videoParams;
     }
 
@@ -125,12 +126,12 @@ public class QuanZiTuiJian {
         this.videoUrl = videoUrl;
     }
 
-    public int getFeed_type() {
-        return feed_type;
+    public int getFeeds_type() {
+        return feeds_type;
     }
 
-    public void setFeed_type(int feed_type) {
-        this.feed_type = feed_type;
+    public void setFeeds_type(int feeds_type) {
+        this.feeds_type = feeds_type;
     }
 
     public boolean isSetVideoUrl() {

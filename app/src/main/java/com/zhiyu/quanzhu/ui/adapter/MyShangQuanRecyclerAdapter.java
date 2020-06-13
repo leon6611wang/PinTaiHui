@@ -133,7 +133,7 @@ public class MyShangQuanRecyclerAdapter extends RecyclerView.Adapter<MyShangQuan
                 case 3:
                     holder.shenheImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.circle_jinyong));
                     holder.shenheTextView.setText("圈子已被禁用，可向平台申诉解封");
-                    holder.mCardView.setOnClickListener(new OnEditCircleClickListener(position));
+//                    holder.mCardView.setOnClickListener(new OnEditCircleClickListener(position));
                     break;
                 case 4:
                     holder.shenheImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.circle_jiesan));

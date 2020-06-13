@@ -181,7 +181,7 @@ public class FragmentFullSearchAll extends Fragment implements View.OnClickListe
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent circleInfoIntent = new Intent(getContext(), CircleInfoActivity.class);
                 circleInfoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                circleInfoIntent.putExtra("circle_id",allResult.getData().getCircle_list().get(position).getId());
+                circleInfoIntent.putExtra("circle_id",(long) allResult.getData().getCircle_list().get(position).getId());
                 getContext().startActivity(circleInfoIntent);
             }
         });
@@ -276,6 +276,7 @@ public class FragmentFullSearchAll extends Fragment implements View.OnClickListe
             x.http().post(params, new Callback.CommonCallback<String>() {
                 @Override
                 public void onSuccess(String result) {
+                    System.out.println("full search all: " + result);
                     allResult = GsonUtils.GsonToBean(result, FullSearchAllResult.class);
                     Message message = myHandler.obtainMessage(1);
                     message.sendToTarget();

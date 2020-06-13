@@ -31,7 +31,9 @@ import com.zhiyu.quanzhu.model.result.MallAdGoodsResult;
 import com.zhiyu.quanzhu.model.result.ShopResult;
 import com.zhiyu.quanzhu.ui.adapter.HomeQuanShangRecyclerAdapter;
 import com.zhiyu.quanzhu.ui.dialog.GoodsCouponsDialog;
+import com.zhiyu.quanzhu.ui.dialog.ShareDialog;
 import com.zhiyu.quanzhu.ui.popupwindow.ShopInfoGoodsTypeWindow;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.CircleImageView;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
@@ -84,6 +86,7 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
     private int goods_type_id;
     private ShopInfoGoodsTypeWindow goodsTypeWindow;
     private int headerViewHeight, bottomMenuLayoutHeight, shopInfoGoodsTypeWindowHeight, screenHeight, tbHeight;
+    private ShareDialog shareDialog;
 
     private static class MyHandler extends Handler {
         WeakReference<ShopInformationActivity> activityWeakReference;
@@ -107,12 +110,8 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
                     if (200 == activity.shopResult.getCode()) {
                         activity.initStar(activity.shopResult.getData().getMark());
                         Glide.with(activity).load(activity.shopResult.getData().getShop_icon())
-                                //异常时候显示的图片
-                                .error(R.mipmap.img_h)
-                                //加载成功前显示的图片
-                                .placeholder(R.mipmap.img_h)
-                                //url为空的时候,显示的图片
-                                .fallback(R.mipmap.img_h)
+                                .error(R.drawable.image_error) .placeholder(R.drawable.image_error)
+                                .fallback(R.drawable.image_error)
                                 .into(activity.shopIconImageView);
                         activity.shopNameTextView.setText(activity.shopResult.getData().getShop_name());
                         activity.followTextView.setText(activity.shopResult.getData().getFollow_num() + "关注");
@@ -127,16 +126,22 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
                             activity.followBtnTextView.setText("关注");
                             activity.followBtnTextView.setTextColor(activity.getResources().getColor(R.color.white));
                         }
+                    }else{
+                        MessageToast.getInstance(activity).show(activity.shopResult.getMsg());
                     }
                     break;
                 case 3:
-                    Toast.makeText(activity, activity.baseResult.getMsg(), Toast.LENGTH_SHORT).show();
-                    if (activity.baseResult.getCode() == 200) {
-                        activity.followBtnLayout.setBackground(activity.getResources().getDrawable(R.drawable.shape_oval_solid_bg_white));
-                        activity.followBtnImageView.setVisibility(View.GONE);
-                        activity.followBtnTextView.setText("已关注");
-                        activity.followBtnTextView.setTextColor(activity.getResources().getColor(R.color.text_color_yellow));
-                    }
+                    MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
+//                    Toast.makeText(activity, activity.baseResult.getMsg(), Toast.LENGTH_SHORT).show();
+//                    if (activity.baseResult.getCode() == 200) {
+//                        activity.followBtnLayout.setBackground(activity.getResources().getDrawable(R.drawable.shape_oval_solid_bg_white));
+//                        activity.followBtnImageView.setVisibility(View.GONE);
+//                        activity.followBtnTextView.setText("已关注");
+//                        activity.followBtnTextView.setTextColor(activity.getResources().getColor(R.color.text_color_yellow));
+//                    }
+                    break;
+                case 99:
+                    MessageToast.getInstance(activity).show("服务器内部错误，请稍后再试.");
                     break;
             }
         }
@@ -147,6 +152,7 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shop_information);
         shop_id = getIntent().getStringExtra("shop_id");
+        System.out.println("shop_id: "+shop_id);
 //        shop_id = "1";
         ScreentUtils.getInstance().setStatusBarLightMode(this, false);
         int screenWidth = ScreentUtils.getInstance().getScreenWidth(this);
@@ -161,13 +167,14 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
         searchGoods();
     }
 
+
     private void initDialogs() {
         youHuiQuanDialog = new GoodsCouponsDialog(this, R.style.dialog);
         goodsTypeWindow = new ShopInfoGoodsTypeWindow(this, new ShopInfoGoodsTypeWindow.OnGoodsTypeSelectListener() {
             @Override
             public void onGoodsTypeSelect(ShopInfoGoodsType goodsType) {
                 searchEditText.setText(goodsType.getName());
-                keyword = goodsType.getName();
+//                keyword = goodsType.getName();
                 goods_type_id = goodsType.getId();
                 page = 1;
                 searchGoods();
@@ -177,6 +184,12 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
             @Override
             public void onDismiss() {
                 changeBottomMenu(0);
+            }
+        });
+        shareDialog = new ShareDialog(this, this, R.style.dialog, new ShareDialog.OnShareListener() {
+            @Override
+            public void onShare(int position, String desc) {
+
             }
         });
     }
@@ -366,11 +379,12 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
                 Intent gouwucheIntent = new Intent(ShopInformationActivity.this, CartActivity.class);
                 startActivity(gouwucheIntent);
                 break;
-            case R.id.sharelayout:
-
+            case R.id.shareLayout:
+                shareDialog.show();
                 break;
             case R.id.getCouponTextView:
                 youHuiQuanDialog.show();
+                youHuiQuanDialog.setShopId((int) shopResult.getData().getShop_id());
                 break;
             case R.id.allLayout:
                 if (null != goodsTypeWindow && goodsTypeWindow.isShowing()) {
@@ -386,9 +400,13 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
                 changeBottomMenu(1);
                 break;
             case R.id.serviceLayout:
-                if (null != goodsTypeWindow && goodsTypeWindow.isShowing()) {
-                    goodsTypeWindow.dismiss();
-                }
+//                if (null != goodsTypeWindow && goodsTypeWindow.isShowing()) {
+//                    goodsTypeWindow.dismiss();
+//                }
+                Intent serviceIntent = new Intent(this, CustomerServiceActivity.class);
+                serviceIntent.putExtra("shop_id", Integer.parseInt(shop_id));
+                startActivity(serviceIntent);
+
                 break;
         }
     }
@@ -540,7 +558,7 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
     private MallAdGoodsResult mallAdGoodsResult;
 
     private void searchGoods() {
-        RequestParams params = new RequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.GOODS_SEARCH);
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.GOODS_SEARCH);
         params.addBodyParameter("keywords", keyword);
         params.addBodyParameter("page", String.valueOf(page));
         params.addBodyParameter("sort", sort);
@@ -584,7 +602,7 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
     private ShopResult shopResult;
 
     private void shopInfo() {
-        RequestParams params = new RequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.SHOP_INFO);
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.SHOP_INFO);
         params.addBodyParameter("shop_id", shop_id);
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
@@ -598,7 +616,8 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
             }
 
             @Override
@@ -648,4 +667,10 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
         });
     }
 
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        shareDialog.setQQShareCallback(requestCode,resultCode,data);
+    }
 }

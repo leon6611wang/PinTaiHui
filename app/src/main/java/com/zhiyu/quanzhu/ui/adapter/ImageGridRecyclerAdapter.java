@@ -52,6 +52,7 @@ public class ImageGridRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.
 
     class AddViewHolder extends RecyclerView.ViewHolder {
         LinearLayout mLinearLayout;
+
         public AddViewHolder(View itemView) {
             super(itemView);
             mLinearLayout = itemView.findViewById(R.id.mLinearLayout);
@@ -95,7 +96,8 @@ public class ImageGridRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.
                     }
                     return false;
                 }
-            }).into(myHolder.mImageView);
+            }).error(R.drawable.image_error).placeholder(R.drawable.image_error)
+                    .fallback(R.drawable.image_error).into(myHolder.mImageView);
             myHolder.mDeleteImageView.setOnClickListener(new OnDeleteClickListener(position));
         } else if (holder instanceof AddViewHolder) {
             AddViewHolder myHolder = (AddViewHolder) holder;

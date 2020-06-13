@@ -140,7 +140,7 @@ public class FragmentMyCollectionGoods extends Fragment {
                 } else {
                     goodsList.addAll(goodsResult.getData().getList());
                 }
-                System.out.println("goods: "+(null==goodsList?0:goodsList.size()));
+                System.out.println("goods: "+result);
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
             }

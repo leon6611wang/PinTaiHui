@@ -1,5 +1,6 @@
 package com.zhiyu.quanzhu.ui.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -10,13 +11,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.leon.chic.dao.PageDao;
+import com.leon.chic.utils.LogUtils;
+import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
-import com.zhiyu.quanzhu.model.bean.DongTaiGuanZhu;
+import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.model.bean.Feed;
-import com.zhiyu.quanzhu.model.bean.QuanZiGuanZhu;
-import com.zhiyu.quanzhu.model.bean.QuanZiGuanZhuUser;
 import com.zhiyu.quanzhu.model.result.FeedResult;
-import com.zhiyu.quanzhu.model.result.FullSearchFeedResult;
 import com.zhiyu.quanzhu.model.result.QuanZiGuanZhuResult;
 import com.zhiyu.quanzhu.model.result.QuanZiGuanZhuUserResult;
 import com.zhiyu.quanzhu.ui.adapter.CircleGuanZhuAdapter;
@@ -30,8 +31,6 @@ import com.zhiyu.quanzhu.utils.MyPtrHandlerHeader;
 import com.zhiyu.quanzhu.utils.MyPtrRefresherFooter;
 import com.zhiyu.quanzhu.utils.MyPtrRefresherHeader;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
-import com.zhiyu.quanzhu.utils.SharedPreferencesUtils;
-import com.zhiyu.quanzhu.utils.SpaceItemDecoration;
 import com.zhiyu.quanzhu.utils.ThreadPoolUtils;
 
 import org.xutils.common.Callback;
@@ -39,7 +38,6 @@ import org.xutils.http.RequestParams;
 import org.xutils.x;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.List;
 
 import in.srain.cube.views.ptr.PtrDefaultHandler2;
@@ -50,7 +48,6 @@ import in.srain.cube.views.ptr.PtrFrameLayout;
  */
 public class FragmentQuanZiGuanZhu extends Fragment {
     private View view;
-    private QuanZiGuanZhuAdapter adapter;
     private CircleGuanZhuAdapter circleGuanZhuAdapter;
     private MyRecyclerView recyclerView;
     private PtrFrameLayout ptrFrameLayout;
@@ -75,7 +72,12 @@ public class FragmentQuanZiGuanZhu extends Fragment {
                     fragment.circleGuanZhuAdapter.setList(fragment.feedList);
                     break;
                 case 2:
-                    fragment.headerAdapter.setList(fragment.userResult.getData().getList());
+                    if (null != fragment.userResult && null != fragment.userResult.getData() &&
+                            null != fragment.userResult.getData().getList() && fragment.userResult.getData().getList().size() > 0)
+                        fragment.headerAdapter.setList(fragment.userResult.getData().getList());
+                    break;
+                case 99:
+                    fragment.ptrFrameLayout.refreshComplete();
                     break;
             }
         }
@@ -86,6 +88,7 @@ public class FragmentQuanZiGuanZhu extends Fragment {
         view = inflater.inflate(R.layout.fragment_quanzi_guanzhu, container, false);
         initPtr();
         initViews();
+//        initData();
         ThreadPoolUtils.getInstance().init().execute(new Runnable() {
             @Override
             public void run() {
@@ -95,6 +98,18 @@ public class FragmentQuanZiGuanZhu extends Fragment {
         });
 
         return view;
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (null != circleGuanZhuAdapter) {
+            if (isVisibleToUser) {
+                circleGuanZhuAdapter.setVideoStop(false);
+            } else {
+                circleGuanZhuAdapter.setVideoStop(true);
+            }
+        }
     }
 
     private void initPtr() {
@@ -133,7 +148,6 @@ public class FragmentQuanZiGuanZhu extends Fragment {
         headerRecyclerView.setLayoutManager(linearLayoutManager);
 
         recyclerView = view.findViewById(R.id.recyclerView);
-        adapter = new QuanZiGuanZhuAdapter(getContext());
         circleGuanZhuAdapter = new CircleGuanZhuAdapter(getActivity(), getContext());
         LinearLayoutManager ms = new LinearLayoutManager(getContext());
         ms.setOrientation(LinearLayoutManager.VERTICAL);
@@ -141,6 +155,24 @@ public class FragmentQuanZiGuanZhu extends Fragment {
 //        recyclerView.addItemDecoration(decoration);
         recyclerView.setLayoutManager(ms);
         recyclerView.setAdapter(circleGuanZhuAdapter);
+
+    }
+
+    private void initData() {
+        String result = PageDao.getInstance().get(QuanZiGuanZhuResult.class, BaseApplication.getInstance());
+        if (!StringUtils.isNullOrEmpty(result)) {
+            System.out.println("initData " + result);
+            feedResult = GsonUtils.GsonToBean(result, FeedResult.class);
+            feedList = feedResult.getData().getMycircles();
+            circleGuanZhuAdapter.setList(feedList);
+        }
+        String result2 = PageDao.getInstance().get(QuanZiGuanZhuUserResult.class, BaseApplication.getInstance());
+        if (!StringUtils.isNullOrEmpty(result2)) {
+            userResult = GsonUtils.GsonToBean(result, QuanZiGuanZhuUserResult.class);
+            if (null != userResult && null != userResult.getData() && null != userResult.getData().getList()) {
+                headerAdapter.setList(userResult.getData().getList());
+            }
+        }
     }
 
     private int page = 1;
@@ -155,6 +187,9 @@ public class FragmentQuanZiGuanZhu extends Fragment {
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
+                System.out.println("动态-关注: " + result);
+                LogUtils.i("guanzhu", result);
+                PageDao.getInstance().save(QuanZiGuanZhuResult.class, result, BaseApplication.getInstance());
                 feedResult = GsonUtils.GsonToBean(result, FeedResult.class);
                 if (isRefresh) {
                     feedList = feedResult.getData().getMycircles();
@@ -167,7 +202,9 @@ public class FragmentQuanZiGuanZhu extends Fragment {
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                System.out.println(ex.toString());
+                System.out.println("动态-关注" + ex.toString());
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
             }
 
             @Override
@@ -191,15 +228,16 @@ public class FragmentQuanZiGuanZhu extends Fragment {
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
+                PageDao.getInstance().save(QuanZiGuanZhuUserResult.class, result, BaseApplication.getInstance());
                 userResult = GsonUtils.GsonToBean(result, QuanZiGuanZhuUserResult.class);
-                System.out.println("我的关注列表:"+result);
+                System.out.println("我的关注列表:" + result);
                 Message message = myHandler.obtainMessage(2);
                 message.sendToTarget();
             }
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                System.out.println("我关注的人列表: " + ex.toString());
+//                System.out.println("我关注的人列表: " + ex.toString());
             }
 
             @Override
@@ -214,4 +252,10 @@ public class FragmentQuanZiGuanZhu extends Fragment {
         });
     }
 
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        circleGuanZhuAdapter.setShareResultCode(requestCode, resultCode, data);
+    }
 }

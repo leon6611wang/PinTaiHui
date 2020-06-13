@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,10 +26,12 @@ import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.Feed;
 import com.zhiyu.quanzhu.ui.activity.ArticleInformationActivity;
 import com.zhiyu.quanzhu.ui.activity.ComplaintActivity;
+import com.zhiyu.quanzhu.ui.activity.FeedInformationActivity;
 import com.zhiyu.quanzhu.ui.activity.LargeImageActivity;
 import com.zhiyu.quanzhu.ui.activity.VideoInformationActivity;
 import com.zhiyu.quanzhu.ui.dialog.DeleteFeedDialog;
 import com.zhiyu.quanzhu.ui.dialog.ShareDialog;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.CircleImageView;
 import com.zhiyu.quanzhu.ui.widget.HorizontalListView;
 import com.zhiyu.quanzhu.ui.widget.MyGridView;
@@ -37,6 +40,7 @@ import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
+import com.zhiyu.quanzhu.utils.SpaceItemDecoration;
 
 import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
@@ -88,6 +92,10 @@ public class CircleGuanZhuAdapter extends RecyclerView.Adapter<RecyclerView.View
         });
     }
 
+    public void setShareResultCode(int requestCode, int resultCode, Intent data){
+        shareDialog.setQQShareCallback(requestCode,resultCode,data);
+    }
+
     private static class MyHandler extends Handler {
         WeakReference<CircleGuanZhuAdapter> adapterWeakReference;
 
@@ -100,7 +108,7 @@ public class CircleGuanZhuAdapter extends RecyclerView.Adapter<RecyclerView.View
             CircleGuanZhuAdapter adapter = adapterWeakReference.get();
             switch (msg.what) {
                 case 1:
-                    Toast.makeText(adapter.context, adapter.baseResult.getMsg(), Toast.LENGTH_SHORT).show();
+                    MessageToast.getInstance(adapter.context).show(adapter.baseResult.getMsg());
                     if (adapter.baseResult.getCode() == 200) {
                         int posiiton = (Integer) msg.obj;
                         adapter.list.get(posiiton).getContent().setIs_collect(!adapter.list.get(posiiton).getContent().isIs_collect());
@@ -108,7 +116,7 @@ public class CircleGuanZhuAdapter extends RecyclerView.Adapter<RecyclerView.View
                     }
                     break;
                 case 2:
-                    Toast.makeText(adapter.context, adapter.baseResult.getMsg(), Toast.LENGTH_SHORT).show();
+                    MessageToast.getInstance(adapter.context).show(adapter.baseResult.getMsg());
                     if (adapter.baseResult.getCode() == 200) {
                         int posiiton = (Integer) msg.obj;
                         adapter.list.get(posiiton).getContent().setIs_prise(!adapter.list.get(posiiton).getContent().isIs_prise());
@@ -118,7 +126,7 @@ public class CircleGuanZhuAdapter extends RecyclerView.Adapter<RecyclerView.View
                     }
                     break;
                 case 3:
-                    Toast.makeText(adapter.context, adapter.baseResult.getMsg(), Toast.LENGTH_SHORT).show();
+                    MessageToast.getInstance(adapter.context).show(adapter.baseResult.getMsg());
                     if (adapter.baseResult.getCode() == 200) {
                         int posiiton = (Integer) msg.obj;
                         adapter.list.remove(posiiton);
@@ -131,6 +139,13 @@ public class CircleGuanZhuAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     public void setList(List<Feed> feedList) {
         this.list = feedList;
+        notifyDataSetChanged();
+    }
+
+    private boolean isStop;
+
+    public void setVideoStop(boolean stop) {
+        this.isStop = stop;
         notifyDataSetChanged();
     }
 
@@ -237,6 +252,26 @@ public class CircleGuanZhuAdapter extends RecyclerView.Adapter<RecyclerView.View
         }
     }
 
+    class InterestViewHolder extends RecyclerView.ViewHolder {
+        RecyclerView mRecyclerView;
+        CircleGuanZhuInterestAdapter adapter;
+        LinearLayoutManager layoutManager;
+        TextView moreCircleTextView;
+
+        //        SpaceItemDecoration decoration=new SpaceItemDecoration((int)context.getResources().getDimension(R.dimen.dp_10));
+        public InterestViewHolder(View itemView) {
+            super(itemView);
+            mRecyclerView = itemView.findViewById(R.id.mRecyclerView);
+            adapter = new CircleGuanZhuInterestAdapter(context);
+            layoutManager = new LinearLayoutManager(context);
+            layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+            mRecyclerView.setAdapter(adapter);
+            mRecyclerView.setLayoutManager(layoutManager);
+//            mRecyclerView.addItemDecoration(decoration);
+            moreCircleTextView = itemView.findViewById(R.id.moreCircleTextView);
+
+        }
+    }
 
     @NonNull
     @Override
@@ -247,6 +282,8 @@ public class CircleGuanZhuAdapter extends RecyclerView.Adapter<RecyclerView.View
             return new ArticleViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_circle_guanzhu_article, parent, false));
         } else if (viewType == VIDEO) {
             return new VideoViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_circle_guanzhu_video, parent, false));
+        } else if (viewType == INTEREST) {
+            return new InterestViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_circle_guanzhu_interest, parent, false));
         }
         return null;
     }
@@ -294,7 +331,11 @@ public class CircleGuanZhuAdapter extends RecyclerView.Adapter<RecyclerView.View
                 Glide.with(context).load(list.get(position).getContent().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(feed.videoPlayer.getCoverController().getVideoCover());
                 feed.videoPlayer.setLayoutParams(list.get(position).getContent().getLayoutParams(dp_240, true));
             } else {
-                if (list.get(position).getContent().getImgs().size() == 1) {
+                if (null == list.get(position).getContent().getImgs() || list.get(position).getContent().getImgs().size() == 0) {
+                    feed.feedImageView.setVisibility(View.GONE);
+                    feed.imageGridView.setVisibility(View.GONE);
+                    feed.videoPlayer.setVisibility(View.GONE);
+                } else if (null != list.get(position).getContent().getImgs() && list.get(position).getContent().getImgs().size() == 1) {
                     feed.feedImageView.setVisibility(View.VISIBLE);
                     feed.imageGridView.setVisibility(View.GONE);
                     feed.videoPlayer.setVisibility(View.GONE);
@@ -314,16 +355,20 @@ public class CircleGuanZhuAdapter extends RecyclerView.Adapter<RecyclerView.View
             feed.shareTextView.setOnClickListener(new OnShareClick(position));
             feed.commentTextView.setOnClickListener(new OnCommentClick(position));
             feed.priseLayout.setOnClickListener(new OnPriseClick(position));
+            feed.itemRootLayout.setOnClickListener(new OnCommentClick(position));
             feed.closeLayout.setOnClickListener(new OnDeleteFeedClick(position));
+            if (isStop && feed.videoPlayer.isPlaying()) {
+                feed.videoPlayer.pause();
+            }
         } else if (holder instanceof ArticleViewHolder) {
             ArticleViewHolder article = (ArticleViewHolder) holder;
             Glide.with(context).load(list.get(position).getContent().getAvatar()).error(R.mipmap.no_avatar).into(article.avatarImageView);
             article.nameTextView.setText(list.get(position).getContent().getUsername());
             article.titleTextView.setText(list.get(position).getContent().getTitle());
-            if(null!=list.get(position).getContent().getThumb()){
+            if (null != list.get(position).getContent().getNewthumb()) {
                 article.coverImageView.setVisibility(View.VISIBLE);
-                Glide.with(context).load(list.get(position).getContent().getThumb().getFile()).error(R.mipmap.img_error).into(article.coverImageView);
-            }else{
+                Glide.with(context).load(list.get(position).getContent().getNewthumb().getFile()).error(R.mipmap.img_error).into(article.coverImageView);
+            } else {
                 article.coverImageView.setVisibility(View.GONE);
             }
             article.sourceTextView.setText(list.get(position).getContent().getCircle_name());
@@ -382,7 +427,31 @@ public class CircleGuanZhuAdapter extends RecyclerView.Adapter<RecyclerView.View
             video.priseLayout.setOnClickListener(new OnPriseClick(position));
             video.itemRootLayout.setOnClickListener(new OnVideoInformationClick(position));
             video.closeLayout.setOnClickListener(new OnDeleteFeedClick(position));
+            if (isStop && video.videoPlayer.isPlaying()) {
+                video.videoPlayer.pause();
+            }
+        } else if (holder instanceof InterestViewHolder) {
+            InterestViewHolder interest = (InterestViewHolder) holder;
+            interest.adapter.setList(list.get(position).getQuanzi());
+            interest.moreCircleTextView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (null != onMoreCircleClickListener) {
+                        onMoreCircleClickListener.onMoreCircle();
+                    }
+                }
+            });
         }
+    }
+
+    private static OnMoreCircleClickListener onMoreCircleClickListener;
+
+    public static void setOnMoreCircleClickListener(OnMoreCircleClickListener listener) {
+        onMoreCircleClickListener = listener;
+    }
+
+    public interface OnMoreCircleClickListener {
+        void onMoreCircle();
     }
 
     @Override
@@ -392,10 +461,14 @@ public class CircleGuanZhuAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     @Override
     public int getItemViewType(int position) {
-        return list.get(position).getFeeds_type();
+        int viewType = list.get(position).getFeeds_type();
+        if (list.get(position).getType() == INTEREST) {
+            viewType = INTEREST;
+        }
+        return viewType;
     }
 
-    private final int ARTICLE = 1, VIDEO = 2, FEED = 3;
+    private final int ARTICLE = 1, VIDEO = 2, FEED = 3, INTEREST = 7;
 
 
     private class OnLargeImageClick implements View.OnClickListener {
@@ -437,7 +510,6 @@ public class CircleGuanZhuAdapter extends RecyclerView.Adapter<RecyclerView.View
         @Override
         public void onClick(View v) {
             shareDialog.show();
-
         }
     }
 
@@ -450,7 +522,10 @@ public class CircleGuanZhuAdapter extends RecyclerView.Adapter<RecyclerView.View
 
         @Override
         public void onClick(View v) {
-//            Intent commentIntent=new Intent(context,Comment)
+            Intent commentIntent=new Intent(context,FeedInformationActivity.class);
+            commentIntent.putExtra("feed_id",list.get(position).getContent().getId());
+            commentIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(commentIntent);
         }
     }
 

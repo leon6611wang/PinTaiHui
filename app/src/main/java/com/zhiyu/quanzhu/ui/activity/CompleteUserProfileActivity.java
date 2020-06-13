@@ -1,84 +1,182 @@
 package com.zhiyu.quanzhu.ui.activity;
 
-import android.Manifest;
 import android.content.Intent;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.v4.content.FileProvider;
-import android.text.TextUtils;
-import android.util.Log;
+import android.os.Handler;
+import android.os.Message;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.lcw.library.imagepicker.ImagePicker;
+import com.leon.chic.utils.SPUtils;
+import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseActivity;
-import com.zhiyu.quanzhu.ui.dialog.ChoosePhotoDialog;
+import com.zhiyu.quanzhu.base.BaseApplication;
+import com.zhiyu.quanzhu.base.BaseResult;
+import com.zhiyu.quanzhu.model.bean.AreaCity;
+import com.zhiyu.quanzhu.model.bean.AreaProvince;
+import com.zhiyu.quanzhu.model.bean.IndustryChild;
+import com.zhiyu.quanzhu.model.bean.IndustryHobby;
+import com.zhiyu.quanzhu.model.bean.IndustryParent;
+import com.zhiyu.quanzhu.ui.dialog.IndustryDialog;
+import com.zhiyu.quanzhu.ui.dialog.IndustryHobbyDialog;
+import com.zhiyu.quanzhu.ui.dialog.LoadingDialog;
+import com.zhiyu.quanzhu.ui.dialog.ProvinceCityDialog;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.CircleImageView;
-import com.zhiyu.quanzhu.utils.GetPhotoFromPhotoAlbum;
+import com.zhiyu.quanzhu.utils.ConstantsUtils;
+import com.zhiyu.quanzhu.utils.GlideLoader;
+import com.zhiyu.quanzhu.utils.GsonUtils;
+import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
+import com.zhiyu.quanzhu.utils.UploadImageUtils;
 
-import java.io.File;
-import java.util.List;
+import org.xutils.common.Callback;
+import org.xutils.http.RequestParams;
+import org.xutils.x;
 
-import pub.devrel.easypermissions.EasyPermissions;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 
 /**
  * 完善用户基本信息
  */
-public class CompleteUserProfileActivity extends BaseActivity implements View.OnClickListener, EasyPermissions.PermissionCallbacks {
-    private TextView headerpicTextView, industryTextView, confirmTextView;
-    private CircleImageView headerpicImageView;
-    private ImageView addheaderpicImageView;
-    private EditText nicknameEditText, areaEditText, companyEditText, postEditText;
-    private LinearLayout industryLayout;
-    private ChoosePhotoDialog choosePhotoDialog;
-    private File cameraSavePath;
-    private Uri uri;
-    private String[] permissions = {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+public class CompleteUserProfileActivity extends BaseActivity implements View.OnClickListener {
+    private TextView industryTextView, confirmTextView, cityTextView;
+    private CircleImageView addheaderpicImageView;
+    private EditText nicknameEditText, companyEditText, postEditText;
+    private LinearLayout industryLayout, cityLayout;
+    private final int REQUEST_SELECT_IMAGES_CODE = 10022;
+    private final int REQUEST_CROP_IMAGES_CODE = 10023;
+    private ProvinceCityDialog cityDialog;
+    private IndustryHobbyDialog industryDialog;
+    private String userName, company, occupation;
+    private AreaProvince areaProvince;
+    private AreaCity areaCity;
+    private IndustryHobby industryParent;
+    private IndustryHobby industryChild;
+    private LoadingDialog loadingDialog;
+    private MyHandler myHandler = new MyHandler(this);
+
+    private static class MyHandler extends Handler {
+        WeakReference<CompleteUserProfileActivity> activityWeakReference;
+
+        public MyHandler(CompleteUserProfileActivity activity) {
+            activityWeakReference = new WeakReference<>(activity);
+        }
+
+        @Override
+        public void handleMessage(android.os.Message msg) {
+            CompleteUserProfileActivity activity = activityWeakReference.get();
+            switch (msg.what) {
+                case 1:
+                    if (activity.loadingDialog.isShowing())
+                        activity.loadingDialog.dismiss();
+                    MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
+                    if (200 == activity.baseResult.getCode()) {
+                        activity.pageChange();
+                    }
+                    break;
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_complete_user_profile);
         ScreentUtils.getInstance().setStatusBarLightMode(this, false);
-        initViews();
         initDialogs();
+        initViews();
     }
 
     private void initDialogs() {
-        choosePhotoDialog = new ChoosePhotoDialog(this, R.style.dialog, new ChoosePhotoDialog.OnChoosePhotoListener() {
+        cityDialog = new ProvinceCityDialog(this, R.style.dialog, new ProvinceCityDialog.OnCityChooseListener() {
             @Override
-            public void xiangce() {
-                goPhotoAlbum();
-            }
-
-            @Override
-            public void paizhao() {
-                goCamera();
+            public void onCityChoose(AreaProvince province, AreaCity city) {
+                areaProvince = province;
+                areaCity = city;
+                cityTextView.setText(province.getName() + " " + city.getName());
             }
         });
+        industryDialog = new IndustryHobbyDialog(this, R.style.dialog, true, new IndustryHobbyDialog.OnIndustryHobbySelectedListener() {
+            @Override
+            public void onIndustryHobbySelected(IndustryHobby p, IndustryHobby c) {
+                industryParent = p;
+                industryChild = c;
+                industryTextView.setText(p.getName() + " " + c.getName());
+            }
+        });
+        loadingDialog = new LoadingDialog(this, R.style.dialog);
     }
 
     private void initViews() {
-        headerpicTextView = findViewById(R.id.headerpicTextView);
         industryTextView = findViewById(R.id.industryTextView);
         confirmTextView = findViewById(R.id.confirmTextView);
-        headerpicImageView = findViewById(R.id.headerpicImageView);
+        confirmTextView.setOnClickListener(this);
         addheaderpicImageView = findViewById(R.id.addheaderpicImageView);
         addheaderpicImageView.setOnClickListener(this);
         nicknameEditText = findViewById(R.id.nicknameEditText);
-        areaEditText = findViewById(R.id.areaEditText);
+        nicknameEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                userName = nicknameEditText.getText().toString().trim();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+        cityLayout = findViewById(R.id.cityLayout);
+        cityLayout.setOnClickListener(this);
+        cityTextView = findViewById(R.id.cityTextView);
         companyEditText = findViewById(R.id.companyEditText);
+        companyEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                company = companyEditText.getText().toString().trim();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
         postEditText = findViewById(R.id.postEditText);
+        postEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                occupation = postEditText.getText().toString().trim();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
         industryLayout = findViewById(R.id.industryLayout);
         industryLayout.setOnClickListener(this);
     }
@@ -87,105 +185,156 @@ public class CompleteUserProfileActivity extends BaseActivity implements View.On
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.confirmTextView:
-
+                if (StringUtils.isNullOrEmpty(avatarUrl)) {
+                    MessageToast.getInstance(CompleteUserProfileActivity.this).show("请选择头像");
+                    break;
+                }
+                if (StringUtils.isNullOrEmpty(userName)) {
+                    MessageToast.getInstance(CompleteUserProfileActivity.this).show("请输入昵称");
+                    break;
+                }
+                if (null == areaProvince || null == areaCity) {
+                    MessageToast.getInstance(CompleteUserProfileActivity.this).show("请选择地区");
+                    break;
+                }
+                if (null == industryParent || null == industryChild) {
+                    MessageToast.getInstance(CompleteUserProfileActivity.this).show("请选择行业");
+                    break;
+                }
+                fillProfile();
                 break;
             case R.id.industryLayout:
-
+                industryDialog.show();
                 break;
             case R.id.addheaderpicImageView:
-                getPermission();
+                selectImage();
+                break;
+            case R.id.cityLayout:
+                cityDialog.show();
                 break;
         }
     }
 
-    //获取权限
-    private void getPermission() {
-        if (EasyPermissions.hasPermissions(this, permissions)) {
-            //已经打开权限
-            choosePhotoDialog.show();
-//            Toast.makeText(this, "已经申请相关权限", Toast.LENGTH_SHORT).show();
-        } else {
-            //没有打开相关权限、申请权限
-            EasyPermissions.requestPermissions(this, "需要获取您的相册、照相使用权限", 1, permissions);
-        }
+    private ArrayList<String> imgList = new ArrayList<>();
 
+    private void selectImage() {
+        ImagePicker.getInstance()
+                .setTitle("图片选择")//设置标题
+                .showCamera(true)//设置是否显示拍照按钮
+                .showImage(true)//设置是否展示图片
+                .showVideo(false)//设置是否展示视频
+                .setSingleType(true)//设置图片视频不能同时选择
+                .setMaxCount(1)//设置最大选择图片数目(默认为1，单选)
+                .setImagePaths(imgList)//保存上一次选择图片的状态，如果不需要可以忽略
+                .setImageLoader(new GlideLoader())//设置自定义图片加载器
+                .start(CompleteUserProfileActivity.this, REQUEST_SELECT_IMAGES_CODE);//REQEST_SELECT_IMAGES_CODE为Intent调用的requestCode
     }
 
-
-    //激活相册操作
-    private void goPhotoAlbum() {
-        Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_PICK);
-        intent.setType("image/*");
-        startActivityForResult(intent, 2);
-    }
-
-    //激活相机操作
-    private void goCamera() {
-        cameraSavePath = new File(Environment.getExternalStorageDirectory().getPath() + "/" + System.currentTimeMillis() + ".jpg");
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            uri = FileProvider.getUriForFile(this, "com.example.hxd.pictest.fileprovider", cameraSavePath);
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        } else {
-            uri = Uri.fromFile(cameraSavePath);
-        }
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-        this.startActivityForResult(intent, 1);
-    }
-
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        //框架要求必须这么写
-        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
-    }
-
-
-    //成功打开权限
-    @Override
-    public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
-        choosePhotoDialog.show();
-//        Toast.makeText(this, "相关权限获取成功", Toast.LENGTH_SHORT).show();
-    }
-
-    //用户未同意权限
-    @Override
-    public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
-        Toast.makeText(this, "请同意相关权限，否则功能无法使用", Toast.LENGTH_SHORT).show();
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        String photoPath;
-        if (requestCode == 1 && resultCode == RESULT_OK) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                photoPath = String.valueOf(cameraSavePath);
-            } else {
-                photoPath = uri.getEncodedPath();
-            }
-            if(!TextUtils.isEmpty(photoPath)){
-                headerpicTextView.setVisibility(View.GONE);
-                headerpicImageView.setVisibility(View.VISIBLE);
-                Glide.with(this).load(photoPath).into(headerpicImageView);
-            }else{
-                headerpicTextView.setVisibility(View.VISIBLE);
-                headerpicImageView.setVisibility(View.GONE);
-            }
-            Log.i("photoPath", "photoPath: " + photoPath);
-        } else if (requestCode == 2 && resultCode == RESULT_OK) {
-            photoPath = GetPhotoFromPhotoAlbum.getRealPathFromUri(this, data.getData());
-            if(!TextUtils.isEmpty(photoPath)){
-                headerpicTextView.setVisibility(View.GONE);
-                headerpicImageView.setVisibility(View.VISIBLE);
-                Glide.with(this).load(photoPath).into(headerpicImageView);
-            }else{
-                headerpicTextView.setVisibility(View.VISIBLE);
-                headerpicImageView.setVisibility(View.GONE);
-            }
-            Log.i("photoPath", "photoPath: " + photoPath);
+        if (requestCode == REQUEST_SELECT_IMAGES_CODE && resultCode == RESULT_OK) {
+            imgList = data.getStringArrayListExtra(ImagePicker.EXTRA_SELECT_IMAGES);
+            cropImage(imgList.get(0));
+        } else if (requestCode == REQUEST_CROP_IMAGES_CODE) {
+            String cropImagePath = data.getStringExtra("cropImagePath");
+            uploadAvatar(cropImagePath);
+            Glide.with(this).load(cropImagePath).into(addheaderpicImageView);
+            System.out.println("cropImagePath: " + cropImagePath);
         }
+
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void cropImage(String imagePath) {
+        Intent intent = new Intent(this, CropImageActivity.class);
+        intent.putExtra("imagePath", imagePath);
+        startActivityForResult(intent, REQUEST_CROP_IMAGES_CODE);
+    }
+
+    private String avatarUrl;
+
+    /**
+     * 上传头像
+     */
+    private void uploadAvatar(String imagePath) {
+        UploadImageUtils.getInstance().uploadFile(UploadImageUtils.CIRCLEFEES, imagePath, new UploadImageUtils.OnUploadCallback() {
+            @Override
+            public void onUploadSuccess(String name) {
+                avatarUrl = name;
+
+            }
+        });
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
+            Intent intent = new Intent(CompleteUserProfileActivity.this, HomeActivity.class);
+            startActivity(intent);
+            finish();
+            return true;
+        }
+        //继续执行父类其他点击事件
+        return super.onKeyUp(keyCode, event);
+    }
+
+
+    private BaseResult baseResult;
+
+    private void fillProfile() {
+        loadingDialog.show();
+//        System.out.println("avatar:" + avatarUrl + ",username:" + userName + ",province:" + areaProvince.getCode() + ",province_name:" + areaProvince.getName() +
+//                ",city:" + areaCity.getCode() + ",city_name:" + areaCity.getName() + ",industry:" + industryParent.getName() + "/" + industryChild.getName() +
+//                ",company:" + company + ",occupation:" + occupation);
+//        System.out.println("token:" + SPUtils.getInstance().getUserToken(BaseApplication.applicationContext));
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.UPDATE_USER_PROFILE);
+        params.addBodyParameter("avatar", avatarUrl);
+        params.addBodyParameter("username", userName);
+        params.addBodyParameter("province", String.valueOf(areaProvince.getCode()));
+        params.addBodyParameter("province_name", areaProvince.getName());
+        params.addBodyParameter("city", String.valueOf(areaCity.getCode()));
+        params.addBodyParameter("city_name", areaCity.getName());
+        params.addBodyParameter("industry", industryParent.getName() + "/" + industryChild.getName());
+        params.addBodyParameter("company", company);
+        params.addBodyParameter("occupation", occupation);
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                System.out.println("完善信息: " + result);
+                baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
+                if (200 == baseResult.getCode()) {
+                    SPUtils.getInstance().userFillProfile(BaseApplication.applicationContext);
+                }
+                Message message = myHandler.obtainMessage(1);
+                message.sendToTarget();
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+                System.out.println("完善信息: " + ex.toString());
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
+    private void pageChange() {
+        if (!SPUtils.getInstance().getUserChooseInterest(BaseApplication.applicationContext)) {
+            Intent intent = new Intent(this, HobbySelectActivity.class);
+            startActivity(intent);
+        } else {
+            Intent homeIntent = new Intent(this, HomeActivity.class);
+            startActivity(homeIntent);
+        }
+        finish();
     }
 }

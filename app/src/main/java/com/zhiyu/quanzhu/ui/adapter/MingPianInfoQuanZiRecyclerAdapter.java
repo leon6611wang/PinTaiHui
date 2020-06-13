@@ -1,7 +1,9 @@
 package com.zhiyu.quanzhu.ui.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -12,8 +14,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.model.bean.Circle;
+import com.zhiyu.quanzhu.ui.activity.CircleInfoActivity;
 import com.zhiyu.quanzhu.ui.widget.CircleImageView;
 import com.zhiyu.quanzhu.ui.widget.RoundImageView;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
@@ -41,7 +45,7 @@ public class MingPianInfoQuanZiRecyclerAdapter extends RecyclerView.Adapter<Ming
         CircleImageView headerImageView;
         TextView nameTextView, dateTextView, circleNameTextView, circleDescTextView, pnumTextView, fnumTextView;
         RoundImageView circleImageView;
-
+        CardView mCardView;
         private LinearLayout quanziLayout;
         private RecyclerView quanziLabelRecyclerView;
         private TypeRecyclerAdapter typeRecyclerAdapter;
@@ -68,6 +72,7 @@ public class MingPianInfoQuanZiRecyclerAdapter extends RecyclerView.Adapter<Ming
             linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
             quanziLabelRecyclerView.setLayoutManager(linearLayoutManager);
             quanziLabelRecyclerView.setAdapter(typeRecyclerAdapter);
+            mCardView=itemView.findViewById(R.id.mCardView);
         }
     }
 
@@ -78,22 +83,32 @@ public class MingPianInfoQuanZiRecyclerAdapter extends RecyclerView.Adapter<Ming
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
         Glide.with(context).load(list.get(position).getUseravatar()).into(holder.headerImageView);
         holder.nameTextView.setText(list.get(position).getUsername());
         holder.dateTextView.setText("创建" + list.get(position).getDays() + "天");
-        Glide.with(context).load(list.get(position).getThumb()).into(holder.circleImageView);
+        Glide.with(context).load(list.get(position).getThumb()).error(R.drawable.image_error) .placeholder(R.drawable.image_error)
+                .fallback(R.drawable.image_error).into(holder.circleImageView);
         holder.circleNameTextView.setText(list.get(position).getName());
-        holder.circleDescTextView.setText(list.get(position).getNotice());
+        holder.circleDescTextView.setText(list.get(position).getDescirption());
         holder.pnumTextView.setText(String.valueOf(list.get(position).getPnum()));
         holder.fnumTextView.setText(String.valueOf(list.get(position).getFnum()));
         if (holder.list.size() == 0) {
-            if (!TextUtils.isEmpty(list.get(position).getCity_name()) && "null" != list.get(position).getCity_name())
+            if (!StringUtils.isNullOrEmpty(list.get(position).getCity_name()) )
                 holder.list.add(list.get(position).getCity_name());
-            if (!TextUtils.isEmpty(list.get(position).getIndustry()) && "null" != list.get(position).getIndustry())
+            if (!StringUtils.isNullOrEmpty(list.get(position).getIndustry()) )
                 holder.list.add(list.get(position).getIndustry());
             holder.typeRecyclerAdapter.setData(holder.list);
         }
+        holder.mCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(context, CircleInfoActivity.class);
+                intent.putExtra("circle_id",list.get(position).getId());
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
+            }
+        });
 
     }
 

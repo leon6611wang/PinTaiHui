@@ -13,6 +13,42 @@ public class OrderConfirmShop {
     private int freight;
     private List<OrderConfirmGoods> list;
     private String remark;
+    private int postage_price;//邮费
+    private int discount_price;//优惠价格
+    private int pay_price;
+    private boolean useCoupon;
+
+    public boolean isUseCoupon() {
+        return useCoupon;
+    }
+
+    public void setUseCoupon(boolean useCoupon) {
+        this.useCoupon = useCoupon;
+    }
+
+    public int getPostage_price() {
+        return postage_price;
+    }
+
+    public void setPostage_price(int postage_price) {
+        this.postage_price = postage_price;
+    }
+
+    public int getDiscount_price() {
+        return discount_price;
+    }
+
+    public void setDiscount_price(int discount_price) {
+        this.discount_price = discount_price;
+    }
+
+    public int getPay_price() {
+        return pay_price;
+    }
+
+    public void setPay_price(int pay_price) {
+        this.pay_price = pay_price;
+    }
 
     public String getRemark() {
         return remark;

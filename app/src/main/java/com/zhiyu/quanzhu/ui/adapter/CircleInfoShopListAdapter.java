@@ -9,6 +9,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.model.bean.CircleInfoShop;
 import com.zhiyu.quanzhu.ui.activity.ShopInformationActivity;
@@ -73,11 +74,23 @@ public class CircleInfoShopListAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
         Glide.with(parent.getContext()).load(list.get(position).getIcon())
-                .error(R.mipmap.no_avatar)
+                .error(R.drawable.image_error)
                 .into(holder.iconImageView);
-        holder.nameTextView.setText(list.get(position).getName());
-        holder.cityTextView.setText(list.get(position).getCity_name());
-        holder.indutryTextView.setText(list.get(position).getShop_type_name());
+        if (!StringUtils.isNullOrEmpty(list.get(position).getName()))
+            holder.nameTextView.setText(list.get(position).getName());
+        if (!StringUtils.isNullOrEmpty(list.get(position).getCity_name())) {
+            holder.cityTextView.setText(list.get(position).getCity_name());
+            holder.cityTextView.setVisibility(View.VISIBLE);
+        } else {
+            holder.cityTextView.setVisibility(View.GONE);
+        }
+        if (!StringUtils.isNullOrEmpty(list.get(position).getShop_type_name())) {
+            holder.indutryTextView.setText(list.get(position).getShop_type_name());
+            holder.indutryTextView.setVisibility(View.VISIBLE);
+        } else {
+            holder.indutryTextView.setVisibility(View.GONE);
+        }
+
         holder.pingfenTextView.setText(String.valueOf(list.get(position).getMark()));
         holder.adapter.setList(list.get(position).getGoods_list());
         holder.goodsListView.setVisibility((list.get(position).getGoods_list() == null || list.get(position).getGoods_list().size() == 0) ? View.GONE : View.VISIBLE);
@@ -95,7 +108,7 @@ public class CircleInfoShopListAdapter extends BaseAdapter {
         @Override
         public void onClick(View v) {
             Intent shopInfoIntent = new Intent(context, ShopInformationActivity.class);
-            shopInfoIntent.putExtra("shop_id", list.get(position).getId());
+            shopInfoIntent.putExtra("shop_id", String.valueOf(list.get(position).getId()));
             shopInfoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(shopInfoIntent);
         }

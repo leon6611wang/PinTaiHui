@@ -218,12 +218,14 @@ public class GoodsNormStockDao {
             map.clear();
         }
         List<Integer> idlist = getInitStock();
+//        System.out.println("idsList: "+GsonUtils.GsonString(idlist));
         if (null != list && list.size() > 0 && null != idlist && idlist.size() > 0) {
             for (int i = 0; i < list.size(); i++) {
                 for (int j = 0; j < list.get(i).getList().size(); j++) {
                     list.get(i).getList().get(j).setSelected(false);
                     for (int k = 0; k < idlist.size(); k++) {
                         if (list.get(i).getList().get(j).getNorms_id() == idlist.get(k)) {
+//                            System.out.println("norms_id: "+list.get(i).getList().get(j).getNorms_id());
                             list.get(i).getList().get(j).setSelectable(true);
                         }
                     }

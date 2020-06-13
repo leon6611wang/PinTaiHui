@@ -40,9 +40,10 @@
                 android:textSize="13sp" />
 
             <TextView
+                android:id="@+id/countTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="4"
+                android:text="0"
                 android:textColor="@color/text_color_yellow"
                 android:textSize="13sp" />
 
@@ -74,18 +75,20 @@
                 android:textSize="12sp" />
 
             <TextView
+                android:id="@+id/zhengshuTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="8610"
+                android:text="0"
                 android:textColor="#D90000"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 />
 
             <TextView
+                android:id="@+id/xiaoshuTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text=".12"
+                android:text=".00"
                 android:textColor="#D90000"
                 android:textStyle="bold"
                 android:textSize="12sp" />

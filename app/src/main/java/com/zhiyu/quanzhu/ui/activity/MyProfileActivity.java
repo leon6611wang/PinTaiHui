@@ -85,7 +85,8 @@ public class MyProfileActivity extends BaseActivity implements View.OnClickListe
                     if (200 == activity.profileResult.getCode()) {
                         activity.avatarUrl = activity.profileResult.getData().getUser().getAvatar();
                         activity.sex = activity.profileResult.getData().getUser().getSex();
-                        Glide.with(activity).load(activity.profileResult.getData().getUser().getAvatar()).error(R.drawable.image_error).into(activity.avatarImageView);
+                        Glide.with(activity).load(activity.profileResult.getData().getUser().getAvatar()).error(R.drawable.image_error).placeholder(R.drawable.image_error)
+                                .fallback(R.drawable.image_error).into(activity.avatarImageView);
                         activity.nicknameEditText.setText(activity.profileResult.getData().getUser().getUsername());
                         activity.nicknameEditText.setSelection(activity.profileResult.getData().getUser().getUsername().length());
                         activity.genderTextView.setText(activity.profileResult.getData().getUser().getSex_desc());
@@ -222,8 +223,13 @@ public class MyProfileActivity extends BaseActivity implements View.OnClickListe
                 startActivity(industryIntent);
                 break;
             case R.id.vertifyLayout:
-                Intent vertifyIntent = new Intent(this, UserVertifyActivity.class);
-                startActivity(vertifyIntent);
+                if (profileResult.getData().getUser().getIs_rz() == 1) {
+                    MessageToast.getInstance(this).show("认证已通过.");
+                } else {
+                    Intent vertifyIntent = new Intent(this, UserVertifyActivity.class);
+                    startActivity(vertifyIntent);
+                }
+
                 break;
         }
     }

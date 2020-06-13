@@ -11,9 +11,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.leon.chic.utils.SPUtils;
 import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseActivity;
+import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.ArticleContent;
 import com.zhiyu.quanzhu.model.bean.ArticleInformation;
@@ -83,22 +85,23 @@ public class PublishArticleActivity extends BaseActivity implements View.OnClick
                                 }
                             }
                             activity.addTagTextView.setText(activity.tags);
-                            activity.contentList = activity.articleInformationResult.getData().getDetail().getContent();
                         }
+                        activity.contentList.addAll(activity.articleInformationResult.getData().getDetail().getContent());
                     }
                     break;
                 case 1:
 
                     break;
                 case 2:
-                    Toast.makeText(activity, activity.addFeedResult.getMsg(), Toast.LENGTH_SHORT).show();
+                    MessageToast.getInstance(activity).show(activity.addFeedResult.getMsg());
                     if (activity.addFeedResult.getCode() == 200) {
                         activity.feeds_id = activity.addFeedResult.getData().getFeeds_id();
-                        if (activity.is_draf == 0) {
-                            activity.goToPublishSetting();
-                        } else {
-                            activity.finish();
-                        }
+                        activity.goToPublishSetting();
+//                        if (activity.is_draf == 0) {
+//                            activity.goToPublishSetting();
+//                        } else {
+//                            activity.finish();
+//                        }
                     }
                     break;
                 case 3:
@@ -167,9 +170,20 @@ public class PublishArticleActivity extends BaseActivity implements View.OnClick
         Intent paramsIntent = new Intent(PublishArticleActivity.this, PublishParamSettingActivity.class);
         paramsIntent.putExtra("feeds_id", feeds_id);
         paramsIntent.putExtra("publishType", 1);
-        startActivity(paramsIntent);
+        startActivityForResult(paramsIntent, 10041);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == 10041) {
+            if (null != data) {
+                if (data.hasExtra("isSuccess")) {
+                    finish();
+                }
+            }
+        }
+    }
 
     private void initViews() {
         backLayout = findViewById(R.id.backLayout);
@@ -202,6 +216,14 @@ public class PublishArticleActivity extends BaseActivity implements View.OnClick
                 if (feeds_id > 0) {
                     updateFeed();
                 } else {
+                    if (null == contentList || contentList.size() == 0) {
+                        MessageToast.getInstance(this).show("请编辑文章内容");
+                        break;
+                    }
+                    if (StringUtils.isNullOrEmpty(titleEditText.getText().toString().trim())) {
+                        MessageToast.getInstance(this).show("请编辑文章标题");
+                        break;
+                    }
                     addFeed();
                 }
 
@@ -219,28 +241,34 @@ public class PublishArticleActivity extends BaseActivity implements View.OnClick
         }
     }
 
-    private List<ArticleContent> contentList;
+    private List<ArticleContent> contentList = new ArrayList<>();
 
     @Override
     public void onSaveArticleContent(List<ArticleContent> list) {
         this.contentList = list;
-        System.out.println("2 --> 图文： " + contentList.size());
     }
 
-    private int is_draf;//是否草稿 1是
+    private int is_draf = 0;//是否草稿 1是
     private AddFeedResult addFeedResult;
 
     private void addFeed() {
+        System.out.println("addFeed -> content: " + GsonUtils.GsonString(contentList));
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.ADD_FEED);
         params.addBodyParameter("type", "1");
-        params.addBodyParameter("is_draf", String.valueOf(is_draf));
+        params.addBodyParameter("is_draf", "1");
         params.addBodyParameter("content", GsonUtils.GsonString(contentList));
         params.addBodyParameter("tags", tagIds);
         params.addBodyParameter("title", titleEditText.getText().toString().trim());
+        params.addBodyParameter("city_name", SPUtils.getInstance().getLocationCity(BaseApplication.applicationContext));
+        params.addBodyParameter("province_name", SPUtils.getInstance().getLocationProvince(BaseApplication.applicationContext));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
+                System.out.println("发布文章: " + result);
                 addFeedResult = GsonUtils.GsonToBean(result, AddFeedResult.class);
+                if (200 == addFeedResult.getCode()) {
+                    feeds_id = addFeedResult.getData().getFeeds_id();
+                }
                 Message message = myHandler.obtainMessage(2);
                 message.sendToTarget();
             }
@@ -265,14 +293,17 @@ public class PublishArticleActivity extends BaseActivity implements View.OnClick
     private BaseResult baseResult;
 
     private void updateFeed() {
+        System.out.println("update");
         String content = GsonUtils.GsonString(contentList);
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.UPDATE_FEED);
         params.addBodyParameter("type", "1");
-        params.addBodyParameter("is_draf", String.valueOf(is_draf));
+        params.addBodyParameter("is_draf", "1");
         params.addBodyParameter("content", content);
         params.addBodyParameter("tags", tagIds);
         params.addBodyParameter("title", titleEditText.getText().toString().trim());
         params.addBodyParameter("feeds_id", String.valueOf(feeds_id));
+        params.addBodyParameter("city_name", SPUtils.getInstance().getLocationCity(BaseApplication.applicationContext));
+        params.addBodyParameter("province_name", SPUtils.getInstance().getLocationProvince(BaseApplication.applicationContext));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
@@ -302,10 +333,7 @@ public class PublishArticleActivity extends BaseActivity implements View.OnClick
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             if ((!StringUtils.isNullOrEmpty(titleEditText.getText().toString().trim()) ||
-                    !StringUtils.isNullOrEmpty(tags) ||
-                    (null != contentList && contentList.size() > 0)) &&
-                    feeds_id == 0
-                    ) {
+                    (null != contentList && contentList.size() > 0)) && feeds_id == 0) {
                 drafDialog.show();
                 return false;
             }
@@ -321,6 +349,7 @@ public class PublishArticleActivity extends BaseActivity implements View.OnClick
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
+                System.out.println("文章详情: " + result);
                 articleInformationResult = GsonUtils.GsonToBean(result, ArticleInformationResult.class);
                 Message message = myHandler.obtainMessage(0);
                 message.sendToTarget();

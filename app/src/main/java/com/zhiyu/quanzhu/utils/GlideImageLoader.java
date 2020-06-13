@@ -13,11 +13,11 @@ public class GlideImageLoader extends ImageLoader {
         //Glide 加载图片简单用法
         Glide.with(context).load(path)
                 //异常时候显示的图片
-                .error(R.mipmap.img_h)
+                .error(R.drawable.image_error)
                 //加载成功前显示的图片
-                .placeholder(R.mipmap.img_h)
+                .placeholder(R.drawable.image_error)
                 //url为空的时候,显示的图片
-                .fallback(R.mipmap.img_h)
+                .fallback(R.drawable.image_error)
                 .into(imageView);
     }
 }

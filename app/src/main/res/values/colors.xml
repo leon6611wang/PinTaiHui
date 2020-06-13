@@ -13,6 +13,9 @@
     <drawable name="hobby_selected">#F8F8F8</drawable>
     <drawable name="hobby_unselected">#FFFFFF</drawable>
     <drawable name="image_error">#BBBBBB</drawable>
+    <drawable name="card_fragment_bg">#FE8627</drawable>
+
+    <color name="coupon_line">#FE8626</color>
 
     <color name="text_color_black">#333333</color>
     <color name="text_color_gray">#999999</color>
@@ -27,8 +30,7 @@
     <color name="text_color_red_2">#F6152A</color>
     <color name="color_dfdfdf">#DFDFDF</color>
     <color name="color_bbbbbb">#BBBBBB</color>
-
-
+    <color name="color_e9e9e9">#E9E9E9</color>
     <color name="transparent">#00000000</color>
 
     <color name="contents_text">#ff000000</color>

@@ -1,21 +1,22 @@
 package com.zhiyu.quanzhu.ui.adapter;
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.zhiyu.quanzhu.R;
-import com.zhiyu.quanzhu.model.bean.Circle;
-import com.zhiyu.quanzhu.ui.activity.MessageListActivity;
+import com.zhiyu.quanzhu.model.bean.IMCircle;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
+import com.zhiyu.quanzhu.ui.widget.CircleImageView;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 import com.zhiyu.quanzhu.utils.SharedPreferencesUtils;
 
@@ -29,7 +30,12 @@ public class HomeQuanLiaoRecyclerAdapter extends RecyclerView.Adapter<HomeQuanLi
     private int dp_15, screenWidth, layoutHeight, layoutWidth;
     private LinearLayout.LayoutParams ll;
     private float ratio = 0.5768f;
+    private List<IMCircle> list;
 
+    public void setList(List<IMCircle> circleList) {
+        this.list = circleList;
+        notifyDataSetChanged();
+    }
 
     public HomeQuanLiaoRecyclerAdapter(Context context) {
         this.context = context;
@@ -42,10 +48,22 @@ public class HomeQuanLiaoRecyclerAdapter extends RecyclerView.Adapter<HomeQuanLi
 
     class ViewHolder extends RecyclerView.ViewHolder {
         CardView mCardView;
+        ImageView circleImageView;
+        TextView circleNameTextView, countTextView, userNameTextView,
+                newMsgCountTextView, noticeTextView;
+        CircleImageView userAvatarImageView;
 
         public ViewHolder(View itemView) {
             super(itemView);
             mCardView = itemView.findViewById(R.id.mCardView);
+            circleImageView = itemView.findViewById(R.id.circleImageView);
+            circleNameTextView = itemView.findViewById(R.id.circleNameTextView);
+            countTextView = itemView.findViewById(R.id.countTextView);
+            userAvatarImageView = itemView.findViewById(R.id.userAvatarImageView);
+            userNameTextView = itemView.findViewById(R.id.userNameTextView);
+            newMsgCountTextView = itemView.findViewById(R.id.newMsgCountTextView);
+            noticeTextView = itemView.findViewById(R.id.noticeTextView);
+
         }
     }
 
@@ -56,21 +74,25 @@ public class HomeQuanLiaoRecyclerAdapter extends RecyclerView.Adapter<HomeQuanLi
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
+        Glide.with(context).load(list.get(position).getThumb()).error(R.drawable.image_error) .placeholder(R.drawable.image_error)
+                .fallback(R.drawable.image_error).into(holder.circleImageView);
+        holder.circleNameTextView.setText(list.get(position).getName());
+        holder.countTextView.setText(String.valueOf(list.get(position).getNum()));
+        Glide.with(context).load(list.get(position).getAvatar()).error(R.drawable.image_error) .placeholder(R.drawable.image_error)
+                .fallback(R.drawable.image_error).into(holder.userAvatarImageView);
+        holder.userNameTextView.setText(list.get(position).getUsername());
+        holder.noticeTextView.setText("【公告】" + list.get(position).getNotice());
         holder.mCardView.setLayoutParams(ll);
         holder.mCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Intent intent=new Intent(context, MessageListActivity.class);
-//                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                context.startActivity(intent);
                 RongIM.getInstance().setMessageAttachedUserInfo(true);
                 SharedPreferencesUtils.getInstance(context).setConversationType(Conversation.ConversationType.GROUP.getName().toLowerCase());
                 try {
-                    RongIM.getInstance().startConversation(context, Conversation.ConversationType.GROUP, "1", "群聊");
-                }catch (Exception e){
+                    RongIM.getInstance().startConversation(context, Conversation.ConversationType.GROUP, String.valueOf(list.get(position).getId()), "群聊");
+                } catch (Exception e) {
                     e.printStackTrace();
-                    Toast.makeText(context,"无法进入圈聊会话界面",Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -78,6 +100,6 @@ public class HomeQuanLiaoRecyclerAdapter extends RecyclerView.Adapter<HomeQuanLi
 
     @Override
     public int getItemCount() {
-        return 10;
+        return null == list ? 0 : list.size();
     }
 }

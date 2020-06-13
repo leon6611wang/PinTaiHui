@@ -34,8 +34,8 @@ public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<Recycl
         notifyDataSetChanged();
     }
 
-    public void clearDatas(){
-        if(null!=mDatas){
+    public void clearDatas() {
+        if (null != mDatas) {
             mDatas.clear();
         }
         notifyDataSetChanged();

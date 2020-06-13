@@ -15,6 +15,7 @@ import com.bumptech.glide.Glide;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.model.bean.Goods;
 import com.zhiyu.quanzhu.ui.activity.GoodsInformationActivity;
+import com.zhiyu.quanzhu.ui.activity.GoodsInformationBActivity;
 import com.zhiyu.quanzhu.utils.PriceParseUtils;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 
@@ -61,7 +62,8 @@ public class GoodsInfoLikeGoodsAdapter extends RecyclerView.Adapter<GoodsInfoLik
         holder.rootLayout.setLayoutParams(ll);
         Glide.with(context).load(goods.getImg().getUrl())
                 //异常时候显示的图片
-                .error(R.drawable.image_error)
+                .error(R.drawable.image_error).placeholder(R.drawable.image_error)
+                .fallback(R.drawable.image_error)
                 .into(holder.goodsImageImageView);
         holder.mingchengTextView.setText(goods.getGoods_name());
         holder.priceZhengShuTextView.setText(PriceParseUtils.getInstance().getZhengShu(list.get(position).getGoods_price()));
@@ -97,10 +99,11 @@ public class GoodsInfoLikeGoodsAdapter extends RecyclerView.Adapter<GoodsInfoLik
 
         @Override
         public void onClick(View v) {
-            Intent infoIntent = new Intent(context, GoodsInformationActivity.class);
-            infoIntent.putExtra("goods_id", list.get(position).getId());
+            Intent infoIntent = new Intent(context, GoodsInformationBActivity.class);
+            infoIntent.putExtra("goods_id", (int) list.get(position).getId());
             infoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(infoIntent);
         }
     }
+
 }

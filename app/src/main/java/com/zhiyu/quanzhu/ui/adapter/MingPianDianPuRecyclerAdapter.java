@@ -1,6 +1,7 @@
 package com.zhiyu.quanzhu.ui.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.LinearSnapHelper;
@@ -15,6 +16,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.model.bean.Store;
+import com.zhiyu.quanzhu.ui.activity.ShopInformationActivity;
 import com.zhiyu.quanzhu.ui.widget.MaxRecyclerView;
 import com.zhiyu.quanzhu.ui.widget.MyRecyclerView;
 import com.zhiyu.quanzhu.ui.widget.RoundImageView;
@@ -49,16 +51,18 @@ public class MingPianDianPuRecyclerAdapter extends RecyclerView.Adapter<MingPian
         LinearLayoutManager dianpushangpinManager, dianpushangpinindexManager;
         MaxRecyclerView dianpushangpinIndexRecyclerView;
         MingPianDianPuShangPinIndexAdapter dianPuShangPinIndexAdapter;
-        private List<String> list = new ArrayList<>();
-        private LinearLayoutManager ms;
-        private RoundImageView iconImageView;
-        private TextView nameTextView, sourceTextView;
+        List<String> list = new ArrayList<>();
+        LinearLayoutManager ms;
+        RoundImageView iconImageView;
+        TextView nameTextView, sourceTextView;
+        TextView enterShopTextView;
 
         public ViewHolder(View itemView) {
             super(itemView);
             iconImageView = itemView.findViewById(R.id.iconImageView);
             nameTextView = itemView.findViewById(R.id.nameTextView);
             sourceTextView = itemView.findViewById(R.id.sourceTextView);
+            enterShopTextView = itemView.findViewById(R.id.enterShopTextView);
             dianpuLabelRecyclerView = itemView.findViewById(R.id.dianpuLabelRecyclerView);
             dianpushangpinRecyclerView = itemView.findViewById(R.id.dianpushangpinRecyclerView);
             LinearSnapHelper mLinearSnapHelper = new LinearSnapHelper();
@@ -104,19 +108,29 @@ public class MingPianDianPuRecyclerAdapter extends RecyclerView.Adapter<MingPian
     private int totalDx;
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
         if (holder.list.size() == 0) {
             holder.list.add(list.get(position).getCity_name());
             holder.list.add(list.get(position).getShop_type_name());
             holder.adapter.setData(holder.list);
         }
         if (holder.dianPuShangPinIndexAdapter.getItemCount() == 0) {
-            holder.dianPuShangPinIndexAdapter.setIndexSize(list.get(position).getGoods_list().size()/2);
+            holder.dianPuShangPinIndexAdapter.setIndexSize(list.get(position).getGoods_list().size() / 2);
         }
-        Glide.with(context).load(list.get(position).getIcon()).into(holder.iconImageView);
+        Glide.with(context).load(list.get(position).getIcon()).error(R.drawable.image_error) .placeholder(R.drawable.image_error)
+                .fallback(R.drawable.image_error).into(holder.iconImageView);
         holder.nameTextView.setText(list.get(position).getName());
         holder.sourceTextView.setText(list.get(position).getMark());
         holder.dianPuShangPinRecyclerAdapter.setList(list.get(position).getGoods_list());
+        holder.enterShopTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, ShopInformationActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.putExtra("shop_id", String.valueOf(list.get(position).getId()));
+                context.startActivity(intent);
+            }
+        });
     }
 
     @Override

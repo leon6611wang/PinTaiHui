@@ -45,8 +45,8 @@ import in.srain.cube.views.ptr.PtrFrameLayout;
 /**
  * 圈子-成员管理
  */
-public class CircleMemberManageActivity extends BaseActivity implements View.OnClickListener{
-    private LinearLayout topLayout,backLayout,rightLayout;
+public class CircleMemberManageActivity extends BaseActivity implements View.OnClickListener, CircleMemeberManageListAdapter.OnRefreshUserListener {
+    private LinearLayout topLayout, backLayout, rightLayout;
     private PtrFrameLayout ptrFrameLayout;
     private ListView mListView;
     private CircleMemeberManageListAdapter adapter;
@@ -82,7 +82,7 @@ public class CircleMemberManageActivity extends BaseActivity implements View.OnC
         ScreentUtils.getInstance().setStatusBarLightMode(this, true);
         circle_id = getIntent().getLongExtra("circle_id", 0l);
         own = getIntent().getIntExtra("own", -1);
-        circle_id = 16;
+        System.out.println("------- own: "+own);
         initPtr();
         initViews();
     }
@@ -114,9 +114,9 @@ public class CircleMemberManageActivity extends BaseActivity implements View.OnC
     }
 
     private void initViews() {
-        backLayout=findViewById(R.id.backLayout);
+        backLayout = findViewById(R.id.backLayout);
         backLayout.setOnClickListener(this);
-        rightLayout=findViewById(R.id.rightLayout);
+        rightLayout = findViewById(R.id.rightLayout);
         rightLayout.setOnClickListener(this);
         topLayout = findViewById(R.id.topLayout);
         topLayout.getViewTreeObserver().addOnPreDrawListener(
@@ -135,14 +135,11 @@ public class CircleMemberManageActivity extends BaseActivity implements View.OnC
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    String search = searchEditText.getText().toString().trim();
                     SoftKeyboardUtil.hideSoftKeyboard(CircleMemberManageActivity.this);
-                    if (!StringUtils.isNullOrEmpty(search)) {
-                        keyword=searchEditText.getText().toString().trim();
-                        page=1;
-                        isRefresh=true;
-                        circleUserList();
-                    }
+                    keyword = searchEditText.getText().toString().trim();
+                    page = 1;
+                    isRefresh = true;
+                    circleUserList();
                     return true;
                 }
                 return false;
@@ -150,20 +147,29 @@ public class CircleMemberManageActivity extends BaseActivity implements View.OnC
         });
         mListView = findViewById(R.id.mListView);
         adapter = new CircleMemeberManageListAdapter(mListView, this, (int) circle_id);
+        adapter.setOnRefreshUserListener(this);
         mListView.setAdapter(adapter);
     }
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.backLayout:
                 finish();
                 break;
             case R.id.rightLayout:
-                Intent addFrendIntent=new Intent(CircleMemberManageActivity.this,CircleMemberManageAddFrendActivity.class);
+                Intent addFrendIntent = new Intent(CircleMemberManageActivity.this, CircleMemberManageAddFrendActivity.class);
+                addFrendIntent.putExtra("circle_id",circle_id);
                 startActivity(addFrendIntent);
                 break;
         }
+    }
+
+    @Override
+    public void onRefreshUserList() {
+        page = 1;
+        isRefresh = true;
+        circleUserList();
     }
 
     private int page = 1;
@@ -179,7 +185,7 @@ public class CircleMemberManageActivity extends BaseActivity implements View.OnC
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println(result);
+                System.out.println("circleUserList: " + result);
                 circleInfoUserResult = GsonUtils.GsonToBean(result, CircleInfoUserResult.class);
                 if (isRefresh) {
                     list = circleInfoUserResult.getData().getList();

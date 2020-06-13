@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.model.bean.CartGoods;
 import com.zhiyu.quanzhu.ui.widget.RoundImageView;
@@ -71,10 +72,16 @@ public class CartInvalidGoodsRecyclerAdapter extends RecyclerView.Adapter<CartIn
         }
         holder.itemItemSelectedLayout.setOnClickListener(new OnItemItemSelectedListener(position));
         Glide.with(context).load(list.get(position).getImg())
-                .error(R.mipmap.img_error)
+                .error(R.drawable.image_error)
                 .into(holder.goodsImgImageView);
         holder.goodsNameTextView.setText(list.get(position).getGoods_name());
-        holder.goodsNormsTextView.setText(list.get(position).getNorms_name());
+        if(!StringUtils.isNullOrEmpty(list.get(position).getNorms_name())){
+            holder.goodsNormsTextView.setText(list.get(position).getNorms_name());
+            holder.goodsNormsTextView.setVisibility(View.VISIBLE);
+        }else{
+            holder.goodsNormsTextView.setVisibility(View.INVISIBLE);
+        }
+
         long zhengshuPrice = list.get(position).getPrice() / 100;
         holder.zhengshuPriceTextView.setText(String.valueOf(zhengshuPrice));
         long xiaoshu = list.get(position).getPrice() % 100;
@@ -103,7 +110,7 @@ public class CartInvalidGoodsRecyclerAdapter extends RecyclerView.Adapter<CartIn
         @Override
         public void onClick(View v) {
             boolean selected = list.get(position).isSelected();
-            list.get(position).setSelected(!selected);
+            list.get(position).setSelected(!selected,true);
             notifyDataSetChanged();
             if (null != onItemItemSelected) {
                 onItemItemSelected.onItemItemSelected(itemIndex, position, !selected);

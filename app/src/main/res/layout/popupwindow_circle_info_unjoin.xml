@@ -13,7 +13,7 @@
 
         <View
             android:layout_width="match_parent"
-            android:layout_height="@dimen/dp_10"/>
+            android:layout_height="@dimen/dp_10" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -24,30 +24,33 @@
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_weight="2">
+                android:layout_weight="2"
+                android:orientation="vertical">
 
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center|right"
-                    android:src="@mipmap/saomiao" />
+                    android:src="@mipmap/circle_info_share" />
             </LinearLayout>
+
             <View
                 android:layout_width="@dimen/dp_5"
-                android:layout_height="match_parent"/>
+                android:layout_height="match_parent" />
+
             <LinearLayout
+                android:id="@+id/shareLayout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_weight="5">
+                android:layout_weight="5"
+                android:orientation="vertical">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp"
                     android:gravity="center_vertical"
-                    android:text="分享商圈"
+                    android:text="分享圈子"
                     android:textColor="#31333E"
                     android:textSize="@dimen/sp_14" />
             </LinearLayout>
@@ -68,30 +71,33 @@
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_weight="2">
+                android:layout_weight="2"
+                android:orientation="vertical">
 
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center|right"
-                    android:src="@mipmap/saomiao" />
+                    android:src="@mipmap/circle_info_complaint" />
             </LinearLayout>
+
             <View
                 android:layout_width="@dimen/dp_5"
-                android:layout_height="match_parent"/>
+                android:layout_height="match_parent" />
+
             <LinearLayout
+                android:id="@+id/complaintLayout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_weight="5">
+                android:layout_weight="5"
+                android:orientation="vertical">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp"
                     android:gravity="center_vertical"
-                    android:text="投诉商圈"
+                    android:text="投诉圈子"
                     android:textColor="#31333E"
                     android:textSize="@dimen/sp_14" />
             </LinearLayout>

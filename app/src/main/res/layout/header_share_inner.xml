@@ -11,7 +11,6 @@
         android:layout_height="26dp" />
 
     <LinearLayout
-        android:id="@+id/titlelayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
@@ -22,17 +21,20 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center|left"
-            android:orientation="vertical" />
+            android:orientation="vertical">
 
-        <FrameLayout
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/dp_15"
+                android:src="@mipmap/back_black" />
+        </LinearLayout>
+
+
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="3"
-            >
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
             android:orientation="vertical">
 
             <TextView
@@ -45,37 +47,11 @@
                 android:ellipsize="end"
                 android:gravity="center"
                 android:maxLines="1"
-                android:text="发送给(1)"
+                android:text="发送给(0)"
                 android:textColor="#3E3E49"
                 android:textSize="16sp" />
         </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/searchlayout"
-                android:layout_width="match_parent"
-                android:layout_height="30dp"
-                android:layout_gravity="center"
-                android:layout_marginBottom="8dp"
-                android:layout_marginLeft="@dimen/dp_15"
-                android:layout_marginRight="@dimen/dp_15"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/shape_search_bg_gray"
-                android:gravity="center"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@mipmap/search_share_inner" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="搜索"
-                    android:textColor="@color/text_color_gray"
-                    android:textSize="12sp" />
-            </LinearLayout>
-        </FrameLayout>
         <LinearLayout
             android:id="@+id/rightLayout"
             android:layout_width="0dp"
@@ -88,7 +64,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="取消"
+                android:text="确定"
                 android:textColor="#333333"
                 android:textSize="13sp" />
 

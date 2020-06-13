@@ -11,12 +11,16 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.leon.chic.utils.SPUtils;
 import com.zhiyu.quanzhu.R;
+import com.zhiyu.quanzhu.base.BaseApplication;
+import com.zhiyu.quanzhu.ui.activity.CardInformationActivity;
 import com.zhiyu.quanzhu.ui.activity.CreateCircleActivity;
-import com.zhiyu.quanzhu.ui.activity.MyShangQuanActivity;
+import com.zhiyu.quanzhu.ui.activity.MyCirclesActivity;
 import com.zhiyu.quanzhu.ui.activity.ScanActivity;
 import com.zhiyu.quanzhu.ui.adapter.MyFragmentStatePagerAdapter;
 import com.zhiyu.quanzhu.ui.dialog.HomeXiaoXiMenuDialog;
+import com.zhiyu.quanzhu.ui.dialog.ShareDialog;
 import com.zhiyu.quanzhu.ui.widget.NoScrollViewPager;
 
 import java.util.ArrayList;
@@ -30,9 +34,10 @@ public class FragmentHomeXiaoXi extends Fragment implements View.OnClickListener
     private NoScrollViewPager mViewPager;
     private MyFragmentStatePagerAdapter adapter;
     private List<Fragment> fragmentList = new ArrayList<>();
-    private TextView quanliaoTextView, xiaoxiTextView,xitongTextView;
+    private TextView quanliaoTextView, xiaoxiTextView, xitongTextView;
     private LinearLayout rightLayout;
     private HomeXiaoXiMenuDialog menuDialog;
+    private ShareDialog shareDialog;
     private ImageView menuImageView;
     private int menuY;
 
@@ -44,18 +49,18 @@ public class FragmentHomeXiaoXi extends Fragment implements View.OnClickListener
         return view;
     }
 
-    private void initDialogs(){
-        menuDialog=new HomeXiaoXiMenuDialog(getContext(), R.style.dialog, new HomeXiaoXiMenuDialog.OnMenuSelectedListener() {
+    private void initDialogs() {
+        menuDialog = new HomeXiaoXiMenuDialog(getContext(), R.style.dialog, new HomeXiaoXiMenuDialog.OnMenuSelectedListener() {
             @Override
             public void onMenuSelected(int position, String desc) {
-                switch (position){
+                switch (position) {
                     case 1:
-                        Intent scanIntent=new Intent(getActivity(), ScanActivity.class);
+                        Intent scanIntent = new Intent(getActivity(), ScanActivity.class);
                         scanIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         getContext().startActivity(scanIntent);
                         break;
                     case 2:
-                        Intent createShangQuanIntent=new Intent(getActivity(), CreateCircleActivity.class);
+                        Intent createShangQuanIntent = new Intent(getActivity(), CreateCircleActivity.class);
                         createShangQuanIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         getContext().startActivity(createShangQuanIntent);
                         break;
@@ -63,13 +68,16 @@ public class FragmentHomeXiaoXi extends Fragment implements View.OnClickListener
 
                         break;
                     case 4:
-
+                        Intent cardIntent = new Intent(getActivity(), CardInformationActivity.class);
+                        cardIntent.putExtra("uid", (long) SPUtils.getInstance().getUserId(BaseApplication.applicationContext));
+                        cardIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        getContext().startActivity(cardIntent);
                         break;
                     case 5:
-
+                        shareDialog.show();
                         break;
                     case 6:
-                        Intent shangquanIntent=new Intent(getActivity(), MyShangQuanActivity.class);
+                        Intent shangquanIntent = new Intent(getActivity(), MyCirclesActivity.class);
                         shangquanIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         getContext().startActivity(shangquanIntent);
                         break;
@@ -77,6 +85,7 @@ public class FragmentHomeXiaoXi extends Fragment implements View.OnClickListener
 //                System.out.println("position: "+position+" , desc: "+desc);
             }
         });
+        shareDialog = new ShareDialog(getActivity(), getContext(), R.style.dialog);
     }
 
     private void initViews() {
@@ -84,9 +93,9 @@ public class FragmentHomeXiaoXi extends Fragment implements View.OnClickListener
         quanliaoTextView.setOnClickListener(this);
         xiaoxiTextView = view.findViewById(R.id.xiaoxiTextView);
         xiaoxiTextView.setOnClickListener(this);
-        xitongTextView=view.findViewById(R.id.xitongTextView);
+        xitongTextView = view.findViewById(R.id.xitongTextView);
         xitongTextView.setOnClickListener(this);
-        rightLayout=view.findViewById(R.id.rightLayout);
+        rightLayout = view.findViewById(R.id.rightLayout);
         rightLayout.setOnClickListener(this);
         mViewPager = view.findViewById(R.id.mViewPager);
         fragmentList.add(new FragmentXiaoXiQuanLiao());
@@ -95,18 +104,18 @@ public class FragmentHomeXiaoXi extends Fragment implements View.OnClickListener
         adapter = new MyFragmentStatePagerAdapter(getChildFragmentManager(), fragmentList);
         mViewPager.setAdapter(adapter);
         titleChange(0);
-        menuImageView=view.findViewById(R.id.menuImageView);
+        menuImageView = view.findViewById(R.id.menuImageView);
         menuImageView.getViewTreeObserver().addOnPreDrawListener(
                 new ViewTreeObserver.OnPreDrawListener() {
                     @Override
                     public boolean onPreDraw() {
                         menuImageView.getViewTreeObserver().removeOnPreDrawListener(this);
-                        int[] locations=new int [2];
+                        int[] locations = new int[2];
                         menuImageView.getLocationOnScreen(locations);
-                        int menu_y=locations[1];
+                        int menu_y = locations[1];
                         int menu_height = menuImageView.getHeight(); // 获取高度
 //                        menuY=menu_y+menu_height;
-                        menuY=menu_y-menu_height+20;
+                        menuY = menu_y - menu_height + 20;
 //                        System.out.println("menu_height: " + menu_height+" , menu_y: "+menu_y);
                         return true;
                     }

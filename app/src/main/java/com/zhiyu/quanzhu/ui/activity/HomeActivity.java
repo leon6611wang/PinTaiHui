@@ -7,7 +7,6 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
@@ -19,26 +18,19 @@ import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.bumptech.glide.Glide;
+import com.leon.chic.dao.CardDao;
+import com.leon.chic.utils.AndroidBug54971Workaround;
+import com.leon.chic.utils.SPUtils;
+import com.tencent.connect.common.Constants;
+import com.tencent.tauth.IUiListener;
+import com.tencent.tauth.UiError;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseActivity;
 import com.zhiyu.quanzhu.base.BaseApplication;
-import com.zhiyu.quanzhu.model.bean.AreaProvince;
-import com.zhiyu.quanzhu.model.bean.HobbyDaoChild;
-import com.zhiyu.quanzhu.model.bean.HobbyDaoParent;
-import com.zhiyu.quanzhu.model.bean.IndustryParent;
-import com.zhiyu.quanzhu.model.dao.AreaDao;
-import com.zhiyu.quanzhu.model.dao.CardFrendDao;
 import com.zhiyu.quanzhu.model.dao.ConversationDao;
-import com.zhiyu.quanzhu.model.dao.HobbyDao;
-import com.zhiyu.quanzhu.model.dao.IndustryDao;
-import com.zhiyu.quanzhu.model.data.HomeBaseData;
 import com.zhiyu.quanzhu.model.result.AppVersionResult;
-import com.zhiyu.quanzhu.model.result.AreaResult;
 import com.zhiyu.quanzhu.model.result.CardFrendResult;
-import com.zhiyu.quanzhu.model.result.HobbyDaoResult;
 import com.zhiyu.quanzhu.model.result.HomeBaseResult;
-import com.zhiyu.quanzhu.model.result.IndustryResult;
-import com.zhiyu.quanzhu.model.result.UserResult;
 import com.zhiyu.quanzhu.ui.adapter.MyFragmentStatePagerAdapter;
 import com.zhiyu.quanzhu.ui.dialog.AppUpdateDialog;
 import com.zhiyu.quanzhu.ui.fragment.FragmentHomeQuanShang;
@@ -49,10 +41,13 @@ import com.zhiyu.quanzhu.ui.fragment.FragmentHomeXiaoXi;
 import com.zhiyu.quanzhu.ui.widget.NoScrollViewPager;
 import com.zhiyu.quanzhu.utils.AppUtils;
 import com.zhiyu.quanzhu.utils.AppVersionUtils;
+import com.zhiyu.quanzhu.utils.BaseDataUtils;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.IMUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
+import com.zhiyu.quanzhu.utils.ScreentUtils;
+import com.zhiyu.quanzhu.utils.ShareUtils;
 import com.zhiyu.quanzhu.utils.SharedPreferencesUtils;
 import com.zhiyu.quanzhu.utils.ThreadPoolUtils;
 
@@ -63,6 +58,8 @@ import org.xutils.x;
 import java.lang.ref.WeakReference;
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -75,8 +72,6 @@ import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.UserInfo;
 import io.rong.message.TextMessage;
-import io.vov.vitamio.LibsChecker;
-import io.vov.vitamio.Vitamio;
 
 public class HomeActivity extends BaseActivity implements View.OnClickListener {
     private NoScrollViewPager viewPager;
@@ -101,6 +96,9 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
         public void handleMessage(android.os.Message msg) {
             HomeActivity activity = activityWeakReference.get();
             switch (msg.what) {
+                case 0:
+                    activity.loginSuccessOperation();
+                    break;
                 case 1:
                     String version = AppUtils.getInstance().getVersionName(activity);
                     boolean neglect = SharedPreferencesUtils.getInstance(activity).getNeglect();
@@ -120,29 +118,9 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
                         activity.appUpdateDialog.show();
                         activity.appUpdateDialog.setData(activity.appVersionResult.getData().getAndroid().getChangelog(), activity.appVersionResult.getData().getAndroid().getVersion());
                     }
-
-
                     break;
-                case 2://基础信息
-                    if (activity.userResult.getData().getUser().getPwdstatus() == 0) {
-                        //设置密码
+                case 2:
 
-                    } else {
-                        if (activity.userResult.getData().getUser().getMobilestatus() == 0) {
-                            //绑定手机
-
-                        } else {
-                            if (activity.userResult.getData().getUser().getInfostatus() == 0) {
-                                //完善资料
-
-                            } else {
-                                if (activity.userResult.getData().getUser().getIndustrystatus() == 0) {
-                                    //偏好选择
-
-                                }
-                            }
-                        }
-                    }
                     break;
             }
         }
@@ -152,16 +130,19 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        JPushInterface.setAlias(this, 1001, "quanzhu_1001");
-        // 检测Vitamio是否解压解码包
-        if (!LibsChecker.checkVitamioLibs(this))
-            return;
-        ThreadPoolUtils.getInstance().init().execute(new Runnable() {
-            @Override
-            public void run() {
-                initConversationData();
-            }
-        });
+//        AndroidBug54971Workaround.assistActivity(findViewById(android.R.id.content));
+        ScreentUtils.getInstance().setStatusBarLightMode(this, false);
+//        PageDao.getInstance().clear(BaseApplication.getInstance());
+//        CardDao.getInstance().clear(BaseApplication.getInstance());
+//        MessageDao.getInstance().clearSystemMessage(BaseApplication.getInstance());
+//        MessageDao.getInstance().clearServiceMessage(BaseApplication.getInstance());
+
+//        ThreadPoolUtils.getInstance().init().execute(new Runnable() {
+//            @Override
+//            public void run() {
+//                initConversationData();
+//            }
+//        });
 
         bottomBarLayout = findViewById(R.id.bottomBarLayout);
         bottomBarLayout.getViewTreeObserver().addOnPreDrawListener(
@@ -180,37 +161,79 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
 //        getToken("9527", "亚瑟");
 
         initDialogs();
-        ThreadPoolUtils.getInstance().init().execute(new Runnable() {
-            @Override
-            public void run() {
-                imConnect();
-                cityList();
-                industryList();
-                hobbyList();
-            }
-        });
+        BaseDataUtils.getInstance().initBaseData();
+    }
 
+
+    /**
+     * 设置标签与别名
+     */
+    private void initJPush() {
+        /**
+         *这里设置了别名，在这里获取的用户登录的信息
+         *并且此时已经获取了用户的userId,然后就可以用用户的userId来设置别名了
+         **/
+        Set<String> tags = new HashSet<>();
+        //这里可以设置你要推送的人，一般是用户uid 不为空在设置进去 可同时添加多个
+        if (!TextUtils.isEmpty(String.valueOf(SPUtils.getInstance().getUserId(BaseApplication.applicationContext)))) {
+            tags.add(String.valueOf(SPUtils.getInstance().getUserId(BaseApplication.applicationContext)));//设置tag
+        }
+        //上下文、别名【Sting行】、标签【Set型】、回调
+        JPushInterface.setAliasAndTags(this, String.valueOf(SPUtils.getInstance().getUserId(BaseApplication.applicationContext)), tags,
+                new TagAliasCallback() {
+                    @Override
+                    public void gotResult(int code, String alias, Set<String> set) {
+                        switch (code) {
+                            case 0:
+                                //这里可以往 SharePreference 里写一个成功设置的状态。成功设置一次后，以后不必再次设置了。
+                                System.out.println("极光推送别名设置成功");
+                                break;
+                            case 6002:
+                                //极低的可能设置失败 我设置过几百回 出现3次失败 不放心的话可以失败后继续调用上面那个方面 重连3次即可 记得return 不要进入死循环了...
+                                System.out.println("极光推送别名设置失败，60秒后重试");
+                                ThreadPoolUtils.getInstance().init().execute(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            Thread.sleep(60000);
+                                            initJPush();
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                });
+
+                                break;
+                            default:
+                                System.out.println("极光推送设置失败， errorCode = " + code);
+                                break;
+                        }
+                    }
+                });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         if (null == mLocationClient) {
+            System.out.println("###########初始化定位");
             initLocation();
+        } else {
+            System.out.println("###########启动定位");
+            //启动定位
+            mLocationClient.startLocation();
         }
-        //启动定位
-        mLocationClient.startLocation();
+
 //        requestAppVersion();
         if (checkLogin()) {
-            ThreadPoolUtils.getInstance().init().execute(new Runnable() {
-                @Override
-                public void run() {
-                    requestBase();
-                    cardUserList();
-                }
-            });
-
+            autoLogin();
         }
+    }
+
+    private void loginSuccessOperation() {
+        System.out.println("自动登录成功，正在连接IM服务器");
+        imConnect();
+        initJPush();
     }
 
     private void initDialogs() {
@@ -247,8 +270,10 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
         ConversationDao.getDao(this).save(c99);
     }
 
+    private FragmentHomeQuanZi fragmentHomeQuanZi;
+
     private void initDatas() {
-        FragmentHomeQuanZi fragmentHomeQuanZi = new FragmentHomeQuanZi();
+        fragmentHomeQuanZi = new FragmentHomeQuanZi();
         Bundle bundle = new Bundle();
         bundle.putInt("bottomBarHeight", bottomBarHeight);
         fragmentHomeQuanZi.setArguments(bundle);
@@ -297,21 +322,40 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
                 barChange(0);
                 break;
             case R.id.renmailayout:
-                if (checkLogin())
+                if (checkLogin()) {
                     barChange(1);
+                } else {
+                    userLogin(1);
+                }
+
                 break;
             case R.id.xiaoxilayout:
-                if (checkLogin())
+                if (checkLogin()) {
                     barChange(2);
+                } else {
+                    userLogin(2);
+                }
+
                 break;
             case R.id.quanshanglayout:
                 barChange(3);
                 break;
             case R.id.wodelayout:
-                if (checkLogin())
+                if (checkLogin()) {
                     barChange(4);
+                } else {
+                    userLogin(4);
+                }
+
                 break;
         }
+    }
+
+    private void userLogin(int position) {
+        Intent intent = new Intent(this, LoginGetVertifyCodeActivity.class);
+        intent.putExtra("type", "from_home");
+        intent.putExtra("position", position);
+        startActivity(intent);
     }
 
     private void barChange(int position) {
@@ -351,22 +395,22 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
     }
 
     private void imConnect() {
-        RongIM.connect(IMUtils.TOKEN_9527, new RongIMClient.ConnectCallbackEx() {
+        RongIM.connect(SPUtils.getInstance().getIMToken(BaseApplication.applicationContext), new RongIMClient.ConnectCallbackEx() {
             @Override
             public void OnDatabaseOpened(RongIMClient.DatabaseOpenStatus code) {
-//                System.out.println("OnDatabaseOpened: " + code.toString());
+                System.out.println("OnDatabaseOpened: " + code.toString());
             }
 
             @Override
             public void onTokenIncorrect() {
-//                System.out.println("onTokenIncorrect: ");
+                System.out.println("onTokenIncorrect: ");
             }
 
             @Override
             public void onSuccess(String s) {
-//                System.out.println("登录融云服务器成功，当前用户id: " + s);
+                System.out.println("登录融云服务器成功，当前用户id: " + s);
                 RongIM.setOnReceiveMessageListener(BaseApplication.receiveMessageListener);
-                SharedPreferencesUtils.getInstance(HomeActivity.this).saveUser("97", "一号测试", "http://5b0988e595225.cdn.sohucs.com/q_70,c_zoom,w_640/images/20190518/d38fda99a9654dd2b5b60950a1cb9967.jpeg", "18768100516");
+//                SharedPreferencesUtils.getInstance(HomeActivity.this).saveUser("1111", "一号测试", "http://5b0988e595225.cdn.sohucs.com/q_70,c_zoom,w_640/images/20190518/d38fda99a9654dd2b5b60950a1cb9967.jpeg", "18768100516");
                 updateUserInfo();
 //                sendMsg();
             }
@@ -374,6 +418,7 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
             @Override
             public void onError(RongIMClient.ErrorCode e) {
 //                System.out.println("onError: " + e.toString());
+//                getToken("1139","不买魔女了");
             }
         });
     }
@@ -405,7 +450,7 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
 
             @Override
             public void onError(Throwable arg0, boolean arg1) {
-//                System.out.println("onError: " + arg0.toString());
+                System.out.println("IM onError: " + arg0.toString());
             }
 
             @Override
@@ -414,7 +459,7 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
 
             @Override
             public void onSuccess(String s) {
-//                System.out.println("token: " + s);
+                System.out.println("IM token: " + s);
             }
         });
     }
@@ -464,47 +509,52 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
     }
 
     private void updateUserInfo() {
-        UserInfo userInfo = new UserInfo(SharedPreferencesUtils.getInstance(HomeActivity.this).getUserId(),
-                ConversationDao.getDao(this).selectById(SharedPreferencesUtils.getInstance(HomeActivity.this).getUserId()).getUser_name(),
-                Uri.parse(ConversationDao.getDao(this).selectById(SharedPreferencesUtils.getInstance(HomeActivity.this).getUserId()).getHeader_pic()));
+        UserInfo userInfo = new UserInfo(String.valueOf(SPUtils.getInstance().getUserId(BaseApplication.applicationContext)),
+                SPUtils.getInstance().getUserName(BaseApplication.applicationContext),
+                Uri.parse(SPUtils.getInstance().getUserAvatar(BaseApplication.applicationContext)));
         RongIM.getInstance().setCurrentUserInfo(userInfo);
-        RongIM.getInstance().refreshUserInfoCache(new UserInfo(SharedPreferencesUtils.getInstance(HomeActivity.this).getUserId(), ConversationDao.getDao(this).selectById(SharedPreferencesUtils.getInstance(HomeActivity.this).getUserId()).getUser_name(),
-                Uri.parse(ConversationDao.getDao(this).selectById(SharedPreferencesUtils.getInstance(HomeActivity.this).getUserId()).getHeader_pic())));
+        RongIM.getInstance().refreshUserInfoCache(new UserInfo(String.valueOf(SPUtils.getInstance().getUserId(BaseApplication.applicationContext)),
+                SPUtils.getInstance().getUserName(BaseApplication.applicationContext),
+                Uri.parse(SPUtils.getInstance().getUserAvatar(BaseApplication.applicationContext))));
     }
 
     private boolean checkLogin() {
-        String user_token = SharedPreferencesUtils.getInstance(this).getUserToken();
-        if (TextUtils.isEmpty(user_token)) {
-            Intent loginIntent = new Intent(this, LoginGetVertifyCodeActivity.class);
-            startActivity(loginIntent);
-        }
-//        System.out.println("是否登录: " + (!TextUtils.isEmpty(user_token)));
-        return !TextUtils.isEmpty(user_token);
+        return SPUtils.getInstance().userIsLogin(BaseApplication.applicationContext);
     }
 
-    private UserResult userResult;
     private HomeBaseResult homeBaseResult;
 
-    private void requestBase() {
+    private void autoLogin() {
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.APP_BASE);
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-//                System.out.println("基础信息: " + result);
-//                userResult = GsonUtils.GsonToBean(result, UserResult.class);
+                System.out.println("基础信息: " + result);
                 homeBaseResult = GsonUtils.GsonToBean(result, HomeBaseResult.class);
-                SharedPreferencesUtils.getInstance(HomeActivity.this).saveUserId(String.valueOf(homeBaseResult.getData().getUid()));
-//                SharedPreferencesUtils.getInstance(HomeActivity.this).saveUserToken(homeBaseResult.getData().getToken());
-                SharedPreferencesUtils.getInstance(HomeActivity.this).saveUserName(homeBaseResult.getData().getUser().getUsername());
-                SharedPreferencesUtils.getInstance(HomeActivity.this).saveUserHeaderPic(homeBaseResult.getData().getUser().getAvatar());
-//                android.os.Message message = myHandler.obtainMessage(2);
-//                message.sendToTarget();
+                if (200 == homeBaseResult.getCode()) {
+                    SPUtils.getInstance().saveUserInfo(BaseApplication.applicationContext, homeBaseResult.getData().getUid(), homeBaseResult.getData().getUser().getUsername(),
+                            homeBaseResult.getData().getUser().getAvatar());
+                    SPUtils.getInstance().saveUserToken(BaseApplication.applicationContext, homeBaseResult.getToken());
+                    SPUtils.getInstance().saveIMToken(BaseApplication.applicationContext, homeBaseResult.getData().getToken());
+                    SPUtils.getInstance().setSilence(BaseApplication.applicationContext,
+                            homeBaseResult.getData().getUser().getGfmessagestatus(),
+                            homeBaseResult.getData().getUser().getFirendsmessagestatus(),
+                            homeBaseResult.getData().getUser().getCirclemessagestatus(),
+                            homeBaseResult.getData().getUser().getPaymessagestatus(),
+                            homeBaseResult.getData().getUser().getCouponmessagestatus(),
+                            homeBaseResult.getData().getUser().getShopmessagestatus(),
+                            homeBaseResult.getData().getUser().getFeedbackmessagestatus(),
+                            homeBaseResult.getData().getUser().getMessagestatus());
+                    SPUtils.getInstance().saveIMToken(BaseApplication.applicationContext, homeBaseResult.getData().getToken());
+                    android.os.Message message = myHandler.obtainMessage(0);
+                    message.sendToTarget();
+                }
 
             }
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-//                System.out.println("基础信息 error: " + ex.toString());
+                System.out.println("基础信息 error: " + ex.toString());
             }
 
             @Override
@@ -630,7 +680,8 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
 
 //                    System.out.println("高德定位结果: " + country + " , " + province + " , " + city + " , " + district + " , " + street + " , " + address + " , " +
 //                            buildingId + " , " + floor);
-                    SharedPreferencesUtils.getInstance(HomeActivity.this).saveLocation(province, city);
+                    fragmentHomeQuanZi.setCityName(city);
+                    SPUtils.getInstance().saveLocation(BaseApplication.applicationContext, province, city);
                     mLocationClient.stopLocation();//停止定位后，本地定位服务并不会被销毁
                 } else {
                     //定位失败时，可通过ErrCode（错误码）信息来确定失败的原因，errInfo是错误信息，详见错误码表。
@@ -642,151 +693,22 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
         }
     };
 
-    private AreaResult areaResult;
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        handleResult(fragmentArrayList.get(0), requestCode, resultCode, data);
+        handleResult(fragmentArrayList.get(1), requestCode, resultCode, data);
+    }
 
-    /**
-     * 地区列表
-     */
-    private void cityList() {
-        RequestParams params = new RequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.CITYS);
-        x.http().post(params, new Callback.CommonCallback<String>() {
-            @Override
-            public void onSuccess(String result) {
-//                System.out.println("area: " + result);
-                areaResult = GsonUtils.GsonToBean(result, AreaResult.class);
-                AreaDao.getInstance().saveAreaProvince(areaResult.getData().getCitys());
-                for (final AreaProvince p : areaResult.getData().getCitys()) {
-                    ThreadPoolUtils.getInstance().init().execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            AreaDao.getInstance().saveAreaCity(p.getChild());
-                        }
-                    });
+    private void handleResult(Fragment fragment, int requestCode, int resultCode, Intent data) {
+        fragment.onActivityResult(requestCode, resultCode, data);//调用每个Fragment的onActivityResult
+        List<Fragment> childFragment = fragment.getChildFragmentManager().getFragments(); //找到第二层Fragment
+        if (childFragment != null)
+            for (Fragment f : childFragment)
+                if (f != null) {
+                    handleResult(f, requestCode, resultCode, data);
                 }
-            }
-
-            @Override
-            public void onError(Throwable ex, boolean isOnCallback) {
-
-            }
-
-            @Override
-            public void onCancelled(CancelledException cex) {
-
-            }
-
-            @Override
-            public void onFinished() {
-
-            }
-        });
     }
 
-    private IndustryResult industryResult;
 
-    /**
-     * 行业列表
-     */
-    private void industryList() {
-        final RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.HOBBY_LIST);
-        params.addBodyParameter("type", "1");
-        x.http().post(params, new Callback.CommonCallback<String>() {
-            @Override
-            public void onSuccess(String result) {
-//                System.out.println("industry: " + result);
-                industryResult = GsonUtils.GsonToBean(result, IndustryResult.class);
-                if (null != industryResult) {
-                    IndustryDao.getInstance().saveIndustryParent(industryResult.getData().getList().get(0).getChild());
-                    for (final IndustryParent parent : industryResult.getData().getList().get(0).getChild()) {
-                        ThreadPoolUtils.getInstance().init().execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                IndustryDao.getInstance().saveIndustryChild(parent.getChild());
-                            }
-                        });
-                    }
-                }
-            }
-
-            @Override
-            public void onError(Throwable ex, boolean isOnCallback) {
-
-            }
-
-            @Override
-            public void onCancelled(CancelledException cex) {
-
-            }
-
-            @Override
-            public void onFinished() {
-
-            }
-        });
-    }
-
-    private HobbyDaoResult hobbyResult;
-
-    private void hobbyList() {
-        final RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.HOBBY_LIST);
-        params.addBodyParameter("type", "2");
-        x.http().post(params, new Callback.CommonCallback<String>() {
-            @Override
-            public void onSuccess(String result) {
-                hobbyResult = GsonUtils.GsonToBean(result, HobbyDaoResult.class);
-                HobbyDao.getInstance().clearHobby();
-                HobbyDao.getInstance().saveHobbyParentList(hobbyResult.getData().getList().get(0).getChild());
-                for (HobbyDaoParent parent : hobbyResult.getData().getList().get(0).getChild()) {
-                    HobbyDao.getInstance().saveHobbyChildList(parent.getChild());
-                }
-            }
-
-            @Override
-            public void onError(Throwable ex, boolean isOnCallback) {
-
-            }
-
-            @Override
-            public void onCancelled(CancelledException cex) {
-
-            }
-
-            @Override
-            public void onFinished() {
-
-            }
-        });
-    }
-
-    private CardFrendResult cardFrendResult;
-
-    /**
-     * 名片好友列表
-     */
-    private void cardUserList() {
-        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.CARD_USER_LIST);
-        x.http().post(params, new Callback.CommonCallback<String>() {
-            @Override
-            public void onSuccess(String result) {
-                cardFrendResult = GsonUtils.GsonToBean(result, CardFrendResult.class);
-                CardFrendDao.getDao().saveCardFendList(cardFrendResult.getData().getMy_friends_card());
-//                System.out.println("card users: " + cardFrendResult.getData().getMy_friends_card().size());
-            }
-
-            @Override
-            public void onError(Throwable ex, boolean isOnCallback) {
-                System.out.println(ex.toString());
-            }
-
-            @Override
-            public void onCancelled(CancelledException cex) {
-
-            }
-
-            @Override
-            public void onFinished() {
-
-            }
-        });
-    }
 }

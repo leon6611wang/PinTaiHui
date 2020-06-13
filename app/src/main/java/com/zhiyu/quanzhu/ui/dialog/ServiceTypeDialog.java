@@ -21,6 +21,7 @@ public class ServiceTypeDialog extends Dialog implements View.OnClickListener {
     private LoopView mLoopView;
     private List<String> list = new ArrayList<>();
     private String serviceType;
+    private int serviceTypeIndex = 1;
     private TextView cancelTextView, confirmTextView;
 
     public ServiceTypeDialog(@NonNull Context context, int themeResId, OnServiceTypeListener listener) {
@@ -57,9 +58,11 @@ public class ServiceTypeDialog extends Dialog implements View.OnClickListener {
         confirmTextView.setOnClickListener(this);
         mLoopView = findViewById(R.id.mLoopView);
         mLoopView.setItems(list);
+        mLoopView.setInitPosition(0);
         mLoopView.setListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(int index) {
+                serviceTypeIndex = index + 1;
                 serviceType = list.get(index);
             }
         });
@@ -73,7 +76,7 @@ public class ServiceTypeDialog extends Dialog implements View.OnClickListener {
                 break;
             case R.id.confirmTextView:
                 if (null != onServiceTypeListener) {
-                    onServiceTypeListener.onServiceType(mLoopView.getSelectedItem()+1,serviceType);
+                    onServiceTypeListener.onServiceType(serviceTypeIndex, serviceType);
                 }
                 dismiss();
                 break;
@@ -83,6 +86,6 @@ public class ServiceTypeDialog extends Dialog implements View.OnClickListener {
     private OnServiceTypeListener onServiceTypeListener;
 
     public interface OnServiceTypeListener {
-        void onServiceType(int typeIndex,String servieType);
+        void onServiceType(int typeIndex, String servieType);
     }
 }

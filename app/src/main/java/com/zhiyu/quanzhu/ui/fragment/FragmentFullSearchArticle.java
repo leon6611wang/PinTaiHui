@@ -145,6 +145,8 @@ public class FragmentFullSearchArticle extends Fragment {
             x.http().post(params, new Callback.CommonCallback<String>() {
                 @Override
                 public void onSuccess(String result) {
+                    System.out.println("文章: "+searchContext);
+                    System.out.println("full search article: " + result);
                     articleResult = GsonUtils.GsonToBean(result, FullSearchArticleResult.class);
                     if (isRefresh) {
                         list = articleResult.getData().getActicle_list();
@@ -153,7 +155,6 @@ public class FragmentFullSearchArticle extends Fragment {
                     }
                     Message message = myHandler.obtainMessage(1);
                     message.sendToTarget();
-                    System.out.println("full search article: " + result);
                 }
 
                 @Override
