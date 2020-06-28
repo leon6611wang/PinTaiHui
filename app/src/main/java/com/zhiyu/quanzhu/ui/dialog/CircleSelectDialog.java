@@ -91,6 +91,11 @@ public class CircleSelectDialog extends Dialog implements View.OnClickListener {
             adapter.setList(list);
         }
     }
+    private int feeds_type;
+    public void setFeedsType(int type){
+        this.feeds_type=type;
+        myCircles();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,7 +111,6 @@ public class CircleSelectDialog extends Dialog implements View.OnClickListener {
         getWindow().setBackgroundDrawableResource(android.R.color.transparent);
 
         initViews();
-        myCircles();
     }
 
     private void initViews() {
@@ -169,10 +173,11 @@ public class CircleSelectDialog extends Dialog implements View.OnClickListener {
         RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.SEARCH_MY_CIRCLE);
         params.addBodyParameter("page", String.valueOf(page));
         params.addBodyParameter("type", String.valueOf(type));
+        params.addBodyParameter("feeds_type",String.valueOf(feeds_type));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("myCircle " + result);
+//                System.out.println("myCircle " + result);
                 myCircleResult = GsonUtils.GsonToBean(result, MyCircleResult.class);
                 if (isRefresh) {
                     list = myCircleResult.getData().getCircle_list();

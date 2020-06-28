@@ -164,7 +164,7 @@ public class FullSearchFeedListAdapter extends BaseAdapter {
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
-        Glide.with(context).load(list.get(position).getContent().getAvatar()).error(R.mipmap.no_avatar).into(holder.avatarImageView);
+        Glide.with(context).load(list.get(position).getContent().getAvatar()).error(R.drawable.image_error).into(holder.avatarImageView);
         holder.nameTextView.setText(list.get(position).getContent().getUsername());
         holder.timeTextView.setText(list.get(position).getContent().getTime());
         holder.mTextView.setText(list.get(position).getContent().getContent());
@@ -194,7 +194,8 @@ public class FullSearchFeedListAdapter extends BaseAdapter {
             holder.imageGridView.setVisibility(View.GONE);
             holder.videoPlayer.setVisibility(View.VISIBLE);
             holder.videoPlayer.setDataSource(list.get(position).getContent().getVideo_url(), "");
-            Glide.with(convertView).load(list.get(position).getContent().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into( holder.videoPlayer.getCoverController().getVideoCover());
+            Glide.with(context).load(list.get(position).getContent().getVideo_thumb()).into(holder.videoPlayer.getCoverController().getVideoCover());
+//            Glide.with(convertView).load(list.get(position).getContent().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into( holder.videoPlayer.getCoverController().getVideoCover());
 //            holder.videoPlayer.startPlayVideo();
             holder.videoPlayer.setLayoutParams(list.get(position).getContent().getLayoutParams(dp_240, true));
         } else {
@@ -203,7 +204,7 @@ public class FullSearchFeedListAdapter extends BaseAdapter {
                 holder.imageGridView.setVisibility(View.GONE);
                 holder.videoPlayer.setVisibility(View.GONE);
                 holder.feedImageView.setLayoutParams(list.get(position).getContent().getLayoutParams(dp_240, false));
-                Glide.with(context).load(list.get(position).getContent().getImgs().get(0).getFile()).error(R.mipmap.img_error)
+                Glide.with(context).load(list.get(position).getContent().getImgs().get(0).getFile()).error(R.drawable.image_error)
                         .into(holder.feedImageView);
                 holder.feedImageView.setOnClickListener(new OnLargeImageClick(list.get(position).getContent().getImgs().get(0).getFile()));
             } else {

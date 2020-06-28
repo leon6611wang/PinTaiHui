@@ -68,7 +68,7 @@ import in.srain.cube.views.ptr.PtrFrameLayout;
 /**
  * 动态详情
  */
-public class FeedInformationActivity extends BaseActivity implements View.OnClickListener {
+public class FeedInformationActivity extends BaseActivity implements View.OnClickListener, FeedInformationCommentListParentAdapter.OnReplyParentCommentListener {
     private LinearLayout backLayout, followLayout, complaintLayout;
     private PtrFrameLayout ptrFrameLayout;
     private ListView listView;
@@ -93,6 +93,7 @@ public class FeedInformationActivity extends BaseActivity implements View.OnClic
     private int feed_id, comment_id;
     private int commentCount;
     private boolean isComment;
+    private int fromCircleInfo = 0;//0:默认值，不是圈子详情来源，1：来自圈子详情，点击圈子不跳转到圈子详情
     private int dp_240;
     private String commentContent = null;
     private FeedInformationCommentListParentAdapter adapter;
@@ -213,6 +214,15 @@ public class FeedInformationActivity extends BaseActivity implements View.OnClic
                 case 4:
                     MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
                     break;
+                case 5:
+                    if (activity.feedInfoResult.getData().getDetail().isIs_report()) {
+                        activity.complaintImageView.setVisibility(View.GONE);
+                        activity.complaintTextView.setText("已投诉");
+                    } else {
+                        activity.complaintImageView.setVisibility(View.VISIBLE);
+                        activity.complaintTextView.setText("投诉");
+                    }
+                    break;
                 case 99:
                     MessageToast.getInstance(activity).show("操作失败.");
                     break;
@@ -229,6 +239,7 @@ public class FeedInformationActivity extends BaseActivity implements View.OnClic
         dp_240 = (int) getResources().getDimension(R.dimen.dp_240);
         feed_id = getIntent().getIntExtra("feed_id", 0);
         comment_id = getIntent().getIntExtra("comment_id", 0);
+        fromCircleInfo = getIntent().getIntExtra("fromCircleInfo", 0);
         System.out.println("动态详情-feed_id: " + feed_id);
         initPtr();
         initViews();
@@ -272,6 +283,7 @@ public class FeedInformationActivity extends BaseActivity implements View.OnClic
 
         listView = findViewById(R.id.listView);
         adapter = new FeedInformationCommentListParentAdapter(this);
+        adapter.setOnReplyParentCommentListener(this);
         headerView = LayoutInflater.from(this).inflate(R.layout.header_feed_information_listview, null);
         circleCardView = headerView.findViewById(R.id.circleCardView);
         circleCardView.setOnClickListener(this);
@@ -290,6 +302,7 @@ public class FeedInformationActivity extends BaseActivity implements View.OnClic
         complaintLayout.setOnClickListener(this);
         complaintImageView = headerView.findViewById(R.id.complaintImageView);
         complaintTextView = headerView.findViewById(R.id.complaintTextView);
+        complaintTextView.setOnClickListener(this);
         viewCountTextView = headerView.findViewById(R.id.viewCountTextView);
         timeTextView = headerView.findViewById(R.id.timeTextView);
         mTextView = headerView.findViewById(R.id.mTextView);
@@ -359,7 +372,8 @@ public class FeedInformationActivity extends BaseActivity implements View.OnClic
             imageGridView.setVisibility(View.GONE);
             videoPlayer.setVisibility(View.VISIBLE);
             videoPlayer.setDataSource(feedInfoResult.getData().getDetail().getVideo_url(), "");
-            Glide.with(this).load(feedInfoResult.getData().getDetail().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(videoPlayer.getCoverController().getVideoCover());
+            Glide.with(this).load(feedInfoResult.getData().getDetail().getVideo_thumb()).into(videoPlayer.getCoverController().getVideoCover());
+//            Glide.with(this).load(feedInfoResult.getData().getDetail().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(videoPlayer.getCoverController().getVideoCover());
             videoPlayer.setLayoutParams(feedInfoResult.getData().getDetail().getLayoutParams(dp_240, true));
         } else {
             if (null == feedInfoResult.getData().getDetail().getImgs() || feedInfoResult.getData().getDetail().getImgs().size() == 0) {
@@ -371,7 +385,7 @@ public class FeedInformationActivity extends BaseActivity implements View.OnClic
                 imageGridView.setVisibility(View.GONE);
                 videoPlayer.setVisibility(View.GONE);
                 feedImageView.setLayoutParams(feedInfoResult.getData().getDetail().getLayoutParams(dp_240, false));
-                Glide.with(this).load(feedInfoResult.getData().getDetail().getImgs().get(0).getFile()).error(R.mipmap.img_error)
+                Glide.with(this).load(feedInfoResult.getData().getDetail().getImgs().get(0).getFile()).error(R.drawable.image_error)
                         .into(feedImageView);
 //                feedImageView.setOnClickListener(new CircleGuanZhuAdapter.OnLargeImageClick(list.get(position).getContent().getImgs().get(0).getFile()));
             } else {
@@ -417,10 +431,44 @@ public class FeedInformationActivity extends BaseActivity implements View.OnClic
                 prise();
                 break;
             case R.id.circleCardView:
-                Intent intent = new Intent(this, CircleInfoActivity.class);
-                intent.putExtra("circle_id", (long) feedInfoResult.getData().getDetail().getCircle().getId());
-                startActivity(intent);
+                if (fromCircleInfo == 0) {
+                    if (null != feedInfoResult && null != feedInfoResult.getData() &&
+                            null != feedInfoResult.getData().getDetail() &&
+                            null != feedInfoResult.getData().getDetail().getCircle()) {
+                        Intent intent = new Intent(this, CircleInfoActivity.class);
+                        intent.putExtra("circle_id", (long) feedInfoResult.getData().getDetail().getCircle().getId());
+                        startActivity(intent);
+                    }
+                }
                 break;
+            case R.id.complaintTextView:
+                if (null != feedInfoResult && null != feedInfoResult.getData() &&
+                        null != feedInfoResult.getData().getDetail() &&
+                        !feedInfoResult.getData().getDetail().isIs_report()) {
+                    Intent complaintIntent = new Intent(this, ComplaintActivity.class);
+                    complaintIntent.putExtra("report_id", feedInfoResult.getData().getDetail().getId());
+                    complaintIntent.putExtra("module_type", "feeds");
+                    startActivityForResult(complaintIntent, 1132);
+                }
+                break;
+        }
+    }
+
+    @Override
+    public void onReplyParentComment(int comment_id) {
+        this.comment_id = comment_id;
+        SoftKeyboardUtil.showSoftKeyboard(this, commentEditText);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == 1132) {
+            if (null != data && data.hasExtra("complaint")) {
+                feedInfoResult.getData().getDetail().setIs_report(true);
+                Message message = myHandler.obtainMessage(5);
+                message.sendToTarget();
+            }
         }
     }
 
@@ -435,8 +483,8 @@ public class FeedInformationActivity extends BaseActivity implements View.OnClic
             public void onSuccess(String result) {
                 System.out.println("动态详情: " + result);
                 feedInfoResult = GsonUtils.GsonToBean(result, FeedInformationResult.class);
-                if(200==feedInfoResult.getCode()){
-                    commentCount=feedInfoResult.getData().getDetail().getComment_num();
+                if (200 == feedInfoResult.getCode()) {
+                    commentCount = feedInfoResult.getData().getDetail().getComment_num();
                 }
                 Message message = myHandler.obtainMessage(0);
                 message.sendToTarget();

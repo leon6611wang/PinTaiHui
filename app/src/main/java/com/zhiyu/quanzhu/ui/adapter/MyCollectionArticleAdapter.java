@@ -302,7 +302,7 @@ public class MyCollectionArticleAdapter extends RecyclerView.Adapter<RecyclerVie
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof FeedViewHolder) {
             FeedViewHolder feed = (FeedViewHolder) holder;
-            Glide.with(context).load(list.get(position).getContent().getAvatar()).error(R.mipmap.no_avatar).into(feed.avatarImageView);
+            Glide.with(context).load(list.get(position).getContent().getAvatar()).error(R.drawable.image_error).into(feed.avatarImageView);
             if (!StringUtils.isNullOrEmpty(list.get(position).getContent().getUsername()))
                 feed.nameTextView.setText(list.get(position).getContent().getUsername());
             feed.timeTextView.setText(list.get(position).getContent().getTime());
@@ -339,7 +339,8 @@ public class MyCollectionArticleAdapter extends RecyclerView.Adapter<RecyclerVie
                 feed.imageGridView.setVisibility(View.GONE);
                 feed.videoPlayer.setVisibility(View.VISIBLE);
                 feed.videoPlayer.setDataSource(list.get(position).getContent().getVideo_url(), "");
-                Glide.with(context).load(list.get(position).getContent().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(feed.videoPlayer.getCoverController().getVideoCover());
+                Glide.with(context).load(list.get(position).getContent().getVideo_thumb()).into(feed.videoPlayer.getCoverController().getVideoCover());
+//                Glide.with(context).load(list.get(position).getContent().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(feed.videoPlayer.getCoverController().getVideoCover());
                 feed.videoPlayer.setLayoutParams(list.get(position).getContent().getLayoutParams(dp_240, true));
             } else {
                 if (null==list.get(position).getContent().getImgs()||list.get(position).getContent().getImgs().size() == 0) {
@@ -351,7 +352,7 @@ public class MyCollectionArticleAdapter extends RecyclerView.Adapter<RecyclerVie
                     feed.imageGridView.setVisibility(View.GONE);
                     feed.videoPlayer.setVisibility(View.GONE);
                     feed.feedImageView.setLayoutParams(list.get(position).getContent().getLayoutParams(dp_240, false));
-                    Glide.with(context).load(list.get(position).getContent().getImgs().get(0).getFile()).error(R.mipmap.img_error)
+                    Glide.with(context).load(list.get(position).getContent().getImgs().get(0).getFile()).error(R.drawable.image_error)
                             .into(feed.feedImageView);
                     feed.feedImageView.setOnClickListener(new OnLargeImageClick(list.get(position).getContent().getImgs().get(0).getFile()));
                 } else {
@@ -450,7 +451,8 @@ public class MyCollectionArticleAdapter extends RecyclerView.Adapter<RecyclerVie
             }
             video.videoPlayer.setLayoutParams(list.get(position).getContent().getLayoutParams(width, height));
             video.videoPlayer.setDataSource(list.get(position).getContent().getVideo_url(), "");
-            Glide.with(context).load(list.get(position).getContent().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(video.videoPlayer.getCoverController().getVideoCover());
+            Glide.with(context).load(list.get(position).getContent().getVideo_thumb()).into(video.videoPlayer.getCoverController().getVideoCover());
+//            Glide.with(context).load(list.get(position).getContent().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(video.videoPlayer.getCoverController().getVideoCover());
             video.collectImageView.setOnClickListener(new OnCollectListener(position));
             video.shareTextView.setOnClickListener(new OnShareClick(position));
             video.commentTextView.setOnClickListener(new OnCommentClick(position));

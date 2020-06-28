@@ -82,7 +82,7 @@ public class ShopProfileActivity extends BaseActivity implements View.OnClickLis
                         activity.followTextView.setTextColor(activity.getResources().getColor(R.color.text_color_yellow));
                     }
                     activity.goodsCountTextView.setText("商品数量 " + activity.shopProfileResult.getData().getGoods_num());
-                    activity.followCountTextView.setText("粉丝数 " + activity.shopProfileResult.getData().getFollow_num());
+                    activity.followCountTextView.setText("圈粉数 " + activity.shopProfileResult.getData().getFollow_num());
                     activity.saleNumTextView.setText("销量 " + activity.shopProfileResult.getData().getSale_num());
                     activity.goodAppraiseTextView.setText((int)activity.shopProfileResult.getData().getMark() + "%");
                     activity.goodsMarkTextView.setText(String.valueOf(activity.shopProfileResult.getData().getGoods_mark()));

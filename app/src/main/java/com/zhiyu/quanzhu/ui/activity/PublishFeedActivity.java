@@ -93,6 +93,7 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
             PublishFeedActivity activity = activityWeakReference.get();
             switch (msg.what) {
                 case 0:
+                    activity.publishTextView.setClickable(true);
                     if (200 == activity.feedInfoResult.getCode()) {
                         activity.contentEditText.setText(activity.feedInfoResult.getData().getDetail().getContent());
                         activity.mImageList.remove("add");
@@ -144,6 +145,7 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
                     }
                     break;
                 case 1:
+                    activity.publishTextView.setClickable(true);
                     activity.waitDialog.dismiss();
                     MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
                     if (activity.baseResult.getCode() == 200) {
@@ -151,6 +153,7 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
                     }
                     break;
                 case 2:
+                    activity.publishTextView.setClickable(true);
                     activity.waitDialog.dismiss();
                     FailureToast.getInstance(activity).show("发布失败");
                     break;
@@ -351,6 +354,7 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
                 break;
             case R.id.atquanziLayout:
                 circleSelectDialog.show();
+                circleSelectDialog.setFeedsType(3);
                 if (!StringUtils.isNullOrEmpty(circleName)) {
                     circleSelectDialog.setCircleName(circleName);
                 }
@@ -394,7 +398,7 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
     @Override
     public void onAddImages() {
         choosePhotoDialog.show();
-        choosePhotoDialog.setMenu("图片", "视频`");
+        choosePhotoDialog.setMenu("图片", "视频");
     }
 
     //1.img,2.video
@@ -435,7 +439,6 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
         if (requestCode == REQUEST_SELECT_IMAGES_CODE && resultCode == RESULT_OK) {
             mImageList = data.getStringArrayListExtra(ImagePicker.EXTRA_SELECT_IMAGES);
             uploadImages();
@@ -470,6 +473,7 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
     private void uploadImages() {
         for (final String path : mImageList) {
             if (!map.containsKey(path)) {
+//                System.out.println("path: "+path);
                 UploadImageUtils.getInstance().uploadFile(UploadImageUtils.CIRCLEFEES, path, new UploadImageUtils.OnUploadCallback() {
                     @Override
                     public void onUploadSuccess(String name) {
@@ -500,6 +504,7 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
      * 发布动态
      */
     private void publishFeed() {
+        publishTextView.setClickable(false);
         if (null != map && map.size() > 0) {
             List<String> list = imageGridAdapter.getList();
             uploadImageList.clear();
@@ -514,6 +519,7 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
         params.addBodyParameter("tags", tags);
         params.addBodyParameter("circle_id", String.valueOf(circle_id));
         params.addBodyParameter("p_industry", industry_parent);
+        params.addBodyParameter("feeds_type", "3");
         params.addBodyParameter("industry", industry_child);//行业
         params.addBodyParameter("p_hobby", hobby_parent);
         params.addBodyParameter("hobby", hobby_child);//兴趣
@@ -561,6 +567,7 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
 
 
     private void updateFeed() {
+        publishTextView.setClickable(false);
         if (null != map && map.size() > 0) {
             List<String> list = imageGridAdapter.getList();
             uploadImageList.clear();
@@ -593,6 +600,7 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
         params.addBodyParameter("industry", industry_child);//行业
         params.addBodyParameter("p_hobby", hobby_parent);
         params.addBodyParameter("hobby", hobby_child);//兴趣
+        params.addBodyParameter("feeds_type", "3");
         params.addBodyParameter("content", contentEditText.getText().toString().trim());
         params.addBodyParameter("feeds_id", String.valueOf(feeds_id));
         if (null != uploadImageList && uploadImageList.size() > 0) {

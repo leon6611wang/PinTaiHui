@@ -88,7 +88,7 @@ public class FullSearchCardListAdapter extends BaseAdapter {
                 Intent intent=new Intent(parent.getContext(), CardInformationActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 intent.putExtra("card_id",(long)list.get(position).getId());
-//                intent.putExtra("uid",(long)list.get(position).getUid());
+                intent.putExtra("uid",list.get(position).getUid());
                 parent.getContext().startActivity(intent);
             }
         });

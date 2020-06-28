@@ -105,7 +105,7 @@
                         android:layout_weight="1"
                         android:ellipsize="end"
                         android:maxLines="2"
-                        android:text="圈主是基于我们APP上的一个重要组 成部分，通过圈主可以吸引粉丝入..."
+                        android:text="圈主是基于我们APP上的一个重要组 成部分，通过圈主可以吸引圈粉入..."
                         android:textColor="@color/text_color_gray"
                         android:textSize="12sp" />
 

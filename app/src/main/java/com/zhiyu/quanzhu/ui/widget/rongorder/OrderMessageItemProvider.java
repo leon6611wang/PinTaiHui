@@ -65,7 +65,7 @@ public class OrderMessageItemProvider extends IContainerItemProvider.MessageProv
 
     @Override
     public void onItemClick(View view, int i, OrderMessage orderMessage, UIMessage uiMessage) {
-
+        System.out.println("订单 点击");
     }
 
     @Override

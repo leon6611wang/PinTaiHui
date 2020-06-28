@@ -69,6 +69,7 @@ public class OrderConfirmActivity extends BaseActivity implements View.OnClickLi
     private int payType;
     private MyHandler myHandler = new MyHandler(this);
     private int balancePayType;
+    private boolean canPayOrder;//是否可以支付(取决于订单中是否有物流不予配送情况)
 
     private static class MyHandler extends Handler {
         WeakReference<OrderConfirmActivity> activityWeakReference;
@@ -275,13 +276,13 @@ public class OrderConfirmActivity extends BaseActivity implements View.OnClickLi
                 boolean isCanPay = true;
                 if (null != orderConfirmResult.getData().getList() && orderConfirmResult.getData().getList().size() > 0) {
                     for (OrderConfirmShop shop : orderConfirmResult.getData().getList()) {
-                        if (shop.getPostage_price() == -1) {
+                        if (shop.getPostage_status() == 2 || shop.getPostage_status() == 1) {
                             isCanPay = false;
                         }
                     }
                 }
                 if (!isCanPay) {
-                    MessageToast.getInstance(this).show("超出范围，不予配送，无法下单");
+                    MessageToast.getInstance(this).show("超出范围，不予配送，无法下单!");
                     return;
                 }
 
@@ -611,7 +612,7 @@ public class OrderConfirmActivity extends BaseActivity implements View.OnClickLi
     private BaseResult baseResult;
 
     private void balancePay(String pwd) {
-        System.out.println("oid: " + orderAddResult.getData().getOid());
+        System.out.println("oid: " + orderAddResult.getData().getOid() + " , password: " + pwd + " , type: " + (balancePayType == 1 ? "wechat" : "ali"));
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.BALANCE_PAY);
         params.addBodyParameter("oid", String.valueOf(orderAddResult.getData().getOid()));
         params.addBodyParameter("password", pwd);

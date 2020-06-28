@@ -22,6 +22,7 @@ import com.zhiyu.quanzhu.model.bean.ConversationCircleShop;
 import com.zhiyu.quanzhu.model.result.ConversationCircleGoodsResult;
 import com.zhiyu.quanzhu.ui.activity.ShopInformationActivity;
 import com.zhiyu.quanzhu.ui.adapter.ConversationGroupGoodsRecyclerAdapter;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.NiceImageView;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GridSpacingItemDecoration;
@@ -69,6 +70,10 @@ public class ConversationGroupGoodsFragment extends Fragment {
                 case 1:
                     fragment.ptrFrameLayout.refreshComplete();
                     fragment.adapter.setList(fragment.list);
+                    break;
+                case 99:
+                    MessageToast.getInstance(fragment.getContext()).show("服务器内部错误，请稍后再试.");
+                    fragment.ptrFrameLayout.refreshComplete();
                     break;
             }
         }
@@ -188,7 +193,9 @@ public class ConversationGroupGoodsFragment extends Fragment {
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
+                System.out.println("goodsList: " + ex.toString());
             }
 
             @Override

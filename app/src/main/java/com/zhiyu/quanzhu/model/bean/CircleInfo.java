@@ -17,7 +17,9 @@ public class CircleInfo {
     private String logo;
     private String thumb;
     private String two_industry;
+    private int two_industry_id;
     private String three_industry;
+    private int three_industry_id;
     private String video;
     private List<String> imgs;
     private int status;
@@ -27,10 +29,35 @@ public class CircleInfo {
     private int days;
     private boolean is_join;
     private boolean is_own;
+    private boolean is_apply;
     private int own;
     private int uid;
     private String user_name;
     private String avatar;
+
+    public boolean isIs_apply() {
+        return is_apply;
+    }
+
+    public void setIs_apply(boolean is_apply) {
+        this.is_apply = is_apply;
+    }
+
+    public int getTwo_industry_id() {
+        return two_industry_id;
+    }
+
+    public void setTwo_industry_id(int two_industry_id) {
+        this.two_industry_id = two_industry_id;
+    }
+
+    public int getThree_industry_id() {
+        return three_industry_id;
+    }
+
+    public void setThree_industry_id(int three_industry_id) {
+        this.three_industry_id = three_industry_id;
+    }
 
     public int getId() {
         return id;

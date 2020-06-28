@@ -91,13 +91,23 @@ public class OrderConfirmRecyclerAdapter extends BaseRecyclerAdapter<OrderConfir
                 }
             });
         }
-        if (data.getPostage_price() == -1) {
-            holder.postagePriceTextView.setText("超出范围，不予配送");
-        } else if (data.getPostage_price() == 0) {
-            holder.postagePriceTextView.setText("包邮");
-        } else {
-            holder.postagePriceTextView.setText("￥" + PriceParseUtils.getInstance().parsePrice(data.getPostage_price()));
+        String postage = "";
+        switch (data.getPostage_status()) {
+            case 2:
+                postage = "所有商品超出配送范围";
+                break;
+            case 1:
+                postage = "部分商品超出配送范围";
+                break;
+            case 0:
+                if (data.getPostage_price() == 0) {
+                    postage = "包邮";
+                } else if (data.getPostage_price() > 0) {
+                    postage = "￥" + PriceParseUtils.getInstance().parsePrice(data.getPostage_price());
+                }
+                break;
         }
+        holder.postagePriceTextView.setText(postage);
         holder.mRecyclerView.setLayoutManager(holder.linearLayoutManager);
         holder.adapter.setList(data.getList());
         holder.remarkEditText.addTextChangedListener(new TextWatcher() {

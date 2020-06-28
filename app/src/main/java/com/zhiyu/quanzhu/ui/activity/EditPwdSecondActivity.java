@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseActivity;
 import com.zhiyu.quanzhu.base.BaseResult;
@@ -147,23 +148,28 @@ public class EditPwdSecondActivity extends BaseActivity implements View.OnClickL
                 }
                 break;
             case R.id.confirmTextView:
-                int length = pwd.length();
-                switch (payOrLoginPwd) {
-                    case 0:
-                        if (length < 6 || length > 14) {
-                            MessageToast.getInstance(this).show("登录密码长度6-14");
+                if (!StringUtils.isNullOrEmpty(pwd)) {
+                    int length = pwd.length();
+                    switch (payOrLoginPwd) {
+                        case 0:
+                            if (length < 6 || length > 14) {
+                                MessageToast.getInstance(this).show("登录密码长度6-14");
+                                break;
+                            }
+                            setLoginPwd();
                             break;
-                        }
-                        setLoginPwd();
-                        break;
-                    case 1:
-                        if (length != 6) {
-                            MessageToast.getInstance(this).show("请确认6位支付密码");
+                        case 1:
+                            if (length != 6) {
+                                MessageToast.getInstance(this).show("请确认6位支付密码");
+                                break;
+                            }
+                            setPayPwd();
                             break;
-                        }
-                        setPayPwd();
-                        break;
+                    }
+                } else {
+                    MessageToast.getInstance(this).show("请设置密码!");
                 }
+
                 break;
         }
     }

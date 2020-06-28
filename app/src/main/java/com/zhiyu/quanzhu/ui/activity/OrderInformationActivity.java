@@ -70,6 +70,7 @@ public class OrderInformationActivity extends BaseActivity implements View.OnCli
     private PasswordCheckDialog passwordCheckDialog;
     private OrderConfirmUseCouponDialog useCouponDialog;
     private int balancePayType;
+    private int position;
     private MyHandler myHandler = new MyHandler(this);
 
     private static class MyHandler extends Handler {
@@ -93,6 +94,7 @@ public class OrderInformationActivity extends BaseActivity implements View.OnCli
                         activity.adapter.setList(activity.orderInformationResult.getData().getDetail().getGoods(),
                                 activity.orderInformationResult.getData().getDetail().getStatus(),
                                 activity.orderInformationResult.getData().getDetail().getId());
+                        activity.adapter.setRefundMoney(activity.orderInformationResult.getData().getDetail().getPaymoney());
                         activity.orderNoTextView.setText(activity.orderInformationResult.getData().getDetail().getOrder_no());
                         activity.payTypeTextView.setText(activity.orderInformationResult.getData().getDetail().getPay_type_desc());
                         activity.orderStatusTextView.setText(activity.orderInformationResult.getData().getDetail().getStatus_desc());
@@ -116,8 +118,8 @@ public class OrderInformationActivity extends BaseActivity implements View.OnCli
                     break;
                 case 2:
                     if (200 == activity.orderDeliveryResult.getCode()) {
-                        activity.deliveryTimeTextView.setText(activity.orderDeliveryResult.getData().getList().getData().get(0).getTime());
-                        activity.deliveryContextTextView.setText(activity.orderDeliveryResult.getData().getList().getData().get(0).getContext());
+                        activity.deliveryTimeTextView.setText(activity.orderDeliveryResult.getData().getList().get(0).getData().get(0).getTime());
+                        activity.deliveryContextTextView.setText(activity.orderDeliveryResult.getData().getList().get(0).getData().get(0).getContext());
                     }
                     break;
                 case 3://删除订单
@@ -165,6 +167,7 @@ public class OrderInformationActivity extends BaseActivity implements View.OnCli
         WXEntryActivity.setOnWxpayCallbackListener(this);
         order_status = getIntent().getIntExtra("order_status", 0);
         order_id = getIntent().getIntExtra("order_id", 0);
+        position = getIntent().getIntExtra("position", -1);
         initDialogs();
         initViews();
     }
@@ -623,7 +626,7 @@ public class OrderInformationActivity extends BaseActivity implements View.OnCli
     private void alipayRequest() {
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.ALIPAY);
         params.addBodyParameter("oid", String.valueOf(orderInformationResult.getData().getDetail().getId()));
-        params.addBodyParameter("paytype","1");
+        params.addBodyParameter("paytype", "1");
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
@@ -658,7 +661,7 @@ public class OrderInformationActivity extends BaseActivity implements View.OnCli
     private void wxpayRequest() {
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.WXPAY);
         params.addBodyParameter("oid", String.valueOf(orderInformationResult.getData().getDetail().getId()));
-        params.addBodyParameter("paytype","1");
+        params.addBodyParameter("paytype", "1");
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
@@ -691,7 +694,7 @@ public class OrderInformationActivity extends BaseActivity implements View.OnCli
         params.addBodyParameter("oid", String.valueOf(orderInformationResult.getData().getDetail().getId()));
         params.addBodyParameter("password", pwd);
         params.addBodyParameter("type", balancePayType == 1 ? "wechat" : "ali");//ali,wechat
-        params.addBodyParameter("paytype","1");
+        params.addBodyParameter("paytype", "1");
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {

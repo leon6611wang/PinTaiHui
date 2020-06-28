@@ -23,6 +23,10 @@ import com.zhiyu.quanzhu.model.bean.MyConversation;
 import com.zhiyu.quanzhu.model.dao.ConversationDao;
 import com.zhiyu.quanzhu.ui.adapter.XiaoXiXiaoXiListAdapter;
 import com.zhiyu.quanzhu.ui.dialog.MessageMenuUpDialog;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
+import com.zhiyu.quanzhu.ui.widget.rongcircle.CircleMessage;
+import com.zhiyu.quanzhu.ui.widget.rongmingpian.MingPianMessage;
+import com.zhiyu.quanzhu.ui.widget.rongshare.ShareMessage;
 import com.zhiyu.quanzhu.utils.BaseDataUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.SharedPreferencesUtils;
@@ -36,6 +40,8 @@ import io.rong.imkit.manager.IUnReadMessageObserver;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
+import io.rong.message.FileMessage;
+import io.rong.message.ImageMessage;
 import io.rong.message.TextMessage;
 
 
@@ -47,7 +53,6 @@ public class FragmentXiaoXiXiaoXi extends Fragment implements View.OnTouchListen
     private List<MyConversation> list = new ArrayList<>();
     private MessageMenuUpDialog upDialog;
     private int menuX, menuY;
-    private List<String> headerPicList = new ArrayList<>();
     private MyHandler myHandler = new MyHandler(this);
 
     private static class MyHandler extends Handler {
@@ -62,6 +67,7 @@ public class FragmentXiaoXiXiaoXi extends Fragment implements View.OnTouchListen
             FragmentXiaoXiXiaoXi fragment = fragmentXiaoXiXiaoXiWeakReference.get();
             switch (msg.what) {
                 case 1:
+                    fragment.isRequesting = false;
                     if (null != fragment.list && fragment.list.size() > 0) {
                         fragment.adapter.setList(fragment.list);
                         fragment.listView.setVisibility(View.VISIBLE);
@@ -70,6 +76,17 @@ public class FragmentXiaoXiXiaoXi extends Fragment implements View.OnTouchListen
                         fragment.listView.setVisibility(View.VISIBLE);
                         fragment.emptyLayout.setVisibility(View.GONE);
                     }
+                    break;
+                case 2:
+                    Bundle bundle1 = (Bundle) msg.obj;
+                    int position = bundle1.getInt("position");
+                    MyConversation conversation = (MyConversation) bundle1.getSerializable("conversation");
+                    fragment.refreshUnReadMsg(position, conversation.getMessageContent(), conversation.getMessageTime(), conversation.getUnreadCount(), conversation.isRead());
+                    break;
+                case 3:
+                    Bundle bundle2 = (Bundle) msg.obj;
+                    MyConversation conversation2 = (MyConversation) bundle2.getSerializable("conversation");
+                    fragment.refreshUnReadMsgConversation(conversation2);
                     break;
             }
         }
@@ -81,11 +98,30 @@ public class FragmentXiaoXiXiaoXi extends Fragment implements View.OnTouchListen
         view = inflater.inflate(R.layout.fragment_xiaoxi_xiaoxi, container, false);
         initViews();
         initDialogs();
-//        initData();
-
+        RongIM.getInstance().addUnReadMessageCountChangedObserver(observer, Conversation.ConversationType.PRIVATE);
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (!isRequesting && list.size() == 0) {
+            isRequesting = true;
+            getConversationList();
+        }
+        getResumeConversationList();
+    }
+
+    private boolean isRequesting = false;
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser && !isRequesting && list.size() == 0) {
+            isRequesting = true;
+            getConversationList();
+        }
+    }
 
     /**
      * 未读消息监听回调
@@ -95,26 +131,27 @@ public class FragmentXiaoXiXiaoXi extends Fragment implements View.OnTouchListen
     private IUnReadMessageObserver observer = new IUnReadMessageObserver() {
         @Override
         public void onCountChanged(int i) {
-            getConversationList();
-//            System.out.println("未读消息："+i);
-//            LogUtil.e("数量变化s：" + i);
-//            //给首页发送未读消息事件，更新未读消息图标
-//            LeaveMessageBean leaveMessageBean = new LeaveMessageBean(i);
-//            EventBusUtils.post(leaveMessageBean);
+            getCurrentConversationList();
         }
     };
 
-    private void initData() {
-        headerPicList.add("http://5b0988e595225.cdn.sohucs.com/q_70,c_zoom,w_640/images/20190518/d38fda99a9654dd2b5b60950a1cb9967.jpeg");
-        headerPicList.add("http://5b0988e595225.cdn.sohucs.com/q_70,c_zoom,w_640/images/20190518/96429d741c0844abae96942dd5b403f8.jpeg");
-        headerPicList.add("https://c-ssl.duitang.com/uploads/item/201707/07/20170707113819_SMRch.thumb.700_0.jpeg");
-        headerPicList.add("https://c-ssl.duitang.com/uploads/item/201809/26/20180926162125_vjbwi.thumb.700_0.jpg");
-        headerPicList.add("https://c-ssl.duitang.com/uploads/item/201504/12/20150412H5653_LWfVe.thumb.700_0.jpeg");
-        headerPicList.add("https://c-ssl.duitang.com/uploads/item/201512/27/20151227103618_XYAkh.thumb.700_0.jpeg");
-        headerPicList.add("http://5b0988e595225.cdn.sohucs.com/q_70,c_zoom,w_640/images/20190518/b7f1ec8b65c740e38924380a500a7ad1.webp");
-        headerPicList.add("https://c-ssl.duitang.com/uploads/item/201505/11/20150511073557_PmUFZ.thumb.700_0.jpeg");
-        headerPicList.add("https://c-ssl.duitang.com/uploads/item/201412/02/20141202074543_zsvjG.thumb.700_0.jpeg");
+    private void refreshUnReadMsg(int position, String content, long time, int count, boolean isRead) {
+        if (null != adapter) {
+            if (list.size() > 0 && list.size() > position) {
+                list.get(position).setMessageContent(content);
+                list.get(position).setMessageTime(time);
+                list.get(position).setUnreadCount(count);
+                list.get(position).setRead(isRead);
+            }
+            adapter.setUnReadMsgCount(position, content, time, count, isRead);
+        }
     }
+
+    private void refreshUnReadMsgConversation(MyConversation refreshConversation) {
+        list.add(0, refreshConversation);
+        adapter.setList(list);
+    }
+
 
     private void initViews() {
         emptyLayout = view.findViewById(R.id.emptyLayout);
@@ -128,8 +165,8 @@ public class FragmentXiaoXiXiaoXi extends Fragment implements View.OnTouchListen
 //                System.out.println("y: "+y);
 //                menuY=y;
                 upDialog.show();
-                upDialog.setLocation(menuX, menuY);
-                return false;
+                upDialog.setLocation(menuX, menuY, position);
+                return true;
             }
         });
         listView.setOnTouchListener(this);
@@ -137,80 +174,81 @@ public class FragmentXiaoXiXiaoXi extends Fragment implements View.OnTouchListen
     }
 
     private void initDialogs() {
-        upDialog = new MessageMenuUpDialog(getContext(), R.style.dialog);
+        upDialog = new MessageMenuUpDialog(getContext(), R.style.dialog, new MessageMenuUpDialog.OnMessageMenuListener() {
+            @Override
+            public void onTop(final int position) {
+                RongIMClient.getInstance().setConversationToTop(Conversation.ConversationType.PRIVATE, list.get(position).getUserId(),
+                        true, new RongIMClient.ResultCallback<Boolean>() {
+                            @Override
+                            public void onSuccess(Boolean aBoolean) {
+                                if (aBoolean) {
+                                    adapter.setConversationTop(position, aBoolean);
+                                }
+                            }
+
+                            @Override
+                            public void onError(RongIMClient.ErrorCode errorCode) {
+                                MessageToast.getInstance(getContext()).show("操作失败，请稍后再试");
+                            }
+                        });
+            }
+
+            @Override
+            public void onDelete(final int position) {
+                RongIMClient.getInstance().removeConversation(Conversation.ConversationType.PRIVATE, list.get(position).getUserId(), new RongIMClient.ResultCallback<Boolean>() {
+                    @Override
+                    public void onSuccess(Boolean aBoolean) {
+                        if (aBoolean) {
+                            adapter.deleteConversation(position);
+                        }
+                    }
+
+                    @Override
+                    public void onError(RongIMClient.ErrorCode errorCode) {
+                        MessageToast.getInstance(getContext()).show("操作失败，请稍后再试");
+                    }
+                });
+            }
+        });
     }
+
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             menuX = (int) event.getX();
             menuY = (int) event.getY();
-//            System.out.println("getY(): "+event.getY());
         }
         return false;
     }
 
     @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-        if (isVisibleToUser) {
-            if (list.size() > 0) {
-                list.clear();
-            }
-            getConversationList();
-        }
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (list.size() > 0) {
-            list.clear();
-        }
-        RongIM.getInstance().addUnReadMessageCountChangedObserver(observer, Conversation.ConversationType.PRIVATE);
-        getConversationList();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
+    public void onDestroy() {
+        super.onDestroy();
         RongIM.getInstance().removeUnReadMessageCountChangedObserver(observer);
     }
 
-    private List<Integer> conversationUserIdList = new ArrayList<>();
-
     private void getConversationList() {
-        if (null != list) {
-            list.clear();
-        }
+//        System.out.println("getConversationList");
         RongIMClient.getInstance().getConversationList(new RongIMClient.ResultCallback<List<Conversation>>() {
             @Override
             public void onSuccess(List<Conversation> conversations) {
                 if (null != conversations && conversations.size() > 0) {
+                    list.clear();
                     for (int i = 0; i < conversations.size(); i++) {
                         final Conversation conversation = conversations.get(i);
+//                        System.out.println("单聊: " + (null==conversation.getLatestMessage().getUserInfo()?"未获取到个人信息":conversation.getLatestMessage().getUserInfo().getName()));
                         final MyConversation myConversation = new MyConversation();
                         if (conversation.getConversationType().getName().toLowerCase().equals(SharedPreferencesUtils.IM_PRIVATE)) {
                             myConversation.setType(conversation.getConversationType().getName().toLowerCase());
                             myConversation.setTop(conversation.isTop());
+
                             myConversation.setUnreadCount(conversation.getUnreadMessageCount());
-//                            System.out.println("senderId: " + conversation.getSenderUserId() + " , targetId: " + conversation.getTargetId());
                             if (String.valueOf(SPUtils.getInstance().getUserId(BaseApplication.applicationContext)).equals(conversation.getSenderUserId())) {
                                 myConversation.setUserId(conversation.getTargetId());
                             } else {
                                 myConversation.setUserId(conversation.getSenderUserId());
                             }
-//                            String lastUserId = "";
-//                            if (null != conversation && null != conversation.getLatestMessage() && null != conversation.getLatestMessage().getUserInfo()) {
-//                                lastUserId = conversation.getLatestMessage().getUserInfo().getUserId();
-//                            } else {
-//                                lastUserId = String.valueOf(SPUtils.getInstance().getUserId(BaseApplication.applicationContext));
-//                            }
-//                            myConversation.setUserId(lastUserId);
-//                            System.out.println("userId: " + myConversation.getUserId());
-                            if (!StringUtils.isNullOrEmpty(myConversation.getUserId()))
-                                conversationUserIdList.add(Integer.parseInt(myConversation.getUserId()));
-//                            System.out.println(ConversationDao.getDao(getContext()).selectById(myConversation.getUserId()).getUser_name());
                             myConversation.setUserName(ConversationDao.getDao(getContext()).selectById(myConversation.getUserId()).getUser_name());
                             myConversation.setHeaderPic(ConversationDao.getDao(getContext()).selectById(myConversation.getUserId()).getHeader_pic());
                             myConversation.setMessageTime(conversation.getSentTime());
@@ -220,9 +258,18 @@ public class FragmentXiaoXiXiaoXi extends Fragment implements View.OnTouchListen
                                     if (message.getContent() instanceof TextMessage) {
                                         final TextMessage textMessage = (TextMessage) message.getContent();
                                         myConversation.setMessageContent(textMessage.getContent());
-                                        myConversation.setRead(conversation.getReceivedStatus().isRead());
-//                                    System.out.println("content: " + textMessage.getContent() + " , isRead: " + conversation.getReceivedStatus().isRead());
+                                    } else if (message.getContent() instanceof ShareMessage) {
+                                        myConversation.setMessageContent("【分享消息】");
+                                    } else if (message.getContent() instanceof MingPianMessage) {
+                                        myConversation.setMessageContent("【名片】");
+                                    } else if (message.getContent() instanceof CircleMessage) {
+                                        myConversation.setMessageContent("【圈子】");
+                                    } else if (message.getContent() instanceof ImageMessage) {
+                                        myConversation.setMessageContent("【图片】");
+                                    } else if (message.getContent() instanceof FileMessage) {
+                                        myConversation.setMessageContent("【文件】");
                                     }
+                                    myConversation.setRead(conversation.getReceivedStatus().isRead());
                                 }
 
                                 @Override
@@ -231,9 +278,7 @@ public class FragmentXiaoXiXiaoXi extends Fragment implements View.OnTouchListen
                                 }
                             });
                             list.add(myConversation);
-                            BaseDataUtils.getInstance().initIMConversation(GsonUtils.GsonString(conversationUserIdList));
                         }
-
                     }
                 }
                 android.os.Message message = myHandler.obtainMessage(1);
@@ -246,6 +291,175 @@ public class FragmentXiaoXiXiaoXi extends Fragment implements View.OnTouchListen
             }
         });
     }
+
+    private void getCurrentConversationList() {
+        RongIMClient.getInstance().getConversationList(new RongIMClient.ResultCallback<List<Conversation>>() {
+            @Override
+            public void onSuccess(List<Conversation> conversations) {
+                if (null != conversations && conversations.size() > 0) {
+                    for (int i = 0; i < conversations.size(); i++) {
+                        final Conversation conversation = conversations.get(i);
+                        final MyConversation myConversation = new MyConversation();
+                        if (conversation.getConversationType().getName().toLowerCase().equals(SharedPreferencesUtils.IM_PRIVATE)) {
+                            myConversation.setType(conversation.getConversationType().getName().toLowerCase());
+                            myConversation.setTop(conversation.isTop());
+                            myConversation.setUnreadCount(conversation.getUnreadMessageCount());
+                            if (String.valueOf(SPUtils.getInstance().getUserId(BaseApplication.applicationContext)).equals(conversation.getSenderUserId())) {
+                                myConversation.setUserId(conversation.getTargetId());
+                            } else {
+                                myConversation.setUserId(conversation.getSenderUserId());
+                            }
+                            myConversation.setUserName(ConversationDao.getDao(getContext()).selectById(myConversation.getUserId()).getUser_name());
+                            myConversation.setHeaderPic(ConversationDao.getDao(getContext()).selectById(myConversation.getUserId()).getHeader_pic());
+                            myConversation.setMessageTime(conversation.getSentTime());
+                            RongIMClient.getInstance().getMessage(conversation.getLatestMessageId(), new RongIMClient.ResultCallback<Message>() {
+                                @Override
+                                public void onSuccess(Message message) {
+                                    if (message.getContent() instanceof TextMessage) {
+                                        final TextMessage textMessage = (TextMessage) message.getContent();
+                                        myConversation.setMessageContent(textMessage.getContent());
+                                    } else if (message.getContent() instanceof ShareMessage) {
+                                        myConversation.setMessageContent("【分享消息】");
+                                    } else if (message.getContent() instanceof MingPianMessage) {
+                                        myConversation.setMessageContent("【名片】");
+                                    } else if (message.getContent() instanceof CircleMessage) {
+                                        myConversation.setMessageContent("【圈子】");
+                                    } else if (message.getContent() instanceof ImageMessage) {
+                                        myConversation.setMessageContent("【图片】");
+                                    } else if (message.getContent() instanceof FileMessage) {
+                                        myConversation.setMessageContent("【文件】");
+                                    }
+                                    myConversation.setRead(conversation.getReceivedStatus().isRead());
+                                    getConversationPosition(myConversation);
+                                }
+
+                                @Override
+                                public void onError(RongIMClient.ErrorCode errorCode) {
+
+                                }
+                            });
+                        }
+                    }
+                }
+
+            }
+
+            @Override
+            public void onError(RongIMClient.ErrorCode errorCode) {
+
+            }
+        });
+    }
+
+    private void getResumeConversationList() {
+        RongIMClient.getInstance().getConversationList(new RongIMClient.ResultCallback<List<Conversation>>() {
+            @Override
+            public void onSuccess(List<Conversation> conversations) {
+                if (null != conversations && conversations.size() > 0) {
+                    for (int i = 0; i < conversations.size(); i++) {
+                        final Conversation conversation = conversations.get(i);
+                        final MyConversation myConversation = new MyConversation();
+                        if (conversation.getConversationType().getName().toLowerCase().equals(SharedPreferencesUtils.IM_PRIVATE)) {
+                            myConversation.setType(conversation.getConversationType().getName().toLowerCase());
+                            myConversation.setTop(conversation.isTop());
+                            myConversation.setUnreadCount(conversation.getUnreadMessageCount());
+                            if (String.valueOf(SPUtils.getInstance().getUserId(BaseApplication.applicationContext)).equals(conversation.getSenderUserId())) {
+                                myConversation.setUserId(conversation.getTargetId());
+                            } else {
+                                myConversation.setUserId(conversation.getSenderUserId());
+                            }
+                            myConversation.setUserName(ConversationDao.getDao(getContext()).selectById(myConversation.getUserId()).getUser_name());
+                            myConversation.setHeaderPic(ConversationDao.getDao(getContext()).selectById(myConversation.getUserId()).getHeader_pic());
+                            myConversation.setMessageTime(conversation.getSentTime());
+                            RongIMClient.getInstance().getMessage(conversation.getLatestMessageId(), new RongIMClient.ResultCallback<Message>() {
+                                @Override
+                                public void onSuccess(Message message) {
+                                    if (message.getContent() instanceof TextMessage) {
+                                        final TextMessage textMessage = (TextMessage) message.getContent();
+                                        myConversation.setMessageContent(textMessage.getContent());
+                                    } else if (message.getContent() instanceof ShareMessage) {
+                                        myConversation.setMessageContent("【分享消息】");
+                                    } else if (message.getContent() instanceof MingPianMessage) {
+                                        myConversation.setMessageContent("【名片】");
+                                    } else if (message.getContent() instanceof CircleMessage) {
+                                        myConversation.setMessageContent("【圈子】");
+                                    } else if (message.getContent() instanceof ImageMessage) {
+                                        myConversation.setMessageContent("【图片】");
+                                    } else if (message.getContent() instanceof FileMessage) {
+                                        myConversation.setMessageContent("【文件】");
+                                    }
+                                    myConversation.setRead(conversation.getReceivedStatus().isRead());
+                                    getResumeConversationPosition(myConversation);
+                                }
+
+                                @Override
+                                public void onError(RongIMClient.ErrorCode errorCode) {
+
+                                }
+                            });
+                        }
+                    }
+                }
+
+            }
+
+            @Override
+            public void onError(RongIMClient.ErrorCode errorCode) {
+
+            }
+        });
+    }
+
+    private void getConversationPosition(MyConversation myConversation) {
+        if (null == myConversation) {
+            return;
+        }
+        int position = -1;
+        if (null != list && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).getUserId().equals(myConversation.getUserId())) {
+                    position = i;
+                }
+            }
+        }
+//        System.out.println("position: " + position + " , user_id: " + myConversation.getUserId() + " , count: " + myConversation.getUnreadCount());
+        if (position > -1) {
+            android.os.Message message = myHandler.obtainMessage(2);
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("conversation", myConversation);
+            bundle.putInt("position", position);
+            message.obj = bundle;
+            message.sendToTarget();
+        } else if (position == -1 && myConversation.getUnreadCount() > 0) {
+            android.os.Message message = myHandler.obtainMessage(3);
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("conversation", myConversation);
+            message.obj = bundle;
+            message.sendToTarget();
+        }
+    }
+
+    private void getResumeConversationPosition(MyConversation myConversation) {
+        if (null == myConversation) {
+            return;
+        }
+        int position = -1;
+        if (null != list && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).getUserId().equals(myConversation.getUserId())) {
+                    position = i;
+                }
+            }
+        }
+        if (position == -1) {
+            android.os.Message message = myHandler.obtainMessage(3);
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("conversation", myConversation);
+            message.obj = bundle;
+            message.sendToTarget();
+        }
+    }
+
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

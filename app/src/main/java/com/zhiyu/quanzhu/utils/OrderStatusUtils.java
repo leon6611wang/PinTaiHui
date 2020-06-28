@@ -8,4 +8,5 @@ public class OrderStatusUtils {
     public final static int DAIPINGJIA = 4;//待评价
     public final static int YIWANCHENG = 5;//已完成
     public final static int SHOUHOUZHONG = 6;//售后中
+    public final static int GUANBI=7;//交易关闭
 }

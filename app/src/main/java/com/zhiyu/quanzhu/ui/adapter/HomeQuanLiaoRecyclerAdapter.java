@@ -32,6 +32,13 @@ public class HomeQuanLiaoRecyclerAdapter extends RecyclerView.Adapter<HomeQuanLi
     private float ratio = 0.5768f;
     private List<IMCircle> list;
 
+    public void setUnReadCount(int position, int count) {
+        if (null != list && list.size() > 0 && list.size() > position) {
+            list.get(position).setUnReadCount(count);
+            notifyDataSetChanged();
+        }
+    }
+
     public void setList(List<IMCircle> circleList) {
         this.list = circleList;
         notifyDataSetChanged();
@@ -75,13 +82,14 @@ public class HomeQuanLiaoRecyclerAdapter extends RecyclerView.Adapter<HomeQuanLi
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
-        Glide.with(context).load(list.get(position).getThumb()).error(R.drawable.image_error) .placeholder(R.drawable.image_error)
+        Glide.with(context).load(list.get(position).getThumb()).error(R.drawable.image_error).placeholder(R.drawable.image_error)
                 .fallback(R.drawable.image_error).into(holder.circleImageView);
         holder.circleNameTextView.setText(list.get(position).getName());
         holder.countTextView.setText(String.valueOf(list.get(position).getNum()));
-        Glide.with(context).load(list.get(position).getAvatar()).error(R.drawable.image_error) .placeholder(R.drawable.image_error)
+        Glide.with(context).load(list.get(position).getAvatar()).error(R.drawable.image_error).placeholder(R.drawable.image_error)
                 .fallback(R.drawable.image_error).into(holder.userAvatarImageView);
         holder.userNameTextView.setText(list.get(position).getUsername());
+        holder.newMsgCountTextView.setText("[" + list.get(position).getUnReadCount() + "条新消息]");
         holder.noticeTextView.setText("【公告】" + list.get(position).getNotice());
         holder.mCardView.setLayoutParams(ll);
         holder.mCardView.setOnClickListener(new View.OnClickListener() {

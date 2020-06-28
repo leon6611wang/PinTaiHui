@@ -110,7 +110,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
                         android:layout_weight="1"
-                        android:text="圈主是基于我们APP上的一个重要组成部分，通过圈主可以吸引粉丝进入我..."
+                        android:text="圈主是基于我们APP上的一个重要组成部分，通过圈主可以吸引圈粉进入我..."
                         android:textSize="12sp"
                         android:textColor="#707070"
                         android:layout_gravity="center"

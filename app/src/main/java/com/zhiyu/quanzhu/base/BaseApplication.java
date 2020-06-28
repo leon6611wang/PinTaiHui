@@ -17,7 +17,10 @@ import com.orm.SugarContext;
 import com.leon.myvideoplaerlibrary.manager.VideoPlayerManager;
 import com.zhiyu.quanzhu.ui.activity.VideoPlayerActivity;
 import com.zhiyu.quanzhu.ui.widget.emoji.EmojiManager;
+import com.zhiyu.quanzhu.ui.widget.rongcircle.CircleMessage;
+import com.zhiyu.quanzhu.ui.widget.rongcircle.CircleMessageItemProvider;
 import com.zhiyu.quanzhu.ui.widget.rongfrend.FrendMessage;
+import com.zhiyu.quanzhu.ui.widget.rongfrend.FrendMessageItemProvider;
 import com.zhiyu.quanzhu.ui.widget.rongmingpian.MingPianMessage;
 import com.zhiyu.quanzhu.ui.widget.rongmingpian.MingPianMessageItemProvider;
 import com.zhiyu.quanzhu.ui.widget.rongorder.OrderMessage;
@@ -100,6 +103,9 @@ public class BaseApplication extends Application implements BaseActivity.OnExter
             RongIM.registerMessageTemplate(new ShareMessageItemProvider(this));
             //名片好友消息
             RongIM.registerMessageType(FrendMessage.class);
+            RongIM.registerMessageTemplate(new FrendMessageItemProvider(this));
+            RongIM.registerMessageType(CircleMessage.class);
+            RongIM.registerMessageTemplate(new CircleMessageItemProvider(this));
         }
         imHeaderListener();
     }
@@ -192,8 +198,8 @@ public class BaseApplication extends Application implements BaseActivity.OnExter
 
             @Override
             public boolean onMessageClick(Context context, View view, Message message) {
-                System.out.println("onMessageClick");
-                return false;
+//                System.out.println("onMessageClick");
+                return true;
             }
 
             @Override
@@ -245,8 +251,9 @@ public class BaseApplication extends Application implements BaseActivity.OnExter
     }
 
     private RequestOptions requestOptions;
+
     public RequestOptions getVideoCoverImageOption() {
-        if(null==requestOptions){
+        if (null == requestOptions) {
             requestOptions = RequestOptions.frameOf(0);
             requestOptions.set(FRAME_OPTION, MediaMetadataRetriever.OPTION_CLOSEST);
             requestOptions.transform(new BitmapTransformation() {

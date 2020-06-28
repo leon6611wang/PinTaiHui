@@ -78,6 +78,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="genanx旗舰店"
+                            android:maxLines="1"
+                            android:ellipsize="end"
                             android:textColor="#EDEDED"
                             android:textSize="12sp" />
 

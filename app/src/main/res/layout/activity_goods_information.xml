@@ -237,42 +237,44 @@
 
                     <TextView
                         android:id="@+id/maxCouponTextView"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:layout_marginRight="9.5dp"
+                        android:layout_weight="1"
                         android:background="#F6152A"
                         android:gravity="center"
                         android:paddingBottom="4dp"
                         android:paddingLeft="7dp"
                         android:paddingRight="7dp"
                         android:paddingTop="4dp"
+                        android:maxLines="1"
+                        android:ellipsize="end"
                         android:textColor="@color/white"
                         android:textSize="12sp" />
 
                     <TextView
                         android:id="@+id/maxCouponDescTextView"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
+                        android:layout_weight="1"
                         android:background="#FFEEEF"
                         android:gravity="center"
                         android:paddingBottom="4dp"
                         android:paddingLeft="7dp"
                         android:paddingRight="7dp"
                         android:paddingTop="4dp"
+                        android:maxLines="1"
+                        android:ellipsize="end"
                         android:textColor="#F6152A"
                         android:textSize="12sp" />
-
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
+                        android:layout_marginLeft="@dimen/dp_5"
                         android:drawablePadding="5dp"
                         android:drawableRight="@mipmap/arrow_right_yellow"
                         android:gravity="center"
@@ -503,7 +505,7 @@
                             android:ellipsize="end"
                             android:gravity="center|left"
                             android:maxLines="2"
-                            android:text="圈主是基于我们APP上的一个重要组成 部分，通过圈主可以吸引粉丝进入我..."
+                            android:text="圈主是基于我们APP上的一个重要组成 部分，通过圈主可以吸引圈粉进入我..."
                             android:textColor="#707070" />
 
                         <View

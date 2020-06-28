@@ -68,6 +68,10 @@ public class PublishArticleActivity extends BaseActivity implements View.OnClick
         public void handleMessage(Message msg) {
             PublishArticleActivity activity = activityWeakReference.get();
             switch (msg.what) {
+                case 99:
+                    activity.nextButton.setClickable(true);
+                    MessageToast.getInstance(activity).show("服务器内部错误，请稍后再试.");
+                    break;
                 case 0:
                     if (activity.articleInformationResult.getCode() == 200) {
                         activity.titleEditText.setText(activity.articleInformationResult.getData().getDetail().getTitle());
@@ -93,6 +97,7 @@ public class PublishArticleActivity extends BaseActivity implements View.OnClick
 
                     break;
                 case 2:
+                    activity.nextButton.setClickable(true);
                     MessageToast.getInstance(activity).show(activity.addFeedResult.getMsg());
                     if (activity.addFeedResult.getCode() == 200) {
                         activity.feeds_id = activity.addFeedResult.getData().getFeeds_id();
@@ -105,6 +110,7 @@ public class PublishArticleActivity extends BaseActivity implements View.OnClick
                     }
                     break;
                 case 3:
+                    activity.nextButton.setClickable(true);
                     MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
                     if (200 == activity.baseResult.getCode()) {
                         activity.goToPublishSetting();
@@ -252,12 +258,14 @@ public class PublishArticleActivity extends BaseActivity implements View.OnClick
     private AddFeedResult addFeedResult;
 
     private void addFeed() {
-        System.out.println("addFeed -> content: " + GsonUtils.GsonString(contentList));
+        nextButton.setClickable(false);
+//        System.out.println("addFeed -> content: " + GsonUtils.GsonString(contentList));
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.ADD_FEED);
         params.addBodyParameter("type", "1");
         params.addBodyParameter("is_draf", "1");
         params.addBodyParameter("content", GsonUtils.GsonString(contentList));
         params.addBodyParameter("tags", tagIds);
+        params.addBodyParameter("feeds_type","1");
         params.addBodyParameter("title", titleEditText.getText().toString().trim());
         params.addBodyParameter("city_name", SPUtils.getInstance().getLocationCity(BaseApplication.applicationContext));
         params.addBodyParameter("province_name", SPUtils.getInstance().getLocationProvince(BaseApplication.applicationContext));
@@ -275,7 +283,8 @@ public class PublishArticleActivity extends BaseActivity implements View.OnClick
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
             }
 
             @Override
@@ -293,13 +302,15 @@ public class PublishArticleActivity extends BaseActivity implements View.OnClick
     private BaseResult baseResult;
 
     private void updateFeed() {
-        System.out.println("update");
+//        System.out.println("update");
+        nextButton.setClickable(false);
         String content = GsonUtils.GsonString(contentList);
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.UPDATE_FEED);
         params.addBodyParameter("type", "1");
         params.addBodyParameter("is_draf", "1");
         params.addBodyParameter("content", content);
         params.addBodyParameter("tags", tagIds);
+        params.addBodyParameter("feeds_type","1");
         params.addBodyParameter("title", titleEditText.getText().toString().trim());
         params.addBodyParameter("feeds_id", String.valueOf(feeds_id));
         params.addBodyParameter("city_name", SPUtils.getInstance().getLocationCity(BaseApplication.applicationContext));
@@ -314,7 +325,8 @@ public class PublishArticleActivity extends BaseActivity implements View.OnClick
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
             }
 
             @Override

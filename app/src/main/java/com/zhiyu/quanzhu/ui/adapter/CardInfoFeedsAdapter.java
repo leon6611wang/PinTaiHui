@@ -20,11 +20,11 @@ import com.bumptech.glide.Glide;
 import com.leon.myvideoplaerlibrary.view.VideoPlayerTrackView;
 import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
-import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.Feed;
 import com.zhiyu.quanzhu.ui.activity.ArticleInformationActivity;
 import com.zhiyu.quanzhu.ui.activity.ComplaintActivity;
+import com.zhiyu.quanzhu.ui.activity.FeedInformationActivity;
 import com.zhiyu.quanzhu.ui.activity.LargeImageActivity;
 import com.zhiyu.quanzhu.ui.activity.VideoInformationActivity;
 import com.zhiyu.quanzhu.ui.dialog.DeleteFeedDialog;
@@ -263,7 +263,7 @@ public class CardInfoFeedsAdapter extends RecyclerView.Adapter<RecyclerView.View
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof FeedViewHolder) {
             FeedViewHolder feed = (FeedViewHolder) holder;
-            Glide.with(context).load(list.get(position).getContent().getAvatar()).error(R.mipmap.no_avatar).into(feed.avatarImageView);
+            Glide.with(context).load(list.get(position).getContent().getAvatar()).error(R.drawable.image_error).into(feed.avatarImageView);
             feed.nameTextView.setText(list.get(position).getContent().getUsername());
             feed.timeTextView.setText(list.get(position).getContent().getTime());
             if (!StringUtils.isNullOrEmpty(list.get(position).getContent().getContent())) {
@@ -299,7 +299,8 @@ public class CardInfoFeedsAdapter extends RecyclerView.Adapter<RecyclerView.View
                 feed.imageGridView.setVisibility(View.GONE);
                 feed.videoPlayer.setVisibility(View.VISIBLE);
                 feed.videoPlayer.setDataSource(list.get(position).getContent().getVideo_url(), "");
-                Glide.with(context).load(list.get(position).getContent().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(feed.videoPlayer.getCoverController().getVideoCover());
+                Glide.with(context).load(list.get(position).getContent().getVideo_thumb()).into(feed.videoPlayer.getCoverController().getVideoCover());
+//                Glide.with(context).load(list.get(position).getContent().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(feed.videoPlayer.getCoverController().getVideoCover());
                 feed.videoPlayer.setLayoutParams(list.get(position).getContent().getLayoutParams(dp_240, true));
             } else {
                 if (list.get(position).getContent().getImgs().size() == 1) {
@@ -307,7 +308,7 @@ public class CardInfoFeedsAdapter extends RecyclerView.Adapter<RecyclerView.View
                     feed.imageGridView.setVisibility(View.GONE);
                     feed.videoPlayer.setVisibility(View.GONE);
                     feed.feedImageView.setLayoutParams(list.get(position).getContent().getLayoutParams(dp_240, false));
-                    Glide.with(context).load(list.get(position).getContent().getImgs().get(0).getFile()).error(R.mipmap.img_error)
+                    Glide.with(context).load(list.get(position).getContent().getImgs().get(0).getFile()).error(R.drawable.image_error)
                             .into(feed.feedImageView);
                     feed.feedImageView.setOnClickListener(new OnLargeImageClick(list.get(position).getContent().getImgs().get(0).getFile()));
                 } else {
@@ -322,17 +323,17 @@ public class CardInfoFeedsAdapter extends RecyclerView.Adapter<RecyclerView.View
             }
             feed.collectImageView.setOnClickListener(new OnCollectListener(position));
             feed.shareTextView.setOnClickListener(new OnShareClick(position));
-            feed.commentTextView.setOnClickListener(new OnCommentClick(position));
+            feed.commentTextView.setOnClickListener(new OnFeedInfoClick(position));
             feed.priseLayout.setOnClickListener(new OnPriseClick(position));
             feed.closeLayout.setOnClickListener(new OnDeleteFeedClick(position));
         } else if (holder instanceof ArticleViewHolder) {
             ArticleViewHolder article = (ArticleViewHolder) holder;
-            Glide.with(context).load(list.get(position).getContent().getAvatar()).error(R.mipmap.no_avatar).into(article.avatarImageView);
+            Glide.with(context).load(list.get(position).getContent().getAvatar()).error(R.drawable.image_error).into(article.avatarImageView);
             article.nameTextView.setText(list.get(position).getContent().getUsername());
             article.titleTextView.setText(list.get(position).getContent().getTitle());
             if (null != list.get(position).getContent().getNewthumb()) {
                 article.coverImageView.setVisibility(View.VISIBLE);
-                Glide.with(context).load(list.get(position).getContent().getNewthumb().getFile()).error(R.mipmap.img_error).
+                Glide.with(context).load(list.get(position).getContent().getNewthumb().getFile()).error(R.drawable.image_error).
                         placeholder(R.drawable.image_error)
                         .fallback(R.drawable.image_error)
                         .into(article.coverImageView);
@@ -356,13 +357,14 @@ public class CardInfoFeedsAdapter extends RecyclerView.Adapter<RecyclerView.View
                 article.priseImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.dianzan_gray));
             }
             article.collectImageView.setOnClickListener(new OnCollectListener(position));
+            article.commentTextView.setOnClickListener(new OnArticleInfoClick(position));
             article.priseLayout.setOnClickListener(new OnPriseClick(position));
             article.shareTextView.setOnClickListener(new OnShareClick(position));
             article.rootLayout.setOnClickListener(new OnArticleInfoClick(position));
             article.closeLayout.setOnClickListener(new OnDeleteFeedClick(position));
         } else if (holder instanceof VideoViewHolder) {
             VideoViewHolder video = (VideoViewHolder) holder;
-            Glide.with(context).load(list.get(position).getContent().getAvatar()).error(R.mipmap.no_avatar).into(video.avatarImageView);
+            Glide.with(context).load(list.get(position).getContent().getAvatar()).error(R.drawable.image_error).into(video.avatarImageView);
             video.nameTextView.setText(list.get(position).getContent().getUsername());
             video.timeTextView.setText(list.get(position).getContent().getTime());
             video.mTextView.setText(list.get(position).getContent().getContent());
@@ -391,10 +393,11 @@ public class CardInfoFeedsAdapter extends RecyclerView.Adapter<RecyclerView.View
             if (stopVideo && video.videoPlayer.isPlaying()) {
                 video.videoPlayer.getVideoController().pause();
             }
-            Glide.with(context).load(list.get(position).getContent().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(video.videoPlayer.getCoverController().getVideoCover());
+            Glide.with(context).load(list.get(position).getContent().getVideo_thumb()).into(video.videoPlayer.getCoverController().getVideoCover());
+//            Glide.with(context).load(list.get(position).getContent().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(video.videoPlayer.getCoverController().getVideoCover());
             video.collectImageView.setOnClickListener(new OnCollectListener(position));
             video.shareTextView.setOnClickListener(new OnShareClick(position));
-            video.commentTextView.setOnClickListener(new OnCommentClick(position));
+            video.commentTextView.setOnClickListener(new OnVideoInformationClick(position));
             video.priseLayout.setOnClickListener(new OnPriseClick(position));
             video.itemRootLayout.setOnClickListener(new OnVideoInformationClick(position));
             video.closeLayout.setOnClickListener(new OnDeleteFeedClick(position));
@@ -457,16 +460,19 @@ public class CardInfoFeedsAdapter extends RecyclerView.Adapter<RecyclerView.View
         }
     }
 
-    private class OnCommentClick implements View.OnClickListener {
+    private class OnFeedInfoClick implements View.OnClickListener {
         private int position;
 
-        public OnCommentClick(int position) {
+        public OnFeedInfoClick(int position) {
             this.position = position;
         }
 
         @Override
         public void onClick(View v) {
-//            Intent commentIntent=new Intent(context,Comment)
+            Intent commentIntent = new Intent(context, FeedInformationActivity.class);
+            commentIntent.putExtra("feed_id", list.get(position).getContent().getId());
+            commentIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(commentIntent);
         }
     }
 

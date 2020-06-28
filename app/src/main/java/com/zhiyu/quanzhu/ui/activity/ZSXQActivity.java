@@ -70,10 +70,10 @@ public class ZSXQActivity extends BaseActivity  implements View.OnClickListener{
         params.addHeader("Content-Type","application/json; charset=UTF-8");
 //        params.addHeader("Accept-Encoding","gzip,delate,br");
         params.addHeader("Connection","keep-alive");
-        params.addHeader("X-Version","1.10.43");
+        params.addHeader("X-Version","1.10.44");
         params.addHeader("Accept","*/*");
-        params.addHeader("User-Agent","xiaomiquan/4.16.0 iOS/phone/13.3.1 iPhone Mobile");
-        params.addHeader("Accept-Language","zh-Hans-US;q=1,en;q=0.9");
+        params.addHeader("User-Agent","xiaomiquan/4.17.0 iOS/phone/10.2.1 iPhone Mobile");
+        params.addHeader("Accept-Language","zh-Hans-CN;q=1");
         params.addHeader("X-Request-Id",uuid);
 //        params.addBodyParameter("count","30");
 //        params.addBodyParameter("filter","answered");

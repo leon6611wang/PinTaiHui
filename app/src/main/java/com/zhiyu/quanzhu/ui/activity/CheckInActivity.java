@@ -18,6 +18,8 @@ import com.zhiyu.quanzhu.model.bean.CheckIn;
 import com.zhiyu.quanzhu.model.result.CheckInResult;
 import com.zhiyu.quanzhu.ui.adapter.CheckInRecyclerAdapter;
 import com.zhiyu.quanzhu.ui.dialog.CheckInSuccessDialog;
+import com.zhiyu.quanzhu.ui.dialog.RegTokenDialog;
+import com.zhiyu.quanzhu.ui.dialog.ShareDialog;
 import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
@@ -33,15 +35,18 @@ import java.util.ArrayList;
 /**
  * 签到
  */
-public class CheckInActivity extends BaseActivity implements View.OnClickListener {
+public class CheckInActivity extends BaseActivity implements View.OnClickListener, CheckInRecyclerAdapter.OnCheckInShareListener {
     private RecyclerView mRecyclerView;
     private CheckInRecyclerAdapter adapter;
     private ArrayList<CheckIn> list = new ArrayList<>();
     private View headerView;
     private View titleView, headerTitleView;
     private LinearLayout backLayout, headerBackLayout, rightLayout, headerRightLayout;
+    private RegTokenDialog regTokenDialog;
     private CheckInSuccessDialog checkInSuccessDialog;
+    private ShareDialog shareDialog;
     private TextView qiandaoTextView, daysTextView;
+    private String regToken, shareText;
     private MyHandler myHandler = new MyHandler(this);
 
     private static class MyHandler extends Handler {
@@ -55,6 +60,9 @@ public class CheckInActivity extends BaseActivity implements View.OnClickListene
         public void handleMessage(Message msg) {
             CheckInActivity activity = activityWeakReference.get();
             switch (msg.what) {
+                case 99:
+                    MessageToast.getInstance(activity).show("服务器内部错误，请稍后再试");
+                    break;
                 case 1:
                     activity.daysTextView.setText(String.valueOf(activity.checkInResult.getData().getDays()));
                     if (activity.checkInResult.getData().isIs_sgin()) {
@@ -80,6 +88,8 @@ public class CheckInActivity extends BaseActivity implements View.OnClickListene
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_check_in);
+        regToken = getIntent().getStringExtra("regToken");
+        shareText = getIntent().getStringExtra("shareText");
         initViews();
         initDialogs();
     }
@@ -92,6 +102,13 @@ public class CheckInActivity extends BaseActivity implements View.OnClickListene
 
     private void initDialogs() {
         checkInSuccessDialog = new CheckInSuccessDialog(this, R.style.dialog);
+        regTokenDialog = new RegTokenDialog(this, R.style.dialog, new RegTokenDialog.OnRegTokenShareListener() {
+            @Override
+            public void onRegToakenShare() {
+                shareDialog.show();
+            }
+        });
+        shareDialog = new ShareDialog(this, this, R.style.dialog);
     }
 
 
@@ -106,9 +123,10 @@ public class CheckInActivity extends BaseActivity implements View.OnClickListene
         rightLayout.setOnClickListener(this);
         mRecyclerView = findViewById(R.id.mRecyclerView);
         adapter = new CheckInRecyclerAdapter(this);
+        adapter.setOnCheckInShareListener(this);
         adapter.addDatas(list);
         headerView = LayoutInflater.from(this).inflate(R.layout.header_qiandao_recyclerview, null);
-        RecyclerView.LayoutParams layoutParams=new RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT,RecyclerView.LayoutParams.WRAP_CONTENT);
+        RecyclerView.LayoutParams layoutParams = new RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.WRAP_CONTENT);
         headerView.setLayoutParams(layoutParams);
         qiandaoTextView = headerView.findViewById(R.id.qiandaoTextView);
         qiandaoTextView.setOnClickListener(this);
@@ -194,7 +212,7 @@ public class CheckInActivity extends BaseActivity implements View.OnClickListene
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("签到详情: " + result);
+//                System.out.println("签到详情: " + result);
                 checkInResult = GsonUtils.GsonToBean(result, CheckInResult.class);
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
@@ -224,7 +242,7 @@ public class CheckInActivity extends BaseActivity implements View.OnClickListene
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("签到: " + result);
+//                System.out.println("签到: " + result);
                 baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
                 Message message = myHandler.obtainMessage(2);
                 message.sendToTarget();
@@ -232,7 +250,8 @@ public class CheckInActivity extends BaseActivity implements View.OnClickListene
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
             }
 
             @Override
@@ -245,5 +264,24 @@ public class CheckInActivity extends BaseActivity implements View.OnClickListene
 
             }
         });
+    }
+
+    @Override
+    public void onCheckInShare(int type, String type_desc) {
+        switch (type) {
+            case 1:
+                regTokenDialog.show();
+                regTokenDialog.setRegTokenData(regToken, shareText, null);
+                break;
+            case 2:
+                shareDialog.show();
+                break;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        shareDialog.setQQShareCallback(requestCode, resultCode, data);
     }
 }

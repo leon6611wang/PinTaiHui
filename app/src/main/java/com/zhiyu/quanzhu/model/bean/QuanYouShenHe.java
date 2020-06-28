@@ -10,6 +10,25 @@ public class QuanYouShenHe {
     private int status;
     private String status_desc;
     private String add_time;
+    private String refuse_reason;
+    private int from;
+
+
+    public String getRefuse_reason() {
+        return refuse_reason;
+    }
+
+    public void setRefuse_reason(String refuse_reason) {
+        this.refuse_reason = refuse_reason;
+    }
+
+    public int getFrom() {
+        return from;
+    }
+
+    public void setFrom(int from) {
+        this.from = from;
+    }
 
     public int getId() {
         return id;
@@ -76,7 +95,7 @@ public class QuanYouShenHe {
                 this.status_desc="已通过";
                 break;
             case 2:
-                this.status_desc="暂未通过";
+                this.status_desc="已拒绝";
                 break;
         }
         return status_desc;

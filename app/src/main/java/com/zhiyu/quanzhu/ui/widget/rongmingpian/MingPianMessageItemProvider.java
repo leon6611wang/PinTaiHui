@@ -1,6 +1,7 @@
 package com.zhiyu.quanzhu.ui.widget.rongmingpian;
 
 import android.content.Context;
+import android.support.v7.widget.CardView;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.view.LayoutInflater;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.zhiyu.quanzhu.R;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.RoundImageView;
 
 import io.rong.imkit.model.ProviderTag;
@@ -24,7 +26,7 @@ public class MingPianMessageItemProvider extends IContainerItemProvider.MessageP
 
     public MingPianMessageItemProvider(Context context) {
         super();
-        this.context=context;
+        this.context = context;
     }
 
     @Override
@@ -51,7 +53,8 @@ public class MingPianMessageItemProvider extends IContainerItemProvider.MessageP
 
     @Override
     public void onItemClick(View view, int i, MingPianMessage mingPianMessage, UIMessage uiMessage) {
-
+//        MessageToast.getInstance(context).show("点击跳转到名片详情，但是现在没有！");
+        System.out.println("名片 点击");
     }
 
     @Override
@@ -61,6 +64,13 @@ public class MingPianMessageItemProvider extends IContainerItemProvider.MessageP
         holder.titleTextView = view.findViewById(R.id.titleTextView);
         holder.nameTextView = view.findViewById(R.id.nameTextView);
         holder.imageImageView = view.findViewById(R.id.imageImageView);
+        holder.mCardView = view.findViewById(R.id.mCardView);
+        holder.mCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                System.out.println("名片cardview点击");
+            }
+        });
         view.setTag(holder);
         return view;
     }
@@ -69,5 +79,6 @@ public class MingPianMessageItemProvider extends IContainerItemProvider.MessageP
         RoundImageView imageImageView;
         TextView nameTextView;
         TextView titleTextView;
+        CardView mCardView;
     }
 }

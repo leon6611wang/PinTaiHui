@@ -54,8 +54,10 @@ public class WithdrawBondAlipayActivity extends BaseActivity implements View.OnC
                     break;
                 case 2:
                     if (activity.accountResult.getCode() == 200) {
-                        activity.realNameEditText.setText(activity.accountResult.getData().getTruename());
-                        activity.alipayAccountEditText.setText(activity.accountResult.getData().getAccount());
+                        if(null!=activity.accountResult&&null!=activity.accountResult.getData()){
+                            activity.realNameEditText.setText(activity.accountResult.getData().getTruename());
+                            activity.alipayAccountEditText.setText(activity.accountResult.getData().getAccount());
+                        }
                     }
                     break;
             }

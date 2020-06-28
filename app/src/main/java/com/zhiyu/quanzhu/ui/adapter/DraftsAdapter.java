@@ -324,7 +324,8 @@ public class DraftsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 feed.imageGridView.setVisibility(View.GONE);
                 feed.videoPlayer.setVisibility(View.VISIBLE);
                 feed.videoPlayer.setDataSource(list.get(position).getContent().getVideo_url(), "");
-                Glide.with(context).load(list.get(position).getContent().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(feed.videoPlayer.getCoverController().getVideoCover());
+                Glide.with(context).load(list.get(position).getContent().getVideo_thumb()).into(feed.videoPlayer.getCoverController().getVideoCover());
+//                Glide.with(context).load(list.get(position).getContent().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(feed.videoPlayer.getCoverController().getVideoCover());
                 feed.videoPlayer.setLayoutParams(list.get(position).getContent().getLayoutParams(dp_240, true));
                 feed.videoPlayer.getCoverController().getVideoCover().setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -341,7 +342,7 @@ public class DraftsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     feed.imageGridView.setVisibility(View.GONE);
                     feed.videoPlayer.setVisibility(View.GONE);
                     feed.feedImageView.setLayoutParams(list.get(position).getContent().getLayoutParams(dp_240, false));
-                    Glide.with(context).load(list.get(position).getContent().getImgs().get(0).getFile()).error(R.mipmap.img_error)
+                    Glide.with(context).load(list.get(position).getContent().getImgs().get(0).getFile()).error(R.drawable.image_error)
                             .into(feed.feedImageView);
                     feed.feedImageView.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -401,7 +402,7 @@ public class DraftsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             article.sourceTextView.setText(list.get(position).getContent().getCircle_name());
             if (null != list.get(position).getContent().getNewthumb()) {
                 article.coverImageView.setVisibility(View.VISIBLE);
-                Glide.with(context).load(list.get(position).getContent().getNewthumb().getFile()).error(R.mipmap.img_error).into(article.coverImageView);
+                Glide.with(context).load(list.get(position).getContent().getNewthumb().getFile()).error(R.drawable.image_error).into(article.coverImageView);
             } else {
                 article.coverImageView.setVisibility(View.GONE);
             }
@@ -476,7 +477,8 @@ public class DraftsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             }
             video.videoPlayer.setLayoutParams(list.get(position).getContent().getLayoutParams(width, height));
             video.videoPlayer.setDataSource(list.get(position).getContent().getVideo_url(), "");
-            Glide.with(context).load(list.get(position).getContent().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(video.videoPlayer.getCoverController().getVideoCover());
+            Glide.with(context).load(list.get(position).getContent().getVideo_thumb()).into(video.videoPlayer.getCoverController().getVideoCover());
+//            Glide.with(context).load(list.get(position).getContent().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(video.videoPlayer.getCoverController().getVideoCover());
             video.collectImageView.setOnClickListener(new OnCollectListener(position));
             video.shareTextView.setOnClickListener(new OnShareClick(position));
             video.commentTextView.setOnClickListener(new OnCommentClick(position));

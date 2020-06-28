@@ -18,6 +18,7 @@ import com.zhiyu.quanzhu.model.bean.LinkShop;
 import com.zhiyu.quanzhu.model.result.LinkShopResult;
 import com.zhiyu.quanzhu.ui.activity.PublishChooseGoodsRelationActivity;
 import com.zhiyu.quanzhu.ui.adapter.PublishChooseGoodsSearchShopAdapter;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyPtrHandlerFooter;
@@ -56,7 +57,12 @@ public class FragmentPublishChooseGoodsSelected extends Fragment {
         public void handleMessage(Message msg) {
             FragmentPublishChooseGoodsSelected fragment = fragmentPublishChooseGoodsSelectedWeakReference.get();
             switch (msg.what) {
+                case 99:
+                    fragment.isRequesting = false;
+                    MessageToast.getInstance(fragment.getActivity()).show("服务器内部错误，请稍后再试.");
+                    break;
                 case 1:
+                    fragment.isRequesting = false;
                     fragment.ptrFrameLayout.refreshComplete();
                     fragment.adapter.setList(fragment.list);
                     break;
@@ -77,19 +83,30 @@ public class FragmentPublishChooseGoodsSelected extends Fragment {
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-        if (isVisibleToUser) {
+        if(feeds_id==0){
+            feeds_id = (Integer) getArguments().get("feeds_id");
+//            System.out.println("selectedGoods setUserVisibleHint feeds_id: "+feeds_id);
+        }
+        if (isVisibleToUser && !isRequesting) {
+            isRequesting = true;
             page = 1;
             isRefresh = true;
             searchGoodsShop();
         }
     }
 
+    private boolean isRequesting = false;
+
     @Override
     public void onResume() {
         super.onResume();
-        page = 1;
-        isRefresh = true;
-        searchGoodsShop();
+        if (!isRequesting) {
+            isRequesting = true;
+            page = 1;
+            isRefresh = true;
+            searchGoodsShop();
+        }
+
     }
 
     private void initViews() {
@@ -132,15 +149,17 @@ public class FragmentPublishChooseGoodsSelected extends Fragment {
                 searchGoodsShop();
             }
         });
-        ptrFrameLayout.autoRefresh();
+//        ptrFrameLayout.autoRefresh();
         ptrFrameLayout.setMode(PtrFrameLayout.Mode.BOTH);
     }
+
     private int selectGoodsCount;
-    public int getSelectedGoodsCount(){
-        selectGoodsCount=0;
-        if(null!=list&&list.size()>0){
-            for(LinkShop shop:list){
-                selectGoodsCount+=shop.getCount();
+
+    public int getSelectedGoodsCount() {
+        selectGoodsCount = 0;
+        if (null != list && list.size() > 0) {
+            for (LinkShop shop : list) {
+                selectGoodsCount += shop.getCount();
             }
         }
         return selectGoodsCount;
@@ -152,7 +171,6 @@ public class FragmentPublishChooseGoodsSelected extends Fragment {
     private List<LinkShop> list;
 
     private void searchGoodsShop() {
-        System.out.println("feeds_id: " + feeds_id);
         RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.SEARCH_GOODS_SHOP);
         params.addBodyParameter("feeds_id", String.valueOf(feeds_id));
         params.addBodyParameter("page", String.valueOf(page));
@@ -172,6 +190,8 @@ public class FragmentPublishChooseGoodsSelected extends Fragment {
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
                 System.out.println("我搜索过的商店: " + ex.toString());
             }
 

@@ -82,6 +82,7 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
             FragmentQuanZiTuiJian fragment = fragmentQuanZiTuiJianWeakReference.get();
             switch (msg.what) {
                 case 1:
+                    fragment.isRequesting=false;
                     if (fragment.loadingDialog.isShowing()) {
                         fragment.loadingDialog.dismiss();
                     }
@@ -89,6 +90,7 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
                     fragment.circleTuiJianAdapter.setList(fragment.tuiJianList);
                     break;
                 case 2:
+                    fragment.isRequesting=false;
                     if (fragment.loadingDialog.isShowing()) {
                         fragment.loadingDialog.dismiss();
                     }
@@ -96,6 +98,7 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
                     fragment.circleTuiJianAdapter.setList(fragment.tuiJianList);
                     break;
                 case 3:
+                    fragment.isRequesting=false;
                     if (fragment.loadingDialog.isShowing()) {
                         fragment.loadingDialog.dismiss();
                     }
@@ -143,13 +146,6 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
         } catch (Exception e) {
             e.printStackTrace();
         }
-        ThreadPoolUtils.getInstance().init().execute(new Runnable() {
-            @Override
-            public void run() {
-                requestDaoHangList();
-                tuiJianList();
-            }
-        });
 
         initRefreshLayout();
         initViews();
@@ -159,9 +155,36 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
         return view;
     }
 
+    private boolean isRequesting = false;
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (!isRequesting && (null == tuiJianList || tuiJianList.size() == 0)) {
+            isRequesting = true;
+            ThreadPoolUtils.getInstance().init().execute(new Runnable() {
+                @Override
+                public void run() {
+                    requestDaoHangList();
+                    tuiJianList();
+                }
+            });
+        }
+    }
+
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser && !isRequesting && (null == tuiJianList || tuiJianList.size() == 0)) {
+            isRequesting = true;
+            ThreadPoolUtils.getInstance().init().execute(new Runnable() {
+                @Override
+                public void run() {
+                    requestDaoHangList();
+                    tuiJianList();
+                }
+            });
+        }
         if (null != circleTuiJianAdapter)
             if (isVisibleToUser) {
                 circleTuiJianAdapter.setVideoStop(false);
@@ -445,7 +468,7 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String res) {
-                System.out.println("推荐-推荐: " + res);
+//                System.out.println("推荐-推荐: " + res);
                 quanziTuijianResult = GsonUtils.GsonToBean(res, QuanZiTuiJianResult.class);
                 if (isRefresh) {
                     PageDao.getInstance().save(QuanZiTuiJianResult.class, res, BaseApplication.getInstance());
@@ -463,7 +486,7 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                System.out.println("推荐-推荐: " + ex.toString());
+//                System.out.println("推荐-推荐: " + ex.toString());
                 Message message = myHandler.obtainMessage(3);
                 message.sendToTarget();
             }
@@ -520,7 +543,7 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("推荐-导航: " + result);
+//                System.out.println("推荐-导航: " + result);
                 daoHangResult = GsonUtils.GsonToBean(result, QuanZiTuiJianDaoHangResult.class);
                 daoHangList = daoHangResult.getData().getList();
                 Message message = myHandler.obtainMessage(6);

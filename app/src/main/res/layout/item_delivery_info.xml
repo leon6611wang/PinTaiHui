@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="60dp"
+    android:layout_height="wrap_content"
     android:background="@color/white"
     android:orientation="horizontal">
 
@@ -47,6 +47,7 @@
             android:id="@+id/wuliuTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingTop="@dimen/dp_5"
             android:text="到马鞍山花山区中转站"
             android:textColor="@color/text_color_gray"
             android:textSize="14sp" />
@@ -57,6 +58,7 @@
             android:layout_height="wrap_content"
             android:text="2019-11-19 8:54"
             android:textColor="@color/text_color_gray"
+            android:paddingBottom="@dimen/dp_5"
             android:textSize="12sp" />
 
     </LinearLayout>

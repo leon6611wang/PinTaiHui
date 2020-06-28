@@ -24,7 +24,8 @@
         <com.zhiyu.quanzhu.ui.widget.MyRecyclerView
             android:id="@+id/mRecyclerView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            />
     </in.srain.cube.views.ptr.PtrFrameLayout>
 
 </LinearLayout>

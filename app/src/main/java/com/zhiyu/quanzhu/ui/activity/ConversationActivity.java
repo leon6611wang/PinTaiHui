@@ -277,7 +277,7 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("圈子基础信息: " + result);
+//                System.out.println("圈子基础信息: " + result);
                 conversationCircleResult = GsonUtils.GsonToBean(result, ConversationCircleResult.class);
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();

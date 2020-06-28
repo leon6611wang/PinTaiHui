@@ -21,6 +21,7 @@ public class CircleInfoJoinPayDialog extends Dialog implements View.OnClickListe
     private TextView contentTextView;
 
     public void setPrice(String price) {
+        System.out.println("入圈付费: "+price);
         contentTextView.setText("该商圈需要支付￥" + price + "元入圈费用，并等待圈主审核通过后加入。若圈主24小时内未审核或审核不通过，则费用将原路退还。");
     }
 
@@ -58,7 +59,7 @@ public class CircleInfoJoinPayDialog extends Dialog implements View.OnClickListe
                 dismiss();
                 break;
             case R.id.confirmTextView:
-                if(null!=onPayListener){
+                if (null != onPayListener) {
                     onPayListener.onPay();
                 }
                 dismiss();

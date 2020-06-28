@@ -20,6 +20,7 @@ import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.Card;
 import com.zhiyu.quanzhu.ui.activity.CardInformationActivity;
+import com.zhiyu.quanzhu.ui.dialog.CardExchangeDialog;
 import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.NiceImageView;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
@@ -41,6 +42,7 @@ public class MingPianRecyclerAdapter extends RecyclerView.Adapter<MingPianRecycl
     private Context context;
     private List<Card> list;
     private MyHandler myHandler = new MyHandler(this);
+    private CardExchangeDialog cardExchangeDialog;
 
     private static class MyHandler extends Handler {
         WeakReference<MingPianRecyclerAdapter> adapterWeakReference;
@@ -73,6 +75,13 @@ public class MingPianRecyclerAdapter extends RecyclerView.Adapter<MingPianRecycl
 
     public MingPianRecyclerAdapter(Context context) {
         this.context = context;
+        cardExchangeDialog = new CardExchangeDialog(context, R.style.dialog, new CardExchangeDialog.OnCardExhangeListener() {
+            @Override
+            public void onExchange(String content, int position) {
+                System.out.println(content);
+                addCard(position,content);
+            }
+        });
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -106,7 +115,7 @@ public class MingPianRecyclerAdapter extends RecyclerView.Adapter<MingPianRecycl
         Glide.with(context).load(list.get(position).getCard_thumb()).error(R.drawable.image_error).placeholder(R.drawable.image_error)
                 .fallback(R.drawable.image_error).into(holder.avatarImageView);
         if (!StringUtils.isNullOrEmpty(list.get(position).getCard_name()))
-            holder.nameTextView.setText(list.get(position).getCard_name()+" "+list.get(position).getUid());
+            holder.nameTextView.setText(list.get(position).getCard_name());
         if (!StringUtils.isNullOrEmpty(list.get(position).getOccupation()))
             holder.occupionTextView.setText(list.get(position).getOccupation());
         if (!StringUtils.isNullOrEmpty(list.get(position).getCompany()))
@@ -149,17 +158,27 @@ public class MingPianRecyclerAdapter extends RecyclerView.Adapter<MingPianRecycl
             if (list.get(position).isIs_follow()) {
                 onChat(position);
             } else {
-                addCard(position);
+                switch (list.get(position).getIs_verifiy()) {
+                    case 0:
+                        addCard(position,null);
+                        break;
+                    case 1:
+                        cardExchangeDialog.show();
+                        cardExchangeDialog.setPosition(position);
+                        break;
+                }
+
             }
         }
     }
 
     private BaseResult baseResult;
 
-    private void addCard(final int position) {
+    private void addCard(final int position,String content) {
         System.out.println("tuid: " + String.valueOf(list.get(position).getUid()));
         RequestParams params = MyRequestParams.getInstance(context).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.CARD_EXCHANGE);
         params.addBodyParameter("tuid", String.valueOf(list.get(position).getUid()));
+        params.addBodyParameter("apply_content",content);
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {

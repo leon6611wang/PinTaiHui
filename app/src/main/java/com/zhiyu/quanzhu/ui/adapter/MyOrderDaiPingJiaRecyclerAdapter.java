@@ -16,6 +16,7 @@ import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.model.bean.OrderShop;
 import com.zhiyu.quanzhu.ui.activity.OrderGoodsCommentsActivity;
 import com.zhiyu.quanzhu.ui.activity.OrderInformationActivity;
+import com.zhiyu.quanzhu.ui.activity.ShopInformationActivity;
 import com.zhiyu.quanzhu.ui.dialog.DeliveryInfoDialog;
 import com.zhiyu.quanzhu.ui.widget.MyRecyclerView;
 import com.zhiyu.quanzhu.utils.GsonUtils;
@@ -81,6 +82,7 @@ public class MyOrderDaiPingJiaRecyclerAdapter extends RecyclerView.Adapter<MyOrd
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
         holder.shopNameTextView.setText(list.get(position).getShop_name());
+        holder.shopNameTextView.setOnClickListener(new OnShopInfoClick(position));
         switch (list.get(position).getPay_type()) {
             case 1:
                 holder.payWayImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.myorder_alipay));
@@ -168,4 +170,21 @@ public class MyOrderDaiPingJiaRecyclerAdapter extends RecyclerView.Adapter<MyOrd
             context.startActivity(intent);
         }
     }
+
+    private class OnShopInfoClick implements View.OnClickListener{
+        private int position;
+
+        public OnShopInfoClick(int position) {
+            this.position = position;
+        }
+
+        @Override
+        public void onClick(View v) {
+            Intent shopIntent=new Intent(context, ShopInformationActivity.class);
+            shopIntent.putExtra("shop_id",String.valueOf(list.get(position).getShop_id()));
+            shopIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(shopIntent);
+        }
+    }
+
 }

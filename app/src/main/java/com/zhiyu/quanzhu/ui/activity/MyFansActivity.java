@@ -75,7 +75,7 @@ public class MyFansActivity extends BaseActivity implements View.OnClickListener
         backLayout = findViewById(R.id.backLayout);
         backLayout.setOnClickListener(this);
         titleTextView = findViewById(R.id.titleTextView);
-        titleTextView.setText("我的粉丝");
+        titleTextView.setText("我的圈粉");
         mListView = findViewById(R.id.mListView);
         adapter = new FansListAdapter(this);
         mListView.setAdapter(adapter);

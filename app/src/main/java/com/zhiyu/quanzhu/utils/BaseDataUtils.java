@@ -5,6 +5,8 @@ import android.os.Message;
 import com.leon.chic.dao.CardDao;
 import com.leon.chic.dao.IMUserDao;
 import com.leon.chic.utils.LogUtils;
+import com.leon.chic.utils.SPUtils;
+import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.AreaCity;
@@ -100,7 +102,8 @@ public class BaseDataUtils {
     }
 
     private void initCardUserData() {
-        cardUserList();
+        if (!StringUtils.isNullOrEmpty(SPUtils.getInstance().getUserToken(BaseApplication.applicationContext)))
+            cardUserList();
     }
 
     private AreaResult areaResult;
@@ -113,7 +116,7 @@ public class BaseDataUtils {
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("BaseData - 地区: "+result);
+                System.out.println("BaseData - 地区: " + result);
                 areaResult = GsonUtils.GsonToBean(result, AreaResult.class);
                 AreaDao.getInstance().saveAreaProvince(areaResult.getData().getCitys());
                 for (final AreaProvince p : areaResult.getData().getCitys()) {
@@ -154,7 +157,7 @@ public class BaseDataUtils {
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("BaseData - 行业: "+result);
+                System.out.println("BaseData - 行业: " + result);
                 industryResult = GsonUtils.GsonToBean(result, IndustryResult.class);
                 if (null != industryResult) {
                     IndustryDao.getInstance().saveIndustryParent(industryResult.getData().getList().get(0).getChild());
@@ -194,7 +197,7 @@ public class BaseDataUtils {
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("BaseData - 兴趣爱好: "+result);
+                System.out.println("BaseData - 兴趣爱好: " + result);
                 hobbyResult = GsonUtils.GsonToBean(result, HobbyDaoResult.class);
                 HobbyDao.getInstance().saveHobbyParentList(hobbyResult.getData().getList().get(0).getChild());
                 for (HobbyDaoParent parent : hobbyResult.getData().getList().get(0).getChild()) {
@@ -227,14 +230,14 @@ public class BaseDataUtils {
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("BaseData - 名片好友: "+result);
+//                System.out.println("BaseData - 名片好友: "+result);
                 CardDao.getInstance().clear(BaseApplication.getInstance());
                 CardDao.getInstance().saveList(result, BaseApplication.getInstance());
             }
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                LogUtils.getInstance().show(TAG, "cardUserList:" + ex.toString());
+//                LogUtils.getInstance().show(TAG, "cardUserList:" + ex.toString());
             }
 
             @Override
@@ -262,7 +265,7 @@ public class BaseDataUtils {
             @Override
             public void onSuccess(String result) {
 //                System.out.println("头像昵称: " + result);
-                System.out.println("BaseData - 头像昵称: "+result);
+//                System.out.println("BaseData - 头像昵称: "+result);
                 IMUserDao.getInstance().saveIMUserList(result, BaseApplication.getInstance());
             }
 

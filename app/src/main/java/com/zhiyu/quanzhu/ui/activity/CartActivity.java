@@ -69,6 +69,8 @@ public class CartActivity extends BaseActivity implements View.OnClickListener, 
                 case 1:
                     MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
                     if (activity.baseResult.getCode() == 200) {
+                        activity.zhengshuTextView.setText("0");
+                        activity.xiaoshuTextView.setText(".00");
                         switch (activity.mViewPager.getCurrentItem()) {
                             case 0:
                                 activity.availableFragment.refreshCart();
@@ -156,6 +158,8 @@ public class CartActivity extends BaseActivity implements View.OnClickListener, 
             case R.id.rightLayout:
                 isManage = !isManage;
                 rightTextView.setText(isManage ? "完成" : "管理");
+                zhengshuTextView.setText("0");
+                xiaoshuTextView.setText(".00");
                 switch (mViewPager.getCurrentItem()) {
                     case 0:
                         showBottomOperationLayout(isManage ? 1 : 0);
@@ -165,7 +169,7 @@ public class CartActivity extends BaseActivity implements View.OnClickListener, 
                         showBottomOperationLayout(1);
                         break;
                 }
-                if(!isManage){
+                if (!isManage) {
                     availableFragment.setUnSelected();
                 }
                 break;
@@ -251,16 +255,17 @@ public class CartActivity extends BaseActivity implements View.OnClickListener, 
         String ids;
         long totalPrice = 0;
         List<CartShop> shopList = availableFragment.getList();
-        for (CartShop shop : shopList) {
-            for (CartGoods goods : shop.getList()) {
-                if (goods.isSelected()) {
-                    idsList.add(goods.getId());
-                    System.out.println("price: " + goods.getPrice() + " , num: " + goods.getCurrentNum());
-                    long price = goods.getPrice() * goods.getCurrentNum();
-                    totalPrice += price;
+        if (null != shopList && shopList.size() > 0)
+            for (CartShop shop : shopList) {
+                for (CartGoods goods : shop.getList()) {
+                    if (goods.isSelected()) {
+                        idsList.add(goods.getId());
+                        System.out.println("price: " + goods.getPrice() + " , num: " + goods.getCurrentNum());
+                        long price = goods.getPrice() * goods.getCurrentNum();
+                        totalPrice += price;
+                    }
                 }
             }
-        }
         zhengshuTextView.setText(PriceParseUtils.getInstance().getZhengShu(totalPrice));
         xiaoshuTextView.setText(PriceParseUtils.getInstance().getXiaoShu(totalPrice));
         System.out.println("idsList: " + idsList.toString());

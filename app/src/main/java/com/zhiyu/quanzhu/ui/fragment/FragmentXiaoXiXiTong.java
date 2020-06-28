@@ -198,7 +198,7 @@ public class FragmentXiaoXiXiTong extends Fragment implements SystemMessageListe
 
     @Override
     public void onSystemMessage(int message_type, String message_content, String time, int count) {
-        System.out.println("message_type: "+message_type+" , message_content: "+message_content+" , time: "+time+" , count: "+count);
+//        System.out.println("message_type: "+message_type+" , message_content: "+message_content+" , time: "+time+" , count: "+count);
         int index = 0;
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i).getMessage_type() == message_type) {
@@ -206,7 +206,7 @@ public class FragmentXiaoXiXiTong extends Fragment implements SystemMessageListe
                 break;
             }
         }
-        System.out.println("systemMessage-index: "+index);
+//        System.out.println("systemMessage-index: "+index);
         list.get(index).setMsgCount(count);
         list.get(index).setTime(time);
         list.get(index).setMsg(message_content);
@@ -236,7 +236,7 @@ public class FragmentXiaoXiXiTong extends Fragment implements SystemMessageListe
                 content = "[订单] 消息";
                 break;
         }
-        System.out.println("客服消息回调: id: " + message.getShop_id() + " , url: " + message.getUser_avatar() + " , title: " + message.getUser_name() + " , content: " + content + " , time: " + message.getCreate_time());
+//        System.out.println("客服消息回调: id: " + message.getShop_id() + " , url: " + message.getUser_avatar() + " , title: " + message.getUser_name() + " , content: " + content + " , time: " + message.getCreate_time());
         int index = -1;
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i).getShop_id() == message.getShop_id()) {
@@ -244,7 +244,7 @@ public class FragmentXiaoXiXiTong extends Fragment implements SystemMessageListe
                 break;
             }
         }
-        System.out.println("----> index: "+index);
+//        System.out.println("----> index: "+index);
         if (index > -1) {
             list.remove(index);
         }

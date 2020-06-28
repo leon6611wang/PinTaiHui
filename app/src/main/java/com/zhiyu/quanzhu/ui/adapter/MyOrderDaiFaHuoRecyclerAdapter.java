@@ -18,6 +18,7 @@ import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.OrderShop;
 import com.zhiyu.quanzhu.ui.activity.OrderInformationActivity;
+import com.zhiyu.quanzhu.ui.activity.ShopInformationActivity;
 import com.zhiyu.quanzhu.ui.dialog.YNDialog;
 import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.MyRecyclerView;
@@ -55,12 +56,16 @@ public class MyOrderDaiFaHuoRecyclerAdapter extends RecyclerView.Adapter<MyOrder
                 case 1://取消订单
                     MessageToast.getInstance(adapter.context).show(adapter.baseResult.getMsg());
                     if (200 == adapter.baseResult.getCode()) {
-                        adapter.list.remove(adapter.mPosition);
-                        adapter.notifyDataSetChanged();
+                        if (null != adapter.onRefreshDataListener) {
+                            adapter.onRefreshDataListener.onRefreshData();
+                        }
                     }
                     break;
                 case 2://提醒发货
                     MessageToast.getInstance(adapter.context).show(adapter.baseResult.getMsg());
+                    if (null != adapter.onRefreshDataListener) {
+                        adapter.onRefreshDataListener.onRefreshData();
+                    }
                     break;
             }
         }
@@ -125,6 +130,7 @@ public class MyOrderDaiFaHuoRecyclerAdapter extends RecyclerView.Adapter<MyOrder
     @Override
     public void onBindViewHolder(@NonNull final  ViewHolder holder, final int position) {
         holder.shopNameTextView.setText(list.get(position).getShop_name());
+        holder.shopNameTextView.setOnClickListener(new OnShopInfoClick(position));
         switch (list.get(position).getPay_type()) {
             case 1:
                 holder.payWayImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.myorder_alipay));
@@ -260,6 +266,30 @@ public class MyOrderDaiFaHuoRecyclerAdapter extends RecyclerView.Adapter<MyOrder
         }
     }
 
+    private class OnShopInfoClick implements View.OnClickListener{
+        private int position;
+
+        public OnShopInfoClick(int position) {
+            this.position = position;
+        }
+
+        @Override
+        public void onClick(View v) {
+            Intent shopIntent=new Intent(context, ShopInformationActivity.class);
+            shopIntent.putExtra("shop_id",String.valueOf(list.get(position).getShop_id()));
+            shopIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(shopIntent);
+        }
+    }
 
 
+    private OnRefreshDataListener onRefreshDataListener;
+
+    public void setOnRefreshDataListener(OnRefreshDataListener listener) {
+        this.onRefreshDataListener = listener;
+    }
+
+    public interface OnRefreshDataListener {
+        void onRefreshData();
+    }
 }

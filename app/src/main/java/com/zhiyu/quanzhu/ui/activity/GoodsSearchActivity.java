@@ -47,7 +47,7 @@ public class GoodsSearchActivity extends BaseActivity implements View.OnClickLis
     private HomeQuanShangRecyclerAdapter adapter;
     private PtrFrameLayout ptrFrameLayout;
     private RecyclerView mRecyclerView;
-    private String keyword = null;
+    private String keyword = null,goods_type_name;
     private int goods_type_id;
     private LinearLayout backLayout;
     private EditText searchEditText;
@@ -87,7 +87,7 @@ public class GoodsSearchActivity extends BaseActivity implements View.OnClickLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shangpin_searchlist);
         ScreentUtils.getInstance().setStatusBarLightMode(this, true);
-        keyword = getIntent().getStringExtra("keyword");
+        goods_type_name = getIntent().getStringExtra("goods_type_name");
         goods_type_id = getIntent().getIntExtra("goods_type_id", 0);
         initPtr();
         initViews();
@@ -132,7 +132,7 @@ public class GoodsSearchActivity extends BaseActivity implements View.OnClickLis
         mRecyclerView.setLayoutManager(gridLayoutManager);
         mRecyclerView.setAdapter(adapter);
         searchEditText = findViewById(R.id.searchEditText);
-        searchEditText.setText(keyword);
+        searchEditText.setText(goods_type_name);
         searchEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -231,13 +231,13 @@ public class GoodsSearchActivity extends BaseActivity implements View.OnClickLis
                 jiageOrderTextView.setTextColor(getResources().getColor(R.color.text_color_yellow));
                 if (!isJiageAsc) {
                     isJiageAsc = true;
-                    sort_type = "desc";
+                    sort_type = "asc";
                     Drawable rightDrawable = getResources().getDrawable(R.mipmap.order_up_yellow);
                     rightDrawable.setBounds(0, 0, rightDrawable.getMinimumWidth(), rightDrawable.getMinimumHeight());
                     jiageOrderTextView.setCompoundDrawables(null, null, rightDrawable, null);
                 } else {
                     isJiageAsc = false;
-                    sort_type = "asc";
+                    sort_type = "desc";
                     Drawable rightDrawable = getResources().getDrawable(R.mipmap.order_down_yellow);
                     rightDrawable.setBounds(0, 0, rightDrawable.getMinimumWidth(), rightDrawable.getMinimumHeight());
                     jiageOrderTextView.setCompoundDrawables(null, null, rightDrawable, null);
@@ -254,10 +254,10 @@ public class GoodsSearchActivity extends BaseActivity implements View.OnClickLis
 
     private void searchGoods() {
         waitDialog.show();
-        System.out.println("keyword: " + keyword);
         if(isRefresh){
             adapter.clearDatas();
         }
+//        System.out.println("searchGoods goods_type_id: "+goods_type_id);
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.GOODS_SEARCH);
         params.addBodyParameter("keywords", keyword);
         params.addBodyParameter("page", String.valueOf(page));

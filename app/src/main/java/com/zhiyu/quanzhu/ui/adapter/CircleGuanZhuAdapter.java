@@ -24,6 +24,7 @@ import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.Feed;
+import com.zhiyu.quanzhu.model.bean.Share;
 import com.zhiyu.quanzhu.ui.activity.ArticleInformationActivity;
 import com.zhiyu.quanzhu.ui.activity.ComplaintActivity;
 import com.zhiyu.quanzhu.ui.activity.FeedInformationActivity;
@@ -92,8 +93,16 @@ public class CircleGuanZhuAdapter extends RecyclerView.Adapter<RecyclerView.View
         });
     }
 
-    public void setShareResultCode(int requestCode, int resultCode, Intent data){
-        shareDialog.setQQShareCallback(requestCode,resultCode,data);
+    public void setShareResultCode(int requestCode, int resultCode, Intent data) {
+        shareDialog.setQQShareCallback(requestCode, resultCode, data);
+    }
+
+    private Share share;
+    private String share_image_url;
+
+    public void setShare(Share s) {
+        this.share = s;
+        share_image_url = share.getImage_url();
     }
 
     private static class MyHandler extends Handler {
@@ -292,7 +301,7 @@ public class CircleGuanZhuAdapter extends RecyclerView.Adapter<RecyclerView.View
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof FeedViewHolder) {
             FeedViewHolder feed = (FeedViewHolder) holder;
-            Glide.with(context).load(list.get(position).getContent().getAvatar()).error(R.mipmap.no_avatar).into(feed.avatarImageView);
+            Glide.with(context).load(list.get(position).getContent().getAvatar()).error(R.drawable.image_error).into(feed.avatarImageView);
             feed.nameTextView.setText(list.get(position).getContent().getUsername());
             feed.timeTextView.setText(list.get(position).getContent().getTime());
             if (!StringUtils.isNullOrEmpty(list.get(position).getContent().getContent())) {
@@ -328,7 +337,8 @@ public class CircleGuanZhuAdapter extends RecyclerView.Adapter<RecyclerView.View
                 feed.imageGridView.setVisibility(View.GONE);
                 feed.videoPlayer.setVisibility(View.VISIBLE);
                 feed.videoPlayer.setDataSource(list.get(position).getContent().getVideo_url(), "");
-                Glide.with(context).load(list.get(position).getContent().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(feed.videoPlayer.getCoverController().getVideoCover());
+                Glide.with(context).load(list.get(position).getContent().getVideo_thumb()).into(feed.videoPlayer.getCoverController().getVideoCover());
+//                Glide.with(context).load(list.get(position).getContent().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(feed.videoPlayer.getCoverController().getVideoCover());
                 feed.videoPlayer.setLayoutParams(list.get(position).getContent().getLayoutParams(dp_240, true));
             } else {
                 if (null == list.get(position).getContent().getImgs() || list.get(position).getContent().getImgs().size() == 0) {
@@ -340,7 +350,7 @@ public class CircleGuanZhuAdapter extends RecyclerView.Adapter<RecyclerView.View
                     feed.imageGridView.setVisibility(View.GONE);
                     feed.videoPlayer.setVisibility(View.GONE);
                     feed.feedImageView.setLayoutParams(list.get(position).getContent().getLayoutParams(dp_240, false));
-                    Glide.with(context).load(list.get(position).getContent().getImgs().get(0).getFile()).error(R.mipmap.img_error)
+                    Glide.with(context).load(list.get(position).getContent().getImgs().get(0).getFile()).error(R.drawable.image_error)
                             .into(feed.feedImageView);
                     feed.feedImageView.setOnClickListener(new OnLargeImageClick(list.get(position).getContent().getImgs().get(0).getFile()));
                 } else {
@@ -362,12 +372,12 @@ public class CircleGuanZhuAdapter extends RecyclerView.Adapter<RecyclerView.View
             }
         } else if (holder instanceof ArticleViewHolder) {
             ArticleViewHolder article = (ArticleViewHolder) holder;
-            Glide.with(context).load(list.get(position).getContent().getAvatar()).error(R.mipmap.no_avatar).into(article.avatarImageView);
+            Glide.with(context).load(list.get(position).getContent().getAvatar()).error(R.drawable.image_error).into(article.avatarImageView);
             article.nameTextView.setText(list.get(position).getContent().getUsername());
             article.titleTextView.setText(list.get(position).getContent().getTitle());
             if (null != list.get(position).getContent().getNewthumb()) {
                 article.coverImageView.setVisibility(View.VISIBLE);
-                Glide.with(context).load(list.get(position).getContent().getNewthumb().getFile()).error(R.mipmap.img_error).into(article.coverImageView);
+                Glide.with(context).load(list.get(position).getContent().getNewthumb().getFile()).error(R.drawable.image_error).into(article.coverImageView);
             } else {
                 article.coverImageView.setVisibility(View.GONE);
             }
@@ -394,7 +404,7 @@ public class CircleGuanZhuAdapter extends RecyclerView.Adapter<RecyclerView.View
             article.closeLayout.setOnClickListener(new OnDeleteFeedClick(position));
         } else if (holder instanceof VideoViewHolder) {
             VideoViewHolder video = (VideoViewHolder) holder;
-            Glide.with(context).load(list.get(position).getContent().getAvatar()).error(R.mipmap.no_avatar).into(video.avatarImageView);
+            Glide.with(context).load(list.get(position).getContent().getAvatar()).error(R.drawable.image_error).into(video.avatarImageView);
             video.nameTextView.setText(list.get(position).getContent().getUsername());
             video.timeTextView.setText(list.get(position).getContent().getTime());
             video.mTextView.setText(list.get(position).getContent().getContent());
@@ -420,7 +430,8 @@ public class CircleGuanZhuAdapter extends RecyclerView.Adapter<RecyclerView.View
             }
             video.videoPlayer.setLayoutParams(list.get(position).getContent().getLayoutParams(width, height));
             video.videoPlayer.setDataSource(list.get(position).getContent().getVideo_url(), "");
-            Glide.with(context).load(list.get(position).getContent().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(video.videoPlayer.getCoverController().getVideoCover());
+            Glide.with(context).load(list.get(position).getContent().getVideo_thumb()).into(video.videoPlayer.getCoverController().getVideoCover());
+//            Glide.with(context).load(list.get(position).getContent().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(video.videoPlayer.getCoverController().getVideoCover());
             video.collectImageView.setOnClickListener(new OnCollectListener(position));
             video.shareTextView.setOnClickListener(new OnShareClick(position));
             video.commentTextView.setOnClickListener(new OnCommentClick(position));
@@ -510,6 +521,12 @@ public class CircleGuanZhuAdapter extends RecyclerView.Adapter<RecyclerView.View
         @Override
         public void onClick(View v) {
             shareDialog.show();
+            if (null == list.get(position).getContent().getImgs() || list.get(position).getContent().getImgs().size() > 0) {
+                share.setImage_url(list.get(position).getContent().getImgs().get(0).getFile());
+            } else {
+                share.setImage_url(share_image_url);
+            }
+            shareDialog.setShare(share, list.get(position).getContent().getId());
         }
     }
 
@@ -522,8 +539,8 @@ public class CircleGuanZhuAdapter extends RecyclerView.Adapter<RecyclerView.View
 
         @Override
         public void onClick(View v) {
-            Intent commentIntent=new Intent(context,FeedInformationActivity.class);
-            commentIntent.putExtra("feed_id",list.get(position).getContent().getId());
+            Intent commentIntent = new Intent(context, FeedInformationActivity.class);
+            commentIntent.putExtra("feed_id", list.get(position).getContent().getId());
             commentIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(commentIntent);
         }

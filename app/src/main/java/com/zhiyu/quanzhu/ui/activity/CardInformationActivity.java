@@ -29,6 +29,7 @@ import com.zhiyu.quanzhu.model.bean.Feed;
 import com.zhiyu.quanzhu.model.result.CardResult;
 import com.zhiyu.quanzhu.model.result.CircleResult;
 import com.zhiyu.quanzhu.model.result.FeedResult;
+import com.zhiyu.quanzhu.model.result.ShareResult;
 import com.zhiyu.quanzhu.model.result.StoreResult;
 import com.zhiyu.quanzhu.ui.adapter.CardInfoFeedsAdapter;
 import com.zhiyu.quanzhu.ui.adapter.MingPianDianPuRecyclerAdapter;
@@ -51,6 +52,7 @@ import com.zhiyu.quanzhu.utils.MyPtrRefresherFooter;
 import com.zhiyu.quanzhu.utils.MyPtrRefresherHeader;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
+import com.zhiyu.quanzhu.utils.ShareUtils;
 import com.zhiyu.quanzhu.utils.SharedPreferencesUtils;
 
 import org.xutils.common.Callback;
@@ -202,6 +204,7 @@ public class CardInformationActivity extends BaseActivity implements View.OnClic
         initPtr();
         initViews();
         initDialogs();
+        shareConfig();
         circleList();
         storeList();
         dongtaiList();
@@ -243,6 +246,7 @@ public class CardInformationActivity extends BaseActivity implements View.OnClic
                 switch (position) {
                     case 1:
                         shareDialog.show();
+                        shareDialog.setShare(shareResult.getData().getShare(),(int)cardResult.getData().getDetail().getId());
                         break;
                     case 2:
                         Intent editIntent = new Intent(CardInformationActivity.this, EditCardActivity.class);
@@ -528,14 +532,21 @@ public class CardInformationActivity extends BaseActivity implements View.OnClic
                 } else {
                     if (cardResult.getData().getDetail().isIs_friends()) {
                         shareDialog.show();
+                        shareResult.getData().getShare().setImage_url(cardResult.getData().getDetail().getCard_thumb());
+                        shareDialog.setShare(shareResult.getData().getShare(),(int)cardResult.getData().getDetail().getId());
                     } else {
                         shareDialog.show();
+                        shareResult.getData().getShare().setImage_url(cardResult.getData().getDetail().getCard_thumb());
+                        shareDialog.setShare(shareResult.getData().getShare(),(int)cardResult.getData().getDetail().getId());
                     }
                 }
                 break;
             case 2:
                 if (isMyCard) {
                     shareDialog.show();
+                    shareResult.getData().getShare().setImage_url(cardResult.getData().getDetail().getCard_thumb());
+                    shareResult.getData().getShare().setContent(cardResult.getData().getDetail().getCard_name());
+                    shareDialog.setShare(shareResult.getData().getShare(),(int)cardResult.getData().getDetail().getId());
                 } else {
                     if (cardResult.getData().getDetail().isIs_friends()) {
                         chat();
@@ -861,5 +872,32 @@ public class CardInformationActivity extends BaseActivity implements View.OnClic
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         shareDialog.setQQShareCallback(requestCode, resultCode, data);
+    }
+
+    private ShareResult shareResult;
+    private void shareConfig(){
+        RequestParams params=MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL+ConstantsUtils.SHARE_CONFIG);
+        params.addBodyParameter("type", ShareUtils.SHARE_TYPE_CARD);
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                shareResult=GsonUtils.GsonToBean(result,ShareResult.class);
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
     }
 }

@@ -17,18 +17,24 @@
             android:id="@+id/listView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone"
             android:divider="@color/white"
-            android:dividerHeight="0dp" />
+            android:dividerHeight="0dp"
+            android:visibility="gone" />
+
+        <!--<android.support.v7.widget.RecyclerView-->
+            <!--android:id="@+id/mRecyclerView"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent" />-->
+
 
         <LinearLayout
             android:id="@+id/emptyLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:visibility="visible"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="visible">
 
             <View
                 android:layout_width="match_parent"

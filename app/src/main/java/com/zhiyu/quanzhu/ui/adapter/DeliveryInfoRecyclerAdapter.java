@@ -41,7 +41,7 @@ public class DeliveryInfoRecyclerAdapter extends RecyclerView.Adapter<DeliveryIn
             shijianTextView = itemView.findViewById(R.id.shijianTextView);
             lefttopView = itemView.findViewById(R.id.lefttopView);
             leftbottomView = itemView.findViewById(R.id.leftbottomView);
-            wuliulayout=itemView.findViewById(R.id.wuliulayout);
+            wuliulayout = itemView.findViewById(R.id.wuliulayout);
         }
     }
 

@@ -16,6 +16,8 @@ import com.zhiyu.quanzhu.model.bean.OrderShop;
 import com.zhiyu.quanzhu.model.result.OrderResult;
 import com.zhiyu.quanzhu.ui.adapter.MyOrderAllRecyclerAdapter;
 import com.zhiyu.quanzhu.ui.adapter.MyOrderDaiShouHuoRecyclerAdapter;
+import com.zhiyu.quanzhu.ui.dialog.LoadingDialog;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.MyRecyclerView;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
@@ -38,41 +40,59 @@ import in.srain.cube.views.ptr.PtrFrameLayout;
 /**
  * 我的订单-待收货
  */
-public class FragmentOrderDaiShouHuo extends Fragment {
+public class FragmentOrderDaiShouHuo extends Fragment implements MyOrderDaiShouHuoRecyclerAdapter.OnRefreshDataListener {
     private View view;
     private MyRecyclerView mRecyclerView;
     private PtrFrameLayout ptrFrameLayout;
     private MyOrderDaiShouHuoRecyclerAdapter adapter;
-    private MyHandler myHandler=new MyHandler(this);
+    private LoadingDialog loadingDialog;
+    private MyHandler myHandler = new MyHandler(this);
+
     private static class MyHandler extends Handler {
         WeakReference<FragmentOrderDaiShouHuo> fragmentWeakReference;
-        public MyHandler(FragmentOrderDaiShouHuo fragment){
-            fragmentWeakReference=new WeakReference<>(fragment);
+
+        public MyHandler(FragmentOrderDaiShouHuo fragment) {
+            fragmentWeakReference = new WeakReference<>(fragment);
         }
 
         @Override
         public void handleMessage(Message msg) {
-            FragmentOrderDaiShouHuo fragment=fragmentWeakReference.get();
-            switch (msg.what){
+            FragmentOrderDaiShouHuo fragment = fragmentWeakReference.get();
+            switch (msg.what) {
+                case 99:
+                    fragment.loadingDialog.dismiss();
+                    fragment.isRequesting = false;
+                    fragment.ptrFrameLayout.refreshComplete();
+                    MessageToast.getInstance(fragment.getActivity()).show("服务器内部错误，请稍后再试.");
+                    break;
                 case 1:
+                    fragment.loadingDialog.dismiss();
+                    fragment.isRequesting = false;
                     fragment.ptrFrameLayout.refreshComplete();
                     fragment.adapter.setList(fragment.list);
                     break;
             }
         }
     }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_my_order, container, false);
         initPtr();
         initViews();
+        initDialog();
         return view;
+    }
+
+    private void initDialog() {
+        loadingDialog = new LoadingDialog(getContext(), R.style.dialog);
     }
 
     private void initViews() {
         mRecyclerView = view.findViewById(R.id.mRecyclerView);
         adapter = new MyOrderDaiShouHuoRecyclerAdapter(getContext());
+        adapter.setOnRefreshDataListener(this);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(linearLayoutManager);
@@ -101,42 +121,83 @@ public class FragmentOrderDaiShouHuo extends Fragment {
                 myOrder();
             }
         });
-        ptrFrameLayout.autoRefresh();
+//        ptrFrameLayout.autoRefresh();
         ptrFrameLayout.setMode(PtrFrameLayout.Mode.BOTH);
     }
-    private String searchContent="";
-    public void searchOrder(String search){
-        this.searchContent=search;
-        page=1;
-        isRefresh=true;
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser && !isRequesting) {
+            isRequesting = true;
+            page = 1;
+            isRefresh = true;
+            myOrder();
+        }
+    }
+
+    @Override
+    public void onRefreshData() {
+        if (!isRequesting) {
+            isRequesting = true;
+            page = 1;
+            isRefresh = true;
+            myOrder();
+        }
+    }
+
+    private boolean isRequesting = false;
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (!isRequesting) {
+            isRequesting = true;
+            page = 1;
+            isRefresh = true;
+            myOrder();
+        }
+    }
+
+    private String searchContent = "";
+
+    public void searchOrder(String search) {
+        this.searchContent = search;
+        page = 1;
+        isRefresh = true;
         myOrder();
     }
+
     private int page = 1;
     private boolean isRefresh = true;
     private OrderResult orderResult;
     private List<OrderShop> list;
+
     private void myOrder() {
-        RequestParams params= MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL+ConstantsUtils.MY_ORDER);
-        params.addBodyParameter("page",String.valueOf(page));
-        params.addBodyParameter("type","3");
-        params.addBodyParameter("keywords",searchContent);
+        if (null != loadingDialog)
+            loadingDialog.show();
+        RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.MY_ORDER);
+        params.addBodyParameter("page", String.valueOf(page));
+        params.addBodyParameter("type", "3");
+        params.addBodyParameter("keywords", searchContent);
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("我的订单-待收货: "+result);
-                orderResult= GsonUtils.GsonToBean(result,OrderResult.class);
-                if(isRefresh){
-                    list=orderResult.getData().getList();
-                }else{
+//                System.out.println("我的订单-待收货: "+result);
+                orderResult = GsonUtils.GsonToBean(result, OrderResult.class);
+                if (isRefresh) {
+                    list = orderResult.getData().getList();
+                } else {
                     list.addAll(orderResult.getData().getList());
                 }
-                Message message=myHandler.obtainMessage(1);
+                Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
             }
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
             }
 
             @Override

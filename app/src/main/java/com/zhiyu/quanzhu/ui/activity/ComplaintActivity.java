@@ -76,11 +76,18 @@ public class ComplaintActivity extends BaseActivity implements View.OnClickListe
                 case 1:
                     Toast.makeText(activity, activity.baseResult.getMsg(), Toast.LENGTH_SHORT).show();
                     if (activity.baseResult.getCode() == 200) {
+                        activity.finishComplaint();
                         activity.finish();
                     }
                     break;
             }
         }
+    }
+
+    private void finishComplaint(){
+        Intent intent=new Intent();
+        intent.putExtra("complaint","success");
+        setResult(1132,intent);
     }
 
     @Override

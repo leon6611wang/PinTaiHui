@@ -16,7 +16,6 @@ import java.util.TimerTask;
 public class RefundTimeDownTextView extends AppCompatTextView {
 
     private MyHandler myHandler = new MyHandler(this);
-    private SimpleDateFormat sdf = new SimpleDateFormat("dd天HH小时mm分ss秒");
 
     private static class MyHandler extends Handler {
         WeakReference<RefundTimeDownTextView> textViewWeakReference;
@@ -104,11 +103,18 @@ public class RefundTimeDownTextView extends AppCompatTextView {
         initTimerTask();
     }
 
+    long nd = 1000 * 24 * 60 * 60;// 一天的毫秒数
+    long nh = 1000 * 60 * 60;// 一小时的毫秒数
+    long nm = 1000 * 60;// 一分钟的毫秒数
+    long ns = 1000;// 一秒钟的毫秒数
+
     private String timeDown() {
-        String time = "";
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(mTimeLong);
-        time = sdf.format(calendar.getTime());
+        long day = mTimeLong / nd;// 计算差多少天
+        long hour = mTimeLong % nd / nh + day * 24;// 计算差多少小时
+        long min = mTimeLong % nd % nh / nm + day * 24 * 60;// 计算差多少分钟
+        long sec = mTimeLong % nd % nh % nm / ns;// 计算差多少秒
+        String time = day + "天" + (hour - day * 24) + "小时"
+                + (min - day * 24 * 60) + "分钟" + sec + "秒";
         return time;
     }
 

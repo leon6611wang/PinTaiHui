@@ -17,6 +17,7 @@ import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.OrderShop;
 import com.zhiyu.quanzhu.ui.activity.OrderInformationActivity;
+import com.zhiyu.quanzhu.ui.activity.ShopInformationActivity;
 import com.zhiyu.quanzhu.ui.dialog.YNDialog;
 import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.MyRecyclerView;
@@ -55,8 +56,9 @@ public class MyOrderDaiFuKuanRecyclerAdapter extends RecyclerView.Adapter<MyOrde
                 case 1://取消订单
                     MessageToast.getInstance(adapter.context).show(adapter.baseResult.getMsg());
                     if (200 == adapter.baseResult.getCode()) {
-                        adapter.list.remove(adapter.mPosition);
-                        adapter.notifyDataSetChanged();
+                        if (null != adapter.onRefreshDataListener) {
+                            adapter.onRefreshDataListener.onRefreshData();
+                        }
                     }
                     break;
             }
@@ -122,6 +124,7 @@ public class MyOrderDaiFuKuanRecyclerAdapter extends RecyclerView.Adapter<MyOrde
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         holder.shopNameTextView.setText(list.get(position).getShop_name());
+        holder.shopNameTextView.setOnClickListener(new OnShopInfoClick(position));
         holder.timeDownTextView.setOverTime(list.get(position).getOver_time(),new TimeDownTextView.OnTimeDownListener(){
             @Override
             public void onTImeDownFinish() {
@@ -200,5 +203,32 @@ public class MyOrderDaiFuKuanRecyclerAdapter extends RecyclerView.Adapter<MyOrde
 
             }
         });
+    }
+
+
+    private class OnShopInfoClick implements View.OnClickListener{
+        private int position;
+
+        public OnShopInfoClick(int position) {
+            this.position = position;
+        }
+
+        @Override
+        public void onClick(View v) {
+            Intent shopIntent=new Intent(context, ShopInformationActivity.class);
+            shopIntent.putExtra("shop_id",String.valueOf(list.get(position).getShop_id()));
+            shopIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(shopIntent);
+        }
+    }
+
+    private OnRefreshDataListener onRefreshDataListener;
+
+    public void setOnRefreshDataListener(OnRefreshDataListener listener) {
+        this.onRefreshDataListener = listener;
+    }
+
+    public interface OnRefreshDataListener {
+        void onRefreshData();
     }
 }

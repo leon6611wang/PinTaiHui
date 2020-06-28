@@ -353,7 +353,8 @@ public class CircleInfoFeedsAdapter extends BaseAdapter {
                 }
                 video.videoPlayer.setLayoutParams(list.get(position).getContent().getLayoutParams(width, height));
                 video.videoPlayer.setDataSource(list.get(position).getContent().getVideo_url(), "");
-                Glide.with(context).load(list.get(position).getContent().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(video.videoPlayer.getCoverController().getVideoCover());
+                Glide.with(context).load(list.get(position).getContent().getVideo_thumb()).into(video.videoPlayer.getCoverController().getVideoCover());
+//                Glide.with(context).load(list.get(position).getContent().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(video.videoPlayer.getCoverController().getVideoCover());
                 video.collectImageView.setOnClickListener(new OnCollectListener(position));
                 video.shareTextView.setOnClickListener(new OnShareClick(position));
                 video.commentTextView.setOnClickListener(new OnCommentClick(position));
@@ -401,7 +402,8 @@ public class CircleInfoFeedsAdapter extends BaseAdapter {
                     feed.imageGridView.setVisibility(View.GONE);
                     feed.videoPlayer.setVisibility(View.VISIBLE);
                     feed.videoPlayer.setDataSource(list.get(position).getContent().getVideo_url(), "");
-                    Glide.with(context).load(list.get(position).getContent().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(feed.videoPlayer.getCoverController().getVideoCover());
+                    Glide.with(context).load(list.get(position).getContent().getVideo_thumb()).into(feed.videoPlayer.getCoverController().getVideoCover());
+//                    Glide.with(context).load(list.get(position).getContent().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(feed.videoPlayer.getCoverController().getVideoCover());
                     feed.videoPlayer.setLayoutParams(list.get(position).getContent().getLayoutParams(dp_240, true));
                 } else {
                     if (null == list.get(position).getContent().getImgs() || list.get(position).getContent().getImgs().size() == 0) {
@@ -516,6 +518,7 @@ public class CircleInfoFeedsAdapter extends BaseAdapter {
         public void onClick(View v) {
             Intent commentIntent = new Intent(context, FeedInformationActivity.class);
             commentIntent.putExtra("feed_id", list.get(position).getContent().getId());
+            commentIntent.putExtra("fromCircleInfo",1);
             commentIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(commentIntent);
         }
@@ -546,6 +549,7 @@ public class CircleInfoFeedsAdapter extends BaseAdapter {
             Intent articleInfoIntent = new Intent(context, ArticleInformationActivity.class);
             articleInfoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             articleInfoIntent.putExtra("article_id", list.get(position).getContent().getId());
+            articleInfoIntent.putExtra("fromCircleInfo",1);
             context.startActivity(articleInfoIntent);
         }
     }
@@ -561,6 +565,7 @@ public class CircleInfoFeedsAdapter extends BaseAdapter {
         public void onClick(View v) {
             Intent videoInfoIntent = new Intent(context, VideoInformationActivity.class);
             videoInfoIntent.putExtra("feeds_id", list.get(position).getContent().getId());
+            videoInfoIntent.putExtra("fromCircleInfo",1);
             videoInfoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(videoInfoIntent);
         }

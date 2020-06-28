@@ -82,7 +82,7 @@ public class ConstantsUtils {
     //领取优惠券
     public static final String GET_COUPON = "api/v1/marketing/getcoupons";
 
-    public static final String SHOP_COUPONS="/api/v1/mall/shop/coupons";
+    public static final String SHOP_COUPONS = "/api/v1/mall/shop/coupons";
     //购物车列表
     public static final String CART_LIST = "api/v1/mall/cart/list";
 
@@ -102,9 +102,9 @@ public class ConstantsUtils {
     //交换名片
     public static final String CARD_EXCHANGE = "api/v1/cards/change";
 
-    public static final String INVITE_JOIN_CIRCLE="/api/v1/circle/invite";
+    public static final String INVITE_JOIN_CIRCLE = "/api/v1/circle/invite";
 
-    public static final String DELETE_CARD="/api/v1/cards/delfriend";
+    public static final String DELETE_CARD = "/api/v1/cards/delfriend";
 
     //省市数据
     public static final String CITYS = "api/v1/common/citys";
@@ -114,19 +114,21 @@ public class ConstantsUtils {
     //status状态-1审核中 0正常 1删除 2审核失败 3后台禁用
     public static final String CIRCLE_LIST = "api/v1/user/circle/list";
 
-    public static final String CARD_INFO_CIRCLE_LIST="/api/v1/cards/searchcircle";
+    public static final String CARD_INFO_CIRCLE_LIST = "/api/v1/cards/searchcircle";
     //用户店铺列表
     public static final String STORE_LIST = "api/v1/user/store/list";
 
-    public static final String CARD_INFO_SHOP_LIST="/api/v1/cards/searchshops";
+    public static final String CARD_INFO_SHOP_LIST = "/api/v1/cards/searchshops";
 
-    public static final String CIRCLE_IM_LIST="api/v1/message/getcircleimlist";
+    public static final String CIRCLE_IM_LIST = "api/v1/message/getcircleimlist";
+
+    public static final String COORDINATE_HISTORY = "/api/v1/user/order/history";
 
 
     //用户的动态列表
     public static final String USER_DONG_TAI_LIST = "api/v1/user/publish/list";
 
-    public static final String CARD_INFO_FEED_LIST="/api/v1/cards/searchfeeds";
+    public static final String CARD_INFO_FEED_LIST = "/api/v1/cards/searchfeeds";
 
 
     //获取七牛token
@@ -147,7 +149,7 @@ public class ConstantsUtils {
     //评论详情
     public static final String COMMENT_DETAIL = "/api/v1/circle/feeds/comment/detail";
 
-    public static final String FEEDS_GOODS="/api/v1/circle/feeds/feedsgoods";
+    public static final String FEEDS_GOODS = "/api/v1/circle/feeds/feedsgoods";
 
     //点赞-通用
     public static final String PRISE = "api/v1/common/prise";
@@ -166,18 +168,18 @@ public class ConstantsUtils {
     //创建圈子
     public static final String ADD_CIRCLE = "api/v1/circle/add";
 
-    public static final String UPDATE_CIRCLE="/api/v1/circle/update";
+    public static final String UPDATE_CIRCLE = "/api/v1/circle/update";
     //圈子详情
     public static final String CIRCLE_DETAIL = "api/v1/circle/detail";
     //圈子基础信息
     public static final String CIRCLE_BASE = "/api/v1/circle/base";
 
-    public static final String LOGOUT="/api/v1/logout";
+    public static final String LOGOUT = "/api/v1/logout";
 
-    public static final String BALANCE_PAY="/api/v1/pay/order/balancepay";
+    public static final String BALANCE_PAY = "/api/v1/pay/order/balancepay";
 
-    public static final String MESSAGE_CIRCLE_INFO="/api/v1/message/getcircleimdetail";
-    public static final String MESSAGE_CIRCLE_GOODS_LIST="/api/v1/message/getcircleimgoods";
+    public static final String MESSAGE_CIRCLE_INFO = "/api/v1/message/getcircleimdetail";
+    public static final String MESSAGE_CIRCLE_GOODS_LIST = "/api/v1/message/getcircleimgoods";
 
     //圈子详情-商店列表
     public static final String CIRCLE_INFO_SHOP_LIST = "/api/v1/circle/stores";
@@ -250,7 +252,7 @@ public class ConstantsUtils {
     //购物车结算下单支付
     public static final String CART_ORDER_ADD = "/api/v1/mall/cartorder/add";
 
-    public static final String ORDER_ADD="/api/v1/mall/order/add";
+    public static final String ORDER_ADD = "/api/v1/mall/order/add";
     //更改购物车商品数据
     public static final String CART_GOODS_EDIT = "api/v1/mall/cart/edit";
     //用户详情
@@ -334,7 +336,7 @@ public class ConstantsUtils {
     //绑定/更改手机号
     public static final String BIND_PHONE_NUMBER = "api/v1/user/bindmobile";
 
-    public static final String CONFIRM_BIND_MOBILE="/api/v1/user/confirmbindsdk";
+    public static final String CONFIRM_BIND_MOBILE = "/api/v1/user/confirmbindsdk";
     //用户绑定信息
     public static final String BIND_INFO = "/api/v1/user/bindinfo";
     //解绑
@@ -367,10 +369,15 @@ public class ConstantsUtils {
     public static final String NOTICE_ORDER = "/api/v1/user/order/notice";
     //订单详情
     public static final String ORDER_INFORMATION = "/api/v1/user/order/detail";
+
+    public static final String ORDER_REFUND_LIST = "/api/v1/user/order/refundlist";
+
     //申请售后
     public static final String ORDER_REFUND = "/api/v1/user/order/refund";
     //修改售后
     public static final String ORDER_UPDATE_REFUND = "/api/v1/user/order/updaterefund";
+
+    public static final String ORDER_EDIT_DELIVERY = "/api/v1/user/order/send";
     //售后详情
     public static final String ORDER_REFUND_INFORMATION = "/api/v1/user/order/refunddetail";
     //快递公司列表
@@ -390,68 +397,72 @@ public class ConstantsUtils {
     //聊天记录
     public static final String CUSTOMER_SERVICE_MESSAGE_LIST = "/api/get_message";
     //店铺资料
-    public static final String SHOP_PROFILE="/api/v1/mall/shop/info";
+    public static final String SHOP_PROFILE = "/api/v1/mall/shop/info";
     //用户主动结束客服咨询
-    public static final String USER_FINISH_SERVICE="/api/user_finish";
+    public static final String USER_FINISH_SERVICE = "/api/user_finish";
     //客服-店铺详情
-    public static final String SERVICE_SHOP_INFO="/api/get_shop";
+    public static final String SERVICE_SHOP_INFO = "/api/get_shop";
     //客服消息免打扰
-    public static final String SERVICE_SILENCE="/api/disturb";
+    public static final String SERVICE_SILENCE = "/api/disturb";
     //客服-加入黑名单
-    public static final String SERVICE_BLACK="/api/black";
+    public static final String SERVICE_BLACK = "/api/black";
     //客服-清空聊天记录
-    public static final String SERVICE_CLEAR_MESSAGE="/api/clear_message";
+    public static final String SERVICE_CLEAR_MESSAGE = "/api/clear_message";
 
     //搜索名片(名片广场)
-    public static final String SEARCH_CARD="api/v1/cards/searchcards";
+    public static final String SEARCH_CARD = "api/v1/cards/searchcards";
 
     //圈助小秘书消息列表
-    public static final String XI_TONG_XIAO_XI_QUAN_ZHU_ASSISTANT ="/api/v1/message/getgflist";
+    public static final String XI_TONG_XIAO_XI_QUAN_ZHU_ASSISTANT = "/api/v1/message/getgflist";
     //投诉反馈列表
-    public static final String XI_TONG_XIAO_XI_TOU_SU_FAN_KUI_LIST ="/api/v1/message/getreportlist";
+    public static final String XI_TONG_XIAO_XI_TOU_SU_FAN_KUI_LIST = "/api/v1/message/getreportlist";
 
-    public static final String XI_TONG_XIAO_XI_GUAN_ZHU_DIAN_PU="/api/v1/message/getshoplist";
+    public static final String XI_TONG_XIAO_XI_GUAN_ZHU_DIAN_PU = "/api/v1/message/getshoplist";
 
-    public static final String XI_TONG_XIAO_XI_QUAN_ZI_SHEN_HE="/api/v1/message/getcirclelist";
+    public static final String XI_TONG_XIAO_XI_QUAN_ZI_SHEN_HE = "/api/v1/message/getcirclelist";
 
-    public static final String XI_TONNG_XIAO_XI_QUAN_YOU_SHEN_HE="/api/v1/message/getcardlist";
+    public static final String XI_TONNG_XIAO_XI_QUAN_YOU_SHEN_HE = "/api/v1/message/getcardlist";
 
-    public static final String XI_TONG_XIAO_XI_KA_QUAN_TONG_ZHI="/api/v1/message/getcouponlist";
+    public static final String XI_TONG_XIAO_XI_KA_QUAN_TONG_ZHI = "/api/v1/message/getcouponlist";
 
-    public static final String XI_TONG_XIAO_XI_ZHI_FU_TONG_ZHI="/api/v1/message/getpaylist";
+    public static final String XI_TONG_XIAO_XI_ZHI_FU_TONG_ZHI = "/api/v1/message/getpaylist";
 
-    public static final String JOIN_CIRCLE_OPERATION="/api/v1/message/circleapply/operation";
+    public static final String JOIN_CIRCLE_OPERATION = "/api/v1/message/circleapply/operation";
 
-    public static final String JOIN_CIRCLE="/api/v1/circle/join";
+    public static final String JOIN_CIRCLE = "/api/v1/circle/join";
 
-    public static final String OUT_CIRCLE="/api/v1/circle/out";
+    public static final String OUT_CIRCLE = "/api/v1/circle/out";
 
-    public static final String REPORT_DETAIL="/api/v1/message/getreportdetail";
+    public static final String REPORT_DETAIL = "/api/v1/message/getreportdetail";
 
-    public static final String SHEN_SU="/api/v1/message/getreportsu";
+    public static final String SHEN_SU = "/api/v1/message/getreportsu";
 
-    public static final String USER_OPERATION="/api/v1/message/user/operation";
+    public static final String USER_OPERATION = "/api/v1/message/user/operation";
 
-    public static final String LIKE_CIRCLE="api/v1/user/likecircle";
+    public static final String LIKE_CIRCLE = "api/v1/user/likecircle";
 
-    public static final String ORDER_CONFIRM="/api/v1/user/order/orderconfirm";
+    public static final String ORDER_CONFIRM = "/api/v1/user/order/orderconfirm";
 
-    public static final String USER_INFO_LIST="/api/v1/common/userinfo";
+    public static final String USER_INFO_LIST = "/api/v1/common/userinfo";
 
-    public static final String WEB_LOGIN_SHOP_LIST="/api/v1/user/store/login";
+    public static final String WEB_LOGIN_SHOP_LIST = "/api/v1/user/store/login";
 
-    public static final String FRIEND_SETTING="/api/v1/cards/friends/setting";
+    public static final String FRIEND_SETTING = "/api/v1/cards/friends/setting";
 
-    public static final String FRIEND_SETTING_INFO="/api/v1/cards/friends/settingdetail";
+    public static final String FRIEND_SETTING_INFO = "/api/v1/cards/friends/settingdetail";
 
-    public static final String ALIPAY="/api/v1/pay/order/alipay";
-    public static final String WXPAY="/api/v1/pay/order/wechatpay";
+    public static final String ALIPAY = "/api/v1/pay/order/alipay";
+    public static final String WXPAY = "/api/v1/pay/order/wechatpay";
 
-    public static final String VIP_ALIPAY="/api/v1/pay/vip/alipay";
-    public static final String VIP_WXPAY="/api/v1/pay/vip/wechatpay";
-    public static final String VIP_BALANCE_PAY="/api/v1/pay/vip/balancepay";
+    public static final String VIP_ALIPAY = "/api/v1/pay/vip/alipay";
+    public static final String VIP_WXPAY = "/api/v1/pay/vip/wechatpay";
+    public static final String VIP_BALANCE_PAY = "/api/v1/pay/vip/balancepay";
 
-    public static final String CIRCLE_ALIPAY="/api/v1/pay/circle/alipay";
-    public static final String CIRCLE_WXPAY="/api/v1/pay/circle/wechatpay";
-    public static final String CIRCLE_BALANCE_PAY="/api/v1/pay/circle/balancepay";
+    public static final String CIRCLE_ALIPAY = "/api/v1/pay/circle/alipay";
+    public static final String CIRCLE_WXPAY = "/api/v1/pay/circle/wechatpay";
+    public static final String CIRCLE_BALANCE_PAY = "/api/v1/pay/circle/balancepay";
+
+    public static final String KE_FU_JIE_RU = "/api/v1/user/order/kefu";
+    //type=app,invite,feed,circle,card,goods,shop
+    public static final String SHARE_CONFIG = "/api/v1/common/shareconfig";
 }

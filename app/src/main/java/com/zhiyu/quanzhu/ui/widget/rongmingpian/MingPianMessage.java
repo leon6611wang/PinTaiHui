@@ -15,13 +15,13 @@ import io.rong.imlib.model.MessageContent;
 /**
  * 自定义名片消息
  */
-@MessageTag(value = "app:FrendMessage", flag = MessageTag.ISCOUNTED | MessageTag.ISPERSISTED)
+@MessageTag(value = "app:MingPianMessage", flag = MessageTag.ISCOUNTED | MessageTag.ISPERSISTED)
 public class MingPianMessage extends MessageContent {
     private String image;//头像
     private String name;//姓名
     private String title;//职务
 
-    public MingPianMessage(){
+    public MingPianMessage() {
 
     }
 

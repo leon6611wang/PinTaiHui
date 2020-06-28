@@ -41,6 +41,7 @@ public class PublishChooseGoodsActivity extends BaseActivity implements View.OnC
         ScreentUtils.getInstance().setStatusBarLightMode(this, true);
         PublishChooseGoodsRelationActivity.setOnRelationGoodsListener(this);
         feeds_id = getIntent().getIntExtra("feeds_id", 0);
+//        System.out.println("chooseGoodsAty feeds_id: "+feeds_id);
         initViews();
     }
 

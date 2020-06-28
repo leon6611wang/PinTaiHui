@@ -78,7 +78,9 @@ public class CheckInRecyclerAdapter extends BaseRecyclerAdapter<CheckIn> {
                     publishArticleIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(publishArticleIntent);
                 } else if (checkIn.getAction().equals("Invite_register")) {//邀请注册成功
-
+                    if(null!=onCheckInShareListener){
+                        onCheckInShareListener.onCheckInShare(1,"邀请注册");
+                    }
                 } else if (checkIn.getAction().equals("Create_feeds")) {//发布动态
                     Intent publishFeedIntent = new Intent(context, PublishFeedActivity.class);
                     publishFeedIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -96,7 +98,9 @@ public class CheckInRecyclerAdapter extends BaseRecyclerAdapter<CheckIn> {
                     createCircleIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(createCircleIntent);
                 } else if (checkIn.getAction().equals("User_share")) {//分享
-
+                    if(null!=onCheckInShareListener){
+                        onCheckInShareListener.onCheckInShare(2,"分享");
+                    }
                 } else if (checkIn.getAction().equals("User_renzheng")) {//实名认证
                     Intent vertifyIntent = new Intent(context, UserVertifyActivity.class);
                     vertifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -104,5 +108,12 @@ public class CheckInRecyclerAdapter extends BaseRecyclerAdapter<CheckIn> {
                 }
             }
         }
+    }
+    private OnCheckInShareListener onCheckInShareListener;
+    public void setOnCheckInShareListener(OnCheckInShareListener listener){
+        this.onCheckInShareListener=listener;
+    }
+    public interface OnCheckInShareListener{
+        void onCheckInShare(int type,String type_desc);
     }
 }

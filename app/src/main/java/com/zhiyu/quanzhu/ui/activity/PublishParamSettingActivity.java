@@ -20,8 +20,10 @@ import com.zhiyu.quanzhu.model.bean.HobbyDaoParent;
 import com.zhiyu.quanzhu.model.bean.IndustryChild;
 import com.zhiyu.quanzhu.model.bean.IndustryHobby;
 import com.zhiyu.quanzhu.model.bean.IndustryParent;
+import com.zhiyu.quanzhu.model.bean.LinkShop;
 import com.zhiyu.quanzhu.model.bean.MyCircle;
 import com.zhiyu.quanzhu.model.bean.Tag;
+import com.zhiyu.quanzhu.model.result.LinkShopResult;
 import com.zhiyu.quanzhu.ui.dialog.CircleSelectDialog;
 import com.zhiyu.quanzhu.ui.dialog.HobbyDialog;
 import com.zhiyu.quanzhu.ui.dialog.IndustryDialog;
@@ -86,8 +88,7 @@ public class PublishParamSettingActivity extends BaseActivity implements View.On
                     }
                     break;
                 case 2:
-                    int count = (Integer) msg.obj;
-                    activity.goodsTextView.setText("已选择 " + count + "件");
+                    activity.goodsTextView.setText("已选择 " + activity.selectedGoodsCount + "件");
                     break;
             }
         }
@@ -104,6 +105,11 @@ public class PublishParamSettingActivity extends BaseActivity implements View.On
         initDialogs();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        searchGoodsShop();
+    }
 
     private void getIntentData() {
         feeds_id = getIntent().getIntExtra("feeds_id", 0);
@@ -223,6 +229,7 @@ public class PublishParamSettingActivity extends BaseActivity implements View.On
                 break;
             case R.id.circleLayout:
                 circleSelectDialog.show();
+                circleSelectDialog.setFeedsType(publishType);
                 break;
             case R.id.industryLayout:
                 industryDialog.show();
@@ -279,7 +286,7 @@ public class PublishParamSettingActivity extends BaseActivity implements View.On
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                Message message=myHandler.obtainMessage(99);
+                Message message = myHandler.obtainMessage(99);
                 message.sendToTarget();
                 System.out.println("updateFeed: " + ex.toString());
             }
@@ -317,12 +324,54 @@ public class PublishParamSettingActivity extends BaseActivity implements View.On
         if (resultCode == 1033) {
             if (null != data && data.hasExtra("count")) {
                 int count = data.getIntExtra("count", 0);
-                System.out.println("onActivityResult count: "+count);
-                Message message = myHandler.obtainMessage(2);
-                message.obj = count;
-                message.sendToTarget();
-
+                System.out.println("onActivityResult count: " + count);
+//                Message message = myHandler.obtainMessage(2);
+//                message.obj = count;
+//                message.sendToTarget();
             }
         }
+    }
+
+
+    private LinkShopResult shopResult;
+    private List<LinkShop> list;
+    private int selectedGoodsCount = 0;
+
+    private void searchGoodsShop() {
+        selectedGoodsCount = 0;
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.SEARCH_GOODS_SHOP);
+        params.addBodyParameter("feeds_id", String.valueOf(feeds_id));
+        params.addBodyParameter("page", String.valueOf(1));
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                shopResult = GsonUtils.GsonToBean(result, LinkShopResult.class);
+                list = shopResult.getData().getList();
+                if (null != list && list.size() > 0) {
+                    for (LinkShop shop : list) {
+                        selectedGoodsCount += shop.getCount();
+                    }
+                }
+                Message message = myHandler.obtainMessage(2);
+                message.sendToTarget();
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
+                System.out.println("我搜索过的商店: " + ex.toString());
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
     }
 }

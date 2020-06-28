@@ -54,16 +54,16 @@ public class UploadImageUtils {
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("上传图片-获取七牛token: " +result);
+//                System.out.println("uploadFile上传图片-获取七牛token: " +result);
                 qiNiuTokenResult = GsonUtils.GsonToBean(result, QiNiuTokenResult.class);
-                System.out.println("上传图片-获取七牛token: "+qiNiuTokenResult.getMsg()+" , "+qiNiuTokenResult.getCode());
+//                System.out.println("上传图片-获取七牛token: "+qiNiuTokenResult.getMsg()+" , "+qiNiuTokenResult.getCode());
                 upload(imageType, path, onUploadCallback);
             }
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
 //                System.out.println("上传图片-获取七牛token: " + ex.toString());
-                System.out.println("上传图片-获取七牛token error");
+//                System.out.println("uploadFile上传图片-获取七牛token error"+ex.toString());
             }
 
             @Override
@@ -95,12 +95,12 @@ public class UploadImageUtils {
                     public void complete(String key, ResponseInfo info, JSONObject res) {
                         //res包含hash、key等信息，具体字段取决于上传策略的设置
                         if (info.isOK()) {
-                            System.out.println("七牛上传成功");
+//                            System.out.println("upload七牛上传成功");
                             if (null != onUploadCallback) {
                                 onUploadCallback.onUploadSuccess(qiNiuTokenResult.getData().getDomain() + key);
                             }
                         } else {
-                            System.out.println("七牛上传失败");
+//                            System.out.println("upload七牛上传失败"+info.error.toString());
                             //如果失败，这里可以把info信息上报自己的服务器，便于后面分析上传错误原因
                         }
                     }
@@ -116,14 +116,14 @@ public class UploadImageUtils {
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-//                System.out.println("七牛token "+result);
+//                System.out.println("qiniuToken "+result);
                 qiNiuTokenResult = GsonUtils.GsonToBean(result, QiNiuTokenResult.class);
 //                Log.i("qiniu", qiNiuTokenResult.getData().getToken());
             }
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-
+//                System.out.println("qiniuToken "+ex.toString());
             }
 
             @Override

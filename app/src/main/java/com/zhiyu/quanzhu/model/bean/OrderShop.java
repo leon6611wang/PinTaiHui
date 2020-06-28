@@ -5,6 +5,7 @@ import java.util.List;
 public class OrderShop {
     private int id;
     private int status;//订单状态 0待支付 1 表示取消 2已付款待发货 3已发货待收货 4 表示已收货待评价 5已评价,6售后中
+    private int cancel_type;//1：用户到时未支付；2：用户主动取消
     private String status_desc;
     private long price;
     private int num;
@@ -15,6 +16,14 @@ public class OrderShop {
     private long over_time;
     private int is_pay;//1已付款 0未付款
     private boolean timeCountComplete;
+
+    public int getCancel_type() {
+        return cancel_type;
+    }
+
+    public void setCancel_type(int cancel_type) {
+        this.cancel_type = cancel_type;
+    }
 
     public boolean isTimeCountComplete() {
         return timeCountComplete;

@@ -9,6 +9,42 @@ public class HomeBaseData {
     private boolean update_city;
     private String token;
     private User user;
+    private String business_url;
+    private boolean is_rz;
+    private int card_id;
+    private String mobile;
+
+    public boolean isIs_rz() {
+        return is_rz;
+    }
+
+    public void setIs_rz(boolean is_rz) {
+        this.is_rz = is_rz;
+    }
+
+    public int getCard_id() {
+        return card_id;
+    }
+
+    public void setCard_id(int card_id) {
+        this.card_id = card_id;
+    }
+
+    public String getMobile() {
+        return mobile;
+    }
+
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
+    }
+
+    public String getBusiness_url() {
+        return business_url;
+    }
+
+    public void setBusiness_url(String business_url) {
+        this.business_url = business_url;
+    }
 
     public AppVersionData getVersion() {
         return version;

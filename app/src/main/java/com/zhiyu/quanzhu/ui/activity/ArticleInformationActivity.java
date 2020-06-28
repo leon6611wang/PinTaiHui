@@ -85,6 +85,7 @@ public class ArticleInformationActivity extends BaseActivity implements View.OnC
     private int dp_15, dp_5, screenWidth, screenHeight;
     private String commentContent = null;
     private int article_id, myCommentId;
+    private int fromCircleInfo = 0;//0:默认值，不是圈子详情来源，1：来自圈子详情，点击圈子不跳转到圈子详情
     private MyHandler myHandler = new MyHandler(this);
 
     private static class MyHandler extends Handler {
@@ -128,7 +129,7 @@ public class ArticleInformationActivity extends BaseActivity implements View.OnC
                         activity.circleCardView.setVisibility(View.VISIBLE);
                         Glide.with(activity).load(activity.articleInformationResult.getData().getDetail().getCircle().getAvatar()).into(activity.circleAvatarImageView);
                         activity.circleUserNameTextView.setText(activity.articleInformationResult.getData().getDetail().getCircle().getUsername());
-                        activity.circleTimeTextView.setText(String.valueOf(activity.articleInformationResult.getData().getDetail().getCircle().getDays()));
+                        activity.circleTimeTextView.setText("创建"+activity.articleInformationResult.getData().getDetail().getCircle().getDays()+"天");
                         Glide.with(activity).load(activity.articleInformationResult.getData().getDetail().getCircle().getThumb()).into(activity.circleImageView);
                         activity.circleNameTextView.setText(activity.articleInformationResult.getData().getDetail().getCircle().getName());
                         activity.circleDescTextView.setText(activity.articleInformationResult.getData().getDetail().getCircle().getDescirption());
@@ -204,7 +205,13 @@ public class ArticleInformationActivity extends BaseActivity implements View.OnC
                     }
                     break;
                 case 5:
-
+                    if (activity.articleInformationResult.getData().getDetail().isIs_report()) {
+                        activity.complaintImageView.setVisibility(View.GONE);
+                        activity.complaintTextView.setText("已投诉");
+                    } else {
+                        activity.complaintImageView.setVisibility(View.VISIBLE);
+                        activity.complaintTextView.setText("投诉");
+                    }
                     break;
 
                 case 6:
@@ -221,6 +228,7 @@ public class ArticleInformationActivity extends BaseActivity implements View.OnC
         ScreentUtils.getInstance().setStatusBarLightMode(this, true);
         article_id = getIntent().getIntExtra("article_id", 0);
         myCommentId = getIntent().getIntExtra("myCommentId", 0);
+        fromCircleInfo = getIntent().getIntExtra("fromCircleInfo", 0);
 //        article_id=288;
         dp_5 = (int) getResources().getDimension(R.dimen.dp_5);
         dp_15 = (int) getResources().getDimension(R.dimen.dp_15);
@@ -280,6 +288,7 @@ public class ArticleInformationActivity extends BaseActivity implements View.OnC
         complaintTextView = listViewHeaderView.findViewById(R.id.complaintTextView);
         viewCountTextView = listViewHeaderView.findViewById(R.id.viewCountTextView);
         circleCardView = listViewHeaderView.findViewById(R.id.circleCardView);
+        circleCardView.setOnClickListener(this);
         circleAvatarImageView = listViewHeaderView.findViewById(R.id.circleAvatarImageView);
         circleUserNameTextView = listViewHeaderView.findViewById(R.id.circleUserNameTextView);
         circleTimeTextView = listViewHeaderView.findViewById(R.id.circleTimeTextView);
@@ -428,12 +437,22 @@ public class ArticleInformationActivity extends BaseActivity implements View.OnC
                 followMember();
                 break;
             case R.id.complaintLayout:
-                Intent complaintIntent = new Intent(this, ComplaintActivity.class);
-                complaintIntent.putExtra("report_id", article_id);
-                complaintIntent.putExtra("module_type", "feeds");
-                startActivity(complaintIntent);
-                break;
+                if (!articleInformationResult.getData().getDetail().isIs_report()) {
+                    Intent complaintIntent = new Intent(this, ComplaintActivity.class);
+                    complaintIntent.putExtra("report_id", article_id);
+                    complaintIntent.putExtra("module_type", "feeds");
+                    startActivityForResult(complaintIntent,1132);
+                }
 
+                break;
+            case R.id.circleCardView:
+                if(fromCircleInfo==0){
+                    Intent circleIntent = new Intent(this, CircleInfoActivity.class);
+                    circleIntent.putExtra("circle_id", (long) articleInformationResult.getData().getDetail().getCircle().getId());
+                    startActivity(circleIntent);
+                }
+
+                break;
         }
     }
 
@@ -730,4 +749,15 @@ public class ArticleInformationActivity extends BaseActivity implements View.OnC
         });
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode==1132){
+            if(null!=data&&data.hasExtra("complaint")){
+                articleInformationResult.getData().getDetail().setIs_report(true);
+                Message message=myHandler.obtainMessage(5);
+                message.sendToTarget();
+            }
+        }
+    }
 }

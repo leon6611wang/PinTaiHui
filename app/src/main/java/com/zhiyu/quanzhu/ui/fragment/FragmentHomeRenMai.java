@@ -7,8 +7,6 @@ import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,12 +22,13 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.leon.chic.dao.CardDao;
 import com.leon.chic.dao.MessageDao;
-import com.leon.chic.utils.LogUtils;
+import com.leon.chic.utils.SPUtils;
 import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.model.bean.MyCardFriend;
 import com.zhiyu.quanzhu.model.result.CardResult;
+import com.zhiyu.quanzhu.model.result.ShareResult;
 import com.zhiyu.quanzhu.ui.activity.MingPianGuangChangActivity;
 import com.zhiyu.quanzhu.ui.activity.CardInformationActivity;
 import com.zhiyu.quanzhu.ui.adapter.CardLetterListAdapter;
@@ -41,6 +40,7 @@ import com.zhiyu.quanzhu.ui.widget.MyRecyclerView;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
+import com.zhiyu.quanzhu.utils.ShareUtils;
 import com.zhiyu.quanzhu.utils.SoftKeyboardUtil;
 import com.zhiyu.quanzhu.utils.ThreadPoolUtils;
 
@@ -86,6 +86,7 @@ public class FragmentHomeRenMai extends Fragment implements View.OnClickListener
             FragmentHomeRenMai fragment = fragmentHomeRenMaiWeakReference.get();
             switch (msg.what) {
                 case 1:
+                    fragment.isRequesting = false;
                     if (null != fragment.cardResult && null != fragment.cardResult.getData() && null != fragment.cardResult.getData().getDetail()) {
                         Glide.with(fragment.getContext()).load(fragment.cardResult.getData().getDetail().getCard_thumb()).error(R.drawable.image_error).placeholder(R.drawable.image_error)
                                 .fallback(R.drawable.image_error).into(fragment.headerImageView);
@@ -99,6 +100,7 @@ public class FragmentHomeRenMai extends Fragment implements View.OnClickListener
 
                     break;
                 case 2:
+                    fragment.isRequesting = false;
                     fragment.initCardFriendDataView();
                     break;
             }
@@ -111,21 +113,29 @@ public class FragmentHomeRenMai extends Fragment implements View.OnClickListener
         initDialogs();
         initData();
         initViews();
-
-
+        shareConfig();
         return view;
     }
+
+    private boolean isRequesting = false;
 
     @Override
     public void onResume() {
         super.onResume();
-        ThreadPoolUtils.getInstance().init().execute(new Runnable() {
-            @Override
-            public void run() {
-                cardIndex();
-            }
-        });
-        initCardData();
+        if (!isRequesting && !StringUtils.isNullOrEmpty(SPUtils.getInstance().getUserToken(getContext())) &&
+                null == cardResult) {
+            isRequesting = true;
+            if (null != mRecyclerView)
+                mRecyclerView.smoothScrollToPosition(0);
+            ThreadPoolUtils.getInstance().init().execute(new Runnable() {
+                @Override
+                public void run() {
+                    cardIndex();
+                }
+            });
+            initCardData();
+        }
+
     }
 
 
@@ -144,16 +154,17 @@ public class FragmentHomeRenMai extends Fragment implements View.OnClickListener
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-        if (isVisibleToUser) {
-            mRecyclerView.smoothScrollToPosition(0);
+        if (isVisibleToUser && !isRequesting && !StringUtils.isNullOrEmpty(SPUtils.getInstance().getUserToken(getContext())) &&
+                null == cardResult) {
+            isRequesting = true;
+            if (null != mRecyclerView)
+                mRecyclerView.smoothScrollToPosition(0);
             ThreadPoolUtils.getInstance().init().execute(new Runnable() {
                 @Override
                 public void run() {
                     cardIndex();
                 }
             });
-        }
-        if (isVisibleToUser && (null == cardList || cardList.size() == 0)) {
             initCardData();
         }
     }
@@ -162,6 +173,7 @@ public class FragmentHomeRenMai extends Fragment implements View.OnClickListener
     private String cardFriend;
 
     private void initCardData() {
+        System.out.println("加载名片好友数据");
         cardFriend = CardDao.getInstance().cardList(BaseApplication.getInstance(), new MessageDao.OnCardMessageChangeListener() {
             @Override
             public void onCardMessageChange() {
@@ -313,6 +325,8 @@ public class FragmentHomeRenMai extends Fragment implements View.OnClickListener
                 break;
             case R.id.shareTextView:
                 shareDialog.show();
+                shareResult.getData().getShare().setImage_url(cardResult.getData().getDetail().getCard_thumb());
+                shareDialog.setShare(shareResult.getData().getShare(), (int) cardResult.getData().getDetail().getId());
                 break;
             case R.id.guangchangImageView:
                 Intent intent = new Intent(getContext(), MingPianGuangChangActivity.class);
@@ -428,5 +442,35 @@ public class FragmentHomeRenMai extends Fragment implements View.OnClickListener
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         shareDialog.setQQShareCallback(requestCode, resultCode, data);
+    }
+
+    private ShareResult shareResult;
+    private void shareConfig() {
+        RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.SHARE_CONFIG);
+        params.addBodyParameter("type", ShareUtils.SHARE_TYPE_CARD);
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                System.out.println("share: " + result);
+                shareResult = GsonUtils.GsonToBean(result, ShareResult.class);
+//                Message message=myHandler.obtainMessage(3);
+//                message.sendToTarget();
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
     }
 }

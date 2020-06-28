@@ -33,7 +33,17 @@ public class MessageListActivity extends BaseActivity implements View.OnTouchLis
 
     private void initDialogs() {
         downDialog = new MessageMenuDownDialog(this, R.style.dialog);
-        upDialog = new MessageMenuUpDialog(this, R.style.dialog);
+        upDialog = new MessageMenuUpDialog(this, R.style.dialog, new MessageMenuUpDialog.OnMessageMenuListener() {
+            @Override
+            public void onTop(int position) {
+
+            }
+
+            @Override
+            public void onDelete(int position) {
+
+            }
+        });
     }
 
     private void initViews() {
@@ -49,7 +59,7 @@ public class MessageListActivity extends BaseActivity implements View.OnTouchLis
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 int y = (view.getHeight() + 1) * (position - listView.getFirstVisiblePosition() + 1 / 4);
                 upDialog.show();
-                upDialog.setLocation(menuX,menuY);
+                upDialog.setLocation(menuX,menuY,position);
                 return false;
             }
         });

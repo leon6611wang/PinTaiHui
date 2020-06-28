@@ -2,6 +2,7 @@ package com.zhiyu.quanzhu.ui.dialog;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.Gravity;
@@ -10,6 +11,8 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 
 import com.zhiyu.quanzhu.R;
+import com.zhiyu.quanzhu.ui.activity.HomeActivity;
+import com.zhiyu.quanzhu.ui.activity.UserVertifyActivity;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 
 public class HomeCircleMenuDialog extends Dialog implements View.OnClickListener {
@@ -20,6 +23,7 @@ public class HomeCircleMenuDialog extends Dialog implements View.OnClickListener
     private LinearLayout.LayoutParams ll;
     private LinearLayout contentLayout;
     private LinearLayout fabulayout, saoyisaolayout, chuangquanlayout, tianjialayout, mingpianlayout, yaoqinglayout, shangquanlayout;
+    private YNDialog ynDialog;
 
     public HomeCircleMenuDialog(@NonNull Context context, int themeResId, OnMenuSelectedListener listener) {
         super(context, themeResId);
@@ -31,7 +35,14 @@ public class HomeCircleMenuDialog extends Dialog implements View.OnClickListener
         dp_5 = (int) context.getResources().getDimension(R.dimen.dp_5);
         ll = new LinearLayout.LayoutParams(dialogWidth, dialogHeight);
         ll.rightMargin = dp_5;
-
+        ynDialog = new YNDialog(context, R.style.dialog, new YNDialog.OnYNListener() {
+            @Override
+            public void onConfirm() {
+                Intent intent = new Intent(getContext(), UserVertifyActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                getContext().startActivity(intent);
+            }
+        });
 
     }
 
@@ -85,8 +96,13 @@ public class HomeCircleMenuDialog extends Dialog implements View.OnClickListener
                 dismiss();
                 break;
             case R.id.chuangquanlayout:
-                if (null != onMenuSelectedListener) {
-                    onMenuSelectedListener.onMenuSelected(2, "快速创圈");
+                if (HomeActivity.is_rz) {
+                    if (null != onMenuSelectedListener) {
+                        onMenuSelectedListener.onMenuSelected(2, "快速创圈");
+                    }
+                } else {
+                    ynDialog.show();
+                    ynDialog.setTitle("您还未通过认证，是否立即实名认证？");
                 }
                 dismiss();
                 break;

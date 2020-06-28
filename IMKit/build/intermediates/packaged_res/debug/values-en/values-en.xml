@@ -250,7 +250,7 @@
     <string name="rc_exceeded_max_limit_100">Select up to 100 chat transcripts</string>
     <string name="rc_exit_calling">Do you want to exit the calling interface?</string>
     <string name="rc_ext_cancel">Cancel</string>
-    <string name="rc_ext_exit_location_sharing">End Real-time Location now?</string>
+    <string name="rc_ext_exit_location_sharing">End Real-create_time Location now?</string>
     <string name="rc_ext_exit_location_sharing_confirm">End</string>
     <string name="rc_ext_location_permission_failed">You need to grant location permission in settings menu</string>
     <string name="rc_ext_search">Search</string>
@@ -376,7 +376,7 @@
     <string name="rc_plugin_image">Album</string>
     <string name="rc_plugin_location">Location</string>
     <string name="rc_plugin_location_message">Send location</string>
-    <string name="rc_plugin_location_sharing">Real-time Location</string>
+    <string name="rc_plugin_location_sharing">Real-create_time Location</string>
     <string name="rc_plugins_camera">Camera</string>
     <string name="rc_plugins_files">File</string>
     <string name="rc_plugins_voip">Voice Call</string>
@@ -387,8 +387,8 @@
     <string name="rc_pub_service_info_unfollow">Unfollow</string>
     <string name="rc_read_all">Read All</string>
     <string name="rc_read_receipt_status">%d read</string>
-    <string name="rc_real_time_exit_notification">Real-time Location will stop if you leave this session. Leave now?</string>
-    <string name="rc_real_time_join_notification">Others can see your location if you join Real-time Location. Join now</string>
+    <string name="rc_real_time_exit_notification">Real-create_time Location will stop if you leave this session. Leave now?</string>
+    <string name="rc_real_time_join_notification">Others can see your location if you join Real-create_time Location. Join now</string>
     <string name="rc_real_time_location_sharing">Start a location sharing</string>
     <string name="rc_real_time_location_summary">I start a location sharing</string>
     <string name="rc_recall_failed">Failed to recall the message</string>
@@ -423,8 +423,8 @@
     <string name="rc_voice_cancel">Release to cancel</string>
     <string name="rc_voice_failure">Recording failed</string>
     <string name="rc_voice_rec">Slide up to cancel</string>
-    <string name="rc_voice_short">Recording time is too short</string>
-    <string name="rc_voice_too_long">Recording time is too long</string>
+    <string name="rc_voice_short">Recording create_time is too short</string>
+    <string name="rc_voice_too_long">Recording create_time is too long</string>
     <string name="rc_voip_call_audio_start_fail">Voice call is on. Try again later.</string>
     <string name="rc_voip_call_video_start_fail">Video call is on. Try again later.</string>
     <string name="rc_voip_cpu_error">Sorry, this feature does not support your device model at the moment.</string>

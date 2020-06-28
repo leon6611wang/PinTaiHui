@@ -28,6 +28,7 @@ import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.MallAdGoods;
 import com.zhiyu.quanzhu.model.bean.ShopInfoGoodsType;
 import com.zhiyu.quanzhu.model.result.MallAdGoodsResult;
+import com.zhiyu.quanzhu.model.result.ShareResult;
 import com.zhiyu.quanzhu.model.result.ShopResult;
 import com.zhiyu.quanzhu.ui.adapter.HomeQuanShangRecyclerAdapter;
 import com.zhiyu.quanzhu.ui.dialog.GoodsCouponsDialog;
@@ -43,6 +44,7 @@ import com.zhiyu.quanzhu.utils.MyPtrRefresherFooter;
 import com.zhiyu.quanzhu.utils.MyPtrRefresherHeader;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
+import com.zhiyu.quanzhu.utils.ShareUtils;
 import com.zhiyu.quanzhu.utils.SoftKeyboardUtil;
 
 import org.xutils.common.Callback;
@@ -115,15 +117,15 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
                                 .into(activity.shopIconImageView);
                         activity.shopNameTextView.setText(activity.shopResult.getData().getShop_name());
                         activity.followTextView.setText(activity.shopResult.getData().getFollow_num() + "关注");
-                        if (activity.shopResult.getData().isIs_follow()) {
+                        if (activity.shopResult.getData().isIs_collect()) {
                             activity.followBtnLayout.setBackground(activity.getResources().getDrawable(R.drawable.shape_oval_solid_bg_white));
                             activity.followBtnImageView.setVisibility(View.GONE);
-                            activity.followBtnTextView.setText("已关注");
+                            activity.followBtnTextView.setText("已收藏");
                             activity.followBtnTextView.setTextColor(activity.getResources().getColor(R.color.text_color_yellow));
                         } else {
                             activity.followBtnLayout.setBackground(activity.getResources().getDrawable(R.drawable.shape_oval_bg_white));
                             activity.followBtnImageView.setVisibility(View.VISIBLE);
-                            activity.followBtnTextView.setText("关注");
+                            activity.followBtnTextView.setText("收藏");
                             activity.followBtnTextView.setTextColor(activity.getResources().getColor(R.color.white));
                         }
                     }else{
@@ -152,7 +154,7 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shop_information);
         shop_id = getIntent().getStringExtra("shop_id");
-        System.out.println("shop_id: "+shop_id);
+//        System.out.println("shop_id: "+shop_id);
 //        shop_id = "1";
         ScreentUtils.getInstance().setStatusBarLightMode(this, false);
         int screenWidth = ScreentUtils.getInstance().getScreenWidth(this);
@@ -165,6 +167,7 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
         initDialogs();
         shopInfo();
         searchGoods();
+        shareConfig();
     }
 
 
@@ -175,6 +178,7 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
             public void onGoodsTypeSelect(ShopInfoGoodsType goodsType) {
                 searchEditText.setText(goodsType.getName());
 //                keyword = goodsType.getName();
+                resetTopLayout();
                 goods_type_id = goodsType.getId();
                 page = 1;
                 searchGoods();
@@ -381,6 +385,9 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
                 break;
             case R.id.shareLayout:
                 shareDialog.show();
+                shareResult.getData().getShare().setContent(shopResult.getData().getShop_name());
+                shareResult.getData().getShare().setImage_url(shopResult.getData().getShop_icon());
+                shareDialog.setShare(shareResult.getData().getShare(),(int) shopResult.getData().getShop_id());
                 break;
             case R.id.getCouponTextView:
                 youHuiQuanDialog.show();
@@ -636,10 +643,10 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
     private BaseResult baseResult;
 
     private void followShop() {
-        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.FOLLOW);
-        params.addBodyParameter("follow_id", shop_id);
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.COLLECT);
+        params.addBodyParameter("collect_id", shop_id);
         params.addBodyParameter("module_type", "store");
-        params.addBodyParameter("type", shopResult.getData().isIs_follow() ? "1" : "0");
+        params.addBodyParameter("type", shopResult.getData().isIs_collect() ? "1" : "0");
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
@@ -672,5 +679,32 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         shareDialog.setQQShareCallback(requestCode,resultCode,data);
+    }
+
+    private ShareResult shareResult;
+    private void shareConfig() {
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.SHARE_CONFIG);
+        params.addBodyParameter("type", ShareUtils.SHARE_TYPE_SHOP);
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                shareResult = GsonUtils.GsonToBean(result, ShareResult.class);
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
     }
 }

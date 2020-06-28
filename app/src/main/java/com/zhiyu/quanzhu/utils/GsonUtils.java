@@ -76,7 +76,7 @@ public class GsonUtils {
                 String token = jo.getString("token");
                 String t = SPUtils.getInstance().getUserToken(BaseApplication.applicationContext);
                 if (!StringUtils.isNullOrEmpty(token) && !token.equals(t)) {
-//                    LogUtils.getInstance().show("parseToken", "new_token: " + token + " , old_token: " + t);
+                    LogUtils.getInstance().show("parseToken", "new_token: " + token + " , old_token: " + t);
                     SPUtils.getInstance().saveUserToken(BaseApplication.applicationContext, token);
                 }
             }

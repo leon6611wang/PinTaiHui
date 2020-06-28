@@ -64,7 +64,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.activity.ZSXQActivity" />
+        <!--<activity android:name=".ui.activity.ZSXQActivity" />-->
 
         <activity
             android:name=".ui.activity.HomeActivity"
@@ -370,6 +370,17 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity android:name=".ui.activity.WebLoginActivity" />
+        <activity android:name=".ui.activity.StartCoordinateActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden"
+            />
+        <activity android:name=".ui.activity.CoordinateHistoryActivity"/>
+        <activity android:name=".ui.activity.AfterSaleOrderActivity"/>
+
+
+
+
 
         <!-- 支付宝支付start-->
         <activity

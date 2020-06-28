@@ -224,18 +224,15 @@ public class ArticleInfoCommentListParentAdapter extends BaseAdapter implements 
                 public void onMenuClick(int index) {
                     switch (index) {
                         case 1:
-                            System.out.println("复制");
                             boolean copySuccess = CopyBoardUtils.getInstance().copy(context, list.get(position).getContent());
                             if (copySuccess) {
-                                Toast.makeText(context, "复制成功", Toast.LENGTH_SHORT).show();
+                                MessageToast.getInstance(context).show("复制成功");
                             }
                             break;
                         case 2:
-                            System.out.println("删除");
                             deleteComment(position);
                             break;
                         case 3:
-                            System.out.println("投诉");
                             Intent complaintIntent = new Intent(context, ComplaintActivity.class);
                             complaintIntent.putExtra("report_id", list.get(position).getId());
                             complaintIntent.putExtra("module_type", "feeds_comment");

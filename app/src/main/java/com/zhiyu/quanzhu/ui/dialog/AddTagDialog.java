@@ -448,7 +448,8 @@ public class AddTagDialog extends Dialog implements View.OnClickListener {
                             historyTagList.add(hotTagList.get(position));
                         }
                     } else {
-                        historyTagList.add(hotTagList.get(position));
+                        if (null != hotTagList && hotTagList.size() > 0)
+                            historyTagList.add(hotTagList.get(position));
                     }
                     createHistoryTagViews();
                     Set<Integer> selectedSet = new HashSet<>();

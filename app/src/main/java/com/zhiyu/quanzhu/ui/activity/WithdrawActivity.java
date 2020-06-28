@@ -70,6 +70,9 @@ public class WithdrawActivity extends BaseActivity implements View.OnClickListen
         public void handleMessage(Message msg) {
             WithdrawActivity activity = activityWeakReference.get();
             switch (msg.what) {
+                case 99:
+                    MessageToast.getInstance(activity).show("服务器内部错误，请稍后再试");
+                    break;
                 case 0:
                     if (activity.purseResult.getCode() == 200) {
                         activity.wechat_money = activity.purseResult.getData().getWechat_money();
@@ -278,7 +281,7 @@ public class WithdrawActivity extends BaseActivity implements View.OnClickListen
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-//                System.out.println("提现: " + result);
+                System.out.println("提现: " + result);
                 baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
@@ -286,9 +289,9 @@ public class WithdrawActivity extends BaseActivity implements View.OnClickListen
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                Message message = myHandler.obtainMessage(2);
+                Message message = myHandler.obtainMessage(99);
                 message.sendToTarget();
-//                System.out.println("withdraw: "+ex.toString());
+                System.out.println("withdraw: "+ex.toString());
             }
 
             @Override

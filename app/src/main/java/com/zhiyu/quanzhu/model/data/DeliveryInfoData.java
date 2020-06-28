@@ -2,15 +2,17 @@ package com.zhiyu.quanzhu.model.data;
 
 import com.zhiyu.quanzhu.model.bean.DeliveryInfo;
 
+import java.util.List;
+
 
 public class DeliveryInfoData {
-    private DeliveryInfo list;
+    private List<DeliveryInfo> list;
 
-    public DeliveryInfo getList() {
+    public List<DeliveryInfo> getList() {
         return list;
     }
 
-    public void setList(DeliveryInfo list) {
+    public void setList(List<DeliveryInfo> list) {
         this.list = list;
     }
 }

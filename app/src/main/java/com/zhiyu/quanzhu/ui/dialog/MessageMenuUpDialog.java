@@ -14,23 +14,25 @@ import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 
 public class MessageMenuUpDialog extends Dialog implements View.OnClickListener {
-
     private Context context;
     private WindowManager.LayoutParams params;
     private LinearLayout menuLayout, rootLayout;
     private TextView topTextView, deleteTextView;
     private LinearLayout.LayoutParams ll;
+    private int position;
     private int screenWidth, dp_120;
 
-    public MessageMenuUpDialog(@NonNull Context context, int themeResId) {
+    public MessageMenuUpDialog(@NonNull Context context, int themeResId,OnMessageMenuListener listener) {
         super(context, themeResId);
+        this.onMessageMenuListener=listener;
         this.context = context;
         dp_120 = (int) context.getResources().getDimension(R.dimen.dp_120);
         screenWidth = ScreentUtils.getInstance().getScreenWidth(context);
         ll = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
     }
 
-    public void setLocation(int x, int y) {
+    public void setLocation(int x, int y,int p) {
+        this.position=p;
         if (x < dp_120) {
             x = dp_120;
         }
@@ -68,13 +70,22 @@ public class MessageMenuUpDialog extends Dialog implements View.OnClickListener 
                 dismiss();
                 break;
             case R.id.topTextView:
-                System.out.println("置顶");
+                if(null!=onMessageMenuListener){
+                    onMessageMenuListener.onTop(position);
+                }
                 dismiss();
                 break;
             case R.id.deleteTextView:
-                System.out.println("删除");
+                if(null!=onMessageMenuListener){
+                    onMessageMenuListener.onDelete(position);
+                }
                 dismiss();
                 break;
         }
+    }
+    private OnMessageMenuListener onMessageMenuListener;
+    public interface OnMessageMenuListener{
+        void onTop(int position);
+        void onDelete(int position);
     }
 }

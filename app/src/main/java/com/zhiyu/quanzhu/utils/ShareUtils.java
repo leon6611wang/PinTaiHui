@@ -19,6 +19,17 @@ public class ShareUtils {
     private static Tencent mTencent;
     private static ShareUtils utils;
     private static Activity activity;
+    /**
+     * app,invite,feed,circle,card,goods,shop
+     */
+    public static final String SHARE_TYPE_FEED="feed";
+    public static final String SHARE_TYPE_INVITE="invite";
+    public static final String SHARE_TYPE_SHOP="shop";
+    public static final String SHARE_TYPE_GOODS="goods";
+    public static final String SHARE_TYPE_CIRCLE="circle";
+    public static final String SHARE_TYPE_CARD="card";
+    public static final String SHARE_TYPE_APP="app";
+
 
     public static ShareUtils getInstance(Activity aty) {
         activity = aty;
@@ -63,14 +74,14 @@ public class ShareUtils {
 
     private IUiListener shareListener;
 
-    public void shareToQQ(IUiListener listener) {
+    public void shareToQQ(String title,String desc,String imageUrl,String webUrl,IUiListener listener) {
         this.shareListener = listener;
         Bundle params = new Bundle();
         params.putInt(QQShare.SHARE_TO_QQ_KEY_TYPE, QQShare.SHARE_TO_QQ_TYPE_DEFAULT);
-        params.putString(QQShare.SHARE_TO_QQ_TITLE, "俄奥委会:拒接受世界反兴奋剂机构禁赛处罚 将上诉");// 标题
-        params.putString(QQShare.SHARE_TO_QQ_SUMMARY, "当地时间12月24日，俄罗斯奥委会主席波兹德尼亚科夫和残奥委会主席卢金在新闻发布会上表示，俄罗斯奥委会执委会全会通过决议，支持俄罗斯反兴奋剂机构观察委员会19日所提出的，拒绝世界反兴奋剂机构对俄禁赛处罚决定的建议。随后，俄罗斯反兴奋剂机构全会审议并通过了上述决议。");// 摘要
-        params.putString(QQShare.SHARE_TO_QQ_TARGET_URL, "https://news.163.com/19/1224/23/F16T9GP60001899O.html");// 内容地址
-        params.putString(QQShare.SHARE_TO_QQ_IMAGE_URL, "http://cms-bucket.ws.126.net/2019/1224/2a2726d3j00q30woq0039c000ug00msc.jpg");// 网络图片地址　　
+        params.putString(QQShare.SHARE_TO_QQ_TITLE,title);// 标题
+        params.putString(QQShare.SHARE_TO_QQ_SUMMARY, desc);// 摘要
+        params.putString(QQShare.SHARE_TO_QQ_TARGET_URL,webUrl);// 内容地址
+        params.putString(QQShare.SHARE_TO_QQ_IMAGE_URL, imageUrl);// 网络图片地址　　
         mTencent.shareToQQ(activity, params, shareListener);
     }
 

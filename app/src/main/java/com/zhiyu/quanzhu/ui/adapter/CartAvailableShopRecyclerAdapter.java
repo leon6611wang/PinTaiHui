@@ -149,6 +149,9 @@ public class CartAvailableShopRecyclerAdapter extends RecyclerView.Adapter<CartA
                 itemItem.setSelected(!selected, manage);
             }
             notifyDataSetChanged();
+            if (null != onCartItemSelectListener) {
+                onCartItemSelectListener.onCartItemSelect();
+            }
         }
     }
 

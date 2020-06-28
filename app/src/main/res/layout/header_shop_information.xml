@@ -115,13 +115,13 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginRight="@dimen/dp_2"
-                        android:src="@mipmap/guanzhu_white" />
+                        android:src="@mipmap/shoucang_white" />
 
                     <TextView
                         android:id="@+id/followBtnTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="关注"
+                        android:text="收藏"
                         android:textColor="@color/white"
                         android:textSize="12sp" />
 

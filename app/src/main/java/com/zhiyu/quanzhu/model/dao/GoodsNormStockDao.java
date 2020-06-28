@@ -38,6 +38,7 @@ public class GoodsNormStockDao {
         if (null != list && list.size() > 0) {
             for (GoodsStock stock : list) {
                 try {
+//                    System.out.println("####### stock 保存: "+stock.toString());
                     BaseApplication.db.saveBindingId(stock);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -46,13 +47,14 @@ public class GoodsNormStockDao {
         }
     }
 
-    private void selectStockList() {
+    public List<GoodsStock> selectStockList() {
+        List<GoodsStock> list = null;
         try {
-            List<GoodsStock> list = BaseApplication.db.findAll(GoodsStock.class);
+            list = BaseApplication.db.findAll(GoodsStock.class);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        return list;
     }
 
     private List<Integer> selectStocks(List<GoodsNorm> list) {
@@ -101,37 +103,33 @@ public class GoodsNormStockDao {
         }
 
 
-//        if (null != list && list.size() > 0) {
-//            String sql = "select * from goods_stock where ";
-//            for (int i = 0; i < list.size(); i++) {
-//                String id = "id" + list.get(i).getP_id();
-//                sql += id + " = " + list.get(i).getNorms_id();
-//                if (i < (list.size() - 1)) {
-//                    sql += " and ";
-//                }
-//            }
-//            System.out.println("sql: " + sql);
-//            try {
-//                Cursor cursor = BaseApplication.db.execQuery(sql);
-//                while (cursor.moveToNext()) {
-////                    GoodsStock stock = new GoodsStock();
-//                    for (int i = 1; i < 10; i++) {
-//                        long _id = cursor.getLong(cursor.getColumnIndex("id" + i));
-//                        if (_id > 0)
-//                            idSet.add((int) _id);
-//                    }
-////                    int _stock = cursor.getInt(cursor.getColumnIndex("stock"));
-////                    String _img = cursor.getString(cursor.getColumnIndex("img"));
-////                    stock.setStock(_stock);
-////                    stock.setImg(_img);
-////                    System.out.println("查询到的库存为 " + _stock);
-//                }
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
         List<Integer> idList = new ArrayList<>(set);
         return idList;
+    }
+
+    public boolean hasGoodsStockByNorms(GoodsNorm norm) {
+        List<GoodsStock> stockList = null;
+        boolean hasStock = false;
+        try {
+            stockList = BaseApplication.db.selector(GoodsStock.class).
+                    where("id1", "=", norm.getNorms_id()).
+                    or("id2", "=", norm.getNorms_id()).
+                    or("id3", "=", norm.getNorms_id()).
+                    or("id4", "=", norm.getNorms_id()).
+                    or("id5", "=", norm.getNorms_id()).
+                    or("id6", "=", norm.getNorms_id()).
+                    or("id7", "=", norm.getNorms_id()).
+                    or("id8", "=", norm.getNorms_id()).
+                    or("id9", "=", norm.getNorms_id()).
+                    or("id10", "=", norm.getNorms_id()).findAll();
+            if (null != stockList && stockList.size() > 0) {
+                hasStock = true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return hasStock;
     }
 
     private GoodsStock getGoodsStock(List<GoodsNorm> list) {
@@ -178,7 +176,7 @@ public class GoodsNormStockDao {
         Set<Integer> set = new HashSet<>();
         List<GoodsStock> list = null;
         try {
-            list = BaseApplication.db.findAll(GoodsStock.class);
+            list = selectStockList();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -196,6 +194,7 @@ public class GoodsNormStockDao {
                 set.add((int) goodsStock.getId10());
             }
         }
+        set.remove(0);
         List<Integer> idlist = new ArrayList<>(set);
         return idlist;
     }
@@ -218,6 +217,7 @@ public class GoodsNormStockDao {
             map.clear();
         }
         List<Integer> idlist = getInitStock();
+//        System.out.println("list: "+(null==list?0:list.size()));
 //        System.out.println("idsList: "+GsonUtils.GsonString(idlist));
         if (null != list && list.size() > 0 && null != idlist && idlist.size() > 0) {
             for (int i = 0; i < list.size(); i++) {
@@ -225,7 +225,7 @@ public class GoodsNormStockDao {
                     list.get(i).getList().get(j).setSelected(false);
                     for (int k = 0; k < idlist.size(); k++) {
                         if (list.get(i).getList().get(j).getNorms_id() == idlist.get(k)) {
-//                            System.out.println("norms_id: "+list.get(i).getList().get(j).getNorms_id());
+//                            System.out.println("可选规格的norms_id: "+list.get(i).getList().get(j).getNorms_id());
                             list.get(i).getList().get(j).setSelectable(true);
                         }
                     }

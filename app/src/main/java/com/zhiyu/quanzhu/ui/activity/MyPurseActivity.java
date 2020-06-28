@@ -118,6 +118,12 @@ public class MyPurseActivity extends BaseActivity implements View.OnClickListene
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_purse);
         ScreentUtils.getInstance().setStatusBarLightMode(this, false);
+        currentYear = CalendarUtils.getInstance().getCurrentYear();
+        currentMonth = CalendarUtils.getInstance().getCurrentMonth();
+        currentDay = CalendarUtils.getInstance().getCurrentDay();
+        startYear = CalendarUtils.getInstance().getCurrentYear();
+        startMonth = CalendarUtils.getInstance().getCurrentMonth();
+        startDay = 1;
         initDialogs();
         initPtr();
         initViews();
@@ -130,16 +136,24 @@ public class MyPurseActivity extends BaseActivity implements View.OnClickListene
         purseList();
     }
 
+    private int startYear, startMonth, startDay, endYear, endMonth, endDay, currentYear, currentMonth, currentDay;
+
     private void initDialogs() {
         startDateDialog = new StartDateDialog(this, R.style.dialog, new StartDateDialog.OnCalendarListener() {
             @Override
             public void onCalendar(int year, int month, int day) {
+                startYear = year;
+                startMonth = month;
+                startDay = day;
                 startDateTextView.setText(month + "月" + day + "日 " + year);
             }
         });
         endDateDialog = new EndDateDialog(this, R.style.dialog, new EndDateDialog.OnCalendarListener() {
             @Override
             public void onCalendar(int year, int month, int day) {
+                endYear = year;
+                endMonth = month;
+                endDay = day;
                 endDateTextView.setText(month + "月" + day + "日 " + year);
             }
         });
@@ -191,10 +205,13 @@ public class MyPurseActivity extends BaseActivity implements View.OnClickListene
         notificationImageView.setOnClickListener(this);
 
         startDateTextView = headerView.findViewById(R.id.startDateTextView);
-        startDateTextView.setText(CalendarUtils.getInstance().getCurrentMonth() + "月" + 1 + "日 " + CalendarUtils.getInstance().getCurrentYear());
+        startDateTextView.setText(currentMonth + "月" + 1 + "日 " + currentYear);
         startDateTextView.setOnClickListener(this);
         endDateTextView = headerView.findViewById(R.id.endDateTextView);
-        endDateTextView.setText(CalendarUtils.getInstance().getCurrentMonth() + "月" + CalendarUtils.getInstance().getCurrentDay() + "日 " + CalendarUtils.getInstance().getCurrentYear());
+        endYear=currentYear;
+        endMonth=currentMonth;
+        endDay=CalendarUtils.getInstance().getCurrentDay();
+        endDateTextView.setText(endMonth + "月" +endDay + "日 " + endYear);
         endDateTextView.setOnClickListener(this);
         quanbuView = findViewById(R.id.quanbuView);
         quanbuView.setOnClickListener(this);
@@ -431,6 +448,8 @@ public class MyPurseActivity extends BaseActivity implements View.OnClickListene
                 break;
             case R.id.endDateTextView:
                 endDateDialog.show();
+                System.out.println("start: "+startYear + " , " + startMonth + " , " + startDay);
+                endDateDialog.setStartDate(startYear, startMonth, startDay,endYear,endMonth,endDay);
                 break;
             case R.id.tixianTextView:
                 Intent tixianIntent = new Intent(this, WithdrawActivity.class);

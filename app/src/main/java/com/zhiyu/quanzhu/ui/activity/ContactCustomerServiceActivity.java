@@ -17,7 +17,7 @@ import com.zhiyu.quanzhu.utils.ScreentUtils;
 public class ContactCustomerServiceActivity extends BaseActivity implements View.OnClickListener {
     private LinearLayout backLayout,rightLayout;
     private TextView titleTextView, callServiceTextView,rightTextView;
-    private final String phoneNumber = "17375081781";
+    private final String phoneNumber = "17375081316";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

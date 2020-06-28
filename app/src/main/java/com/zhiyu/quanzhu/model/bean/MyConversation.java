@@ -1,6 +1,8 @@
 package com.zhiyu.quanzhu.model.bean;
 
-public class MyConversation {
+import java.io.Serializable;
+
+public class MyConversation implements Serializable{
     private String userId;
     private String userName;
     private String headerPic;
@@ -10,6 +12,24 @@ public class MyConversation {
     private boolean isTop;
     private int unreadCount;
     private String type;//group,private
+    private int lastMsgId;
+    private boolean needRequestUserProfile=true;
+
+    public int getLastMsgId() {
+        return lastMsgId;
+    }
+
+    public void setLastMsgId(int lastMsgId) {
+        this.lastMsgId = lastMsgId;
+    }
+
+    public boolean isNeedRequestUserProfile() {
+        return needRequestUserProfile;
+    }
+
+    public void setNeedRequestUserProfile(boolean needRequestUserProfile) {
+        this.needRequestUserProfile = needRequestUserProfile;
+    }
 
     public String getType() {
         return type;

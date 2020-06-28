@@ -70,7 +70,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginBottom="@dimen/dp_5"
-                android:gravity="center"
+                android:gravity="center|top"
                 android:orientation="horizontal">
 
                 <com.zhiyu.quanzhu.ui.widget.CircleImageView
@@ -81,39 +81,29 @@
                     android:src="@drawable/image_error" />
 
                 <TextView
-                    android:id="@+id/userNameTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="@dimen/dp_10"
-                    android:textColor="@color/text_color_yellow"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="想要加入您的圈子"
-                    android:textColor="@color/text_color_grey"
-                    android:layout_marginRight="@dimen/dp_5"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:id="@+id/circleNameTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="13sp"
-                    android:textColor="@color/text_color_yellow"
-                    />
-
-                <View
+                    android:id="@+id/contentTextView"
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1" />
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="13sp" />
             </LinearLayout>
 
             <TextView
-                android:id="@+id/contentTextView"
+                android:id="@+id/statusDescTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="已通过"
+                android:textSize="13sp"
+                android:textColor="@color/text_color_yellow"
+                android:layout_marginBottom="@dimen/dp_5"
+                />
+
+            <TextView
+                android:id="@+id/resultTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:text="验证消息："
+                android:visibility="visible"
                 android:textColor="#808291"
                 android:textSize="13sp" />
 
@@ -123,6 +113,7 @@
                 android:layout_gravity="center"
                 android:layout_marginBottom="@dimen/dp_2"
                 android:layout_marginTop="@dimen/dp_10"
+                android:visibility="gone"
                 android:gravity="center"
                 android:orientation="horizontal">
 

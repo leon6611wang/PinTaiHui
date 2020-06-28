@@ -20,12 +20,12 @@ import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseActivity;
 import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.GoodsImg;
-import com.zhiyu.quanzhu.model.bean.GoodsNorm;
 import com.zhiyu.quanzhu.model.dao.GoodsNormStockDao;
 import com.zhiyu.quanzhu.model.result.GoodsCommentResult;
 import com.zhiyu.quanzhu.model.result.GoodsNormResult;
 import com.zhiyu.quanzhu.model.result.GoodsResult;
 import com.zhiyu.quanzhu.model.result.GoodsStockResult;
+import com.zhiyu.quanzhu.model.result.ShareResult;
 import com.zhiyu.quanzhu.ui.adapter.GoodsInfoCommentsRecyclerAdapter;
 import com.zhiyu.quanzhu.ui.adapter.GoodsInfoLikeGoodsAdapter;
 import com.zhiyu.quanzhu.ui.adapter.GoodsInfoTagAdapter;
@@ -50,6 +50,7 @@ import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.PriceParseUtils;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
+import com.zhiyu.quanzhu.utils.ShareUtils;
 
 import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
@@ -98,7 +99,7 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
 
     private ShareDialog shareDialog;
     private PayWayDialog payWayDialog;
-
+    private boolean normFinish, stockFinish;//规格是否加载完成，库存是否加载完成
     private MyHandler myHandler = new MyHandler(this);
     private long goods_id;
 
@@ -129,8 +130,12 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
                         bannerList.addAll(activity.goodsResult.getData().getDetail().getImg_list());
                         activity.goodsInfoBanner.setList(bannerList);
                         if (activity.goodsResult.getData().isHas_norms()) {
-                            activity.priceTextView.setText(PriceParseUtils.getInstance().parsePrice(activity.goodsResult.getData().getDetail().getMin_price()) + "-" +
-                                    PriceParseUtils.getInstance().parsePrice(activity.goodsResult.getData().getDetail().getMax_price()));
+                            if (activity.goodsResult.getData().getDetail().getMin_price() == activity.goodsResult.getData().getDetail().getMax_price()) {
+                                activity.priceTextView.setText(PriceParseUtils.getInstance().parsePrice(activity.goodsResult.getData().getDetail().getGoods_price()));
+                            } else {
+                                activity.priceTextView.setText(PriceParseUtils.getInstance().parsePrice(activity.goodsResult.getData().getDetail().getMin_price()) + "-" +
+                                        PriceParseUtils.getInstance().parsePrice(activity.goodsResult.getData().getDetail().getMax_price()));
+                            }
                         } else {
                             activity.priceTextView.setText(PriceParseUtils.getInstance().parsePrice(activity.goodsResult.getData().getDetail().getGoods_price()));
                         }
@@ -223,14 +228,16 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
                     }
                     break;
                 case 1://商品规格数据
-                    if (null != activity.goodsNormResult && activity.goodsNormResult.getCode() == 200 &&
-                            null != activity.goodsNormResult.getData() && null != activity.goodsNormResult.getData().getList() &&
-                            activity.goodsNormResult.getData().getList().size() > 0) {
-                        activity.normsDialog.setGuiGeList(activity.goodsNormResult.getData().getList());
-                        activity.scrollTop();
-                    }
-                    if (activity.isInfo && activity.isComments && activity.isGuiGe && activity.isLikeGoods) {
-                        activity.loadingDialog.dismiss();
+                    if (activity.normFinish && activity.stockFinish) {
+                        if (null != activity.goodsNormResult && activity.goodsNormResult.getCode() == 200 &&
+                                null != activity.goodsNormResult.getData() && null != activity.goodsNormResult.getData().getList() &&
+                                activity.goodsNormResult.getData().getList().size() > 0) {
+                            activity.normsDialog.setGuiGeList(activity.goodsNormResult.getData().getList());
+                            activity.scrollTop();
+                        }
+                        if (activity.isInfo && activity.isComments && activity.isGuiGe && activity.isLikeGoods) {
+                            activity.loadingDialog.dismiss();
+                        }
                     }
                     break;
                 case 2://精选评论
@@ -297,13 +304,14 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
         initDatas();
         initViews();
         initDialogs();
+        shareConfig();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         loadingDialog.show();
-        if(null!=normsDialog){
+        if (null != normsDialog) {
             normsDialog.clearSelectedNorms();
         }
         goodsInformation();
@@ -482,16 +490,29 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
                 break;
             case R.id.bottomShareTextView:
                 shareDialog.show();
+                shareResult.getData().getShare().setImage_url(goodsResult.getData().getDetail().getImg_list().get(0).getUrl());
+                shareResult.getData().getShare().setContent(goodsResult.getData().getDetail().getGoods_name());
+                shareDialog.setShare(shareResult.getData().getShare(), (int) goodsResult.getData().getDetail().getId());
                 break;
             case R.id.bottomAddCartTextView:
-                normsDialog.show();
-                normsDialog.setGoods(goodsResult.getData().getDetail(), goodsResult.getData().isHas_norms());
-                normsDialog.setType(1);
+                if (normFinish && stockFinish) {
+                    normsDialog.show();
+                    normsDialog.setGoods(goodsResult.getData().getDetail(), goodsResult.getData().isHas_norms());
+                    normsDialog.setType(1);
+                } else {
+                    MessageToast.getInstance(this).show("数据正在加载，请稍后再试.");
+                }
+
                 break;
             case R.id.bottomBuyTextView:
-                normsDialog.show();
-                normsDialog.setGoods(goodsResult.getData().getDetail(), goodsResult.getData().isHas_norms());
-                normsDialog.setType(2);
+                if (normFinish && stockFinish) {
+                    normsDialog.show();
+                    normsDialog.setGoods(goodsResult.getData().getDetail(), goodsResult.getData().isHas_norms());
+                    normsDialog.setType(2);
+                } else {
+                    MessageToast.getInstance(this).show("数据正在加载，请稍后再试.");
+                }
+
                 break;
             case R.id.circleLayout:
                 if (null != goodsResult && null != goodsResult.getData().getCircle()) {
@@ -614,9 +635,9 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
             @Override
             public void onSuccess(String result) {
                 isLikeGoods = true;
-                System.out.println("猜你喜欢" + result);
+//                System.out.println("猜你喜欢" + result);
                 likeGoodsResult = GsonUtils.GsonToBean(result, GoodsResult.class);
-                System.out.println("c猜你喜欢" + likeGoodsResult.getData().getGoods_list().size());
+//                System.out.println("c猜你喜欢" + likeGoodsResult.getData().getGoods_list().size());
                 Message message = myHandler.obtainMessage(3);
                 message.sendToTarget();
             }
@@ -626,7 +647,7 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
                 isLikeGoods = true;
                 Message message = myHandler.obtainMessage(3);
                 message.sendToTarget();
-                System.out.println("猜你喜欢" + ex.toString());
+//                System.out.println("猜你喜欢" + ex.toString());
             }
 
             @Override
@@ -654,7 +675,7 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
             @Override
             public void onSuccess(String result) {
                 isComments = true;
-                System.out.println("精选评价:" + result);
+//                System.out.println("精选评价:" + result);
                 goodsCommentResult = GsonUtils.GsonToBean(result, GoodsCommentResult.class);
                 Message message = myHandler.obtainMessage(2);
                 message.sendToTarget();
@@ -700,14 +721,16 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
 //                    goodsNormList.add(goodsNormResult.getData().getList().get(1).getList().get(1));
 //                    goodsNormList.add(goodsNormResult.getData().getList().get(2));
 //                }
+                normFinish = true;
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
             }
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                System.out.println("norms: " + ex.toString());
+//                System.out.println("norms: " + ex.toString());
                 isGuiGe = true;
+                normFinish = true;
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
             }
@@ -739,11 +762,17 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
                 System.out.println("商品规格对应库存:" + result);
                 goodsStockResult = GsonUtils.GsonToBean(result, GoodsStockResult.class);
                 GoodsNormStockDao.getInstance().saveStockList(goodsStockResult.getData().getList());
+                stockFinish = true;
+                Message message = myHandler.obtainMessage(1);
+                message.sendToTarget();
             }
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
                 System.out.println("商品规格对应库存:" + ex.toString());
+                stockFinish = true;
+                Message message = myHandler.obtainMessage(1);
+                message.sendToTarget();
             }
 
             @Override
@@ -834,5 +863,36 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         shareDialog.setQQShareCallback(requestCode, resultCode, data);
+    }
+
+    private ShareResult shareResult;
+
+    private void shareConfig() {
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.SHARE_CONFIG);
+        params.addBodyParameter("type", ShareUtils.SHARE_TYPE_GOODS);
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                System.out.println("share: " + result);
+                shareResult = GsonUtils.GsonToBean(result, ShareResult.class);
+//                Message message=myHandler.obtainMessage(3);
+//                message.sendToTarget();
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
     }
 }

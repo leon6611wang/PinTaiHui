@@ -85,6 +85,7 @@ public class FragmentHomeQuanShang extends Fragment {
             FragmentHomeQuanShang fragment = fragmentHomeQuanShangWeakReference.get();
             switch (msg.what) {
                 case 0:
+                    fragment.isRequesting = false;
                     fragment.initViews();
                     fragment.startBanner();
                     if (null != fragment.list && fragment.list.size() > 0) {
@@ -93,6 +94,7 @@ public class FragmentHomeQuanShang extends Fragment {
                     }
                     break;
                 case 1:
+                    fragment.isRequesting = false;
                     fragment.ptrFrameLayout.refreshComplete();
                     if (null != fragment.adapter) {
                         if (fragment.page == 1) {
@@ -113,14 +115,40 @@ public class FragmentHomeQuanShang extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_home_quanshang, null);
         initPtr();
-        ThreadPoolUtils.getInstance().init().execute(new Runnable() {
-            @Override
-            public void run() {
-                requestMallHomeAd();
-                requestMallHomeAdGoods();
-            }
-        });
+
         return view;
+    }
+
+    private boolean isRequesting = false;
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (!isRequesting && (null == mallAdResult || null == list || list.size() == 0)) {
+            ThreadPoolUtils.getInstance().init().execute(new Runnable() {
+                @Override
+                public void run() {
+                    isRequesting = true;
+                    requestMallHomeAd();
+                    requestMallHomeAdGoods();
+                }
+            });
+        }
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser && !isRequesting && (null == mallAdResult || null == list || list.size() == 0)) {
+            ThreadPoolUtils.getInstance().init().execute(new Runnable() {
+                @Override
+                public void run() {
+                    isRequesting = true;
+                    requestMallHomeAd();
+                    requestMallHomeAdGoods();
+                }
+            });
+        }
     }
 
     private void initLocationData() {

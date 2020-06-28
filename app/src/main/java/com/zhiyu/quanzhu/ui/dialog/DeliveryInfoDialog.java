@@ -17,6 +17,7 @@ import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.model.result.DeliveryInfoResult;
 import com.zhiyu.quanzhu.model.result.OrderDeliveryResult;
 import com.zhiyu.quanzhu.ui.adapter.DeliveryInfoRecyclerAdapter;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
@@ -49,8 +50,18 @@ public class DeliveryInfoDialog extends Dialog implements View.OnClickListener {
         public void handleMessage(Message msg) {
             DeliveryInfoDialog dialog = dialogWeakReference.get();
             switch (msg.what) {
+                case 99:
+                    MessageToast.getInstance(dialog.getContext()).show("服务器内部错误");
+                    break;
                 case 1:
-                    dialog.adapter.setData(dialog.orderDeliveryResult.getData().getList().getData());
+                    if (null != dialog.orderDeliveryResult && null != dialog.orderDeliveryResult.getData() && null != dialog.orderDeliveryResult.getData().getList() &&
+                            dialog.orderDeliveryResult.getData().getList().size() > 0) {
+                        dialog.adapter.setData(dialog.orderDeliveryResult.getData().getList().get(0).getData());
+                    } else {
+                        dialog.adapter.setData(null);
+                        MessageToast.getInstance(dialog.getContext()).show("暂无物流信息");
+                    }
+
                     break;
             }
         }
@@ -105,6 +116,7 @@ public class DeliveryInfoDialog extends Dialog implements View.OnClickListener {
     }
 
     private DeliveryInfoResult orderDeliveryResult;
+
     /**
      * 物流详情
      */
@@ -115,13 +127,15 @@ public class DeliveryInfoDialog extends Dialog implements View.OnClickListener {
             @Override
             public void onSuccess(String result) {
                 System.out.println("物流详情: " + result);
-                orderDeliveryResult= GsonUtils.GsonToBean(result,DeliveryInfoResult.class);
-                Message message=myHandler.obtainMessage(1);
+                orderDeliveryResult = GsonUtils.GsonToBean(result, DeliveryInfoResult.class);
+                Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
             }
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
                 System.out.println("物流详情: " + ex.toString());
             }
 

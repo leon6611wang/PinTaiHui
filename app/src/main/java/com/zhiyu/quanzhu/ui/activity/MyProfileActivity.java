@@ -157,6 +157,8 @@ public class MyProfileActivity extends BaseActivity implements View.OnClickListe
         loadingDialog = new LoadingDialog(this, R.style.dialog);
     }
 
+    private String nickName="";
+
     private void initViews() {
         backLayout = findViewById(R.id.backLayout);
         backLayout.setOnClickListener(this);
@@ -187,7 +189,11 @@ public class MyProfileActivity extends BaseActivity implements View.OnClickListe
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                updateUserProfile();
+                if (!StringUtils.isNullOrEmpty(nicknameEditText.getText().toString().trim()) && !nickName.equals(nicknameEditText.getText().toString().trim())) {
+                    nickName = nicknameEditText.getText().toString().trim();
+                    updateUserProfile();
+                }
+
             }
 
             @Override
@@ -301,8 +307,8 @@ public class MyProfileActivity extends BaseActivity implements View.OnClickListe
         } else if (requestCode == REQUEST_CROP_IMAGES_CODE) {
             String cropImagePath = data.getStringExtra("cropImagePath");
             uploadAvatar(cropImagePath);
-            Glide.with(this).load(cropImagePath).into(avatarImageView);
-            System.out.println("cropImagePath: " + cropImagePath);
+            Glide.with(this).load(cropImagePath).error(R.drawable.image_error).into(avatarImageView);
+//            System.out.println("cropImagePath: " + cropImagePath);
         }
     }
 
@@ -316,6 +322,7 @@ public class MyProfileActivity extends BaseActivity implements View.OnClickListe
             @Override
             public void onUploadSuccess(String name) {
                 avatarUrl = name;
+//                System.out.println("上传头像: " + avatarUrl);
                 updateUserProfile();
             }
         });
@@ -332,7 +339,7 @@ public class MyProfileActivity extends BaseActivity implements View.OnClickListe
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("user detail: " + result);
+//                System.out.println("user detail: " + result);
                 profileResult = GsonUtils.GsonToBean(result, UserProfileResult.class);
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
@@ -360,8 +367,8 @@ public class MyProfileActivity extends BaseActivity implements View.OnClickListe
 
     //更新用户信息
     private void updateUserProfile() {
-        System.out.println("avatar: " + avatarUrl + " , username: " + nicknameEditText.getText().toString().trim() + " , sex: " + sex + " , province: " +
-                province.getCode() + " , province_name: " + province.getName() + " , city: " + city.getCode() + " , city_name: " + city.getName());
+//        System.out.println("avatar: " + avatarUrl + " , username: " + nicknameEditText.getText().toString().trim() + " , sex: " + sex + " , province: " +
+//                province.getCode() + " , province_name: " + province.getName() + " , city: " + city.getCode() + " , city_name: " + city.getName());
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.UPDATE_USER_PROFILE);
         params.addBodyParameter("avatar", avatarUrl);
         params.addBodyParameter("username", nicknameEditText.getText().toString().trim());
@@ -377,6 +384,8 @@ public class MyProfileActivity extends BaseActivity implements View.OnClickListe
                 if (baseResult.getCode() != 200) {
                     Message message = myHandler.obtainMessage(2);
                     message.sendToTarget();
+                } else if (200 == baseResult.getCode()) {
+                    userProfile();
                 }
             }
 

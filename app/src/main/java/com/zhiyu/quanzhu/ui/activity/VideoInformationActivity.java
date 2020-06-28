@@ -79,6 +79,7 @@ public class VideoInformationActivity extends BaseActivity implements View.OnCli
     private int feeds_id, comment_id, myCommentId, user_id;
     private String commentContent;
     private ShareDialog shareDialog;
+    private int fromCircleInfo = 0;//0:默认值，不是圈子详情来源，1：来自圈子详情，点击圈子不跳转到圈子详情
     private boolean is_follow = false, is_prise = false;
     private MyHandler myHandler = new MyHandler(this);
 
@@ -140,11 +141,20 @@ public class VideoInformationActivity extends BaseActivity implements View.OnCli
                     }
                     break;
                 case 7://关联的商品
-                    if(null!=activity.feedsGoodsList&&activity.feedsGoodsList.size()>0){
+                    if (null != activity.feedsGoodsList && activity.feedsGoodsList.size() > 0) {
                         activity.goodsCardView.setVisibility(View.VISIBLE);
                         activity.goodsRecyclerAdapter.setList(activity.feedsGoodsList);
-                    }else{
+                    } else {
                         activity.goodsCardView.setVisibility(View.GONE);
+                    }
+                    break;
+                case 8:
+                    if (activity.feedInfoResult.getData().getDetail().isIs_report()) {
+                        activity.reportImageView.setVisibility(View.GONE);
+                        activity.reportTextView.setText("已投诉");
+                    } else {
+                        activity.reportImageView.setVisibility(View.VISIBLE);
+                        activity.reportTextView.setText("投诉");
                     }
                     break;
             }
@@ -158,6 +168,7 @@ public class VideoInformationActivity extends BaseActivity implements View.OnCli
         ScreentUtils.getInstance().setStatusBarLightMode(this, false);
         feeds_id = getIntent().getIntExtra("feeds_id", 0);
         myCommentId = getIntent().getIntExtra("myCommentId", 0);
+        fromCircleInfo = getIntent().getIntExtra("fromCircleInfo", 0);
         screenWidth = ScreentUtils.getInstance().getScreenWidth(this);
         screenHeight = ScreentUtils.getInstance().getScreenHeight(this);
         dp_200 = (int) getResources().getDimension(R.dimen.dp_200);
@@ -414,7 +425,8 @@ public class VideoInformationActivity extends BaseActivity implements View.OnCli
     private void playVideo(String url) {
         videoPlayer.setDataSource(url, null);
         videoPlayer.startPlayVideo();
-        Glide.with(this).load(feedInfoResult.getData().getDetail().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(videoPlayer.getCoverController().getVideoCover());
+        Glide.with(this).load(feedInfoResult.getData().getDetail().getVideo_thumb()).into(videoPlayer.getCoverController().getVideoCover());
+//        Glide.with(this).load(feedInfoResult.getData().getDetail().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(videoPlayer.getCoverController().getVideoCover());
         videoWidth = feedInfoResult.getData().getDetail().getVideo_width();
         videoHeight = feedInfoResult.getData().getDetail().getVideo_height();
         initLayoutParams();
@@ -481,10 +493,13 @@ public class VideoInformationActivity extends BaseActivity implements View.OnCli
                 follow();
                 break;
             case R.id.reportLayout:
-                Intent intent = new Intent(this, ComplaintActivity.class);
-                intent.putExtra("report_id", feedInfoResult.getData().getDetail().getId());
-                intent.putExtra("module_type", "feeds");
-                startActivity(intent);
+                if (null != feedInfoResult && null != feedInfoResult.getData() && null != feedInfoResult.getData().getDetail()) {
+                    Intent intent = new Intent(this, ComplaintActivity.class);
+                    intent.putExtra("report_id", feedInfoResult.getData().getDetail().getId());
+                    intent.putExtra("module_type", "feeds");
+                    startActivityForResult(intent, 1132);
+                }
+
                 break;
             case R.id.priseImageView:
                 prise();
@@ -493,10 +508,25 @@ public class VideoInformationActivity extends BaseActivity implements View.OnCli
                 prise();
                 break;
             case R.id.circleCardView:
-                Intent circleIntent=new Intent(this,CircleInfoActivity.class);
-                circleIntent.putExtra("circle_id",(long) feedInfoResult.getData().getDetail().getId());
-                startActivity(circleIntent);
+                if (fromCircleInfo == 0)
+                    if (null != feedInfoResult && null != feedInfoResult.getData() && null != feedInfoResult.getData().getDetail()) {
+                        Intent circleIntent = new Intent(this, CircleInfoActivity.class);
+                        circleIntent.putExtra("circle_id", (long) feedInfoResult.getData().getDetail().getCircle().getId());
+                        startActivity(circleIntent);
+                    }
                 break;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == 1132) {
+            if (null != data && data.hasExtra("complaint")) {
+                feedInfoResult.getData().getDetail().setIs_report(true);
+                Message message = myHandler.obtainMessage(8);
+                message.sendToTarget();
+            }
         }
     }
 

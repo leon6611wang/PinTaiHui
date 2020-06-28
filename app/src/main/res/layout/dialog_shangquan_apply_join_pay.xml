@@ -27,11 +27,12 @@
             android:textSize="16sp" />
 
         <TextView
+            android:id="@+id/contentTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/dp_25"
             android:layout_marginRight="@dimen/dp_25"
-            android:text="该商圈需要支付￥3.00元入圈费用，并等待圈主审核通过后加入。若圈主24小时内未审核或审核不通过，则费用将原路退还。"
+            android:text="该商圈需要支付￥00.00元入圈费用，并等待圈主审核通过后加入。若圈主24小时内未审核或审核不通过，则费用将原路退还。"
             android:textColor="#333333"
             android:textSize="14sp" />
 

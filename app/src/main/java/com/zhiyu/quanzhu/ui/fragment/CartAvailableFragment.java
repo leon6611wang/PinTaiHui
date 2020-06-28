@@ -114,12 +114,14 @@ public class CartAvailableFragment extends Fragment implements CartAvailableShop
     }
 
     public void setUnSelected() {
+        if(null!=list&&list.size()>0)
         for (CartShop shop : list) {
             shop.setSelected(false);
             for (CartGoods goods : shop.getList()) {
                 goods.setSelected(false, false);
             }
         }
+        if(null!=list&&list.size()>0)
         adapter.setData(list);
     }
 
@@ -143,21 +145,24 @@ public class CartAvailableFragment extends Fragment implements CartAvailableShop
 
     public void allSelect(boolean isAllSelected) {
         if (!isAllSelected) {
-            for (CartShop gouWuCheItem : list) {
-                gouWuCheItem.setSelected(false);
-                for (CartGoods gouWuCheItemItem : gouWuCheItem.getList()) {
-                    gouWuCheItemItem.setSelected(false, false);
+            if (null != list && list.size() > 0)
+                for (CartShop gouWuCheItem : list) {
+                    gouWuCheItem.setSelected(false);
+                    for (CartGoods gouWuCheItemItem : gouWuCheItem.getList()) {
+                        gouWuCheItemItem.setSelected(false, false);
+                    }
                 }
-            }
         } else {
-            for (CartShop gouWuCheItem : list) {
-                gouWuCheItem.setSelected(true);
-                for (CartGoods gouWuCheItemItem : gouWuCheItem.getList()) {
-                    gouWuCheItemItem.setSelected(true, false);
+            if (null != list && list.size() > 0)
+                for (CartShop gouWuCheItem : list) {
+                    gouWuCheItem.setSelected(true);
+                    for (CartGoods gouWuCheItemItem : gouWuCheItem.getList()) {
+                        gouWuCheItemItem.setSelected(true, false);
+                    }
                 }
-            }
         }
-        adapter.setData(list);
+        if (null != list && list.size() > 0)
+            adapter.setData(list);
     }
 
 

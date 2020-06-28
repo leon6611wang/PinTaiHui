@@ -1,6 +1,7 @@
 package com.zhiyu.quanzhu.ui.widget.rongshare;
 
 import android.content.Context;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
@@ -46,7 +47,7 @@ public class ShareMessageItemProvider extends IContainerItemProvider.MessageProv
 
     @Override
     public void onItemClick(View view, int i, ShareMessage shareMessage, UIMessage uiMessage) {
-
+        System.out.println("分享 点击");
     }
 
     @Override
@@ -56,6 +57,13 @@ public class ShareMessageItemProvider extends IContainerItemProvider.MessageProv
         holder.titleTextView = view.findViewById(R.id.titleTextView);
         holder.descriptionTextView = view.findViewById(R.id.descriptionTextView);
         holder.mImageView = view.findViewById(R.id.mImageView);
+        holder.mCardView=view.findViewById(R.id.mCardView);
+        holder.mCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                System.out.println("分享cardview点击");
+            }
+        });
         view.setTag(holder);
         return view;
     }
@@ -63,5 +71,6 @@ public class ShareMessageItemProvider extends IContainerItemProvider.MessageProv
     private static class ViewHolder {
        TextView titleTextView,descriptionTextView;
        ImageView mImageView;
+       CardView mCardView;
     }
 }

@@ -6,6 +6,7 @@
     android:orientation="vertical">
 
     <android.support.v7.widget.CardView
+        android:id="@+id/conversationCardView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="7dp"
@@ -13,7 +14,7 @@
         android:layout_marginRight="@dimen/dp_15"
         android:layout_marginTop="3dp"
         android:orientation="vertical"
-        app:cardBackgroundColor="@color/white"
+        app:cardBackgroundColor="@color/text_color_gray"
         app:cardCornerRadius="@dimen/dp_5"
         app:contentPadding="@dimen/dp_1">
 
@@ -84,7 +85,33 @@
                         android:layout_height="wrap_content"
                         android:text="消息内容"
                         android:textColor="#666666"
+                        android:maxLines="1"
+                        android:ellipsize="end"
                         android:textSize="13sp" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/dp_1"
+                        android:layout_weight="1"
+                        android:layout_gravity="center"
+                        />
+
+                    <TextView
+                        android:id="@+id/unReadCountTextView"
+                        android:layout_width="17dp"
+                        android:layout_height="17dp"
+                        android:background="@drawable/shape_yuandian_red"
+                        android:text="15"
+                        android:textSize="11sp"
+                        android:layout_marginLeft="@dimen/dp_15"
+                        android:textColor="@color/white"
+                        android:paddingLeft="@dimen/dp_5"
+                        android:paddingRight="@dimen/dp_5"
+                        android:visibility="invisible"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        />
+
                 </LinearLayout>
             </LinearLayout>
 

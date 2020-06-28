@@ -62,6 +62,8 @@
                         android:layout_height="wrap_content"
                         android:text="genanx旗舰店"
                         android:textColor="#EDEDED"
+                        android:maxLines="1"
+                        android:ellipsize="end"
                         android:textSize="12sp" />
 
                     <TextView

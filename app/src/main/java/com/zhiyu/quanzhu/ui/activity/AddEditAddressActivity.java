@@ -61,7 +61,12 @@ public class AddEditAddressActivity extends BaseActivity implements View.OnClick
         public void handleMessage(Message msg) {
             AddEditAddressActivity activity = activityWeakReference.get();
             switch (msg.what) {
+                case 99:
+                    activity.saveButtonTextView.setClickable(true);
+                    MessageToast.getInstance(activity).show("服务器内部错误，请稍后再试.");
+                    break;
                 case 1:
+                    activity.saveButtonTextView.setClickable(true);
                     activity.loadingDialog.dismiss();
                     MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
                     if (activity.baseResult.getCode() == 200) {
@@ -96,6 +101,7 @@ public class AddEditAddressActivity extends BaseActivity implements View.OnClick
                     }
                     break;
                 case 4:
+                    activity.saveButtonTextView.setClickable(true);
                     MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
                     if (activity.baseResult.getCode() == 200) {
                         SuccessToast.getInstance(activity).show();
@@ -195,6 +201,7 @@ public class AddEditAddressActivity extends BaseActivity implements View.OnClick
     private BaseResult baseResult;
 
     private void addAddress() {
+        saveButtonTextView.setClickable(false);
         loadingDialog.show();
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.ADDRESS_ADD);
         params.addBodyParameter("province_id", String.valueOf(areaProvince.getCode()));
@@ -216,7 +223,7 @@ public class AddEditAddressActivity extends BaseActivity implements View.OnClick
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                Message message = myHandler.obtainMessage(2);
+                Message message = myHandler.obtainMessage(99);
                 message.sendToTarget();
             }
 
@@ -265,7 +272,8 @@ public class AddEditAddressActivity extends BaseActivity implements View.OnClick
     }
 
     private void editAddress() {
-        System.out.println("id_def: "+is_def);
+//        System.out.println("id_def: "+is_def);
+        saveButtonTextView.setClickable(false);
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.ADDRESS_UPDATE);
         params.addBodyParameter("id", detailResult.getData().getAddress().get_id());
         params.addBodyParameter("province_id", String.valueOf(areaProvince.getCode()));
@@ -286,7 +294,7 @@ public class AddEditAddressActivity extends BaseActivity implements View.OnClick
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                Message message = myHandler.obtainMessage(2);
+                Message message = myHandler.obtainMessage(99);
                 message.sendToTarget();
             }
 

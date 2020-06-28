@@ -31,7 +31,7 @@
             android:layout_marginRight="@dimen/dp_25"
             android:layout_marginBottom="@dimen/dp_35"
             android:gravity="top"
-            android:text="该商圈需要支付￥3.00元入圈费用，并等待圈主审核通过后加入。若圈主24小时内未审核或审核不通过，则费用将原路退还。"
+            android:text="该商圈需要支付￥0.00元入圈费用，并等待圈主审核通过后加入。若圈主24小时内未审核或审核不通过，则费用将原路退还。"
             android:textColor="@color/text_color_black"
             android:textColorHint="@color/text_color_gray"
             android:textSize="14sp" />

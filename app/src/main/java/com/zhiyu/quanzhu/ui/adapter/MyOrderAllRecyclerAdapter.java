@@ -19,6 +19,7 @@ import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.OrderShop;
 import com.zhiyu.quanzhu.ui.activity.OrderGoodsCommentsActivity;
 import com.zhiyu.quanzhu.ui.activity.OrderInformationActivity;
+import com.zhiyu.quanzhu.ui.activity.ShopInformationActivity;
 import com.zhiyu.quanzhu.ui.dialog.DeliveryInfoDialog;
 import com.zhiyu.quanzhu.ui.dialog.YNDialog;
 import com.zhiyu.quanzhu.ui.toast.MessageToast;
@@ -59,25 +60,31 @@ public class MyOrderAllRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
                 case 1://取消订单
                     MessageToast.getInstance(adapter.context).show(adapter.baseResult.getMsg());
                     if (200 == adapter.baseResult.getCode()) {
-                        adapter.list.get(adapter.mPosition).setStatus(OrderStatusUtils.YIQUXIAO);
-                        adapter.notifyItemChanged(adapter.mPosition);
+                        if (null != adapter.onRefreshDataListener) {
+                            adapter.onRefreshDataListener.onRefreshData();
+                        }
                     }
                     break;
                 case 2://删除订单
                     MessageToast.getInstance(adapter.context).show(adapter.baseResult.getMsg());
                     if (200 == adapter.baseResult.getCode()) {
-                        adapter.list.remove(adapter.mPosition);
-                        adapter.notifyDataSetChanged();
+                        if (null != adapter.onRefreshDataListener) {
+                            adapter.onRefreshDataListener.onRefreshData();
+                        }
                     }
                     break;
                 case 3://提醒发货
                     MessageToast.getInstance(adapter.context).show(adapter.baseResult.getMsg());
+                    if (null != adapter.onRefreshDataListener) {
+                        adapter.onRefreshDataListener.onRefreshData();
+                    }
                     break;
                 case 4://确认收货
                     MessageToast.getInstance(adapter.context).show(adapter.baseResult.getMsg());
                     if (200 == adapter.baseResult.getCode()) {
-                        adapter.list.get(adapter.mPosition).setStatus(OrderStatusUtils.DAIPINGJIA);
-                        adapter.notifyItemChanged(adapter.mPosition);
+                        if (null != adapter.onRefreshDataListener) {
+                            adapter.onRefreshDataListener.onRefreshData();
+                        }
                     }
                     break;
                 case 5://倒计时结束
@@ -246,7 +253,7 @@ public class MyOrderAllRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
 
     class ViewHolderYiQuXiao extends RecyclerView.ViewHolder {
         TextView shopNameTextView, goodsCountTextView, zhengshuTextView, xiaoshuTextView, payWayTextView;
-        TextView deleteOrderTextView, tuikuanSuccessTextView;
+        TextView deleteOrderTextView, tuikuanSuccessTextView, statusDescTextView;
         ImageView payWayImageView;
         MyRecyclerView shangpinRecyclerView;
         MyOrderShangPinRecyclerAdapter adapter;
@@ -271,6 +278,7 @@ public class MyOrderAllRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
             payWayImageView = itemView.findViewById(R.id.payWayImageView);
             deleteOrderTextView = itemView.findViewById(R.id.deleteOrderTextView);
             payWayTextView = itemView.findViewById(R.id.payWayTextView);
+            statusDescTextView = itemView.findViewById(R.id.statusDescTextView);
         }
     }
 
@@ -353,6 +361,8 @@ public class MyOrderAllRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
                 return new ViewHolderYiWanCheng(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_my_order_yiwancheng, parent, false));
             case OrderStatusUtils.SHOUHOUZHONG://售后中
                 return new ViewHolderShouHouZhong(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_my_order_shouhouzhong, parent, false));
+            case OrderStatusUtils.GUANBI://交易关闭
+                return new ViewHolderYiQuXiao(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_my_order_yiquxiao, parent, false));
         }
         return null;
     }
@@ -362,6 +372,7 @@ public class MyOrderAllRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
         if (viewHolder instanceof ViewHolderDaiFuKuan) {
             final ViewHolderDaiFuKuan holder = (ViewHolderDaiFuKuan) viewHolder;
             holder.shopNameTextView.setText(list.get(position).getShop_name());
+            holder.shopNameTextView.setOnClickListener(new OnShopInfoClick(position));
             holder.timeDownTextView.setOverTime(list.get(position).getOver_time(), new TimeDownTextView.OnTimeDownListener() {
                 @Override
                 public void onTImeDownFinish() {
@@ -394,6 +405,7 @@ public class MyOrderAllRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
         } else if (viewHolder instanceof ViewHolderDaiFaHuo) {
             final ViewHolderDaiFaHuo holder = (ViewHolderDaiFaHuo) viewHolder;
             holder.shopNameTextView.setText(list.get(position).getShop_name());
+            holder.shopNameTextView.setOnClickListener(new OnShopInfoClick(position));
             switch (list.get(position).getPay_type()) {
                 case 1:
                     holder.payWayImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.myorder_alipay));
@@ -438,6 +450,7 @@ public class MyOrderAllRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
         } else if (viewHolder instanceof ViewHolderDaiShouHuo) {
             final ViewHolderDaiShouHuo holder = (ViewHolderDaiShouHuo) viewHolder;
             holder.shopNameTextView.setText(list.get(position).getShop_name());
+            holder.shopNameTextView.setOnClickListener(new OnShopInfoClick(position));
             switch (list.get(position).getPay_type()) {
                 case 1:
                     holder.payWayImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.myorder_alipay));
@@ -474,6 +487,7 @@ public class MyOrderAllRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
         } else if (viewHolder instanceof ViewHolderDaiPingJia) {
             final ViewHolderDaiPingJia holder = (ViewHolderDaiPingJia) viewHolder;
             holder.shopNameTextView.setText(list.get(position).getShop_name());
+            holder.shopNameTextView.setOnClickListener(new OnShopInfoClick(position));
             switch (list.get(position).getPay_type()) {
                 case 1:
                     holder.payWayImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.myorder_alipay));
@@ -510,6 +524,17 @@ public class MyOrderAllRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
         } else if (viewHolder instanceof ViewHolderYiQuXiao) {
             final ViewHolderYiQuXiao holder = (ViewHolderYiQuXiao) viewHolder;
             holder.shopNameTextView.setText(list.get(position).getShop_name());
+            String status_desc = "";
+            switch (list.get(position).getStatus()) {
+                case OrderStatusUtils.YIQUXIAO:
+                    status_desc = "交易取消";
+                    break;
+                case OrderStatusUtils.GUANBI:
+                    status_desc = "交易关闭";
+                    break;
+            }
+            holder.statusDescTextView.setText(status_desc);
+            holder.shopNameTextView.setOnClickListener(new OnShopInfoClick(position));
             if (list.get(position).getIs_pay() == 1) {
                 holder.payWayImageView.setVisibility(View.VISIBLE);
                 holder.payWayTextView.setVisibility(View.VISIBLE);
@@ -517,12 +542,18 @@ public class MyOrderAllRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
                 holder.payWayImageView.setVisibility(View.INVISIBLE);
                 holder.payWayTextView.setVisibility(View.INVISIBLE);
             }
-            if (list.get(position).isTimeCountComplete()) {
-                holder.tuikuanSuccessTextView.setVisibility(View.INVISIBLE);
-            } else {
-                holder.tuikuanSuccessTextView.setVisibility(View.VISIBLE);
-            }
-
+            holder.tuikuanSuccessTextView.setVisibility(View.INVISIBLE);
+//            switch (list.get(position).getCancel_type()) {
+//                case 1:
+//                    holder.tuikuanSuccessTextView.setVisibility(View.INVISIBLE);
+//                    break;
+//                case 2:
+//                    holder.tuikuanSuccessTextView.setVisibility(View.VISIBLE);
+//                    break;
+//                default:
+//                    holder.tuikuanSuccessTextView.setVisibility(View.INVISIBLE);
+//                    break;
+//            }
             switch (list.get(position).getPay_type()) {
                 case 1:
                     holder.payWayImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.myorder_alipay));
@@ -566,6 +597,7 @@ public class MyOrderAllRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
         } else if (viewHolder instanceof ViewHolderYiWanCheng) {
             final ViewHolderYiWanCheng holder = (ViewHolderYiWanCheng) viewHolder;
             holder.shopNameTextView.setText(list.get(position).getShop_name());
+            holder.shopNameTextView.setOnClickListener(new OnShopInfoClick(position));
             switch (list.get(position).getPay_type()) {
                 case 1:
                     holder.payWayImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.myorder_alipay));
@@ -602,6 +634,7 @@ public class MyOrderAllRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
         } else if (viewHolder instanceof ViewHolderShouHouZhong) {
             final ViewHolderShouHouZhong holder = (ViewHolderShouHouZhong) viewHolder;
             holder.shopNameTextView.setText(list.get(position).getShop_name());
+            holder.shopNameTextView.setOnClickListener(new OnShopInfoClick(position));
             switch (list.get(position).getPay_type()) {
                 case 1:
                     holder.payWayImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.myorder_alipay));
@@ -660,6 +693,7 @@ public class MyOrderAllRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
         public void onClick(View v) {
             Intent intent = new Intent(context, OrderInformationActivity.class);
             intent.putExtra("order_id", list.get(position).getId());
+            intent.putExtra("position", position);
             intent.putExtra("order_status", list.get(position).getStatus());
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
@@ -842,4 +876,30 @@ public class MyOrderAllRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
         });
     }
 
+
+    private class OnShopInfoClick implements View.OnClickListener {
+        private int position;
+
+        public OnShopInfoClick(int position) {
+            this.position = position;
+        }
+
+        @Override
+        public void onClick(View v) {
+            Intent shopIntent = new Intent(context, ShopInformationActivity.class);
+            shopIntent.putExtra("shop_id", String.valueOf(list.get(position).getShop_id()));
+            shopIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(shopIntent);
+        }
+    }
+
+    private OnRefreshDataListener onRefreshDataListener;
+
+    public void setOnRefreshDataListener(OnRefreshDataListener listener) {
+        this.onRefreshDataListener = listener;
+    }
+
+    public interface OnRefreshDataListener {
+        void onRefreshData();
+    }
 }

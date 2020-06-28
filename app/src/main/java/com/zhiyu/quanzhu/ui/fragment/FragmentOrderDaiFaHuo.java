@@ -16,6 +16,8 @@ import com.zhiyu.quanzhu.model.bean.OrderShop;
 import com.zhiyu.quanzhu.model.result.OrderResult;
 import com.zhiyu.quanzhu.ui.adapter.MyOrderAllRecyclerAdapter;
 import com.zhiyu.quanzhu.ui.adapter.MyOrderDaiFaHuoRecyclerAdapter;
+import com.zhiyu.quanzhu.ui.dialog.LoadingDialog;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.MyRecyclerView;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
@@ -38,12 +40,12 @@ import in.srain.cube.views.ptr.PtrFrameLayout;
 /**
  * 我的订单-待发货
  */
-public class FragmentOrderDaiFaHuo extends Fragment {
+public class FragmentOrderDaiFaHuo extends Fragment implements MyOrderDaiFaHuoRecyclerAdapter.OnRefreshDataListener {
     private View view;
     private PtrFrameLayout ptrFrameLayout;
     private MyRecyclerView mRecyclerView;
     private MyOrderDaiFaHuoRecyclerAdapter adapter;
-
+    private LoadingDialog loadingDialog;
     private MyHandler myHandler = new MyHandler(this);
 
     private static class MyHandler extends Handler {
@@ -57,7 +59,15 @@ public class FragmentOrderDaiFaHuo extends Fragment {
         public void handleMessage(Message msg) {
             FragmentOrderDaiFaHuo fragment = fragmentWeakReference.get();
             switch (msg.what) {
+                case 99:
+                    fragment.loadingDialog.dismiss();
+                    fragment.isRequesting = false;
+                    fragment.ptrFrameLayout.refreshComplete();
+                    MessageToast.getInstance(fragment.getActivity()).show("服务器内部错误，请稍后再试.");
+                    break;
                 case 1:
+                    fragment.loadingDialog.dismiss();
+                    fragment.isRequesting = false;
                     fragment.ptrFrameLayout.refreshComplete();
                     fragment.adapter.setList(fragment.list);
                     break;
@@ -71,12 +81,18 @@ public class FragmentOrderDaiFaHuo extends Fragment {
         view = inflater.inflate(R.layout.fragment_my_order, container, false);
         initPtr();
         initViews();
+        initDialog();
         return view;
+    }
+
+    private void initDialog(){
+        loadingDialog=new LoadingDialog(getContext(),R.style.dialog);
     }
 
     private void initViews() {
         mRecyclerView = view.findViewById(R.id.mRecyclerView);
         adapter = new MyOrderDaiFaHuoRecyclerAdapter(getContext());
+        adapter.setOnRefreshDataListener(this);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(linearLayoutManager);
@@ -105,9 +121,42 @@ public class FragmentOrderDaiFaHuo extends Fragment {
                 myOrder();
             }
         });
-        ptrFrameLayout.autoRefresh();
+//        ptrFrameLayout.autoRefresh();
         ptrFrameLayout.setMode(PtrFrameLayout.Mode.BOTH);
     }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser && !isRequesting) {
+            isRequesting = true;
+            page = 1;
+            isRefresh = true;
+            myOrder();
+        }
+    }
+    @Override
+    public void onRefreshData() {
+        if (!isRequesting) {
+            isRequesting = true;
+            page = 1;
+            isRefresh = true;
+            myOrder();
+        }
+    }
+    private boolean isRequesting = false;
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (!isRequesting) {
+            isRequesting = true;
+            page = 1;
+            isRefresh = true;
+            myOrder();
+        }
+    }
+
     private String searchContent="";
     public void searchOrder(String search){
         this.searchContent=search;
@@ -120,6 +169,8 @@ public class FragmentOrderDaiFaHuo extends Fragment {
     private OrderResult orderResult;
     private List<OrderShop> list;
     private void myOrder() {
+        if (null != loadingDialog)
+        loadingDialog.show();
         RequestParams params= MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL+ConstantsUtils.MY_ORDER);
         params.addBodyParameter("page",String.valueOf(page));
         params.addBodyParameter("type","2");
@@ -127,7 +178,7 @@ public class FragmentOrderDaiFaHuo extends Fragment {
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("我的订单-待发货: "+result);
+//                System.out.println("我的订单-待发货: "+result);
                 orderResult= GsonUtils.GsonToBean(result,OrderResult.class);
                 if(isRefresh){
                     list=orderResult.getData().getList();
@@ -140,7 +191,8 @@ public class FragmentOrderDaiFaHuo extends Fragment {
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-
+                Message message=myHandler.obtainMessage(99);
+                message.sendToTarget();
             }
 
             @Override

@@ -156,7 +156,7 @@ public class FullSearchVideoListAdapter extends BaseAdapter {
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
-        Glide.with(context).load(list.get(position).getContent().getAvatar()).error(R.mipmap.no_avatar).into(holder.avatarImageView);
+        Glide.with(context).load(list.get(position).getContent().getAvatar()).error(R.drawable.image_error).into(holder.avatarImageView);
         holder.nameTextView.setText(list.get(position).getContent().getUsername());
         holder.timeTextView.setText(list.get(position).getContent().getTime());
         holder.mTextView.setText(list.get(position).getContent().getContent());
@@ -182,7 +182,8 @@ public class FullSearchVideoListAdapter extends BaseAdapter {
         }
         holder.videoPlayer.setLayoutParams(list.get(position).getContent().getLayoutParams(width,height));
         holder.videoPlayer.setDataSource(list.get(position).getContent().getVideo_url(), "");
-        Glide.with(convertView).load(list.get(position).getContent().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into( holder.videoPlayer.getCoverController().getVideoCover());
+        Glide.with(context).load(list.get(position).getContent().getVideo_thumb()).into(holder.videoPlayer.getCoverController().getVideoCover());
+//        Glide.with(convertView).load(list.get(position).getContent().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into( holder.videoPlayer.getCoverController().getVideoCover());
         holder.collectImageView.setOnClickListener(new OnCollectListener(position));
         holder.shareTextView.setOnClickListener(new OnShareClick(position));
         holder.commentTextView.setOnClickListener(new OnCommentClick(position));

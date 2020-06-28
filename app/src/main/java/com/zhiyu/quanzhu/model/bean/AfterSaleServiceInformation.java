@@ -5,6 +5,8 @@ import java.util.List;
 public class AfterSaleServiceInformation {
     private int id;
     private int goods_id;
+    private int shop_id;
+    private int platform_id;
     private String goods_name;
     private String goods_img;
     private int goods_num;
@@ -23,6 +25,85 @@ public class AfterSaleServiceInformation {
     private long time;
     private long refund_price;
     private String norms_name;
+    private boolean is_kefu;
+    private String kefu_reason;
+    private int oid;
+    private int itemid;
+    private String user_name;
+    private String phone_number;
+    private String address;
+
+    public int getPlatform_id() {
+        return platform_id;
+    }
+
+    public void setPlatform_id(int platform_id) {
+        this.platform_id = platform_id;
+    }
+
+    public int getShop_id() {
+        return shop_id;
+    }
+
+    public void setShop_id(int shop_id) {
+        this.shop_id = shop_id;
+    }
+
+    public String getUser_name() {
+        return user_name;
+    }
+
+    public void setUser_name(String user_name) {
+        this.user_name = user_name;
+    }
+
+    public String getPhone_number() {
+        return phone_number;
+    }
+
+    public void setPhone_number(String phone_number) {
+        this.phone_number = phone_number;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public int getOid() {
+        return oid;
+    }
+
+    public void setOid(int oid) {
+        this.oid = oid;
+    }
+
+    public int getItemid() {
+        return itemid;
+    }
+
+    public void setItemid(int itemid) {
+        this.itemid = itemid;
+    }
+
+    public String getKefu_reason() {
+        return kefu_reason;
+    }
+
+    public void setKefu_reason(String kefu_reason) {
+        this.kefu_reason = kefu_reason;
+    }
+
+    public boolean isIs_kefu() {
+        return is_kefu;
+    }
+
+    public void setIs_kefu(boolean is_kefu) {
+        this.is_kefu = is_kefu;
+    }
 
     public long getRefund_price() {
         return refund_price;

@@ -34,7 +34,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginTop="@dimen/dp_30"
-                android:text="s每日签到赢豪礼"
+                android:text="每日签到赢豪礼"
                 android:textColor="@color/white"
                 android:textSize="@dimen/sp_18" />
 

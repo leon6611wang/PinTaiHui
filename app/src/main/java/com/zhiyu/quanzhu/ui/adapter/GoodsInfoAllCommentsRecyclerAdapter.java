@@ -15,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.GoodsComment;
@@ -93,7 +94,7 @@ public class GoodsInfoAllCommentsRecyclerAdapter extends RecyclerView.Adapter<Go
         ExpandableTextView conentExpandableTextView, replyExpandableTextView;
         RecyclerView commentImagesRecyclerView;
         ItemGoodsInfoCommentsRecyclerAdapter adapter;
-        LinearLayout dianzanLayout;
+        LinearLayout dianzanLayout, replyLayout;
         ImageView dianzanImageView;
         TextView normsTextView, dianzanTextView;
 
@@ -115,6 +116,7 @@ public class GoodsInfoAllCommentsRecyclerAdapter extends RecyclerView.Adapter<Go
             dianzanImageView = itemView.findViewById(R.id.dianzanImageView);
             dianzanTextView = itemView.findViewById(R.id.dianzanTextView);
             replyExpandableTextView = itemView.findViewById(R.id.replyExpandableTextView);
+            replyLayout = itemView.findViewById(R.id.replyLayout);
         }
     }
 
@@ -142,7 +144,12 @@ public class GoodsInfoAllCommentsRecyclerAdapter extends RecyclerView.Adapter<Go
         holder.conentExpandableTextView.setTag(position);
         Integer state = mPositionsAndStates.get(position);
         holder.conentExpandableTextView.updateForRecyclerView(list.get(position).getContent(), etvWidth, state == null ? 0 : state);
-        holder.replyExpandableTextView.updateForRecyclerView("商家回复：" + list.get(position).getReply(), etvWidth, state == null ? 0 : state);
+        if (!StringUtils.isNullOrEmpty(list.get(position).getReply())) {
+            holder.replyExpandableTextView.updateForRecyclerView("商家回复：" + list.get(position).getReply(), etvWidth, state == null ? 0 : state);
+            holder.replyLayout.setVisibility(View.VISIBLE);
+        } else {
+            holder.replyLayout.setVisibility(View.GONE);
+        }
         holder.adapter.setList(list.get(position).getImg());
         holder.normsTextView.setText(list.get(position).getNorms_name());
         holder.dianzanTextView.setText(String.valueOf(list.get(position).getPnum()));

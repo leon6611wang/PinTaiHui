@@ -337,8 +337,8 @@ public class MyPublishListAdapter extends RecyclerView.Adapter<RecyclerView.View
                 feed.imageGridView.setVisibility(View.GONE);
                 feed.videoPlayer.setVisibility(View.VISIBLE);
                 feed.videoPlayer.setDataSource(list.get(position).getContent().getVideo_url(), "");
-
-                Glide.with(context).load(list.get(position).getContent().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(feed.videoPlayer.getCoverController().getVideoCover());
+                Glide.with(context).load(list.get(position).getContent().getVideo_thumb()).into(feed.videoPlayer.getCoverController().getVideoCover());
+//                Glide.with(context).load(list.get(position).getContent().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(feed.videoPlayer.getCoverController().getVideoCover());
                 feed.videoPlayer.setLayoutParams(list.get(position).getContent().getLayoutParams(dp_240, true));
             } else {
                 if (null == list.get(position).getContent().getImgs() || list.get(position).getContent().getImgs().size() == 0) {
@@ -462,7 +462,8 @@ public class MyPublishListAdapter extends RecyclerView.Adapter<RecyclerView.View
             }
             video.videoPlayer.setLayoutParams(list.get(position).getContent().getLayoutParams(width, height));
             video.videoPlayer.setDataSource(list.get(position).getContent().getVideo_url(), "");
-            Glide.with(context).load(list.get(position).getContent().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(video.videoPlayer.getCoverController().getVideoCover());
+            Glide.with(context).load(list.get(position).getContent().getVideo_thumb()).into(video.videoPlayer.getCoverController().getVideoCover());
+//            Glide.with(context).load(list.get(position).getContent().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(video.videoPlayer.getCoverController().getVideoCover());
             video.collectImageView.setOnClickListener(new OnCollectListener(position));
             video.shareTextView.setOnClickListener(new OnShareClick(position));
             video.commentTextView.setOnClickListener(new OnCommentClick(position));

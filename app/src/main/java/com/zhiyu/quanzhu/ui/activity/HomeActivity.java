@@ -19,8 +19,10 @@ import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.bumptech.glide.Glide;
 import com.leon.chic.dao.CardDao;
+import com.leon.chic.dao.IMUserDao;
 import com.leon.chic.utils.AndroidBug54971Workaround;
 import com.leon.chic.utils.SPUtils;
+import com.qiniu.android.utils.StringUtils;
 import com.tencent.connect.common.Constants;
 import com.tencent.tauth.IUiListener;
 import com.tencent.tauth.UiError;
@@ -132,6 +134,7 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
         setContentView(R.layout.activity_home);
 //        AndroidBug54971Workaround.assistActivity(findViewById(android.R.id.content));
         ScreentUtils.getInstance().setStatusBarLightMode(this, false);
+//        IMUserDao.getInstance().clearIMUser(BaseApplication.getInstance());
 //        PageDao.getInstance().clear(BaseApplication.getInstance());
 //        CardDao.getInstance().clear(BaseApplication.getInstance());
 //        MessageDao.getInstance().clearSystemMessage(BaseApplication.getInstance());
@@ -162,6 +165,14 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
 
         initDialogs();
         BaseDataUtils.getInstance().initBaseData();
+        if (null == mLocationClient) {
+//            System.out.println("###########初始化定位");
+            initLocation();
+        } else {
+//            System.out.println("###########启动定位");
+            //启动定位
+            mLocationClient.startLocation();
+        }
     }
 
 
@@ -186,11 +197,11 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
                         switch (code) {
                             case 0:
                                 //这里可以往 SharePreference 里写一个成功设置的状态。成功设置一次后，以后不必再次设置了。
-                                System.out.println("极光推送别名设置成功");
+//                                System.out.println("极光推送别名设置成功");
                                 break;
                             case 6002:
                                 //极低的可能设置失败 我设置过几百回 出现3次失败 不放心的话可以失败后继续调用上面那个方面 重连3次即可 记得return 不要进入死循环了...
-                                System.out.println("极光推送别名设置失败，60秒后重试");
+//                                System.out.println("极光推送别名设置失败，60秒后重试");
                                 ThreadPoolUtils.getInstance().init().execute(new Runnable() {
                                     @Override
                                     public void run() {
@@ -205,7 +216,7 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
 
                                 break;
                             default:
-                                System.out.println("极光推送设置失败， errorCode = " + code);
+//                                System.out.println("极光推送设置失败， errorCode = " + code);
                                 break;
                         }
                     }
@@ -215,14 +226,6 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
     @Override
     protected void onResume() {
         super.onResume();
-        if (null == mLocationClient) {
-            System.out.println("###########初始化定位");
-            initLocation();
-        } else {
-            System.out.println("###########启动定位");
-            //启动定位
-            mLocationClient.startLocation();
-        }
 
 //        requestAppVersion();
         if (checkLogin()) {
@@ -231,7 +234,7 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
     }
 
     private void loginSuccessOperation() {
-        System.out.println("自动登录成功，正在连接IM服务器");
+//        System.out.println("自动登录成功，正在连接IM服务器");
         imConnect();
         initJPush();
     }
@@ -398,7 +401,7 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
         RongIM.connect(SPUtils.getInstance().getIMToken(BaseApplication.applicationContext), new RongIMClient.ConnectCallbackEx() {
             @Override
             public void OnDatabaseOpened(RongIMClient.DatabaseOpenStatus code) {
-                System.out.println("OnDatabaseOpened: " + code.toString());
+//                System.out.println("OnDatabaseOpened: " + code.toString());
             }
 
             @Override
@@ -408,7 +411,7 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
 
             @Override
             public void onSuccess(String s) {
-                System.out.println("登录融云服务器成功，当前用户id: " + s);
+//                System.out.println("登录融云服务器成功，当前用户id: " + s);
                 RongIM.setOnReceiveMessageListener(BaseApplication.receiveMessageListener);
 //                SharedPreferencesUtils.getInstance(HomeActivity.this).saveUser("1111", "一号测试", "http://5b0988e595225.cdn.sohucs.com/q_70,c_zoom,w_640/images/20190518/d38fda99a9654dd2b5b60950a1cb9967.jpeg", "18768100516");
                 updateUserInfo();
@@ -450,7 +453,7 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
 
             @Override
             public void onError(Throwable arg0, boolean arg1) {
-                System.out.println("IM onError: " + arg0.toString());
+//                System.out.println("IM onError: " + arg0.toString());
             }
 
             @Override
@@ -459,7 +462,7 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
 
             @Override
             public void onSuccess(String s) {
-                System.out.println("IM token: " + s);
+//                System.out.println("IM token: " + s);
             }
         });
     }
@@ -509,13 +512,16 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
     }
 
     private void updateUserInfo() {
-        UserInfo userInfo = new UserInfo(String.valueOf(SPUtils.getInstance().getUserId(BaseApplication.applicationContext)),
-                SPUtils.getInstance().getUserName(BaseApplication.applicationContext),
-                Uri.parse(SPUtils.getInstance().getUserAvatar(BaseApplication.applicationContext)));
+        int user_id = SPUtils.getInstance().getUserId(BaseApplication.applicationContext);
+        String user_name = SPUtils.getInstance().getUserName(BaseApplication.applicationContext);
+        String user_avatar = SPUtils.getInstance().getUserAvatar(BaseApplication.applicationContext);
+        UserInfo userInfo = new UserInfo(String.valueOf(user_id),
+                user_name,
+                StringUtils.isNullOrEmpty(user_avatar) ? null : Uri.parse(user_avatar));
         RongIM.getInstance().setCurrentUserInfo(userInfo);
-        RongIM.getInstance().refreshUserInfoCache(new UserInfo(String.valueOf(SPUtils.getInstance().getUserId(BaseApplication.applicationContext)),
-                SPUtils.getInstance().getUserName(BaseApplication.applicationContext),
-                Uri.parse(SPUtils.getInstance().getUserAvatar(BaseApplication.applicationContext))));
+        RongIM.getInstance().refreshUserInfoCache(new UserInfo(String.valueOf(user_id),
+                user_name,
+                StringUtils.isNullOrEmpty(user_avatar) ? null : Uri.parse(user_avatar)));
     }
 
     private boolean checkLogin() {
@@ -523,6 +529,8 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
     }
 
     private HomeBaseResult homeBaseResult;
+    public static String business_url;
+    public static boolean is_rz;
 
     private void autoLogin() {
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.APP_BASE);
@@ -532,6 +540,9 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
                 System.out.println("基础信息: " + result);
                 homeBaseResult = GsonUtils.GsonToBean(result, HomeBaseResult.class);
                 if (200 == homeBaseResult.getCode()) {
+                    business_url = homeBaseResult.getData().getBusiness_url();
+                    is_rz = homeBaseResult.getData().isIs_rz();
+                    System.out.println("是否认证: " + is_rz);
                     SPUtils.getInstance().saveUserInfo(BaseApplication.applicationContext, homeBaseResult.getData().getUid(), homeBaseResult.getData().getUser().getUsername(),
                             homeBaseResult.getData().getUser().getAvatar());
                     SPUtils.getInstance().saveUserToken(BaseApplication.applicationContext, homeBaseResult.getToken());
@@ -554,7 +565,7 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                System.out.println("基础信息 error: " + ex.toString());
+//                System.out.println("基础信息 error: " + ex.toString());
             }
 
             @Override
@@ -696,8 +707,15 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        handleResult(fragmentArrayList.get(0), requestCode, resultCode, data);
-        handleResult(fragmentArrayList.get(1), requestCode, resultCode, data);
+        if (fragmentArrayList.get(0).isAdded())
+            handleResult(fragmentArrayList.get(0), requestCode, resultCode, data);
+        if (fragmentArrayList.get(1).isAdded())
+            handleResult(fragmentArrayList.get(1), requestCode, resultCode, data);
+        if (fragmentArrayList.get(4).isAdded())
+            handleResult(fragmentArrayList.get(4), requestCode, resultCode, data);
+//        for(int i=0;i<fragmentArrayList.size();i++){
+//            handleResult(fragmentArrayList.get(i), requestCode, resultCode, data);
+//        }
     }
 
     private void handleResult(Fragment fragment, int requestCode, int resultCode, Intent data) {

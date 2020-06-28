@@ -133,7 +133,7 @@ public class XiTongXiaoXiQuanZiShenHeActivity extends BaseActivity implements Vi
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-//                System.out.println("圈子审核"+result);
+                System.out.println("圈子审核"+result);
                 quanZiShenHeResult= GsonUtils.GsonToBean(result,QuanZiShenHeResult.class);
                 if(isRefresh){
                     list=quanZiShenHeResult.getData().getList();

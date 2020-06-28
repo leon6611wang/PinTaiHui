@@ -33,6 +33,7 @@ import com.zhiyu.quanzhu.model.result.CircleInfoShopResult;
 import com.zhiyu.quanzhu.model.result.CircleInfoUserResult;
 import com.zhiyu.quanzhu.model.result.FeedResult;
 import com.zhiyu.quanzhu.model.result.OrderAddResult;
+import com.zhiyu.quanzhu.model.result.ShareResult;
 import com.zhiyu.quanzhu.model.result.StoreResult;
 import com.zhiyu.quanzhu.model.result.WxpayOrderInfo;
 import com.zhiyu.quanzhu.ui.adapter.CircleInfoFeedsAdapter;
@@ -65,6 +66,7 @@ import com.zhiyu.quanzhu.utils.MyPtrRefresherHeader;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.PriceParseUtils;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
+import com.zhiyu.quanzhu.utils.ShareUtils;
 import com.zhiyu.quanzhu.utils.WxPayUtils;
 import com.zhiyu.quanzhu.wxapi.WXEntryActivity;
 
@@ -130,6 +132,7 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
                 case 1:
                     if (200 == activity.circleInfoResult.getCode()) {
                         activity.imageUrl = activity.circleInfoResult.getData().getImgs();
+                        activity.buttonStatusChange(activity.circleInfoResult.getData().isIs_apply());
                         activity.initBanner();
                         Glide.with(activity).load(activity.circleInfoResult.getData().getAvatar())
                                 .error(R.drawable.image_error)
@@ -192,6 +195,7 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
                     break;
                 case 10:
                     activity.circleInfoJoinPayDialog.show();
+                    activity.circleInfoJoinPayDialog.setPrice(PriceParseUtils.getInstance().parsePrice(activity.circleInfoResult.getData().getPrice()));
                     break;
                 case 11://微信支付订单详情回调
                     if (200 == activity.wxpayOrderInfo.getCode()) {
@@ -226,6 +230,7 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_circle_info);
         circle_id = getIntent().getLongExtra("circle_id", 0l);
+//        System.out.println("circleinfo circle_id: "+circle_id);
         ScreentUtils.getInstance().setStatusBarLightMode(this, false);
         AliPayUtils.getInstance(this).setOnAlipayCallbackListener(this);
         WXEntryActivity.setOnWxpayCallbackListener(this);
@@ -233,6 +238,7 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
         initViews();
         shopList();
         feedList();
+        shareConfig();
     }
 
     @Override
@@ -487,10 +493,14 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
                 editDialog.setEditType(3);
                 break;
             case R.id.pnumTextView:
-                Intent memberManageIntent = new Intent(CircleInfoActivity.this, CircleMemberManageActivity.class);
-                memberManageIntent.putExtra("circle_id", circle_id);
-                memberManageIntent.putExtra("own", own);
-                startActivity(memberManageIntent);
+                if (circleInfoResult.getData().isIs_join()) {
+                    Intent memberManageIntent = new Intent(CircleInfoActivity.this, CircleMemberManageActivity.class);
+                    memberManageIntent.putExtra("circle_id", circle_id);
+                    memberManageIntent.putExtra("own", own);
+                    startActivity(memberManageIntent);
+                } else {
+                    MessageToast.getInstance(this).show("只有圈子成员才可以查看哦~");
+                }
                 break;
             case R.id.noticeTextView:
                 reviewFullTextDialog.show();
@@ -508,6 +518,9 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
                             switch (index) {
                                 case 1:
                                     shareDialog.show();
+                                    shareResult.getData().getShare().setContent(circleInfoResult.getData().getName());
+                                    shareResult.getData().getShare().setImage_url(circleInfoResult.getData().getThumb());
+                                    shareDialog.setShare(shareResult.getData().getShare(),(int) circle_id);
                                     break;
                                 case 2:
 
@@ -692,6 +705,16 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
         }
     }
 
+    private void buttonStatusChange(boolean is_apply) {
+        if (!is_apply) {
+            joinCircleTextView.setClickable(true);
+            joinCircleTextView.setBackground(getResources().getDrawable(R.mipmap.button_yellow_bg));
+        } else {
+            joinCircleTextView.setClickable(false);
+            joinCircleTextView.setBackground(getResources().getDrawable(R.drawable.shape_oval_solid_bg_gray));
+        }
+
+    }
 
     private CircleInfoResult circleInfoResult;
 
@@ -709,7 +732,7 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
                 isCircler = circleInfoResult.getData().isIs_own();
                 isJoined = circleInfoResult.getData().isIs_join();
                 own = circleInfoResult.getData().getOwn();
-                System.out.println(" --- > own: " + own);
+//                System.out.println(" --- > own: " + own);
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
             }
@@ -1054,6 +1077,33 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
                 System.out.println("余额支付: " + ex.toString());
                 Message message = myHandler.obtainMessage(99);
                 message.sendToTarget();
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
+    private ShareResult shareResult;
+    private void shareConfig() {
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.SHARE_CONFIG);
+        params.addBodyParameter("type", ShareUtils.SHARE_TYPE_CIRCLE);
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                shareResult = GsonUtils.GsonToBean(result, ShareResult.class);
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+
             }
 
             @Override

@@ -2,6 +2,7 @@ package com.zhiyu.quanzhu.model.bean;
 
 public class FullSearchCard {
     private int id;
+    private long uid;
     private String card_name;
     private String card_thumb;
     private String occupation;
@@ -20,6 +21,14 @@ public class FullSearchCard {
     private int is_open;
     private int is_verifiy;
     private String email;
+
+    public long getUid() {
+        return uid;
+    }
+
+    public void setUid(long uid) {
+        this.uid = uid;
+    }
 
     public int getId() {
         return id;

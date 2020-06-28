@@ -24,6 +24,7 @@ import com.zhiyu.quanzhu.model.result.LinkShopResult;
 import com.zhiyu.quanzhu.ui.activity.PublishChooseGoodsRelationActivity;
 import com.zhiyu.quanzhu.ui.adapter.PublishChooseGoodsSearchMyShopAdapter;
 import com.zhiyu.quanzhu.ui.adapter.PublishChooseGoodsSearchShopAdapter;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyPtrHandlerFooter;
@@ -66,13 +67,18 @@ public class FragmentPublishChooseGoodsSearch extends Fragment {
         public void handleMessage(Message msg) {
             FragmentPublishChooseGoodsSearch fragment = searchWeakReference.get();
             switch (msg.what) {
+                case 99:
+                    MessageToast.getInstance(fragment.getActivity()).show("服务器内部错误，请稍后再试.");
+                    fragment.isRequesting = false;
+                    break;
                 case 1:
-                    if (fragment.isSearch) {
-                        fragment.ptrFrameLayout.refreshComplete();
-                        fragment.shopAdapter.setList(fragment.shopList);
-                    } else {
-                        fragment.myShopAdapter.setList(fragment.myShopList);
-                    }
+                    fragment.isRequesting = false;
+                    fragment.myShopAdapter.setList(fragment.myShopList);
+                    break;
+                case 2:
+                    fragment.isRequesting = false;
+                    fragment.ptrFrameLayout.refreshComplete();
+                    fragment.shopAdapter.setList(fragment.shopList);
                     break;
             }
         }
@@ -83,23 +89,42 @@ public class FragmentPublishChooseGoodsSearch extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_publish_choose_goods_search, null);
         feeds_id = (Integer) getArguments().get("feeds_id");
+//        System.out.println("searchGoods feeds_id: "+feeds_id);
         initPtr();
         initViews();
-
         return view;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        shopList();
+        if (!isRequesting) {
+            isRequesting = true;
+            page = 1;
+            if(!StringUtils.isNullOrEmpty(keywords)){
+                searchShopList();
+            }
+            myShopList();
+        }
+
     }
+
+    private boolean isRequesting = false;
 
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-        if (isVisibleToUser) {
-            shopList();
+        if(feeds_id==0){
+            feeds_id = (Integer) getArguments().get("feeds_id");
+//            System.out.println("searchGoods setUserVisibleHint feeds_id: "+feeds_id);
+        }
+        if (isVisibleToUser && !isRequesting) {
+            isRequesting = true;
+            page = 1;
+            if(!StringUtils.isNullOrEmpty(keywords)){
+                searchShopList();
+            }
+            myShopList();
         }
     }
 
@@ -145,8 +170,7 @@ public class FragmentPublishChooseGoodsSearch extends Fragment {
                     if (!StringUtils.isNullOrEmpty(search)) {
                         keywords = search;
                         page = 1;
-                        isSearch = true;
-                        shopList();
+                        searchShopList();
                     }
                     return true;
                 }
@@ -166,8 +190,7 @@ public class FragmentPublishChooseGoodsSearch extends Fragment {
             @Override
             public void onLoadMoreBegin(PtrFrameLayout frame) {
                 page++;
-                shopList();
-
+                searchShopList();
             }
 
             @Override
@@ -179,7 +202,7 @@ public class FragmentPublishChooseGoodsSearch extends Fragment {
     }
 
     public int getSelectedGoodsCount() {
-        selectGoodsCount=0;
+        selectGoodsCount = 0;
         System.out.println("shoplist " + (null == shopList ? 0 : shopList.size()));
         System.out.println("myShopList " + (null == myShopList ? 0 : myShopList.size()));
         if (null != shopList && shopList.size() > 0) {
@@ -199,9 +222,42 @@ public class FragmentPublishChooseGoodsSearch extends Fragment {
     private String keywords;
     private LinkShopResult shopResult;
     private List<LinkShop> shopList = new ArrayList<>(), myShopList;
-    private boolean isSearch = false;
 
-    private void shopList() {
+    private void myShopList() {
+        System.out.println("myShopList --> feeds_id: "+feeds_id);
+        RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.MY_SHOP_LIST);
+        params.addBodyParameter("feeds_id", String.valueOf(feeds_id));
+        params.addBodyParameter("page", String.valueOf(page));
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                System.out.println("我的: " + result);
+                shopResult = GsonUtils.GsonToBean(result, LinkShopResult.class);
+                myShopList = shopResult.getData().getList();
+                Message message = myHandler.obtainMessage(1);
+                message.sendToTarget();
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
+                System.out.println(ex.toString());
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
+    private void searchShopList() {
         RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.MY_SHOP_LIST);
         params.addBodyParameter("keywords", keywords);
         params.addBodyParameter("feeds_id", String.valueOf(feeds_id));
@@ -211,21 +267,19 @@ public class FragmentPublishChooseGoodsSearch extends Fragment {
             public void onSuccess(String result) {
                 System.out.println("搜索: " + result);
                 shopResult = GsonUtils.GsonToBean(result, LinkShopResult.class);
-                if (isSearch) {
-                    if (page == 1) {
-                        shopList = shopResult.getData().getList();
-                    } else {
-                        shopList.addAll(shopResult.getData().getList());
-                    }
+                if (page == 1) {
+                    shopList = shopResult.getData().getList();
                 } else {
-                    myShopList = shopResult.getData().getList();
+                    shopList.addAll(shopResult.getData().getList());
                 }
-                Message message = myHandler.obtainMessage(1);
+                Message message = myHandler.obtainMessage(2);
                 message.sendToTarget();
             }
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
                 System.out.println(ex.toString());
             }
 

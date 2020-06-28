@@ -149,7 +149,7 @@
         android:layout_marginRight="@dimen/dp_25"
         android:background="@null"
         android:hint="请输入提现金额"
-        android:inputType="numberDecimal"
+        android:inputType="number"
         android:textColorHint="#BBBBBB"
         android:textSize="13sp" />
 

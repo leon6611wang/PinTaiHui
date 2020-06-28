@@ -91,36 +91,33 @@
 
                 <TextView
                     android:id="@+id/nameTextView"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:text="VinceLee"
+                    android:maxLines="1"
+                    android:ellipsize="end"
                     android:textColor="@color/text_color_yellow"
                     android:textSize="13sp" />
 
-
-
-                <TextView
-                    android:id="@+id/statusDescTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="暂未通过"
-                    android:textSize="13sp"
-                    android:textColor="@color/text_color_red_2"
-                    android:layout_marginLeft="@dimen/dp_15"
-                    />
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1" />
             </LinearLayout>
+            <TextView
+                android:id="@+id/statusDescTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="已拒绝"
+                android:textSize="13sp"
+                android:textColor="@color/text_color_red_2"
+                android:layout_marginBottom="@dimen/dp_5"
+                />
 
             <TextView
                 android:id="@+id/resultTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="验证消息：我非常喜欢贵公司的商圈模式，想要加入您们 的团队！"
+                android:text="验证消息："
                 android:textColor="#808291"
+                android:visibility="visible"
                 android:textSize="13sp" />
 
             <LinearLayout
@@ -129,6 +126,7 @@
                 android:layout_gravity="center"
                 android:layout_marginBottom="@dimen/dp_2"
                 android:layout_marginTop="@dimen/dp_10"
+                android:visibility="gone"
                 android:gravity="center"
                 android:orientation="horizontal">
 

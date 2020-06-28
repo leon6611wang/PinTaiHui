@@ -14,9 +14,19 @@ public class OrderConfirmShop {
     private List<OrderConfirmGoods> list;
     private String remark;
     private int postage_price;//邮费
+    private int postage_status;
     private int discount_price;//优惠价格
     private int pay_price;
     private boolean useCoupon;
+
+
+    public int getPostage_status() {
+        return postage_status;
+    }
+
+    public void setPostage_status(int postage_status) {
+        this.postage_status = postage_status;
+    }
 
     public boolean isUseCoupon() {
         return useCoupon;

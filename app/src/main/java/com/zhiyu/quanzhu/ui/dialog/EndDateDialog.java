@@ -11,6 +11,7 @@ import android.view.WindowManager;
 import com.weigan.loopview.LoopView;
 import com.weigan.loopview.OnItemSelectedListener;
 import com.zhiyu.quanzhu.R;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.utils.CalendarUtils;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 
@@ -27,18 +28,47 @@ public class EndDateDialog extends Dialog {
     private List<String> yearList = new ArrayList<>();
     private List<String> monthList = new ArrayList<>();
     private List<String> dayList = new ArrayList<>();
-    private int currentYear, currentMonth, currentDay, yearIndex, monthIndex, selectYear, selectMonth, selectDay;
+    private int startYear, startMonth, startDay, yearIndex, monthIndex, dayIndex, selectYear, selectMonth, selectDay;
 
     public EndDateDialog(@NonNull Context context, int themeResId, OnCalendarListener listener) {
         super(context, themeResId);
         this.mContext = context;
         this.onCalendarListener = listener;
-        currentYear = CalendarUtils.getInstance().getCurrentYear();
-        currentMonth = CalendarUtils.getInstance().getCurrentMonth();
-        currentDay = 1;
-        selectYear = currentYear;
-        selectMonth = currentMonth;
-        selectDay = currentDay;
+//        startYear = CalendarUtils.getInstance().getCurrentYear();
+//        startMonth = CalendarUtils.getInstance().getCurrentMonth();
+//        startDay = CalendarUtils.getInstance().getCurrentDay();
+//        selectYear = startYear;
+//        selectMonth = startMonth;
+//        selectDay = startDay;
+    }
+
+
+    public void setStartDate(int year, int month, int day, int sYear, int sMonth, int sDay) {
+        startYear = year;
+        startMonth = month;
+        startDay = day;
+        selectYear = sYear;
+        selectMonth = sMonth;
+        selectDay = sDay;
+//        System.out.println("select: " + selectYear + " , " + selectMonth + " , " + selectDay);
+        for (int i = 0; i < yearList.size(); i++) {
+            if (Integer.parseInt(yearList.get(i)) == selectYear) {
+                yearIndex = i;
+            }
+        }
+        for (int i = 1; i < monthList.size(); i++) {
+            if (i == selectMonth) {
+                monthIndex = i - 1;
+            }
+        }
+        dayIndex = selectDay - 1;
+        if (dayIndex < 0) {
+            dayIndex = 0;
+        }
+//        System.out.println("index: " + yearIndex + " , " + monthIndex + " , " + dayIndex);
+        yearView.setCurrentPosition(yearIndex);
+        monthView.setCurrentPosition(monthIndex);
+        dayView.setCurrentPosition(dayIndex);
     }
 
 
@@ -55,26 +85,16 @@ public class EndDateDialog extends Dialog {
         getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         initData();
         initViews();
-        setDayView(currentYear, currentMonth);
-        setCurrentDate();
-        if (null != onCalendarListener) {
-            onCalendarListener.onCalendar(selectYear, selectMonth, selectDay);
-        }
+        setDayView(startYear, startMonth);
     }
 
     private void initData() {
         for (int i = 2000; i < 2050 + 1; i++) {
             yearList.add(String.valueOf(i));
-            if (i == currentYear) {
-                yearIndex = (i - 2000);
-            }
         }
 
         for (int i = 1; i < 12 + 1; i++) {
             monthList.add(String.valueOf(i));
-            if (i == currentMonth) {
-                monthIndex = i - 1;
-            }
         }
 
     }
@@ -91,7 +111,17 @@ public class EndDateDialog extends Dialog {
             public void onItemSelected(int index) {
                 if (!TextUtils.isEmpty(yearList.get(index))) {
                     selectYear = Integer.parseInt(yearList.get(index));
-                    setDayView(selectYear, selectMonth);
+                    if (selectYear < startYear) {
+                        yearView.setCurrentPosition(yearIndex);
+                        monthView.setCurrentPosition(monthIndex);
+                        dayView.setCurrentPosition(dayIndex);
+                        selectYear =  Integer.parseInt(yearList.get(yearIndex));
+                        selectMonth = Integer.parseInt(monthList.get(monthIndex));
+                        selectDay = Integer.parseInt(dayList.get(dayIndex));
+                        MessageToast.getInstance(getContext()).show("截止时间不能小于开始时间");
+                    } else {
+                        setDayView(selectYear, selectMonth);
+                    }
                 }
                 if (null != onCalendarListener) {
                     onCalendarListener.onCalendar(selectYear, selectMonth, selectDay);
@@ -104,7 +134,17 @@ public class EndDateDialog extends Dialog {
             public void onItemSelected(int index) {
                 if (!TextUtils.isEmpty(monthList.get(index))) {
                     selectMonth = Integer.parseInt(monthList.get(index));
-                    setDayView(selectYear, selectMonth);
+                    if (selectYear == startYear && selectMonth < startMonth) {
+                        yearView.setCurrentPosition(yearIndex);
+                        monthView.setCurrentPosition(monthIndex);
+                        dayView.setCurrentPosition(dayIndex);
+                        selectMonth = Integer.parseInt(monthList.get(monthIndex));
+                        selectYear = Integer.parseInt(yearList.get(yearIndex));
+                        selectDay = Integer.parseInt(dayList.get(dayIndex));
+                        MessageToast.getInstance(getContext()).show("截止时间不能小于时间");
+                    } else {
+                        setDayView(selectYear, selectMonth);
+                    }
                 }
                 if (null != onCalendarListener) {
                     onCalendarListener.onCalendar(selectYear, selectMonth, selectDay);
@@ -131,6 +171,15 @@ public class EndDateDialog extends Dialog {
             public void onItemSelected(int index) {
                 if (!TextUtils.isEmpty(dayList.get(index))) {
                     selectDay = Integer.parseInt(dayList.get(index));
+                    if (selectYear == startYear && selectMonth == startMonth && selectDay < startDay) {
+                        yearView.setCurrentPosition(yearIndex);
+                        monthView.setCurrentPosition(monthIndex);
+                        dayView.setCurrentPosition(dayIndex);
+                        selectDay = Integer.parseInt(dayList.get(dayIndex));
+                        selectMonth = Integer.parseInt(monthList.get(monthIndex));
+                        selectYear = Integer.parseInt(yearList.get(yearIndex));
+                        MessageToast.getInstance(getContext()).show("截止时间不能小于开始时间");
+                    }
                 }
                 if (null != onCalendarListener) {
                     onCalendarListener.onCalendar(selectYear, selectMonth, selectDay);

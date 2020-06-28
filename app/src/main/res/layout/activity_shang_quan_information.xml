@@ -187,7 +187,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:text="圈主是基于APP上的一个重要组成部分，通过圈主可以吸引 粉丝入圈，圈内举办线上线下活动，商圈建立后圈主可以自 行建群并实行管理"
+                            android:text="圈主是基于APP上的一个重要组成部分，通过圈主可以吸引 圈粉入圈，圈内举办线上线下活动，商圈建立后圈主可以自 行建群并实行管理"
                             android:textColor="#666666"
                             android:textSize="13sp" />
 

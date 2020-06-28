@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.weigan.loopview.LoopView;
 import com.weigan.loopview.OnItemSelectedListener;
 import com.zhiyu.quanzhu.R;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.utils.CalendarUtils;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 
@@ -29,7 +30,7 @@ public class StartDateDialog extends Dialog {
     private List<String> yearList = new ArrayList<>();
     private List<String> monthList = new ArrayList<>();
     private List<String> dayList = new ArrayList<>();
-    private int currentYear, currentMonth, currentDay, yearIndex, monthIndex, selectYear, selectMonth, selectDay;
+    private int currentYear, currentMonth, currentDay, yearIndex, monthIndex, dayIndex, selectYear, selectMonth, selectDay;
 
     public StartDateDialog(@NonNull Context context, int themeResId, OnCalendarListener listener) {
         super(context, themeResId);
@@ -40,7 +41,8 @@ public class StartDateDialog extends Dialog {
         currentDay = 1;
         selectYear = currentYear;
         selectMonth = currentMonth;
-        selectDay = currentDay;
+        selectDay = 1;
+        dayIndex = currentDay - 1;
     }
 
 
@@ -93,7 +95,17 @@ public class StartDateDialog extends Dialog {
             public void onItemSelected(int index) {
                 if (!TextUtils.isEmpty(yearList.get(index))) {
                     selectYear = Integer.parseInt(yearList.get(index));
-                    setDayView(selectYear, selectMonth);
+                    if (selectYear > currentYear) {
+                        yearView.setCurrentPosition(yearIndex);
+                        monthView.setCurrentPosition(monthIndex);
+                        dayView.setCurrentPosition(dayIndex);
+                        selectYear = currentYear;
+                        selectMonth = Integer.parseInt(monthList.get(monthIndex));
+                        selectDay = Integer.parseInt(dayList.get(dayIndex));
+                        MessageToast.getInstance(getContext()).show("开始时间不能大于当前时间");
+                    } else {
+                        setDayView(selectYear, selectMonth);
+                    }
                 }
                 if (null != onCalendarListener) {
                     onCalendarListener.onCalendar(selectYear, selectMonth, selectDay);
@@ -106,7 +118,18 @@ public class StartDateDialog extends Dialog {
             public void onItemSelected(int index) {
                 if (!TextUtils.isEmpty(monthList.get(index))) {
                     selectMonth = Integer.parseInt(monthList.get(index));
-                    setDayView(selectYear, selectMonth);
+                    if (selectYear == currentYear && selectMonth > currentMonth) {
+                        yearView.setCurrentPosition(yearIndex);
+                        monthView.setCurrentPosition(monthIndex);
+                        dayView.setCurrentPosition(dayIndex);
+                        selectMonth = currentMonth;
+                        selectYear = Integer.parseInt(yearList.get(yearIndex));
+                        selectDay = Integer.parseInt(dayList.get(dayIndex));
+                        MessageToast.getInstance(getContext()).show("开始时间不能大于当前时间");
+                    } else {
+                        setDayView(selectYear, selectMonth);
+                    }
+
                 }
                 if (null != onCalendarListener) {
                     onCalendarListener.onCalendar(selectYear, selectMonth, selectDay);
@@ -133,6 +156,17 @@ public class StartDateDialog extends Dialog {
             public void onItemSelected(int index) {
                 if (!TextUtils.isEmpty(dayList.get(index))) {
                     selectDay = Integer.parseInt(dayList.get(index));
+//                    System.out.println("selectYear: " + selectYear + " , currentYear: " + currentYear + " , selectMonth: " + selectMonth + " , currentMonth: "
+//                            + currentMonth + " , selectDay: " + selectDay + " , currentDay: " + CalendarUtils.getInstance().getCurrentDay());
+                    if (selectYear == currentYear && selectMonth == currentMonth && selectDay > CalendarUtils.getInstance().getCurrentDay()) {
+                        yearView.setCurrentPosition(yearIndex);
+                        monthView.setCurrentPosition(monthIndex);
+                        dayView.setCurrentPosition(dayIndex);
+                        selectDay = currentDay;
+                        selectMonth = Integer.parseInt(monthList.get(monthIndex));
+                        selectYear = Integer.parseInt(yearList.get(yearIndex));
+                        MessageToast.getInstance(getContext()).show("开始时间不能大于当前时间");
+                    }
                 }
                 if (null != onCalendarListener) {
                     onCalendarListener.onCalendar(selectYear, selectMonth, selectDay);

@@ -40,7 +40,6 @@ import org.xutils.x;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.List;
 
 public class AfterSaleServiceInformationActivity extends BaseActivity implements View.OnClickListener {
     private LinearLayout backLayout;
@@ -55,7 +54,10 @@ public class AfterSaleServiceInformationActivity extends BaseActivity implements
     private NiceImageView goodsImageImageView;
     private EditText deliveryNoEditText;
     private LinearLayout deliverySelectLayout, deliveryNoLayout, deliveryStatusLayout, reasonLayout, refundPriceLayout,
-            applyTimeLayout, refundNoLayout, midButtonLayout, midButtonLayout2;
+            applyTimeLayout, refundNoLayout, midButtonLayout;
+    //    private LinearLayout midButtonLayout2;
+    private LinearLayout coordinateHistoryLayout, applyKeFuReasonLayout, addressLaout;
+    private TextView applyKeFuReasonTextView, userNameTextView, phoneNumberTextView, addressTextView;
     private MyRecyclerView mRecyclerView;
     private PublishFeedImagesGridAdapter imageGridAdapter;
     private ArrayList<String> mImageList = new ArrayList<>();
@@ -63,6 +65,7 @@ public class AfterSaleServiceInformationActivity extends BaseActivity implements
     private DeliveryCompanyDialog deliveryCompanyDialog;
     private YNDialog ynDialog;
     private int refundType, refundStatus;
+    private long refund_money;
     private String deliveryCompanyCode;
     private MyHandler myHandler = new MyHandler(this);
 
@@ -77,6 +80,9 @@ public class AfterSaleServiceInformationActivity extends BaseActivity implements
         public void handleMessage(Message msg) {
             AfterSaleServiceInformationActivity activity = activityWeakReference.get();
             switch (msg.what) {
+                case 99:
+                    MessageToast.getInstance(activity).show("服务器内部错误，请稍后再试");
+                    break;
                 case 1:
                     activity.loadingDialog.dismiss();
                     if (200 == activity.informationResult.getCode()) {
@@ -101,7 +107,7 @@ public class AfterSaleServiceInformationActivity extends BaseActivity implements
                             activity.serviceDescTextView.setVisibility(View.GONE);
                         }
                         activity.serviceDescTextView.setText(activity.informationResult.getData().getData().getDesc());
-                        Glide.with(activity).load(activity.informationResult.getData().getData().getGoods_img()).error(R.drawable.image_error) .placeholder(R.drawable.image_error)
+                        Glide.with(activity).load(activity.informationResult.getData().getData().getGoods_img()).error(R.drawable.image_error).placeholder(R.drawable.image_error)
                                 .fallback(R.drawable.image_error).into(activity.goodsImageImageView);
                         activity.goodsNameTextView.setText(activity.informationResult.getData().getData().getGoods_name());
 //                        activity.goodsNormsTextView.setText(activity.informationResult.getData().getData().get);
@@ -110,8 +116,10 @@ public class AfterSaleServiceInformationActivity extends BaseActivity implements
                         activity.refundNoTextView.setText(activity.informationResult.getData().getData().getRefund_sn());
                         activity.applyTimeTextView.setText(activity.informationResult.getData().getData().getAddtime());
                         activity.refundPriceTextView.setText("￥" + PriceParseUtils.getInstance().parsePrice(activity.informationResult.getData().getData().getRefund_price()));
-
-
+                        activity.applyKeFuReasonTextView.setText(activity.informationResult.getData().getData().getKefu_reason());
+                        activity.userNameTextView.setText("收货人：" + activity.informationResult.getData().getData().getUser_name());
+                        activity.phoneNumberTextView.setText("联系电话：" + activity.informationResult.getData().getData().getPhone_number());
+                        activity.addressTextView.setText("退货地址：" + activity.informationResult.getData().getData().getAddress());
                         if (!StringUtils.isNullOrEmpty(activity.informationResult.getData().getData().getRemark())) {
                             activity.remarkTextView.setVisibility(View.VISIBLE);
                         } else {
@@ -119,6 +127,9 @@ public class AfterSaleServiceInformationActivity extends BaseActivity implements
                         }
                         activity.remarkTextView.setText(activity.informationResult.getData().getData().getRemark());
                         if (null != activity.informationResult.getData().getData().getImg() && activity.informationResult.getData().getData().getImg().size() > 0) {
+                            if (null != activity.mImageList) {
+                                activity.mImageList.clear();
+                            }
                             for (UploadImage img : activity.informationResult.getData().getData().getImg()) {
                                 activity.mImageList.add(img.getFile());
                             }
@@ -133,6 +144,12 @@ public class AfterSaleServiceInformationActivity extends BaseActivity implements
                         activity.finish();
                     }
                     break;
+                case 3:
+                    MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
+                    if (200 == activity.baseResult.getCode()) {
+                        activity.refundInformation();
+                    }
+                    break;
             }
         }
     }
@@ -143,8 +160,16 @@ public class AfterSaleServiceInformationActivity extends BaseActivity implements
         setContentView(R.layout.activity_after_sale_service_information);
         ScreentUtils.getInstance().setStatusBarLightMode(this, true);
         refund_id = getIntent().getIntExtra("refund_id", 0);
+        refund_money=getIntent().getLongExtra("refund_money",0l);
+//        System.out.println("refund_id: "+refund_id);
         initDialogs();
         initViews();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         refundInformation();
     }
 
@@ -185,6 +210,7 @@ public class AfterSaleServiceInformationActivity extends BaseActivity implements
         applyTimeTextView = findViewById(R.id.applyTimeTextView);
         refundNoTextView = findViewById(R.id.refundNoTextView);
         servicerTextView = findViewById(R.id.servicerTextView);
+        servicerTextView.setOnClickListener(this);
         cancelRefundTextView = findViewById(R.id.cancelRefundTextView);
         cancelRefundTextView.setOnClickListener(this);
         editRefundTextView = findViewById(R.id.editRefundTextView);
@@ -201,7 +227,7 @@ public class AfterSaleServiceInformationActivity extends BaseActivity implements
         applyTimeLayout = findViewById(R.id.applyTimeLayout);
         refundNoLayout = findViewById(R.id.refundNoLayout);
         midButtonLayout = findViewById(R.id.midButtonLayout);
-        midButtonLayout2 = findViewById(R.id.midButtonLayout2);
+//        midButtonLayout2 = findViewById(R.id.midButtonLayout2);
         imageGridAdapter = new PublishFeedImagesGridAdapter(this);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 3);
         imageGridAdapter.setData(mImageList);
@@ -213,6 +239,15 @@ public class AfterSaleServiceInformationActivity extends BaseActivity implements
         bottomButtonLeftTextView.setOnClickListener(this);
         bottomButtonRightTextView = findViewById(R.id.bottomButtonRightTextView);
         bottomButtonRightTextView.setOnClickListener(this);
+        coordinateHistoryLayout = findViewById(R.id.coordinateHistoryLayout);
+        coordinateHistoryLayout.setOnClickListener(this);
+        applyKeFuReasonLayout = findViewById(R.id.applyKeFuReasonLayout);
+        applyKeFuReasonTextView = findViewById(R.id.applyKeFuReasonTextView);
+        addressLaout = findViewById(R.id.addressLaout);
+        userNameTextView = findViewById(R.id.userNameTextView);
+        phoneNumberTextView = findViewById(R.id.phoneNumberTextView);
+        addressTextView = findViewById(R.id.addressTextView);
+
     }
 
     @Override
@@ -225,23 +260,53 @@ public class AfterSaleServiceInformationActivity extends BaseActivity implements
                 deliveryCompanyDialog.show();
                 break;
             case R.id.bottomButtonLeftTextView:
-
+                if (informationResult.getData().getData().isIs_kefu()) {
+                    //撤销申请
+                    cancelRefund();
+                } else {
+                    Intent serviceIntent = new Intent(this, CustomerServiceActivity.class);
+                    serviceIntent.putExtra("shop_id", informationResult.getData().getData().getShop_id());
+                    startActivity(serviceIntent);
+                }
                 break;
             case R.id.bottomButtonRightTextView:
+//                0 未处理
+//                1 已同意,待退货
+//                2 已退货,待收货
+//                3 退款成功
+//                4 客服介入
+//                5 取消退款
+//                6 拒绝退款
                 switch (refundStatus) {
-                    case ServiceUtils.STATUS_JIHUIZHONG://返回首页
-                    case ServiceUtils.STATUS_WANCHENG://返回首页
+                    case ServiceUtils.REFUND_DAI_SHOU_HUO:
+                    case ServiceUtils.REFUND_TUI_KUAN_CHENG_GONG:
                         goHome();
                         break;
-                    case ServiceUtils.STATUS_TONGGUO://提交信息
-
+                    case ServiceUtils.REFUND_DAI_TUI_HUO:
+                        if (StringUtils.isNullOrEmpty(deliveryNoEditText.getText().toString().trim())) {
+                            MessageToast.getInstance(this).show("请补全物流单号");
+                            return;
+                        }
+                        if (StringUtils.isNullOrEmpty(deliveryCompanyCode)) {
+                            MessageToast.getInstance(this).show("请选择物流公司");
+                            return;
+                        }
+                        postDeliveryNo();
                         break;
-                    case ServiceUtils.STATUS_DAICHULI://拨打客服
-                    case ServiceUtils.STATUS_YONGHUGUANBI://拨打客服
-                    case ServiceUtils.STATUS_WEITONGGUO://拨打客服
-
+                    case ServiceUtils.REFUND_DAI_CHU_LI:
+                    case ServiceUtils.REFUND_QU_XIAO:
+                    case ServiceUtils.REFUND_JU_JUE:
+                    case ServiceUtils.REFUND_KE_FU_JIE_RU:
+                        Intent serviceIntent = new Intent(this, CustomerServiceActivity.class);
+                        serviceIntent.putExtra("shop_id", informationResult.getData().getData().getPlatform_id());
+                        startActivity(serviceIntent);
                         break;
                 }
+                break;
+            case R.id.servicerTextView://客服介入
+                Intent intent = new Intent(this, StartCoordinateActivity.class);
+                intent.putExtra("id", informationResult.getData().getData().getId());
+                startActivity(intent);
                 break;
             case R.id.cancelRefundTextView:
                 ynDialog.show();
@@ -260,11 +325,18 @@ public class AfterSaleServiceInformationActivity extends BaseActivity implements
                 String goodsJson = GsonUtils.GsonString(goods);
                 afterSaleServiceIntent.putExtra("order_id", informationResult.getData().getData().getId());
                 afterSaleServiceIntent.putExtra("goodsJson", goodsJson);
+                afterSaleServiceIntent.putExtra("refund_id", informationResult.getData().getData().getId());
                 afterSaleServiceIntent.putExtra("isUpdate", 1);
+                afterSaleServiceIntent.putExtra("refund_money", refund_money);
                 afterSaleServiceIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(afterSaleServiceIntent);
                 break;
-
+            case R.id.coordinateHistoryLayout:
+                Intent coordinateIntent = new Intent(this, CoordinateHistoryActivity.class);
+                coordinateIntent.putExtra("oid", informationResult.getData().getData().getOid());
+                coordinateIntent.putExtra("itemid", informationResult.getData().getData().getItemid());
+                startActivity(coordinateIntent);
+                break;
         }
     }
 
@@ -293,6 +365,11 @@ public class AfterSaleServiceInformationActivity extends BaseActivity implements
                 numberLeftTextView.setText("退款编号");
                 break;
         }
+        if (informationResult.getData().getData().isIs_kefu()) {
+            titleTextView.setText("客服介入");
+            reasonLeftTextView.setText("退款原因");
+            numberLeftTextView.setText("退款编号");
+        }
     }
 
     private void serviceStatusChangeViews() {
@@ -300,48 +377,71 @@ public class AfterSaleServiceInformationActivity extends BaseActivity implements
         deliveryNoLayout.setVisibility(View.GONE);
         deliverySelectLayout.setVisibility(View.GONE);
         deliveryStatusLayout.setVisibility(View.GONE);
+        coordinateHistoryLayout.setVisibility(View.GONE);
+        applyKeFuReasonLayout.setVisibility(View.GONE);
         reasonLayout.setVisibility(View.VISIBLE);
         refundPriceLayout.setVisibility(View.VISIBLE);
         applyTimeLayout.setVisibility(View.VISIBLE);
         refundNoLayout.setVisibility(View.VISIBLE);
         midButtonLayout.setVisibility(View.GONE);
-        midButtonLayout2.setVisibility(View.GONE);
+//        midButtonLayout2.setVisibility(View.GONE);
+//        0 未处理
+//        1 已同意,待退货
+//        2 已退货,待收货
+//        3 退款成功
+//        4 退款失败
+//        5 取消退款
+//        6 拒绝退款
         switch (refundStatus) {
-            case ServiceUtils.STATUS_DAICHULI:
+            case ServiceUtils.REFUND_DAI_CHU_LI://待处理
                 midButtonLayout.setVisibility(View.VISIBLE);
-                bottomButtonRightTextView.setText("拨打客服");
+                bottomButtonLeftTextView.setText("联系卖家");
+                bottomButtonRightTextView.setText("圈助客服");
                 break;
-            case ServiceUtils.STATUS_WEITONGGUO:
-                midButtonLayout2.setVisibility(View.VISIBLE);
-                bottomButtonRightTextView.setText("拨打客服");
+            case ServiceUtils.REFUND_JU_JUE://拒绝退款
+                coordinateHistoryLayout.setVisibility(View.VISIBLE);
+                bottomButtonLeftTextView.setText("联系卖家");
+                bottomButtonRightTextView.setText("圈助客服");
                 break;
-            case ServiceUtils.STATUS_TONGGUO:
+            case ServiceUtils.REFUND_DAI_TUI_HUO://快递寄回
+                coordinateHistoryLayout.setVisibility(View.VISIBLE);
                 deliveryNoLayout.setVisibility(View.VISIBLE);
                 deliveryNoEditText.setFocusableInTouchMode(true);
                 deliveryNoEditText.setFocusable(true);
                 deliveryNoEditText.requestFocus();
                 deliveryNoEditText.setHint("请填写物流单号");
                 deliverySelectLayout.setVisibility(View.VISIBLE);
+                addressLaout.setVisibility(View.VISIBLE);
+                bottomButtonLeftTextView.setText("联系卖家");
                 bottomButtonRightTextView.setText("提交信息");
                 break;
-            case ServiceUtils.STATUS_YONGHUGUANBI:
-                bottomButtonRightTextView.setText("拨打客服");
+            case ServiceUtils.REFUND_QU_XIAO://用户取消
+                bottomButtonRightTextView.setText("圈助客服");
+                bottomButtonLeftTextView.setText("联系卖家");
                 break;
-            case ServiceUtils.STATUS_WANCHENG:
+            case ServiceUtils.REFUND_TUI_KUAN_CHENG_GONG://退款完成
+                coordinateHistoryLayout.setVisibility(View.VISIBLE);
                 deliveryNoLayout.setVisibility(View.VISIBLE);
                 deliveryNoEditText.setFocusable(false);
                 deliveryNoEditText.setFocusableInTouchMode(false);
                 deliveryNoEditText.setHint("物流单号");
                 deliveryStatusLayout.setVisibility(View.VISIBLE);
+                bottomButtonLeftTextView.setText("联系卖家");
                 bottomButtonRightTextView.setText("返回首页");
                 break;
-            case ServiceUtils.STATUS_JIHUIZHONG:
+            case ServiceUtils.REFUND_DAI_SHOU_HUO://快递寄回中
                 deliveryNoLayout.setVisibility(View.VISIBLE);
                 deliveryNoEditText.setFocusable(false);
                 deliveryNoEditText.setFocusableInTouchMode(false);
                 deliveryNoEditText.setHint("物流单号");
                 deliveryStatusLayout.setVisibility(View.VISIBLE);
+                bottomButtonLeftTextView.setText("联系卖家");
                 bottomButtonRightTextView.setText("返回首页");
+                break;
+            case ServiceUtils.REFUND_KE_FU_JIE_RU://客服介入
+                applyKeFuReasonLayout.setVisibility(View.VISIBLE);
+                bottomButtonRightTextView.setText("圈助客服");
+                bottomButtonLeftTextView.setText("撤销申请");
                 break;
         }
     }
@@ -383,9 +483,13 @@ public class AfterSaleServiceInformationActivity extends BaseActivity implements
     private void cancelRefund() {
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.CANCEL_REFUND);
         params.addBodyParameter("id", String.valueOf(refund_id));
+        if (null != informationResult && null != informationResult.getData().getData() && informationResult.getData().getData().isIs_kefu()) {
+            params.addBodyParameter("type", "1");
+        }
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
+                System.out.println("撤销申请: " + result);
                 baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
                 Message message = myHandler.obtainMessage(2);
                 message.sendToTarget();
@@ -393,7 +497,40 @@ public class AfterSaleServiceInformationActivity extends BaseActivity implements
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
+                System.out.println("撤销申请: " + ex.toString());
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
+            }
 
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
+    private void postDeliveryNo() {
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.ORDER_EDIT_DELIVERY);
+        params.addBodyParameter("id", String.valueOf(informationResult.getData().getData().getId()));
+        params.addBodyParameter("wl_no", deliveryNoEditText.getText().toString().trim());
+        params.addBodyParameter("wl_company", deliveryCompanyCode);
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
+                Message message = myHandler.obtainMessage(3);
+                message.sendToTarget();
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
             }
 
             @Override

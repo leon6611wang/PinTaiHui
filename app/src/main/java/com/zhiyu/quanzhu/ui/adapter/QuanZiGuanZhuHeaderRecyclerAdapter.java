@@ -66,7 +66,7 @@ public class QuanZiGuanZhuHeaderRecyclerAdapter extends RecyclerView.Adapter<Qua
         } else {
             holder.addImageView.setVisibility(View.GONE);
         }
-        Glide.with(context).load(list.get(position).getAvatar()).error(R.mipmap.no_avatar).into(holder.avatarImageView);
+        Glide.with(context).load(list.get(position).getAvatar()).error(R.drawable.image_error).into(holder.avatarImageView);
         holder.nameTextView.setText(list.get(position).getUsername());
         holder.avatarImageView.setOnClickListener(new View.OnClickListener() {
             @Override

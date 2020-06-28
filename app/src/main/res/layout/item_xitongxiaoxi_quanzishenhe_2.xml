@@ -70,7 +70,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginBottom="@dimen/dp_5"
-                android:gravity="center"
+                android:gravity="center|top"
                 android:orientation="horizontal">
 
                 <com.zhiyu.quanzhu.ui.widget.CircleImageView
@@ -81,32 +81,13 @@
                     android:src="@drawable/image_error" />
 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="@dimen/dp_5"
-                    android:text="您申请的加入"
-                    android:textColor="@color/text_color_grey"
-                    android:textSize="13sp" />
-
-                <TextView
                     android:id="@+id/circleNameTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/text_color_yellow"
-                    android:layout_marginRight="@dimen/dp_5"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:id="@+id/statusDescTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/text_color_black"
-                    android:textSize="13sp" />
-
-                <View
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1" />
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp" />
+
+
             </LinearLayout>
 
             <TextView

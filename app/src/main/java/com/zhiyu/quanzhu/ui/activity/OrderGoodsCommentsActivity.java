@@ -108,7 +108,7 @@ public class OrderGoodsCommentsActivity extends BaseActivity implements View.OnC
                     for (OrderGoods goods : list) {
                         if (goods.getScore() == 0) {
                             MessageToast.getInstance(OrderGoodsCommentsActivity.this).show("请对所有商品做出评价~");
-                            break;
+                            return;
                         }
                     }
                 }

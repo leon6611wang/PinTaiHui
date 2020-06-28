@@ -85,8 +85,9 @@ public class CartAvailableGoodsRecyclerAdapter extends RecyclerView.Adapter<Cart
             public void onGoodsNormsSelected(String norms_name, String norms_id, int position, int goodsCount) {
                 list.get(position).setNorms_id(norms_id);
                 list.get(position).setNorms_name(norms_name);
-                list.get(position).setCurrentNum(goodsCount);
-                list.get(position).setNum(goodsCount);
+                //只要选择了规格，商品数量重置到1
+                list.get(position).setCurrentNum(1);
+                list.get(position).setNum(1);
                 notifyDataSetChanged();
                 editCartGoods(position);
 
@@ -210,16 +211,16 @@ public class CartAvailableGoodsRecyclerAdapter extends RecyclerView.Adapter<Cart
                 currentNumber = Integer.parseInt(numberstr);
             if (manage) {
                 boolean selected = list.get(position).isSelected();
-                System.out.println("selected: " + selected);
+//                System.out.println("selected: " + selected);
                 list.get(position).setSelected(!selected, true);
-                System.out.println("管理模式，可选: itemIndex: " + itemIndex + " , position: " + position + " , selected: " + list.get(position).isSelected());
+//                System.out.println("管理模式，可选: itemIndex: " + itemIndex + " , position: " + position + " , selected: " + list.get(position).isSelected());
                 notifyDataSetChanged();
 //                notifyItemChanged(position);
                 if (null != onItemItemSelected) {
                     onItemItemSelected.onItemItemSelected(itemIndex, position, list.get(position).isSelected(), true);
                 }
             } else {
-                System.out.println("结算模式");
+//                System.out.println("结算模式");
                 if (list.get(position).getStock() == 0 || list.get(position).getStock() < currentNumber) {
                     MessageToast.getInstance(context).show("库存不足，无法选定");
                 } else {
@@ -343,7 +344,7 @@ public class CartAvailableGoodsRecyclerAdapter extends RecyclerView.Adapter<Cart
         if (null != onGoodsNumChangeListener) {
             onGoodsNumChangeListener.onGoodsNumChange();
         }
-        System.out.println("id: " + list.get(position).getId() + " , norms_id: " + list.get(position).getNorms_id() + " , num: " + list.get(position).getCurrentNum());
+//        System.out.println("id: " + list.get(position).getId() + " , norms_id: " + list.get(position).getNorms_id() + " , num: " + list.get(position).getCurrentNum());
         RequestParams params = MyRequestParams.getInstance(context).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.CART_GOODS_EDIT);
         params.addBodyParameter("id", String.valueOf(list.get(position).getId()));
         params.addBodyParameter("norms_id", list.get(position).getNorms_id());
@@ -360,7 +361,7 @@ public class CartAvailableGoodsRecyclerAdapter extends RecyclerView.Adapter<Cart
             public void onError(Throwable ex, boolean isOnCallback) {
                 Message message = myHandler.obtainMessage(99);
                 message.sendToTarget();
-                System.out.println("edit cart goods: " + ex.toString());
+//                System.out.println("edit cart goods: " + ex.toString());
             }
 
             @Override

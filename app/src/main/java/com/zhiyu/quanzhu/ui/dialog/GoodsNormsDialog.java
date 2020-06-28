@@ -145,7 +145,17 @@ public class GoodsNormsDialog extends Dialog implements View.OnClickListener, Go
         this.imageUrl = goods.getImg_list().get(0).getUrl();
         Glide.with(getContext()).load(goods.getImg_list().get(0).getUrl()).error(R.drawable.image_error).placeholder(R.drawable.image_error)
                 .fallback(R.drawable.image_error).into(mImageView);
-        priceTextView.setText(PriceParseUtils.getInstance().parsePrice(goods.getGoods_price() == 0 ? goods.getMin_price() : goods.getGoods_price()));
+        String price;
+        if (goods.getMin_price() > 0 || goods.getMax_price() > 0) {
+            if (goods.getMin_price() == goods.getMax_price()) {
+                price = PriceParseUtils.getInstance().parsePrice(goods.getGoods_price());
+            } else {
+                price = PriceParseUtils.getInstance().parsePrice(goods.getMin_price()) + "-" + PriceParseUtils.getInstance().parsePrice(goods.getMax_price());
+            }
+        } else {
+            price = PriceParseUtils.getInstance().parsePrice(goods.getGoods_price());
+        }
+        priceTextView.setText(price);
         titleTextView.setText(goods.getGoods_name());
         stockTextView.setText(String.valueOf(goods.getGoods_stock()));
         selectTextView.setText("选择：默认");
@@ -156,7 +166,12 @@ public class GoodsNormsDialog extends Dialog implements View.OnClickListener, Go
             mRecyclerView.setVisibility(View.GONE);
             nullView.setVisibility(View.VISIBLE);
         }
-        changeBottomButton(!hasNorms && goods.getGoods_stock() > 0);
+//        changeBottomButton(!hasNorms && goods.getGoods_stock() > 0);
+        if (!hasNorms && goods.getGoods_stock() > 0) {
+            changeBottomButton(true);
+        } else if (hasNorms) {
+//            GoodsNormStockDao.getInstance().hasGoodsStockByNorms()
+        }
     }
 
 
@@ -177,9 +192,20 @@ public class GoodsNormsDialog extends Dialog implements View.OnClickListener, Go
     }
 
     public void setGuiGeList(List<GoodsNormGroup> guiGeList) {
-//        System.out.println("setGuiGeList -> guiGeList: " + GsonUtils.GsonString(guiGeList));
         list = GoodsNormStockDao.getInstance().initGoodsNormsStock(guiGeList);
-//        System.out.println("setGuiGeList -> list: "+GsonUtils.GsonString(list));
+//        System.out.println("************************************商品详情-规格选择-guiGeList: " + (null == guiGeList ? 0 : guiGeList.size()) + " , list: " + (null == list ? 0 : list.size()));
+//        if (null != list && list.size() > 0) {
+//            for (GoodsNormGroup group : list) {
+//                if (null != group && null != group.getList() && group.getList().size() > 0) {
+//                    for (GoodsNorm norm : group.getList()) {
+//                        if (norm.isSelectable()) {
+//                            System.out.println("有库存可选的: " + norm.getNorms_name());
+//                        }
+//                    }
+//                }
+//            }
+//        }
+
     }
 
     private void initViews() {
@@ -349,7 +375,66 @@ public class GoodsNormsDialog extends Dialog implements View.OnClickListener, Go
         if (isFirst) {
             isFirst = false;
             adapter.setData(list);
+            List<GoodsStock> stockList = GoodsNormStockDao.getInstance().selectStockList();
+//            System.out.println("本地存储的库存: " + (null == stockList ? 0 : stockList.size()));
+            long norm_id = 0;
+            if (null != stockList && stockList.size() > 0) {
+                for (GoodsStock stock : stockList) {
+//                    System.out.println("库存: " + stock.toString());
+                    if (stock.getId1() > 0) {
+                        norm_id = stock.getId1();
+//                        break;
+                    } else if (stock.getId2() > 0) {
+                        norm_id = stock.getId2();
+//                        break;
+                    } else if (stock.getId3() > 0) {
+                        norm_id = stock.getId3();
+//                        break;
+                    } else if (stock.getId4() > 0) {
+                        norm_id = stock.getId4();
+//                        break;
+                    } else if (stock.getId5() > 0) {
+                        norm_id = stock.getId5();
+//                        break;
+                    } else if (stock.getId6() > 0) {
+                        norm_id = stock.getId6();
+//                        break;
+                    } else if (stock.getId7() > 0) {
+                        norm_id = stock.getId7();
+//                        break;
+                    } else if (stock.getId8() > 0) {
+                        norm_id = stock.getId8();
+//                        break;
+                    } else if (stock.getId9() > 0) {
+                        norm_id = stock.getId9();
+//                        break;
+                    } else if (stock.getId10() > 0) {
+                        norm_id = stock.getId10();
+//                        break;
+                    }
+//                    break;
+                }
+            }
+//            System.out.println("norm_id: " + norm_id);
+            if (null != list && list.size() > 0) {
+                int parentPosition = -1, childPosition = -1;
+                for (int i = 0; i < list.size(); i++) {
+                    for (int j = 0; j < list.get(i).getList().size(); j++) {
+                        if (list.get(i).getList().get(j).getNorms_id() == norm_id) {
+                            parentPosition = i;
+                            childPosition = j;
+//                            System.out.println("parentPosition: " + parentPosition + " , childPosition: " + childPosition);
+                            break;
+                        }
+                    }
+                }
+                if (parentPosition > -1 && childPosition > -1) {
+                    onGuiGeSelected(parentPosition, childPosition);
+                }
+            }
+
         }
+
     }
 
 

@@ -7,7 +7,16 @@ public class Shop {
     private int follow_num;
     private int mark;
     private boolean is_follow;
+    private boolean is_collect;
     private long kefu_id;
+
+    public boolean isIs_collect() {
+        return is_collect;
+    }
+
+    public void setIs_collect(boolean is_collect) {
+        this.is_collect = is_collect;
+    }
 
     @Override
     public String toString() {

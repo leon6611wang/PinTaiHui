@@ -137,6 +137,7 @@ public class PublishVideoActivity extends BaseActivity implements View.OnClickLi
 
                     break;
                 case 3:
+                    activity.nextButton.setClickable(true);
                     activity.loadingDialog.dismiss();
                     MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
                     if (200 == activity.baseResult.getCode()) {
@@ -264,7 +265,6 @@ public class PublishVideoActivity extends BaseActivity implements View.OnClickLi
                     break;
                 }
                 loadingDialog.show();
-                nextButton.setClickable(false);
                 if (feeds_id > 0) {
                     updateFeed();
                 } else {
@@ -351,6 +351,7 @@ public class PublishVideoActivity extends BaseActivity implements View.OnClickLi
     private AddFeedResult addFeedResult;
 
     private void addFeed() {
+        nextButton.setClickable(false);
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.ADD_FEED);
         params.addBodyParameter("type", "2");
         params.addBodyParameter("is_draf", "1");
@@ -359,6 +360,7 @@ public class PublishVideoActivity extends BaseActivity implements View.OnClickLi
         params.addBodyParameter("video_width", String.valueOf(video_width));
         params.addBodyParameter("video_height", String.valueOf(video_height));
         params.addBodyParameter("tags", tagIds);
+        params.addBodyParameter("feeds_type","2");
         params.addBodyParameter("city_name", SPUtils.getInstance().getLocationCity(BaseApplication.applicationContext));
         params.addBodyParameter("province_name", SPUtils.getInstance().getLocationProvince(BaseApplication.applicationContext));
         x.http().post(params, new Callback.CommonCallback<String>() {
@@ -375,7 +377,8 @@ public class PublishVideoActivity extends BaseActivity implements View.OnClickLi
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
             }
 
             @Override
@@ -393,7 +396,7 @@ public class PublishVideoActivity extends BaseActivity implements View.OnClickLi
     private BaseResult baseResult;
 
     private void updateFeed() {
-        System.out.println("update");
+        nextButton.setClickable(false);
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.UPDATE_FEED);
         params.addBodyParameter("type", "2");
         params.addBodyParameter("is_draf", "1");
@@ -402,6 +405,7 @@ public class PublishVideoActivity extends BaseActivity implements View.OnClickLi
         params.addBodyParameter("video_width", String.valueOf(video_width));
         params.addBodyParameter("video_height", String.valueOf(video_height));
         params.addBodyParameter("tags", tagIds);
+        params.addBodyParameter("feeds_type","2");
         params.addBodyParameter("feeds_id", String.valueOf(feeds_id));
         params.addBodyParameter("city_name", SPUtils.getInstance().getLocationCity(BaseApplication.applicationContext));
         params.addBodyParameter("province_name", SPUtils.getInstance().getLocationProvince(BaseApplication.applicationContext));
@@ -415,7 +419,8 @@ public class PublishVideoActivity extends BaseActivity implements View.OnClickLi
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
             }
 
             @Override

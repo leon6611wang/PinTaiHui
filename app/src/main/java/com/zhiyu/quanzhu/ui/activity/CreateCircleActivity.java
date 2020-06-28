@@ -83,7 +83,7 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
     private int circleType = 1;
     private long circle_id;
     private String name, province_name, city_name, descirption, logo, thumb, two_industry, three_industry, video;
-    private int type, province, city, is_verify, is_price, price, status;
+    private int type, province, city, is_verify, is_price, price, status, two_industry_id, three_industry_id;
     private String videoUrl;
     private int videoWidth, videoHeight;
     private List<String> imgs = new ArrayList<>();
@@ -101,6 +101,10 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
         public void handleMessage(Message msg) {
             CreateCircleActivity activity = activityWeakReference.get();
             switch (msg.what) {
+                case 99:
+                    activity.confirmTextView.setClickable(true);
+                    MessageToast.getInstance(activity).show("服务器内部错误，请稍后再试.");
+                    break;
                 case 1:
                     activity.circleEditable();
                     String title = null;
@@ -183,6 +187,7 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
                     activity.imageGridRecyclerAdapter.setData(activity.list);
                     break;
                 case 2://圈子创建成功
+                    activity.confirmTextView.setClickable(true);
                     MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
                     if (200 == activity.baseResult.getCode()) {
                         activity.finish();
@@ -233,7 +238,9 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
             @Override
             public void onIndustryHobbySelected(IndustryHobby parent, IndustryHobby child) {
                 two_industry = parent.getName();
+                two_industry_id = parent.getId();
                 three_industry = child.getName();
+                three_industry_id = child.getId();
                 hangyeTextView.setText(parent.getName() + "/" + child.getName());
             }
         });
@@ -356,7 +363,7 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
                             operation_type = 2;
                             break;
                         case -1://圈子审核中，可点击查看详情
-                            operation_type=1;
+                            operation_type = 1;
                             break;
                         case 1:
 
@@ -499,6 +506,7 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
      * 创建圈子
      */
     private void createCircle() {
+        confirmTextView.setClickable(false);
         if (null != imgList && imgList.size() > 0) {
             logo = thumb = imgList.get(0);
         }
@@ -515,6 +523,8 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
         params.addBodyParameter("imgs", GsonUtils.GsonString(imgList));
         params.addBodyParameter("two_industry", two_industry);
         params.addBodyParameter("three_industry", three_industry);
+        params.addBodyParameter("two_industry_id", String.valueOf(two_industry_id));
+        params.addBodyParameter("three_industry_id", String.valueOf(three_industry_id));
         params.addBodyParameter("province", String.valueOf(province));
         params.addBodyParameter("province_name", province_name);
         params.addBodyParameter("city", String.valueOf(city));
@@ -522,6 +532,7 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
+//                System.out.println("创建圈子: "+result);
                 baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
                 Message message = myHandler.obtainMessage(2);
                 message.sendToTarget();
@@ -529,7 +540,8 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
             }
 
             @Override
@@ -548,6 +560,7 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
     private int operation_type = 0;
 
     private void updateCircle() {
+        confirmTextView.setClickable(false);
         System.out.println("operation_type: " + operation_type);
         System.out.println("imgs size: " + imgList.size());
         if (null != imgList && imgList.size() > 0) {
@@ -566,6 +579,8 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
         params.addBodyParameter("imgs", GsonUtils.GsonString(imgList));
         params.addBodyParameter("two_industry", two_industry);
         params.addBodyParameter("three_industry", three_industry);
+        params.addBodyParameter("two_industry_id", String.valueOf(two_industry_id));
+        params.addBodyParameter("three_industry_id", String.valueOf(three_industry_id));
         params.addBodyParameter("province", String.valueOf(province));
         params.addBodyParameter("province_name", province_name);
         params.addBodyParameter("city", String.valueOf(city));
@@ -582,7 +597,8 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
             }
 
             @Override
@@ -610,8 +626,12 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
             public void onSuccess(String result) {
                 System.out.println(result);
                 circleInfoResult = GsonUtils.GsonToBean(result, CircleInfoResult.class);
-                if (null != circleInfoResult.getData())
+                if (null != circleInfoResult.getData()){
                     isEdit = (circleInfoResult.getData().getStatus() == -1) ? false : true;
+                    two_industry_id=circleInfoResult.getData().getTwo_industry_id();
+                    three_industry_id=circleInfoResult.getData().getThree_industry_id();
+                }
+
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
             }

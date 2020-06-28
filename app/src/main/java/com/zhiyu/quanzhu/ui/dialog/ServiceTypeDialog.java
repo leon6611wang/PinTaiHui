@@ -47,7 +47,7 @@ public class ServiceTypeDialog extends Dialog implements View.OnClickListener {
     private void initData() {
         list.add("仅退款");
         list.add("退货退款");
-        list.add("换货");
+//        list.add("换货");
         serviceType = list.get(0);
     }
 

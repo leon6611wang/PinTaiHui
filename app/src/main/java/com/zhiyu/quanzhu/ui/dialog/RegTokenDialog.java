@@ -20,11 +20,12 @@ public class RegTokenDialog extends Dialog implements View.OnClickListener {
     private Context context;
     private TextView regTokenTextView, sharetxtTextView, copyTextView, shareTextView;
     private String regToken, shareUrl;
-
-    public RegTokenDialog(@NonNull Context context, int themeResId) {
+    public RegTokenDialog(@NonNull Context context, int themeResId,OnRegTokenShareListener listener) {
         super(context, themeResId);
+        this.onRegTokenShareListener=listener;
         this.context = context;
     }
+
 
     public void setRegTokenData(String regToken, String shareTxt, String shareUrl) {
         this.regToken = regToken;
@@ -64,10 +65,16 @@ public class RegTokenDialog extends Dialog implements View.OnClickListener {
                 dismiss();
                 break;
             case R.id.shareTextView:
-                MessageToast.getInstance(getContext()).show("分享邀请链接");
+                if(null!=onRegTokenShareListener){
+                    onRegTokenShareListener.onRegToakenShare();
+                }
                 dismiss();
                 break;
         }
+    }
+    private OnRegTokenShareListener onRegTokenShareListener;
+    public interface OnRegTokenShareListener{
+        void onRegToakenShare();
     }
 
 

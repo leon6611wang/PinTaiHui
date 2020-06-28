@@ -16,6 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.leon.chic.dao.PageDao;
+import com.leon.chic.utils.CityUtils;
 import com.leon.chic.utils.SPUtils;
 import com.qiniu.android.utils.StringUtils;
 import com.weigan.loopview.LoopView;
@@ -26,6 +27,7 @@ import com.zhiyu.quanzhu.model.bean.AreaCity;
 import com.zhiyu.quanzhu.model.bean.AreaProvince;
 import com.zhiyu.quanzhu.model.bean.Circle;
 import com.zhiyu.quanzhu.model.dao.AreaDao;
+import com.zhiyu.quanzhu.model.result.AreaResult;
 import com.zhiyu.quanzhu.model.result.CircleResult;
 import com.zhiyu.quanzhu.ui.adapter.QuanZiSouQuanRecyclerAdapter;
 import com.zhiyu.quanzhu.ui.widget.MyRecyclerView;
@@ -37,6 +39,7 @@ import com.zhiyu.quanzhu.utils.MyPtrRefresherFooter;
 import com.zhiyu.quanzhu.utils.MyPtrRefresherHeader;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.SpaceItemDecoration;
+import com.zhiyu.quanzhu.utils.ThreadPoolUtils;
 
 import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
@@ -77,10 +80,15 @@ public class FragmentQuanZiSouQuan extends Fragment implements View.OnClickListe
             FragmentQuanZiSouQuan fragment = fragmentQuanZiSouQuanWeakReference.get();
             switch (msg.what) {
                 case 1:
+                    fragment.isRequesting = false;
                     fragment.ptrFrameLayout.refreshComplete();
                     fragment.adapter.setList(fragment.list);
                     break;
+                case 2:
+                    fragment.initAreaData();
+                    break;
                 case 99:
+                    fragment.isRequesting = false;
                     fragment.ptrFrameLayout.refreshComplete();
                     break;
             }
@@ -93,13 +101,48 @@ public class FragmentQuanZiSouQuan extends Fragment implements View.OnClickListe
         dp_5 = (int) getContext().getResources().getDimension(R.dimen.dp_5);
         dp_200 = (int) getContext().getResources().getDimension(R.dimen.dp_200);
         initViews();
-        initData();
+//        initData();
         initPtr();
         initMenuLayout();
         initAreaMenu();
+        cityList();
         initTypeViews();
         initOrderViews();
         return view;
+    }
+
+    private boolean isRequesting = false;
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (!isRequesting && !StringUtils.isNullOrEmpty(SPUtils.getInstance().getUserToken(getContext())) && (null == list || list.size() > 0)) {
+            isRequesting = true;
+            ThreadPoolUtils.getInstance().init().execute(new Runnable() {
+                @Override
+                public void run() {
+                    isRefresh = true;
+                    page = 1;
+                    searchCircle();
+                }
+            });
+        }
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser && !isRequesting && !StringUtils.isNullOrEmpty(SPUtils.getInstance().getUserToken(getContext())) && (null == list || list.size() > 0)) {
+            isRequesting = true;
+            ThreadPoolUtils.getInstance().init().execute(new Runnable() {
+                @Override
+                public void run() {
+                    isRefresh = true;
+                    page = 1;
+                    searchCircle();
+                }
+            });
+        }
     }
 
     private void initViews() {
@@ -174,7 +217,6 @@ public class FragmentQuanZiSouQuan extends Fragment implements View.OnClickListe
                 isRefresh = false;
                 page++;
                 searchCircle();
-
             }
 
             @Override
@@ -184,7 +226,7 @@ public class FragmentQuanZiSouQuan extends Fragment implements View.OnClickListe
                 searchCircle();
             }
         });
-        ptrFrameLayout.autoRefresh();
+//        ptrFrameLayout.autoRefresh();
         ptrFrameLayout.setMode(PtrFrameLayout.Mode.BOTH);
     }
 
@@ -461,7 +503,7 @@ public class FragmentQuanZiSouQuan extends Fragment implements View.OnClickListe
     private List<Circle> list;
 
     private void searchCircle() {
-        System.out.println("搜圈-cityName" + cityName+" , type: "+type+" , order_type: "+order_type);
+//        System.out.println("搜圈-cityName" + cityName+" , type: "+type+" , order_type: "+order_type);
         RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.SEARCH_CIRCLE);
         params.addBodyParameter("type", String.valueOf(type));//1行业 2兴趣 默认0全部
         params.addBodyParameter("city_name", cityName);
@@ -470,7 +512,7 @@ public class FragmentQuanZiSouQuan extends Fragment implements View.OnClickListe
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("搜圈: " + result);
+//                System.out.println("搜圈: " + result);
                 circleResult = GsonUtils.GsonToBean(result, CircleResult.class);
                 if (isRefresh) {
                     list = circleResult.getData().getList();
@@ -484,7 +526,7 @@ public class FragmentQuanZiSouQuan extends Fragment implements View.OnClickListe
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                System.out.println("搜圈: " + ex.toString());
+//                System.out.println("搜圈: " + ex.toString());
                 Message message = myHandler.obtainMessage(99);
                 message.sendToTarget();
             }
@@ -511,29 +553,56 @@ public class FragmentQuanZiSouQuan extends Fragment implements View.OnClickListe
     private AreaCity areaCity;
 
     private void initAreaMenu() {
-        initAreaData();
         initAreaViews();
     }
 
+    private int provinceIndex, cityIndex;
+
     private void initAreaData() {
-        areaProvinceList = AreaDao.getInstance().provinceList();
+        areaProvinceList = areaResult.getData().getCitys();
         if (null != areaProvinceList && areaProvinceList.size() > 0) {
             areaProvince = areaProvinceList.get(0);
-            for (AreaProvince p : areaProvinceList) {
-                provinceList.add(p.getName());
+            for (int i = 0; i < areaProvinceList.size(); i++) {
+                provinceList.add(areaProvinceList.get(i).getName());
+                if (!StringUtils.isNullOrEmpty(province)) {
+                    if (areaProvinceList.get(i).getName().equals(province) ||
+                            areaProvinceList.get(i).getName().contains(province) ||
+                            province.contains(areaProvinceList.get(i).getName())) {
+                        areaProvince = areaProvinceList.get(i);
+                        provinceIndex = i;
+                    }
+                }
             }
         }
-
-        if (null != areaProvinceList && areaProvinceList.size() > 0) {
-            areaCityList = AreaDao.getInstance().cityList(areaProvinceList.get(0).getCode());
-            if (null != areaCityList && areaCityList.size() > 0) {
-                areaCity = areaCityList.get(0);
-                for (AreaCity c : areaCityList) {
-                    cityList.add(c.getName());
+        areaCityList = areaProvinceList.get(provinceIndex).getChild();
+        if (null != areaCityList && areaCityList.size() > 0) {
+            areaCity = areaCityList.get(0);
+            for (int i = 0; i < areaCityList.size(); i++) {
+                cityList.add(areaCityList.get(i).getName());
+                if (!StringUtils.isNullOrEmpty(city)) {
+                    if (city.equals(areaCityList.get(i).getName()) ||
+                            city.contains(areaCityList.get(i).getName()) ||
+                            areaCityList.get(i).getName().contains(city)
+                            ) {
+                        cityIndex = i;
+                        areaCity = areaCityList.get(i);
+                    }
                 }
             }
         }
 
+        provinceView.setItems(provinceList);
+        provinceView.setInitPosition(provinceIndex);
+        cityView.setItems(cityList);
+        cityView.setInitPosition(cityIndex);
+
+    }
+
+    private void getCitys(int code) {
+        String json = CityUtils.getInstance().getCitys(BaseApplication.getInstance(), code);
+        if (!StringUtils.isNullOrEmpty(json)) {
+            areaCityList = GsonUtils.getObjectList(json, AreaCity.class);
+        }
     }
 
     private void initAreaViews() {
@@ -541,39 +610,47 @@ public class FragmentQuanZiSouQuan extends Fragment implements View.OnClickListe
         provinceView.setNotLoop();
         cityView = view.findViewById(R.id.cityView);
         cityView.setNotLoop();
-        provinceView.setItems(provinceList);
-        provinceView.setInitPosition(0);
         provinceView.setListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(int index) {
                 if (!TextUtils.isEmpty(provinceList.get(index))) {
                     province = provinceList.get(index);
-                    areaProvince = AreaDao.getInstance().getAreaProvince(province);
+                    areaProvince = areaProvinceList.get(index);
                     if (null != areaCityList) {
                         areaCityList.clear();
                     }
                     if (null != cityList) {
                         cityList.clear();
                     }
-                    areaCityList = AreaDao.getInstance().cityList(areaProvinceList.get(index).getCode());
+                    getCitys(areaProvinceList.get(index).getCode());
                     if (null != areaCityList && areaCityList.size() > 0) {
                         for (AreaCity c : areaCityList) {
                             cityList.add(c.getName());
                         }
+                        cityView.setItems(cityList);
+                        cityView.setCurrentPosition(cityIndex);
+                        if (cityIndex > cityList.size() - 1) {
+                            cityIndex = 0;
+                        }
+                        city = cityList.get(cityIndex);
+                        areaCity = areaCityList.get(cityIndex);
+                    } else {
+                        city = null;
+                        areaCity = null;
                     }
-                    cityView.setItems(cityList);
+
+
                 }
             }
         });
-        if (null != provinceList && provinceList.size() > 0)
-            province = provinceList.get(0);
-        cityView.setItems(cityList);
-        cityView.setInitPosition(0);
+
         cityView.setListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(int index) {
+                cityIndex = index;
                 if (!TextUtils.isEmpty(cityList.get(index))) {
                     city = cityList.get(index);
+                    areaCity = areaCityList.get(index);
                     areaTextView.setText(city);
                     if (areaMenuShow) {
                         hideAreaMenu();
@@ -607,6 +684,44 @@ public class FragmentQuanZiSouQuan extends Fragment implements View.OnClickListe
         orderFeedCountTextView.setOnClickListener(this);
         orderAllTextView = view.findViewById(R.id.orderAllTextView);
         orderAllTextView.setOnClickListener(this);
+    }
+
+    private AreaResult areaResult;
+
+    /**
+     * 地区列表
+     */
+    private void cityList() {
+        RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.CITYS);
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                System.out.println("city list: " + result);
+                areaResult = GsonUtils.GsonToBean(result, AreaResult.class);
+                if (null != areaResult && null != areaResult.getData() && null != areaResult.getData().getCitys() && areaResult.getData().getCitys().size() > 0) {
+                    for (AreaProvince province : areaResult.getData().getCitys()) {
+                        CityUtils.getInstance().saveCitys(BaseApplication.getInstance(), province.getName(), province.getCode(), GsonUtils.GsonString(province.getChild()));
+                    }
+                }
+                Message message = myHandler.obtainMessage(2);
+                message.sendToTarget();
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+                System.out.println("city list error: " + ex.toString());
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
     }
 
 }

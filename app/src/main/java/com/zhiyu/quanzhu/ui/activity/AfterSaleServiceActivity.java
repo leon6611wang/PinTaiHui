@@ -63,7 +63,9 @@ public class AfterSaleServiceActivity extends BaseActivity implements View.OnCli
     private DeleteImageDialog deleteImageDialog;
     private int serviceTypeIndex = -1, goodsStatusIndex = -1;
     private String refundReason;
+    private int refund_id;
     private int isUpdate;
+    private long refund_price;
     private MyHandler myHandler = new MyHandler(this);
 
     private static class MyHandler extends Handler {
@@ -97,7 +99,10 @@ public class AfterSaleServiceActivity extends BaseActivity implements View.OnCli
         ScreentUtils.getInstance().setStatusBarLightMode(this, true);
         order_id = getIntent().getIntExtra("order_id", 0);
         isUpdate = getIntent().getIntExtra("isUpdate", 0);
+        refund_id=getIntent().getIntExtra("refund_id",0);
+        refund_price=getIntent().getLongExtra("refund_money",0l);
         String goodsJson = getIntent().getStringExtra("goodsJson");
+//        System.out.println("goodsJson: "+goodsJson);
         goods = GsonUtils.GsonToBean(goodsJson, OrderInformationGoods.class);
         initDialogs();
         initViews();
@@ -163,7 +168,7 @@ public class AfterSaleServiceActivity extends BaseActivity implements View.OnCli
         refundReasonLayout.setOnClickListener(this);
         reasonTextView = findViewById(R.id.reasonTextView);
         refundPriceTextView = findViewById(R.id.refundPriceTextView);
-        refundPriceTextView.setText("￥" + PriceParseUtils.getInstance().parsePrice(goods.getRefund_price()));
+        refundPriceTextView.setText("￥" + PriceParseUtils.getInstance().parsePrice(refund_price));
         refundMarkEditText = findViewById(R.id.refundMarkEditText);
         confirmTextView = findViewById(R.id.confirmTextView);
         confirmTextView.setOnClickListener(this);
@@ -213,7 +218,7 @@ public class AfterSaleServiceActivity extends BaseActivity implements View.OnCli
                         refund();
                         break;
                     case 1:
-
+                        updateRefund();
                         break;
                 }
 
@@ -338,27 +343,24 @@ public class AfterSaleServiceActivity extends BaseActivity implements View.OnCli
         if (null != map && map.size() > 0) {
             List<String> list = imageGridAdapter.getList();
             uploadImageList.clear();
-            for (String imgStr : list) {
-                if (imgStr.startsWith("http://") || imgStr.startsWith("https://")) {
-
-                } else {
-
-                }
-            }
             for (String key : list) {
                 if (!key.equals("add"))
                     uploadImageList.add(ImageUtils.getInstance().getUploadImage(key, map.get(key)));
             }
         }
-        System.out.println(GsonUtils.GsonString(uploadImageList));
+        if (null == uploadImageList || uploadImageList.size() == 0) {
+            MessageToast.getInstance(this).show("请上传图片凭证");
+            return;
+        }
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.ORDER_UPDATE_REFUND);
-        params.addBodyParameter("oid", String.valueOf(order_id));
-        params.addBodyParameter("goods_item_ids", String.valueOf(goods.getId()));
+        params.addBodyParameter("id", String.valueOf(refund_id));
         params.addBodyParameter("type", String.valueOf(serviceTypeIndex));
         params.addBodyParameter("wuliu_status", String.valueOf(goodsStatusIndex));
         params.addBodyParameter("reason", refundReason);
         params.addBodyParameter("remark", refundMarkEditText.getText().toString().trim());
         params.addBodyParameter("imgs", GsonUtils.GsonString(uploadImageList));
+//        System.out.println("id: "+refund_id+" , goods_item_ids: "+goods.getId()+" , type: "+serviceTypeIndex+" , wuliu_status: "+goodsStatusIndex+" , reason: "+refundReason+
+//        " , remark: "+refundMarkEditText.getText().toString().trim()+" ,imgs:  "+ GsonUtils.GsonString(uploadImageList));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
@@ -370,6 +372,8 @@ public class AfterSaleServiceActivity extends BaseActivity implements View.OnCli
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
                 System.out.println("refund: " + ex.toString());
             }
 

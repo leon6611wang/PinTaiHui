@@ -545,6 +545,7 @@ public class MingPianGuangChangActivity extends BaseActivity implements View.OnC
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
+                System.out.println(result);
                 cardResult = GsonUtils.GsonToBean(result, CardResult.class);
                 if (isRefresh) {
                     list = cardResult.getData().getCard_list();

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,17 +15,21 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.leon.chic.utils.SPUtils;
+import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
-import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.model.bean.MyCircle;
 import com.zhiyu.quanzhu.model.bean.OrderDelivery;
 import com.zhiyu.quanzhu.model.result.OrderDeliveryResult;
+import com.zhiyu.quanzhu.model.result.ShareResult;
 import com.zhiyu.quanzhu.model.result.UserResult;
+import com.zhiyu.quanzhu.ui.activity.AfterSaleOrderActivity;
 import com.zhiyu.quanzhu.ui.activity.BuyVIPActivity;
 import com.zhiyu.quanzhu.ui.activity.CartActivity;
 import com.zhiyu.quanzhu.ui.activity.ContactCustomerServiceActivity;
 import com.zhiyu.quanzhu.ui.activity.CreateCircleActivity;
 import com.zhiyu.quanzhu.ui.activity.CreateShopActivity;
+import com.zhiyu.quanzhu.ui.activity.H5PageActivity;
+import com.zhiyu.quanzhu.ui.activity.HomeActivity;
 import com.zhiyu.quanzhu.ui.activity.MyCollectionActivity;
 import com.zhiyu.quanzhu.ui.activity.MyProfileActivity;
 import com.zhiyu.quanzhu.ui.activity.MyFansActivity;
@@ -41,14 +46,15 @@ import com.zhiyu.quanzhu.ui.activity.UserVertifyActivity;
 import com.zhiyu.quanzhu.ui.dialog.CircleSelectDialog;
 import com.zhiyu.quanzhu.ui.dialog.DeliveryInfoDialog;
 import com.zhiyu.quanzhu.ui.dialog.RegTokenDialog;
+import com.zhiyu.quanzhu.ui.dialog.ShareDialog;
 import com.zhiyu.quanzhu.ui.dialog.YNDialog;
-import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.CircleImageView;
 import com.zhiyu.quanzhu.ui.widget.NiceImageView;
 import com.zhiyu.quanzhu.ui.widget.VerticalMarqueeLayout;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
+import com.zhiyu.quanzhu.utils.ShareUtils;
 import com.zhiyu.quanzhu.utils.ThreadPoolUtils;
 
 import org.xutils.common.Callback;
@@ -76,6 +82,8 @@ public class FragmentHomeWoDe extends Fragment implements View.OnClickListener {
     private CircleSelectDialog circleSelectDialog;
     private YNDialog ynDialog;
     private RegTokenDialog regTokenDialog;
+    private ShareDialog shareDialog;
+    private CardView myOrderCardView;
     private MyHandler myHandler = new MyHandler(this);
 
     private static class MyHandler extends Handler {
@@ -90,6 +98,7 @@ public class FragmentHomeWoDe extends Fragment implements View.OnClickListener {
             FragmentHomeWoDe fragment = fragmentHomeWoDeWeakReference.get();
             switch (msg.what) {
                 case 1:
+                    fragment.isRequesting = false;
                     if (null != fragment.userResult && null != fragment.userResult.getData() && null != fragment.userResult.getData().getUser()) {
                         if (null != fragment.getContext())
                             Glide.with(fragment.getContext()).load(fragment.userResult.getData().getUser().getAvatar()).error(R.mipmap.no_avatar).into(fragment.headerImageView);
@@ -144,6 +153,7 @@ public class FragmentHomeWoDe extends Fragment implements View.OnClickListener {
 
                     break;
                 case 2:
+                    fragment.isRequesting = false;
                     if (null != fragment.deliveryResult && fragment.deliveryResult.getCode() == 200 &&
                             null != fragment.deliveryResult.getData() && null != fragment.deliveryResult.getData().getList() &&
                             fragment.deliveryResult.getData().getList().size() > 0)
@@ -158,14 +168,17 @@ public class FragmentHomeWoDe extends Fragment implements View.OnClickListener {
         view = inflater.inflate(R.layout.fragment_home_wode, container, false);
         initViews();
         initDialogs();
-
+        shareConfig();
         return view;
     }
+
+    private boolean isRequesting = false;
 
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-        if (isVisibleToUser) {
+        if (isVisibleToUser && !isRequesting && !StringUtils.isNullOrEmpty(SPUtils.getInstance().getUserToken(getContext()))) {
+            isRequesting = true;
             ThreadPoolUtils.getInstance().init().execute(new Runnable() {
                 @Override
                 public void run() {
@@ -179,12 +192,16 @@ public class FragmentHomeWoDe extends Fragment implements View.OnClickListener {
     @Override
     public void onResume() {
         super.onResume();
-        ThreadPoolUtils.getInstance().init().execute(new Runnable() {
-            @Override
-            public void run() {
-                userHome();
-            }
-        });
+        if (!isRequesting && !StringUtils.isNullOrEmpty(SPUtils.getInstance().getUserToken(getContext()))) {
+            isRequesting = true;
+            ThreadPoolUtils.getInstance().init().execute(new Runnable() {
+                @Override
+                public void run() {
+                    userHome();
+                    deliveryList();
+                }
+            });
+        }
     }
 
     private void initDialogs() {
@@ -201,21 +218,30 @@ public class FragmentHomeWoDe extends Fragment implements View.OnClickListener {
 
             }
         });
-        regTokenDialog = new RegTokenDialog(getContext(), R.style.dialog);
+        regTokenDialog = new RegTokenDialog(getContext(), R.style.dialog, new RegTokenDialog.OnRegTokenShareListener() {
+            @Override
+            public void onRegToakenShare() {
+                shareDialog.show();
+                shareResult.getData().getShare().setImage_url(userResult.getData().getUser().getAvatar());
+                shareDialog.setShare(shareResult.getData().getShare(), userResult.getData().getUid());
+            }
+        });
         ynDialog = new YNDialog(getContext(), R.style.dialog, new YNDialog.OnYNListener() {
             @Override
             public void onConfirm() {
                 if (!userResult.getData().getUser().isIs_rz()) {
-                    Intent intent=new Intent(getContext(), UserVertifyActivity.class);
+                    Intent intent = new Intent(getContext(), UserVertifyActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     getContext().startActivity(intent);
                 } else if (!userResult.getData().getUser().isHas_circle()) {
-                    Intent intent=new Intent(getContext(), CreateCircleActivity.class);
+                    Intent intent = new Intent(getContext(), CreateCircleActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     getContext().startActivity(intent);
                 }
             }
         });
+        shareDialog = new ShareDialog(getActivity(), getContext(), R.style.dialog);
+
     }
 
     private void initViews() {
@@ -233,7 +259,8 @@ public class FragmentHomeWoDe extends Fragment implements View.OnClickListener {
         priseCountTextView = view.findViewById(R.id.priseCountTextView);
         buyVipButton = view.findViewById(R.id.buyVipButton);
         buyVipButton.setOnClickListener(this);
-
+        myOrderCardView = view.findViewById(R.id.myOrderCardView);
+        myOrderCardView.setOnClickListener(this);
         gouwucheImageView.setOnClickListener(this);
         shezhiImageView = view.findViewById(R.id.shezhiImageView);
         shezhiImageView.setOnClickListener(this);
@@ -258,7 +285,7 @@ public class FragmentHomeWoDe extends Fragment implements View.OnClickListener {
         fangkeYuanDian = view.findViewById(R.id.fangkeYuanDian);
         pinglunYuanDian = view.findViewById(R.id.pinglunYuanDian);
         quanbudingdanTextView = view.findViewById(R.id.quanbudingdanTextView);
-        quanbudingdanTextView.setOnClickListener(this);
+//        quanbudingdanTextView.setOnClickListener(this);
         daifukuanlayout = view.findViewById(R.id.daifukuanlayout);
         daifukuanlayout.setOnClickListener(this);
         daifahuolayout = view.findViewById(R.id.daifahuolayout);
@@ -370,7 +397,7 @@ public class FragmentHomeWoDe extends Fragment implements View.OnClickListener {
             case R.id.huozanlayout:
 
                 break;
-            case R.id.quanbudingdanTextView:
+            case R.id.myOrderCardView:
                 Intent orderIntent0 = new Intent(getActivity(), MyOrderActivity.class);
                 orderIntent0.putExtra("position", 0);
                 startActivity(orderIntent0);
@@ -420,7 +447,8 @@ public class FragmentHomeWoDe extends Fragment implements View.OnClickListener {
                 startActivity(orderIntent4);
                 break;
             case R.id.tuihuanhuolayout:
-
+                Intent afteSaleIntent = new Intent(getActivity(), AfterSaleOrderActivity.class);
+                startActivity(afteSaleIntent);
                 break;
             case R.id.qianbaolayout:
                 Intent qianbaoIntent = new Intent(getActivity(), MyPurseActivity.class);
@@ -436,6 +464,8 @@ public class FragmentHomeWoDe extends Fragment implements View.OnClickListener {
                 break;
             case R.id.qiandaolayout:
                 Intent qiandaoIntent = new Intent(getActivity(), CheckInActivity.class);
+                qiandaoIntent.putExtra("regToken", userResult.getData().getUser().getRegtoken());
+                qiandaoIntent.putExtra("shareText", userResult.getData().getUser().getSharetxt());
                 startActivity(qiandaoIntent);
                 break;
             case R.id.dianpulayout:
@@ -453,7 +483,13 @@ public class FragmentHomeWoDe extends Fragment implements View.OnClickListener {
                 }
                 break;
             case R.id.shangwulayout:
-
+                String business_url = HomeActivity.business_url;
+                if (!StringUtils.isNullOrEmpty(business_url)) {
+                    Intent businessIntent = new Intent(getContext(), H5PageActivity.class);
+                    businessIntent.putExtra("url", business_url);
+                    businessIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    getContext().startActivity(businessIntent);
+                }
                 break;
             case R.id.kefulayout:
                 Intent customerServiceIntent = new Intent(getActivity(), ContactCustomerServiceActivity.class);
@@ -480,7 +516,7 @@ public class FragmentHomeWoDe extends Fragment implements View.OnClickListener {
      * 首页个人中心
      */
     private void userHome() {
-        final String t1 = SPUtils.getInstance().getUserToken(BaseApplication.applicationContext);
+//        final String t1 = SPUtils.getInstance().getUserToken(BaseApplication.applicationContext);
         RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.USER_HOME);
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
@@ -521,12 +557,50 @@ public class FragmentHomeWoDe extends Fragment implements View.OnClickListener {
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("物流: " + result);
+                System.out.println("物流数据: " + result);
                 deliveryResult = GsonUtils.GsonToBean(result, OrderDeliveryResult.class);
                 deliveryList = deliveryResult.getData().getList();
                 Message message = myHandler.obtainMessage(2);
                 message.sendToTarget();
-                System.out.println("物流: " + deliveryResult.getData().getList().size());
+//                System.out.println("物流: " + deliveryResult.getData().getList().size());
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+                System.out.println("物流数据: " + ex.toString());
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        shareDialog.setQQShareCallback(requestCode, resultCode, data);
+    }
+
+
+    private ShareResult shareResult;
+
+    private void shareConfig() {
+        RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.SHARE_CONFIG);
+        params.addBodyParameter("type", ShareUtils.SHARE_TYPE_INVITE);
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                System.out.println("share: " + result);
+                shareResult = GsonUtils.GsonToBean(result, ShareResult.class);
+//                Message message=myHandler.obtainMessage(3);
+//                message.sendToTarget();
             }
 
             @Override

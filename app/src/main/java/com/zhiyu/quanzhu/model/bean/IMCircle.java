@@ -11,6 +11,16 @@ public class IMCircle {
     private int num;
     private boolean select;
 
+    private int unReadCount;
+
+    public int getUnReadCount() {
+        return unReadCount;
+    }
+
+    public void setUnReadCount(int unReadCount) {
+        this.unReadCount = unReadCount;
+    }
+
     public boolean isSelect() {
         return select;
     }

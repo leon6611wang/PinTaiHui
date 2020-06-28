@@ -12,6 +12,15 @@ public class QuanZiShenHe {
     private String add_time;
     private int from;
     private int msg_id;
+    private String refuse_reason;
+
+    public String getRefuse_reason() {
+        return refuse_reason;
+    }
+
+    public void setRefuse_reason(String refuse_reason) {
+        this.refuse_reason = refuse_reason;
+    }
 
     public int getMsg_id() {
         return msg_id;

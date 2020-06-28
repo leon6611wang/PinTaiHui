@@ -44,12 +44,17 @@ public class ShareInnerActivity extends BaseActivity implements View.OnClickList
     private TextView zuijintextview, quanyoutextview, quanliaotextview;
     private View zuijinlineview, quanyoulineview, quanliaolineview;
     private ShareInnerDialog shareInnerDialog;
+    private String title,desc,webUrl,imageUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_share_inner);
         ScreentUtils.getInstance().setStatusBarLightMode(this, true);
+        title=getIntent().getStringExtra("title");
+        desc=getIntent().getStringExtra("desc");
+        webUrl=getIntent().getStringExtra("webUrl");
+        imageUrl=getIntent().getStringExtra("imageUrl");
         setShareInnerSelectListener();
         initDialogs();
         initViews();
@@ -178,10 +183,10 @@ public class ShareInnerActivity extends BaseActivity implements View.OnClickList
 
     private void share(String mTargetId, boolean isPrivate) {
         ShareMessage shareMessage = new ShareMessage();
-        shareMessage.setUrl("");
-        shareMessage.setImage_url("https://c-ssl.duitang.com/uploads/item/202003/20/20200320215635_xkbik.jpg");
-        shareMessage.setTitle("这是一条内部分享消息");
-        shareMessage.setDescription("分享消息测试");
+        shareMessage.setUrl(webUrl);
+        shareMessage.setImage_url(imageUrl);
+        shareMessage.setTitle(title);
+        shareMessage.setDescription(desc);
         RongIM.getInstance().sendMessage(Message.obtain(mTargetId, isPrivate ? Conversation.ConversationType.PRIVATE : Conversation.ConversationType.GROUP, shareMessage),
                 "您有一条新分享", null, new IRongCallback.ISendMessageCallback() {
                     @Override
