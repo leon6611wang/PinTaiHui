@@ -26,6 +26,7 @@ import com.leon.myvideoplaerlibrary.view.VideoPlayerTrackView;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.model.bean.GoodsImg;
+import com.zhiyu.quanzhu.ui.activity.LargeImageList2Activity;
 import com.zhiyu.quanzhu.ui.activity.LargeImageListActivity;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 
@@ -142,7 +143,7 @@ public class GoodsInfoBannerAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
         @Override
         public void onClick(View v) {
-            Intent intent = new Intent(context, LargeImageListActivity.class);
+            Intent intent = new Intent(context, LargeImageList2Activity.class);
             ArrayList<String> imgList = new ArrayList<>();
             boolean has_video = false;
             for (GoodsImg img : list) {
@@ -155,6 +156,9 @@ public class GoodsInfoBannerAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                     has_video = true;
                 }
             }
+//            for(GoodsImg img:list){
+//                imgList.add(img.getUrl());
+//            }
             intent.putExtra("position", (has_video ? (position - 1) : position));
             intent.putStringArrayListExtra("imgList", imgList);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

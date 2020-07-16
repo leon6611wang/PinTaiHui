@@ -48,6 +48,16 @@ public class User {
     private int circlemessagestatus;
     private boolean is_rz;
     private boolean has_circle;
+    private String business_url;
+
+
+    public String getBusiness_url() {
+        return business_url;
+    }
+
+    public void setBusiness_url(String business_url) {
+        this.business_url = business_url;
+    }
 
     public boolean isHas_circle() {
         return has_circle;

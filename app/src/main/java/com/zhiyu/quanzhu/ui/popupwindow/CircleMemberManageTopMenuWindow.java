@@ -10,6 +10,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
@@ -71,6 +72,10 @@ public class CircleMemberManageTopMenuWindow extends PopupWindow {
                     break;
                 case 2:
                     MessageToast.getInstance(window.context).show("服务器内部错误，请稍后重试.");
+                    break;
+                case 3:
+                    int height = (Integer) msg.obj;
+                    window.showTop(height);
                     break;
             }
         }
@@ -198,8 +203,13 @@ public class CircleMemberManageTopMenuWindow extends PopupWindow {
     }
 
 
-    public void showAtTop(View view) {
-        showAsDropDown(view, -dp_40, -(view.getHeight() / 2 + dp_50 * layoutCount + dp_15));
+    public void showAtTop(View v, int height) {
+        showAsDropDown(v, -dp_40, -(v.getHeight() / 2 + dp_50 * layoutCount - dp_50 / 2 + dp_15 + height));
+    }
+
+    private void showTop(int height) {
+        System.out.println("showTop height: " + height);
+//        showAsDropDown(itemView, -dp_40, -(itemView.getHeight() / 4 + dp_50 * layoutCount + dp_15 + 495));
     }
 
     /**

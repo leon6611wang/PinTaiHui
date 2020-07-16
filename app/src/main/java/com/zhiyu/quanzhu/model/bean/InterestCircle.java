@@ -6,6 +6,8 @@ public class InterestCircle {
     private int uid;
     private String descirption;
     private String user_name;
+    private String username;
+    private String avatar;
     private String user_avatar;
     private String city_name;
     private String industry;
@@ -15,6 +17,23 @@ public class InterestCircle {
     private String created_at;
     private String days;
     private boolean select=true;
+
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
 
     public boolean isSelect() {
         return select;

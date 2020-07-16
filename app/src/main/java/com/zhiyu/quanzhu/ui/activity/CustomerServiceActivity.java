@@ -22,6 +22,7 @@ import com.leon.chic.listener.ServiceMessageListener;
 import com.leon.chic.model.ServiceMessage;
 import com.leon.chic.utils.MessageUtils;
 import com.leon.chic.utils.TimeUtils;
+import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseActivity;
 import com.zhiyu.quanzhu.base.BaseResult;
@@ -104,7 +105,7 @@ public class CustomerServiceActivity extends BaseActivity implements View.OnClic
                         activity.mRecyclerView.smoothScrollToPosition(activity.list.size() - 1);
                     break;
                 case 2:
-                    MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
+//                    MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
                     break;
                 case 3:
                     activity.ptrFrameLayout.refreshComplete();
@@ -241,8 +242,11 @@ public class CustomerServiceActivity extends BaseActivity implements View.OnClic
                 SoftKeyboardUtil.hideSoftKeyBoard(getWindow());
                 emojiBoard.hideBoard();
                 String content = textEditor.getText().toString();
-                createTextMessage(content);
-                textEditor.getText().clear();
+                if (!StringUtils.isNullOrEmpty(content)) {
+                    createTextMessage(content);
+                    textEditor.getText().clear();
+                }
+
                 break;
             case R.id.addImageLayout:
                 mImageList.clear();
@@ -395,7 +399,7 @@ public class CustomerServiceActivity extends BaseActivity implements View.OnClic
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("hello: " + result);
+//                System.out.println("hello: " + result);
                 customerServiceResult = GsonUtils.GsonToBean(result, CustomerServiceResult.class);
                 shop_name = customerServiceResult.getData().getData().getShop().getName();
                 myUserName = customerServiceResult.getData().getData().getUser().getUsername();

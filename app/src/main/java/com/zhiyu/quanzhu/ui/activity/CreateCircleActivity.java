@@ -178,7 +178,7 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
                             activity.shoufeiSwitchButton.open();
                             break;
                     }
-                    activity.jineEditText.setText(PriceParseUtils.getInstance().parsePrice(activity.price) + "元");
+                    activity.jineEditText.setText(activity.price / 100 + "元");
                     activity.jieshaoEditText.setText(activity.circleInfoResult.getData().getDescirption());
                     Glide.with(activity).load(activity.circleInfoResult.getData().getLogo()).error(R.drawable.image_error).into(activity.logoImageView);
                     activity.list.remove("add");
@@ -349,7 +349,7 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
                     jine = jine.replace("元", "");
                 }
                 if (!StringUtils.isNullOrEmpty(jine)) {
-                    price = (int) Float.parseFloat(jine) * 100;
+                    price =  Integer.parseInt(jine) * 100;
                 }
                 if (null != imgs && imgs.size() > 0) {
                     thumb = imgs.get(0);
@@ -626,10 +626,10 @@ public class CreateCircleActivity extends BaseActivity implements View.OnClickLi
             public void onSuccess(String result) {
                 System.out.println(result);
                 circleInfoResult = GsonUtils.GsonToBean(result, CircleInfoResult.class);
-                if (null != circleInfoResult.getData()){
+                if (null != circleInfoResult.getData()) {
                     isEdit = (circleInfoResult.getData().getStatus() == -1) ? false : true;
-                    two_industry_id=circleInfoResult.getData().getTwo_industry_id();
-                    three_industry_id=circleInfoResult.getData().getThree_industry_id();
+                    two_industry_id = circleInfoResult.getData().getTwo_industry_id();
+                    three_industry_id = circleInfoResult.getData().getThree_industry_id();
                 }
 
                 Message message = myHandler.obtainMessage(1);

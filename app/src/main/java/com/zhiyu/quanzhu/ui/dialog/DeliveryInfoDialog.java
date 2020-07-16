@@ -37,6 +37,7 @@ public class DeliveryInfoDialog extends Dialog implements View.OnClickListener {
     private RecyclerView mRecyclerView;
     private ImageView closeImageView;
     private DeliveryInfoRecyclerAdapter adapter;
+    private int type=0;
     private MyHandler myHandler = new MyHandler(this);
 
     private static class MyHandler extends Handler {
@@ -81,6 +82,12 @@ public class DeliveryInfoDialog extends Dialog implements View.OnClickListener {
         this.mContext = context;
     }
 
+    public DeliveryInfoDialog(@NonNull Context context, int themeResId,int t) {
+        super(context, themeResId);
+        this.mContext = context;
+        this.type=t;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -123,6 +130,7 @@ public class DeliveryInfoDialog extends Dialog implements View.OnClickListener {
     private void deliveryInfo(int order_id) {
         RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.DELIVERY_INFO);
         params.addBodyParameter("oid", String.valueOf(order_id));
+        params.addBodyParameter("type",String.valueOf(type));
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {

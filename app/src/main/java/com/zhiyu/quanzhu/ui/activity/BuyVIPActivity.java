@@ -1,5 +1,6 @@
 package com.zhiyu.quanzhu.ui.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -61,7 +62,7 @@ public class BuyVIPActivity extends BaseActivity implements View.OnClickListener
     private List<BuyVipIndex> indexList = new ArrayList<>();
     private PayWayDialog payWayDialog;
     private PasswordCheckDialog passwordCheckDialog;
-
+    private TextView xieyiTextView;
     private float widthRatio = 0.6666667f;
     private float heightRatio = 1.74f;
     private int screenWidth, cardWidth, cardHeight;
@@ -81,10 +82,15 @@ public class BuyVIPActivity extends BaseActivity implements View.OnClickListener
             switch (msg.what) {
                 case 1:
                     if (activity.vipDetailResult.getCode() == 200) {
-                        Glide.with(activity).load(activity.vipDetailResult.getData().getAvatar()).error(R.mipmap.no_avatar).into(activity.vipAvatarImageView);
+                        Glide.with(activity).load(activity.vipDetailResult.getData().getAvatar()).error(R.drawable.image_error).into(activity.vipAvatarImageView);
                         activity.vipTitleTextView.setText(activity.vipDetailResult.getData().getTitle());
                         activity.vipLevelTextView.setText(StringUtils.isNullOrEmpty(activity.vipDetailResult.getData().getLevel()) ? "普通会员" : activity.vipDetailResult.getData().getLevel());
-                        activity.vipTimeTextView.setText("到期时间 " + (StringUtils.isNullOrEmpty(activity.vipDetailResult.getData().getEnd_time()) ? "暂无" : activity.vipDetailResult.getData().getEnd_time()));
+                        if (StringUtils.isNullOrEmpty(activity.vipDetailResult.getData().getEnd_time())) {
+                            activity.vipTimeTextView.setVisibility(View.GONE);
+                        } else {
+                            activity.vipTimeTextView.setVisibility(View.VISIBLE);
+                            activity.vipTimeTextView.setText("到期时间 " + activity.vipDetailResult.getData().getEnd_time());
+                        }
                     }
                     break;
                 case 2:
@@ -115,7 +121,7 @@ public class BuyVIPActivity extends BaseActivity implements View.OnClickListener
                     if (activity.baseResult.getCode() == 200) {
                         activity.vipDetail();
                         activity.vipList();
-                        if(null!=onBuyVIPSuccessListener){
+                        if (null != onBuyVIPSuccessListener) {
                             onBuyVIPSuccessListener.onBuyVIPSuccess();
                         }
                     }
@@ -194,7 +200,7 @@ public class BuyVIPActivity extends BaseActivity implements View.OnClickListener
 
     @Override
     public void onAlipayCallBack() {
-        if(null!=onBuyVIPSuccessListener){
+        if (null != onBuyVIPSuccessListener) {
             onBuyVIPSuccessListener.onBuyVIPSuccess();
         }
         vipDetail();
@@ -203,7 +209,7 @@ public class BuyVIPActivity extends BaseActivity implements View.OnClickListener
 
     @Override
     public void onWxpayCallback() {
-        if(null!=onBuyVIPSuccessListener){
+        if (null != onBuyVIPSuccessListener) {
             onBuyVIPSuccessListener.onBuyVIPSuccess();
         }
         vipDetail();
@@ -252,6 +258,8 @@ public class BuyVIPActivity extends BaseActivity implements View.OnClickListener
         indexListView.setLayoutManager(linearLayoutManager);
         indexAdapter = new BuyVipIndexListAdapter(this);
         indexListView.setAdapter(indexAdapter);
+        xieyiTextView=findViewById(R.id.xieyiTextView);
+        xieyiTextView.setOnClickListener(this);
     }
 
     private int disX, currentX;
@@ -324,6 +332,11 @@ public class BuyVIPActivity extends BaseActivity implements View.OnClickListener
         switch (v.getId()) {
             case R.id.backLayout:
                 finish();
+                break;
+            case R.id.xieyiTextView:
+                Intent intent=new Intent(this,H5PageActivity.class);
+                intent.putExtra("url","http://h5.pintaihui.test/#/vip");
+                startActivity(intent);
                 break;
         }
     }
@@ -492,10 +505,12 @@ public class BuyVIPActivity extends BaseActivity implements View.OnClickListener
     }
 
     private static OnBuyVIPSuccessListener onBuyVIPSuccessListener;
-    public static void setOnBuyVIPSuccessListener(OnBuyVIPSuccessListener listener){
-        onBuyVIPSuccessListener=listener;
+
+    public static void setOnBuyVIPSuccessListener(OnBuyVIPSuccessListener listener) {
+        onBuyVIPSuccessListener = listener;
     }
-    public interface OnBuyVIPSuccessListener{
+
+    public interface OnBuyVIPSuccessListener {
         void onBuyVIPSuccess();
     }
 }

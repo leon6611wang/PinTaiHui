@@ -50,6 +50,8 @@
                 android:textSize="12sp"
                 android:textColor="@color/text_color_grey"
                 android:layout_gravity="center"
+                android:drawableRight="@mipmap/refresh_location"
+                android:drawablePadding="@dimen/dp_5"
                 android:gravity="center"
                 />
 

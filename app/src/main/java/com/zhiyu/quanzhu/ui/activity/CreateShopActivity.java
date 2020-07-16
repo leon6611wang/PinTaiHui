@@ -32,6 +32,7 @@ import com.zhiyu.quanzhu.ui.dialog.ProvinceCityDialog;
 import com.zhiyu.quanzhu.ui.dialog.ShopTypeDialog;
 import com.zhiyu.quanzhu.ui.toast.FailureToast;
 import com.zhiyu.quanzhu.ui.toast.MessageToast;
+import com.zhiyu.quanzhu.ui.widget.ListViewForScrollView;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
@@ -55,7 +56,7 @@ public class CreateShopActivity extends BaseActivity implements View.OnClickList
     private TextView xinyongdaimaTextView, farenTextView, dizhiTextView, guishudiTextView, leixingTextView;
     private LinearLayout guishudiLayout, leixingLayout, contentLayout;
     private RelativeLayout closeLayout;
-    private ListView nameListView;
+    private ListViewForScrollView nameListView;
     private CreateShopListAdapter adapter;
     private ProvinceCityDialog provinceCityDialog;
     private ShopTypeDialog shopTypeDialog;
@@ -99,7 +100,7 @@ public class CreateShopActivity extends BaseActivity implements View.OnClickList
                             activity.nameListView.setVisibility(View.VISIBLE);
                             activity.contentLayout.setVisibility(View.GONE);
                         } else {
-                            MessageToast.getInstance(activity).show("未查询到数据，请确认名称是否正确.");
+                            MessageToast.getInstance(activity).show("未查询到数据，请确认名称是否正确");
                         }
 
                     } else {
@@ -176,11 +177,13 @@ public class CreateShopActivity extends BaseActivity implements View.OnClickList
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String str = yingyezhizhaoEditText.getText().toString().trim();
+//                System.out.println("营业执照: "+str);
                 if (!StringUtils.isNullOrEmpty(str)) {
                     closeLayout.setVisibility(View.VISIBLE);
                     if (!isSearching) {
                         shopSearch(str, 1);
                     }
+//                    shopSearch(str, 1);
                 } else {
                     closeLayout.setVisibility(View.INVISIBLE);
                     nameListView.setVisibility(View.GONE);
@@ -234,7 +237,7 @@ public class CreateShopActivity extends BaseActivity implements View.OnClickList
             public void onCityChoose(AreaProvince province, AreaCity city) {
                 areaProvince = province;
                 areaCity = city;
-                System.out.println("province_code: " + areaProvince.getCode() + " , city_code: " + areaCity.getCode());
+//                System.out.println("province_code: " + areaProvince.getCode() + " , city_code: " + areaCity.getCode());
                 guishudiTextView.setText(province.getName() + " " + city.getName());
             }
         });
@@ -345,6 +348,7 @@ public class CreateShopActivity extends BaseActivity implements View.OnClickList
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
+                System.out.println("企查查: "+ex.toString());
                 Message message = myHandler.obtainMessage(99);
                 message.sendToTarget();
             }

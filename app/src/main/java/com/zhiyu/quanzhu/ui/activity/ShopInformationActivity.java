@@ -116,7 +116,7 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
                                 .fallback(R.drawable.image_error)
                                 .into(activity.shopIconImageView);
                         activity.shopNameTextView.setText(activity.shopResult.getData().getShop_name());
-                        activity.followTextView.setText(activity.shopResult.getData().getFollow_num() + "关注");
+                        activity.followTextView.setText(activity.shopResult.getData().getCollection_num() + " 收藏");
                         if (activity.shopResult.getData().isIs_collect()) {
                             activity.followBtnLayout.setBackground(activity.getResources().getDrawable(R.drawable.shape_oval_solid_bg_white));
                             activity.followBtnImageView.setVisibility(View.GONE);
@@ -384,9 +384,10 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
                 startActivity(gouwucheIntent);
                 break;
             case R.id.shareLayout:
-                shareDialog.show();
                 shareResult.getData().getShare().setContent(shopResult.getData().getShop_name());
                 shareResult.getData().getShare().setImage_url(shopResult.getData().getShop_icon());
+                shareResult.getData().getShare().setType_desc(ShareUtils.SHARE_TYPE_SHOP);
+                shareDialog.show();
                 shareDialog.setShare(shareResult.getData().getShare(),(int) shopResult.getData().getShop_id());
                 break;
             case R.id.getCouponTextView:
@@ -435,7 +436,7 @@ public class ShopInformationActivity extends BaseActivity implements View.OnClic
         }
     }
 
-    private String sort = "";
+    private String sort = "zh_score";
     private String sort_type = "desc";
     private boolean isXiaoliangAsc = true, isJiageAsc = true;
 

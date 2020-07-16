@@ -17,6 +17,7 @@ import com.lcw.library.imagepicker.ImagePicker;
 import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseActivity;
+import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.AreaCity;
 import com.zhiyu.quanzhu.model.bean.AreaProvince;
@@ -85,8 +86,8 @@ public class MyProfileActivity extends BaseActivity implements View.OnClickListe
                     if (200 == activity.profileResult.getCode()) {
                         activity.avatarUrl = activity.profileResult.getData().getUser().getAvatar();
                         activity.sex = activity.profileResult.getData().getUser().getSex();
-                        Glide.with(activity).load(activity.profileResult.getData().getUser().getAvatar()).error(R.drawable.image_error).placeholder(R.drawable.image_error)
-                                .fallback(R.drawable.image_error).into(activity.avatarImageView);
+                            Glide.with(BaseApplication.applicationContext).load(activity.profileResult.getData().getUser().getAvatar()).error(R.drawable.image_error).placeholder(R.drawable.image_error)
+                                    .fallback(R.drawable.image_error).into(activity.avatarImageView);
                         activity.nicknameEditText.setText(activity.profileResult.getData().getUser().getUsername());
                         activity.nicknameEditText.setSelection(activity.profileResult.getData().getUser().getUsername().length());
                         activity.genderTextView.setText(activity.profileResult.getData().getUser().getSex_desc());
@@ -157,7 +158,7 @@ public class MyProfileActivity extends BaseActivity implements View.OnClickListe
         loadingDialog = new LoadingDialog(this, R.style.dialog);
     }
 
-    private String nickName="";
+    private String nickName = "";
 
     private void initViews() {
         backLayout = findViewById(R.id.backLayout);

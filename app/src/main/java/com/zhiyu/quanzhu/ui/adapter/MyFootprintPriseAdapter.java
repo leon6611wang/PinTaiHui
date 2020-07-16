@@ -23,12 +23,14 @@ import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.Feed;
+import com.zhiyu.quanzhu.model.result.ShareResult;
 import com.zhiyu.quanzhu.ui.activity.ArticleInformationActivity;
 import com.zhiyu.quanzhu.ui.activity.ComplaintActivity;
 import com.zhiyu.quanzhu.ui.activity.LargeImageActivity;
 import com.zhiyu.quanzhu.ui.activity.VideoInformationActivity;
 import com.zhiyu.quanzhu.ui.dialog.DeleteFeedDialog;
 import com.zhiyu.quanzhu.ui.dialog.ShareDialog;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.CircleImageView;
 import com.zhiyu.quanzhu.ui.widget.HorizontalListView;
 import com.zhiyu.quanzhu.ui.widget.MyGridView;
@@ -37,6 +39,7 @@ import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
+import com.zhiyu.quanzhu.utils.ShareUtils;
 
 import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
@@ -60,11 +63,13 @@ public class MyFootprintPriseAdapter extends RecyclerView.Adapter<RecyclerView.V
     private int width, height;
     private MyHandler myHandler = new MyHandler(this);
 
-    public void setQQShareResult(int requestCode,int resultCode,Intent data){
-        shareDialog.setQQShareCallback(requestCode,resultCode,data);
+    public void setQQShareResult(int requestCode, int resultCode, Intent data) {
+        shareDialog.setQQShareCallback(requestCode, resultCode, data);
     }
+
     public MyFootprintPriseAdapter(Activity aty, final Context context) {
         this.context = context;
+        shareConfig();
         this.activity = aty;
         dp_240 = (int) context.getResources().getDimension(R.dimen.dp_240);
         int screenWidth = ScreentUtils.getInstance().getScreenWidth(context);
@@ -102,8 +107,11 @@ public class MyFootprintPriseAdapter extends RecyclerView.Adapter<RecyclerView.V
         public void handleMessage(Message msg) {
             MyFootprintPriseAdapter adapter = adapterWeakReference.get();
             switch (msg.what) {
+                case 99:
+                    MessageToast.getInstance(adapter.context).show("服务器内部错误，请稍后再试");
+                    break;
                 case 1:
-                    Toast.makeText(adapter.context, adapter.baseResult.getMsg(), Toast.LENGTH_SHORT).show();
+                    MessageToast.getInstance(adapter.context).show(adapter.baseResult.getMsg());
                     if (adapter.baseResult.getCode() == 200) {
                         int posiiton = (Integer) msg.obj;
                         adapter.list.get(posiiton).getContent().setIs_collect(!adapter.list.get(posiiton).getContent().isIs_collect());
@@ -111,7 +119,7 @@ public class MyFootprintPriseAdapter extends RecyclerView.Adapter<RecyclerView.V
                     }
                     break;
                 case 2:
-                    Toast.makeText(adapter.context, adapter.baseResult.getMsg(), Toast.LENGTH_SHORT).show();
+                    MessageToast.getInstance(adapter.context).show(adapter.baseResult.getMsg());
                     if (adapter.baseResult.getCode() == 200) {
                         int posiiton = (Integer) msg.obj;
                         adapter.list.get(posiiton).getContent().setIs_prise(!adapter.list.get(posiiton).getContent().isIs_prise());
@@ -285,8 +293,10 @@ public class MyFootprintPriseAdapter extends RecyclerView.Adapter<RecyclerView.V
             feed.priseNumTextView.setText(String.valueOf(list.get(position).getContent().getPrise_num()));
             if (list.get(position).getContent().isIs_prise()) {
                 feed.priseImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.dianzan_yellow));
+                feed.priseNumTextView.setTextColor(context.getResources().getColor(R.color.text_color_yellow));
             } else {
                 feed.priseImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.dianzan_gray));
+                feed.priseNumTextView.setTextColor(context.getResources().getColor(R.color.text_color_gray));
             }
 
             if (!StringUtils.isNullOrEmpty(list.get(position).getContent().getVideo_url())) {
@@ -324,10 +334,10 @@ public class MyFootprintPriseAdapter extends RecyclerView.Adapter<RecyclerView.V
             Glide.with(context).load(list.get(position).getContent().getAvatar()).error(R.drawable.image_error).into(article.avatarImageView);
             article.nameTextView.setText(list.get(position).getContent().getUsername());
             article.titleTextView.setText(list.get(position).getContent().getTitle());
-            if(null!=list.get(position).getContent().getNewthumb()){
+            if (null != list.get(position).getContent().getNewthumb()) {
                 article.coverImageView.setVisibility(View.VISIBLE);
                 Glide.with(context).load(list.get(position).getContent().getNewthumb().getFile()).error(R.drawable.image_error).into(article.coverImageView);
-            }else{
+            } else {
                 article.coverImageView.setVisibility(View.GONE);
             }
             article.sourceTextView.setText(list.get(position).getContent().getCircle_name());
@@ -343,8 +353,10 @@ public class MyFootprintPriseAdapter extends RecyclerView.Adapter<RecyclerView.V
             article.priseTextView.setText(String.valueOf(list.get(position).getContent().getPrise_num()));
             if (list.get(position).getContent().isIs_prise()) {
                 article.priseImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.dianzan_yellow));
+                article.priseTextView.setTextColor(context.getResources().getColor(R.color.text_color_yellow));
             } else {
                 article.priseImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.dianzan_gray));
+                article.priseTextView.setTextColor(context.getResources().getColor(R.color.text_color_gray));
             }
             article.collectImageView.setOnClickListener(new OnCollectListener(position));
             article.priseLayout.setOnClickListener(new OnPriseClick(position));
@@ -374,8 +386,10 @@ public class MyFootprintPriseAdapter extends RecyclerView.Adapter<RecyclerView.V
             video.priseNumTextView.setText(String.valueOf(list.get(position).getContent().getPrise_num()));
             if (list.get(position).getContent().isIs_prise()) {
                 video.priseImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.dianzan_yellow));
+                video.priseNumTextView.setTextColor(context.getResources().getColor(R.color.text_color_yellow));
             } else {
                 video.priseImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.dianzan_gray));
+                video.priseNumTextView.setTextColor(context.getResources().getColor(R.color.text_color_gray));
             }
             video.videoPlayer.setLayoutParams(list.get(position).getContent().getLayoutParams(width, height));
             video.videoPlayer.setDataSource(list.get(position).getContent().getVideo_url(), "");
@@ -441,8 +455,45 @@ public class MyFootprintPriseAdapter extends RecyclerView.Adapter<RecyclerView.V
 
         @Override
         public void onClick(View v) {
+            String image_url;
+            switch (list.get(position).getFeeds_type()) {
+                case FEED:
+                    if (!StringUtils.isNullOrEmpty(list.get(position).getContent().getVideo_url())) {
+                        image_url = list.get(position).getContent().getVideo_thumb();
+                    } else {
+                        if (null == list.get(position).getContent().getImgs() || list.get(position).getContent().getImgs().size() == 0) {
+                            image_url = share_image_url;
+                        } else {
+                            image_url = list.get(position).getContent().getImgs().get(0).getFile();
+                        }
+                    }
+                    shareResult.getData().getShare().setType_desc(ShareUtils.SHARE_TYPE_FEED);
+                    shareResult.getData().getShare().setImage_url(image_url);
+                    shareResult.getData().getShare().setContent(list.get(position).getContent().getContent());
+                    break;
+                case ARTICLE:
+                    if (null != list.get(position).getContent().getNewthumb() && null != list.get(position).getContent().getNewthumb().getFile()) {
+                        image_url = list.get(position).getContent().getNewthumb().getFile();
+                    } else {
+                        image_url = share_image_url;
+                    }
+                    shareResult.getData().getShare().setType_desc(ShareUtils.SHARE_TYPE_ARTICLE);
+                    shareResult.getData().getShare().setImage_url(image_url);
+                    shareResult.getData().getShare().setContent(list.get(position).getContent().getTitle());
+                    break;
+                case VIDEO:
+                    if (null != list.get(position).getContent().getVideo_thumb()) {
+                        image_url = list.get(position).getContent().getVideo_thumb();
+                    } else {
+                        image_url = share_image_url;
+                    }
+                    shareResult.getData().getShare().setType_desc(ShareUtils.SHARE_TYPE_VIDEO);
+                    shareResult.getData().getShare().setImage_url(image_url);
+                    shareResult.getData().getShare().setContent(list.get(position).getContent().getContent());
+                    break;
+            }
             shareDialog.show();
-
+            shareDialog.setShare(shareResult.getData().getShare(), list.get(position).getContent().getId());
         }
     }
 
@@ -522,7 +573,8 @@ public class MyFootprintPriseAdapter extends RecyclerView.Adapter<RecyclerView.V
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
             }
 
             @Override
@@ -553,7 +605,8 @@ public class MyFootprintPriseAdapter extends RecyclerView.Adapter<RecyclerView.V
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
             }
 
             @Override
@@ -596,11 +649,41 @@ public class MyFootprintPriseAdapter extends RecyclerView.Adapter<RecyclerView.V
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("取消关注: " + result);
                 baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
                 Message message = myHandler.obtainMessage(3);
                 message.obj = position;
                 message.sendToTarget();
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
+    private ShareResult shareResult;
+    private String share_image_url;
+
+    private void shareConfig() {
+        RequestParams params = MyRequestParams.getInstance(context).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.SHARE_CONFIG);
+        params.addBodyParameter("type", ShareUtils.SHARE_TYPE_FEED);
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                shareResult = GsonUtils.GsonToBean(result, ShareResult.class);
+                share_image_url = shareResult.getData().getShare().getImage_url();
             }
 
             @Override
@@ -619,5 +702,4 @@ public class MyFootprintPriseAdapter extends RecyclerView.Adapter<RecyclerView.V
             }
         });
     }
-
 }

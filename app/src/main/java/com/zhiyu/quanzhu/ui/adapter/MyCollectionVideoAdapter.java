@@ -64,10 +64,13 @@ public class MyCollectionVideoAdapter extends RecyclerView.Adapter<RecyclerView.
         shareDialog.setQQShareCallback(requestCode,resultCode,data);
     }
     public void setAllSelect(boolean isAllSelected){
-        for(Feed feed:list){
-            feed.setSelected(isAllSelected);
+        if(null!=list&&list.size()>0){
+            for(Feed feed:list){
+                feed.setSelected(isAllSelected);
+            }
+            notifyDataSetChanged();
         }
-        notifyDataSetChanged();
+
     }
     public void setSelectModel(boolean isSelected) {
         this.isSelectModel = isSelected;

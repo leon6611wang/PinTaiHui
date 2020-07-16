@@ -52,6 +52,9 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.rong.imlib.RongIMClient;
+import io.rong.imlib.model.Conversation;
+
 public class FragmentHomeRenMai extends Fragment implements View.OnClickListener {
     private View view;
     private MyRecyclerView mRecyclerView;
@@ -122,8 +125,7 @@ public class FragmentHomeRenMai extends Fragment implements View.OnClickListener
     @Override
     public void onResume() {
         super.onResume();
-        if (!isRequesting && !StringUtils.isNullOrEmpty(SPUtils.getInstance().getUserToken(getContext())) &&
-                null == cardResult) {
+        if (!isRequesting && !StringUtils.isNullOrEmpty(SPUtils.getInstance().getUserToken(getContext()))) {
             isRequesting = true;
             if (null != mRecyclerView)
                 mRecyclerView.smoothScrollToPosition(0);
@@ -141,12 +143,7 @@ public class FragmentHomeRenMai extends Fragment implements View.OnClickListener
 
     private void initDialogs() {
         qrCodeDialog = new MyQRCodeDialog(getContext(), R.style.dialog);
-        shareDialog = new ShareDialog(getActivity(), getContext(), R.style.dialog, new ShareDialog.OnShareListener() {
-            @Override
-            public void onShare(int position, String desc) {
-
-            }
-        });
+        shareDialog = new ShareDialog(getActivity(), getContext(), R.style.dialog);
     }
 
     private ArrayList<MyCardFriend> cardList = new ArrayList<>();
@@ -154,8 +151,7 @@ public class FragmentHomeRenMai extends Fragment implements View.OnClickListener
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-        if (isVisibleToUser && !isRequesting && !StringUtils.isNullOrEmpty(SPUtils.getInstance().getUserToken(getContext())) &&
-                null == cardResult) {
+        if (isVisibleToUser && !isRequesting && !StringUtils.isNullOrEmpty(SPUtils.getInstance().getUserToken(getContext()))) {
             isRequesting = true;
             if (null != mRecyclerView)
                 mRecyclerView.smoothScrollToPosition(0);
@@ -173,7 +169,7 @@ public class FragmentHomeRenMai extends Fragment implements View.OnClickListener
     private String cardFriend;
 
     private void initCardData() {
-        System.out.println("加载名片好友数据");
+//        System.out.println("加载名片好友数据");
         cardFriend = CardDao.getInstance().cardList(BaseApplication.getInstance(), new MessageDao.OnCardMessageChangeListener() {
             @Override
             public void onCardMessageChange() {
@@ -181,9 +177,35 @@ public class FragmentHomeRenMai extends Fragment implements View.OnClickListener
                 Message message = myHandler.obtainMessage(2);
                 message.sendToTarget();
             }
+
+            @Override
+            public void onDeleteCard(final int user_id) {
+                RongIMClient.getInstance().removeConversation(Conversation.ConversationType.PRIVATE, String.valueOf(user_id), new RongIMClient.ResultCallback<Boolean>() {
+                    @Override
+                    public void onSuccess(Boolean aBoolean) {
+//                        System.out.println("删除成功");
+                        if(null!=onRemoveConversationListener){
+                            onRemoveConversationListener.onRemoveConversation(user_id);
+                        }
+                    }
+
+                    @Override
+                    public void onError(RongIMClient.ErrorCode errorCode) {
+//                        System.out.println("删除失败");
+                    }
+                });
+            }
         });
         Message message = myHandler.obtainMessage(2);
         message.sendToTarget();
+    }
+
+    private static OnRemoveConversationListener onRemoveConversationListener;
+    public static void setOnRemoveConversationListener(OnRemoveConversationListener listener){
+        onRemoveConversationListener=listener;
+    }
+    public interface OnRemoveConversationListener{
+        void onRemoveConversation(int id);
     }
 
     private void initCardFriendDataView() {
@@ -324,9 +346,12 @@ public class FragmentHomeRenMai extends Fragment implements View.OnClickListener
                 qrCodeDialog.setCard(cardResult.getData().getDetail());
                 break;
             case R.id.shareTextView:
-                shareDialog.show();
                 shareResult.getData().getShare().setImage_url(cardResult.getData().getDetail().getCard_thumb());
-                shareDialog.setShare(shareResult.getData().getShare(), (int) cardResult.getData().getDetail().getId());
+                shareResult.getData().getShare().setContent(cardResult.getData().getDetail().getCard_name());
+                shareResult.getData().getShare().setType_desc(ShareUtils.SHARE_TYPE_CARD);
+                shareResult.getData().getShare().setUid(SPUtils.getInstance().getUserId(getContext()));
+                shareDialog.show();
+                shareDialog.setShare(shareResult.getData().getShare(), (int) cardResult.getData().getDetail().getUid());
                 break;
             case R.id.guangchangImageView:
                 Intent intent = new Intent(getContext(), MingPianGuangChangActivity.class);
@@ -445,6 +470,7 @@ public class FragmentHomeRenMai extends Fragment implements View.OnClickListener
     }
 
     private ShareResult shareResult;
+
     private void shareConfig() {
         RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.SHARE_CONFIG);
         params.addBodyParameter("type", ShareUtils.SHARE_TYPE_CARD);

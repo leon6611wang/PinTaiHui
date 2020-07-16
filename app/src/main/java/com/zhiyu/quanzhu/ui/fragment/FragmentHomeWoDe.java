@@ -48,6 +48,7 @@ import com.zhiyu.quanzhu.ui.dialog.DeliveryInfoDialog;
 import com.zhiyu.quanzhu.ui.dialog.RegTokenDialog;
 import com.zhiyu.quanzhu.ui.dialog.ShareDialog;
 import com.zhiyu.quanzhu.ui.dialog.YNDialog;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.CircleImageView;
 import com.zhiyu.quanzhu.ui.widget.NiceImageView;
 import com.zhiyu.quanzhu.ui.widget.VerticalMarqueeLayout;
@@ -205,7 +206,7 @@ public class FragmentHomeWoDe extends Fragment implements View.OnClickListener {
     }
 
     private void initDialogs() {
-        deliveryInfoDialog = new DeliveryInfoDialog(getActivity(), R.style.dialog);
+        deliveryInfoDialog = new DeliveryInfoDialog(getActivity(), R.style.dialog, 1);
 
         circleSelectDialog = new CircleSelectDialog(getContext(), R.style.dialog, 1, new CircleSelectDialog.OnCircleSeletedListener() {
             @Override
@@ -223,7 +224,8 @@ public class FragmentHomeWoDe extends Fragment implements View.OnClickListener {
             public void onRegToakenShare() {
                 shareDialog.show();
                 shareResult.getData().getShare().setImage_url(userResult.getData().getUser().getAvatar());
-                shareDialog.setShare(shareResult.getData().getShare(), userResult.getData().getUid());
+                shareDialog.setShare(shareResult.getData().getShare(), SPUtils.getInstance().getUserId(getContext()));
+                shareDialog.hideInnerShare();
             }
         });
         ynDialog = new YNDialog(getContext(), R.style.dialog, new YNDialog.OnYNListener() {
@@ -323,8 +325,12 @@ public class FragmentHomeWoDe extends Fragment implements View.OnClickListener {
     }
 
     private void initDelivery() {
+        wuliulayout.setVisibility(View.GONE);
         int count = deliveryList.size();
         List<View> views = new ArrayList<>();
+        if (null == getContext()) {
+            return;
+        }
         LayoutInflater inflater = LayoutInflater.from(getContext());
         for (int i = 0; i < count; i++) {
             views.add(inflateView(inflater, deliveryLayout, i));
@@ -336,7 +342,8 @@ public class FragmentHomeWoDe extends Fragment implements View.OnClickListener {
         deliveryLayout.setOnDeliveryChangeListener(new VerticalMarqueeLayout.OnDeliveryChangeListener() {
             @Override
             public void onDeliveryChange(int index) {
-                deliveryTimeTextView.setText(deliveryList.get(index).getNewDelivery().getTime());
+                if (null != deliveryList && deliveryList.size() > 0 && null != deliveryList.get(index).getNewDelivery())
+                    deliveryTimeTextView.setText(deliveryList.get(index).getNewDelivery().getTime());
             }
         });
     }
@@ -353,14 +360,16 @@ public class FragmentHomeWoDe extends Fragment implements View.OnClickListener {
         Glide.with(getContext()).load(deliveryList.get(position).getThumb()).error(R.drawable.image_error).placeholder(R.drawable.image_error)
                 .fallback(R.drawable.image_error).into(orderImageView);
         statusDescTextView.setText(deliveryList.get(position).getStatus_desc());
-        deliveryContextTextView.setText(deliveryList.get(position).getNewDelivery().getContext());
-        deliveryRootLayut.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                deliveryInfoDialog.show();
-                deliveryInfoDialog.setOrderId(deliveryList.get(position).getOid());
-            }
-        });
+        if (null != deliveryList.get(position).getNewDelivery()) {
+            deliveryContextTextView.setText(deliveryList.get(position).getNewDelivery().getContext());
+            deliveryRootLayut.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    deliveryInfoDialog.show();
+                    deliveryInfoDialog.setOrderId(deliveryList.get(position).getOid());
+                }
+            });
+        }
         return view;
     }
 
@@ -466,12 +475,15 @@ public class FragmentHomeWoDe extends Fragment implements View.OnClickListener {
                 Intent qiandaoIntent = new Intent(getActivity(), CheckInActivity.class);
                 qiandaoIntent.putExtra("regToken", userResult.getData().getUser().getRegtoken());
                 qiandaoIntent.putExtra("shareText", userResult.getData().getUser().getSharetxt());
+                qiandaoIntent.putExtra("avatar", userResult.getData().getUser().getAvatar());
+                qiandaoIntent.putExtra("uid", userResult.getData().getUid());
                 startActivity(qiandaoIntent);
                 break;
             case R.id.dianpulayout:
                 if (userResult.getData().getUser().isIs_rz()) {
                     if (userResult.getData().getUser().isHas_circle()) {
                         circleSelectDialog.show();
+                        circleSelectDialog.setFeedsType(0);
                     } else {
                         ynDialog.show();
                         ynDialog.setTitle("您还未创建圈子，是否立即创建圈子？");
@@ -483,7 +495,7 @@ public class FragmentHomeWoDe extends Fragment implements View.OnClickListener {
                 }
                 break;
             case R.id.shangwulayout:
-                String business_url = HomeActivity.business_url;
+                String business_url = userResult.getData().getUser().getBusiness_url();
                 if (!StringUtils.isNullOrEmpty(business_url)) {
                     Intent businessIntent = new Intent(getContext(), H5PageActivity.class);
                     businessIntent.putExtra("url", business_url);
@@ -496,7 +508,7 @@ public class FragmentHomeWoDe extends Fragment implements View.OnClickListener {
                 startActivity(customerServiceIntent);
                 break;
             case R.id.gongnenglayout:
-
+                MessageToast.getInstance(getContext()).show("更多功能，敬请期待~");
                 break;
             case R.id.buyVipButton:
                 Intent vipIntent = new Intent(getActivity(), BuyVIPActivity.class);

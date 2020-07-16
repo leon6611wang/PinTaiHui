@@ -25,6 +25,7 @@ import com.zhiyu.quanzhu.model.bean.AreaProvince;
 import com.zhiyu.quanzhu.model.bean.IndustryChild;
 import com.zhiyu.quanzhu.model.bean.IndustryHobby;
 import com.zhiyu.quanzhu.model.bean.IndustryParent;
+import com.zhiyu.quanzhu.ui.dialog.HobbyDialog;
 import com.zhiyu.quanzhu.ui.dialog.IndustryDialog;
 import com.zhiyu.quanzhu.ui.dialog.IndustryHobbyDialog;
 import com.zhiyu.quanzhu.ui.dialog.LoadingDialog;
@@ -57,6 +58,7 @@ public class CompleteUserProfileActivity extends BaseActivity implements View.On
     private final int REQUEST_CROP_IMAGES_CODE = 10023;
     private ProvinceCityDialog cityDialog;
     private IndustryHobbyDialog industryDialog;
+//    private IndustryDialog industryDialog;
     private String userName, company, occupation;
     private AreaProvince areaProvince;
     private AreaCity areaCity;

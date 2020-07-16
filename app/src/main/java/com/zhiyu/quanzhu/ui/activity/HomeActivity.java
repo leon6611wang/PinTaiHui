@@ -40,6 +40,7 @@ import com.zhiyu.quanzhu.ui.fragment.FragmentHomeQuanZi;
 import com.zhiyu.quanzhu.ui.fragment.FragmentHomeRenMai;
 import com.zhiyu.quanzhu.ui.fragment.FragmentHomeWoDe;
 import com.zhiyu.quanzhu.ui.fragment.FragmentHomeXiaoXi;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.NoScrollViewPager;
 import com.zhiyu.quanzhu.utils.AppUtils;
 import com.zhiyu.quanzhu.utils.AppVersionUtils;
@@ -164,7 +165,6 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
 //        getToken("9527", "亚瑟");
 
         initDialogs();
-        BaseDataUtils.getInstance().initBaseData();
         if (null == mLocationClient) {
 //            System.out.println("###########初始化定位");
             initLocation();
@@ -226,10 +226,13 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
     @Override
     protected void onResume() {
         super.onResume();
-
+        BaseDataUtils.getInstance().initBaseData();
 //        requestAppVersion();
         if (checkLogin()) {
             autoLogin();
+        } else {
+            Intent intent = new Intent(this, LoginGetVertifyCodeActivity.class);
+            startActivity(intent);
         }
     }
 
@@ -401,7 +404,7 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
         RongIM.connect(SPUtils.getInstance().getIMToken(BaseApplication.applicationContext), new RongIMClient.ConnectCallbackEx() {
             @Override
             public void OnDatabaseOpened(RongIMClient.DatabaseOpenStatus code) {
-//                System.out.println("OnDatabaseOpened: " + code.toString());
+                System.out.println("OnDatabaseOpened: " + code.toString());
             }
 
             @Override
@@ -411,7 +414,7 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
 
             @Override
             public void onSuccess(String s) {
-//                System.out.println("登录融云服务器成功，当前用户id: " + s);
+                System.out.println("登录融云服务器成功，当前用户id: " + s);
                 RongIM.setOnReceiveMessageListener(BaseApplication.receiveMessageListener);
 //                SharedPreferencesUtils.getInstance(HomeActivity.this).saveUser("1111", "一号测试", "http://5b0988e595225.cdn.sohucs.com/q_70,c_zoom,w_640/images/20190518/d38fda99a9654dd2b5b60950a1cb9967.jpeg", "18768100516");
                 updateUserInfo();
@@ -420,7 +423,7 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
 
             @Override
             public void onError(RongIMClient.ErrorCode e) {
-//                System.out.println("onError: " + e.toString());
+                System.out.println("融云 onError: " + e.toString());
 //                getToken("1139","不买魔女了");
             }
         });
@@ -547,16 +550,17 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
                             homeBaseResult.getData().getUser().getAvatar());
                     SPUtils.getInstance().saveUserToken(BaseApplication.applicationContext, homeBaseResult.getToken());
                     SPUtils.getInstance().saveIMToken(BaseApplication.applicationContext, homeBaseResult.getData().getToken());
-                    SPUtils.getInstance().setSilence(BaseApplication.applicationContext,
-                            homeBaseResult.getData().getUser().getGfmessagestatus(),
-                            homeBaseResult.getData().getUser().getFirendsmessagestatus(),
-                            homeBaseResult.getData().getUser().getCirclemessagestatus(),
-                            homeBaseResult.getData().getUser().getPaymessagestatus(),
-                            homeBaseResult.getData().getUser().getCouponmessagestatus(),
-                            homeBaseResult.getData().getUser().getShopmessagestatus(),
-                            homeBaseResult.getData().getUser().getFeedbackmessagestatus(),
-                            homeBaseResult.getData().getUser().getMessagestatus());
-                    SPUtils.getInstance().saveIMToken(BaseApplication.applicationContext, homeBaseResult.getData().getToken());
+                    SPUtils.getInstance().setNotificatMessage(BaseApplication.applicationContext, homeBaseResult.getData().getUser().getMessagestatus() == 1);
+//                    SPUtils.getInstance().setSilence(BaseApplication.applicationContext,
+//                            homeBaseResult.getData().getUser().getGfmessagestatus(),
+//                            homeBaseResult.getData().getUser().getFirendsmessagestatus(),
+//                            homeBaseResult.getData().getUser().getCirclemessagestatus(),
+//                            homeBaseResult.getData().getUser().getPaymessagestatus(),
+//                            homeBaseResult.getData().getUser().getCouponmessagestatus(),
+//                            homeBaseResult.getData().getUser().getShopmessagestatus(),
+//                            homeBaseResult.getData().getUser().getFeedbackmessagestatus(),
+//                            homeBaseResult.getData().getUser().getMessagestatus());
+//                    SPUtils.getInstance().saveIMToken(BaseApplication.applicationContext, homeBaseResult.getData().getToken());
                     android.os.Message message = myHandler.obtainMessage(0);
                     message.sendToTarget();
                 }
@@ -711,11 +715,10 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
             handleResult(fragmentArrayList.get(0), requestCode, resultCode, data);
         if (fragmentArrayList.get(1).isAdded())
             handleResult(fragmentArrayList.get(1), requestCode, resultCode, data);
+        if (fragmentArrayList.get(2).isAdded())
+            handleResult(fragmentArrayList.get(2), requestCode, resultCode, data);
         if (fragmentArrayList.get(4).isAdded())
             handleResult(fragmentArrayList.get(4), requestCode, resultCode, data);
-//        for(int i=0;i<fragmentArrayList.size();i++){
-//            handleResult(fragmentArrayList.get(i), requestCode, resultCode, data);
-//        }
     }
 
     private void handleResult(Fragment fragment, int requestCode, int resultCode, Intent data) {

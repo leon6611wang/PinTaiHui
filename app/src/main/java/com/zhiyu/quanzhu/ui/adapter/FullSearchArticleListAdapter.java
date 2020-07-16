@@ -19,6 +19,7 @@ import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.FullSearchArticle;
+import com.zhiyu.quanzhu.model.result.ShareResult;
 import com.zhiyu.quanzhu.ui.activity.ArticleInformationActivity;
 import com.zhiyu.quanzhu.ui.dialog.ShareDialog;
 import com.zhiyu.quanzhu.ui.widget.CircleImageView;
@@ -27,6 +28,7 @@ import com.zhiyu.quanzhu.ui.widget.NiceImageView;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
+import com.zhiyu.quanzhu.utils.ShareUtils;
 
 import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
@@ -45,7 +47,12 @@ public class FullSearchArticleListAdapter extends BaseAdapter {
     public FullSearchArticleListAdapter(Activity aty, Context context) {
         this.activity = aty;
         this.context = context;
+        shareConfig();
         initDialogs();
+    }
+
+    public void setShareResultCode(int requestCode,int resultCode,Intent data){
+        shareDialog.setQQShareCallback(requestCode,resultCode,data);
     }
 
     private void initDialogs() {
@@ -143,10 +150,10 @@ public class FullSearchArticleListAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
         holder.titleTextView.setText(list.get(position).getTitle());
-        if(!StringUtils.isNullOrEmpty(list.get(position).getThumb())){
+        if (!StringUtils.isNullOrEmpty(list.get(position).getThumb())) {
             holder.coverImageView.setVisibility(View.VISIBLE);
             Glide.with(parent.getContext()).load(list.get(position).getThumb()).error(R.drawable.image_error).into(holder.coverImageView);
-        }else{
+        } else {
             holder.coverImageView.setVisibility(View.GONE);
         }
 
@@ -195,7 +202,13 @@ public class FullSearchArticleListAdapter extends BaseAdapter {
 
         @Override
         public void onClick(View v) {
+            if (!StringUtils.isNullOrEmpty(list.get(position).getThumb())) {
+                shareResult.getData().getShare().setImage_url(list.get(position).getThumb());
+            }
+            shareResult.getData().getShare().setContent(list.get(position).getTitle());
+            shareResult.getData().getShare().setType_desc(ShareUtils.SHARE_TYPE_ARTICLE);
             shareDialog.show();
+            shareDialog.setShare(shareResult.getData().getShare(), list.get(position).getId());
         }
     }
 
@@ -273,6 +286,34 @@ public class FullSearchArticleListAdapter extends BaseAdapter {
                 Message message = myHandler.obtainMessage(1);
                 message.obj = position;
                 message.sendToTarget();
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
+    private ShareResult shareResult;
+
+    private void shareConfig() {
+        RequestParams params = MyRequestParams.getInstance(context).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.SHARE_CONFIG);
+        params.addBodyParameter("type", ShareUtils.SHARE_TYPE_FEED);
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                shareResult = GsonUtils.GsonToBean(result, ShareResult.class);
             }
 
             @Override

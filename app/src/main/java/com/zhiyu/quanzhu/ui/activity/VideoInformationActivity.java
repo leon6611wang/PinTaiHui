@@ -34,6 +34,7 @@ import com.zhiyu.quanzhu.model.bean.FeedsGoods;
 import com.zhiyu.quanzhu.model.result.FeedCommentResult;
 import com.zhiyu.quanzhu.model.result.FeedInfoResult;
 import com.zhiyu.quanzhu.model.result.FeedsGoodsResult;
+import com.zhiyu.quanzhu.model.result.ShareResult;
 import com.zhiyu.quanzhu.ui.adapter.ArticleInfoCommentListParentAdapter;
 import com.zhiyu.quanzhu.ui.adapter.FeedsGoodsRecyclerAdapter;
 import com.zhiyu.quanzhu.ui.dialog.ShareDialog;
@@ -45,6 +46,7 @@ import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
+import com.zhiyu.quanzhu.utils.ShareUtils;
 import com.zhiyu.quanzhu.utils.SoftKeyboardUtil;
 import com.zhiyu.quanzhu.utils.VideoCoverUtils;
 
@@ -177,6 +179,7 @@ public class VideoInformationActivity extends BaseActivity implements View.OnCli
         contentLayoutParams.gravity = Gravity.BOTTOM;
         initViews();
         initDialogs();
+        shareConfig();
         initHideContentLayout();
         videoInfo();
         feedsGoods();
@@ -481,10 +484,26 @@ public class VideoInformationActivity extends BaseActivity implements View.OnCli
                 finish();
                 break;
             case R.id.shareImageView:
+                if (!StringUtils.isNullOrEmpty(feedInfoResult.getData().getDetail().getContent())) {
+                    shareResult.getData().getShare().setContent(feedInfoResult.getData().getDetail().getContent());
+                }
+                if (!StringUtils.isNullOrEmpty(feedInfoResult.getData().getDetail().getVideo_thumb())) {
+                    shareResult.getData().getShare().setImage_url(feedInfoResult.getData().getDetail().getVideo_thumb());
+                }
+                shareResult.getData().getShare().setType_desc(ShareUtils.SHARE_TYPE_VIDEO);
                 shareDialog.show();
+                shareDialog.setShare(shareResult.getData().getShare(), feeds_id);
                 break;
             case R.id.shareImageView0:
+                if (!StringUtils.isNullOrEmpty(feedInfoResult.getData().getDetail().getContent())) {
+                    shareResult.getData().getShare().setContent(feedInfoResult.getData().getDetail().getContent());
+                }
+                if (!StringUtils.isNullOrEmpty(feedInfoResult.getData().getDetail().getVideo_thumb())) {
+                    shareResult.getData().getShare().setImage_url(feedInfoResult.getData().getDetail().getVideo_thumb());
+                }
+                shareResult.getData().getShare().setType_desc(ShareUtils.SHARE_TYPE_VIDEO);
                 shareDialog.show();
+                shareDialog.setShare(shareResult.getData().getShare(), feeds_id);
                 break;
             case R.id.followTextView:
                 follow();
@@ -521,6 +540,7 @@ public class VideoInformationActivity extends BaseActivity implements View.OnCli
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        shareDialog.setQQShareCallback(requestCode, resultCode, data);
         if (resultCode == 1132) {
             if (null != data && data.hasExtra("complaint")) {
                 feedInfoResult.getData().getDetail().setIs_report(true);
@@ -533,7 +553,7 @@ public class VideoInformationActivity extends BaseActivity implements View.OnCli
     @Override
     public void onReplyParentComment(int cm_id) {
         this.comment_id = cm_id;
-        System.out.println("comment_id: " + comment_id);
+//        System.out.println("comment_id: " + comment_id);
         SoftKeyboardUtil.showSoftKeyboard(this, commentEditText);
     }
 
@@ -819,6 +839,35 @@ public class VideoInformationActivity extends BaseActivity implements View.OnCli
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
                 System.out.println("动态关联的商品: " + ex.toString());
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
+    private ShareResult shareResult;
+
+    private void shareConfig() {
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.SHARE_CONFIG);
+        params.addBodyParameter("type", ShareUtils.SHARE_TYPE_FEED);
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+//                System.out.println("share_config: " + result);
+                shareResult = GsonUtils.GsonToBean(result, ShareResult.class);
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+
             }
 
             @Override

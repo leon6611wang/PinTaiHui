@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LargeImageListActivity extends BaseActivity {
-
     private RecyclerView mRecyclerView;
     private LargeImageListAdapter adapter;
     private int position = -1;

@@ -15,14 +15,18 @@ import android.widget.TextView;
 
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseActivity;
+import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.result.PointGoodsInformationResult;
+import com.zhiyu.quanzhu.model.result.ShareResult;
 import com.zhiyu.quanzhu.ui.adapter.PointGoodsImageListAdapter;
+import com.zhiyu.quanzhu.ui.dialog.ShareDialog;
 import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.GoodsInfoBanner;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
+import com.zhiyu.quanzhu.utils.ShareUtils;
 
 import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
@@ -42,6 +46,7 @@ public class PointGoodsInformationActivity extends BaseActivity implements View.
     private TextView pointTextView, nameTextView, descTextView;
     private LinearLayout backLayout, headerLayout, titleLayout;
     private TextView titleTextView, exchangeButtonTextView;
+    private ShareDialog shareDialog;
     private ImageView shareImageView, backImageView;
 
     private MyHandler myHandler = new MyHandler(this);
@@ -74,7 +79,13 @@ public class PointGoodsInformationActivity extends BaseActivity implements View.
         setContentView(R.layout.activity_point_goods_information);
         goods_id = getIntent().getIntExtra("goods_id", 0);
         initViews();
+        initDialog();
+        shareConfig();
         goodsInformation();
+    }
+
+    private void initDialog(){
+        shareDialog=new ShareDialog(this,this,R.style.dialog);
     }
 
     private void initViews() {
@@ -91,6 +102,7 @@ public class PointGoodsInformationActivity extends BaseActivity implements View.
         backLayout.setOnClickListener(this);
         titleTextView = findViewById(R.id.titleTextView);
         shareImageView = findViewById(R.id.shareImageView);
+        shareImageView.setOnClickListener(this);
         backImageView = findViewById(R.id.backImageView);
         headerLayout = findViewById(R.id.headerLayout);
         titleLayout = findViewById(R.id.titleLayout);
@@ -178,6 +190,12 @@ public class PointGoodsInformationActivity extends BaseActivity implements View.
                 }
 
                 break;
+            case R.id.shareImageView:
+                shareResult.getData().getShare().setContent(informationResult.getData().getDetail().getGoods_name());
+                shareResult.getData().getShare().setImage_url(informationResult.getData().getDetail().getPics().get(0).getUrl());
+                shareDialog.show();
+                shareDialog.setShare(shareResult.getData().getShare(),informationResult.getData().getDetail().getId());
+                break;
         }
     }
 
@@ -186,7 +204,7 @@ public class PointGoodsInformationActivity extends BaseActivity implements View.
         pointTextView.setText(String.valueOf(informationResult.getData().getDetail().getCredits()));
         nameTextView.setText(informationResult.getData().getDetail().getGoods_name());
         descTextView.setText(informationResult.getData().getDetail().getDesc());
-        adapter.setList(informationResult.getData().getDetail().getPics());
+        adapter.setList(informationResult.getData().getDetail().getImg_json());
         titleTextView.setText(informationResult.getData().getDetail().getGoods_name());
     }
 
@@ -252,11 +270,39 @@ public class PointGoodsInformationActivity extends BaseActivity implements View.
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        shareDialog.setQQShareCallback(requestCode,resultCode,data);
         if (requestCode == 1003&&null!=data) {
             boolean exchange_success = data.getBooleanExtra("exchange_success", false);
             if (exchange_success) {
                 finish();
             }
         }
+    }
+
+    private ShareResult shareResult;
+    private void shareConfig(){
+        RequestParams params=MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL+ConstantsUtils.SHARE_CONFIG);
+        params.addBodyParameter("type", ShareUtils.SHARE_TYPE_GOODS);
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                shareResult=GsonUtils.GsonToBean(result, ShareResult.class);
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
     }
 }

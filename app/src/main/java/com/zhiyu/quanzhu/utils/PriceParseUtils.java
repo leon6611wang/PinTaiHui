@@ -15,14 +15,14 @@ public class PriceParseUtils {
     public String parsePrice(long price) {
         long zhengshu = price / 100;
         long xiaoshu = price % 100;
-        String priceStr = null;
-        String zhengshuStr = null, xiaoshuStr = null;
+        String priceStr = "";
+        String zhengshuStr = "", xiaoshuStr = "";
         zhengshuStr = String.valueOf(zhengshu);
         if (xiaoshu == 0) {
             xiaoshuStr = ".00";
         } else if (xiaoshu > 0 && xiaoshu < 10) {
             xiaoshuStr = ".0" + xiaoshu;
-        } else if (xiaoshu > 10) {
+        } else if (xiaoshu >= 10) {
             xiaoshuStr = "." + xiaoshu;
         }
         priceStr = zhengshuStr + xiaoshuStr;

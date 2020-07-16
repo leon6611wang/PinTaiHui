@@ -520,7 +520,7 @@ public class CircleTuiJianAdapter extends RecyclerView.Adapter<RecyclerView.View
         public void onClick(View v) {
             Intent videoInfoIntent = new Intent(context, VideoInformationActivity.class);
             videoInfoIntent.putExtra("feeds_id", list.get(position).getContent().getId());
-            videoInfoIntent.putExtra("user_id",list.get(position).getContent().getUid());
+            videoInfoIntent.putExtra("user_id", list.get(position).getContent().getUid());
             videoInfoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(videoInfoIntent);
         }
@@ -537,6 +537,7 @@ public class CircleTuiJianAdapter extends RecyclerView.Adapter<RecyclerView.View
         public void onClick(View v) {
             Intent feedInfoIntent = new Intent(context, FeedInformationActivity.class);
             feedInfoIntent.putExtra("feed_id", list.get(position).getContent().getId());
+            feedInfoIntent.putExtra("feed_type", list.get(position).getType());
             feedInfoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(feedInfoIntent);
 

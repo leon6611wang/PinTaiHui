@@ -2,6 +2,7 @@ package com.zhiyu.quanzhu.ui.fragment;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -41,7 +42,6 @@ public class FragmentXiaoXiXiTong extends Fragment implements SystemMessageListe
     private RecyclerView mRecyclerView;
     private XiaoXiXiTongRecyclerAdapter adapter;
     private List<XiTongXiaoXi> list = new ArrayList<>();
-
     private MyHandler myHandler = new MyHandler(this);
 
     private static class MyHandler extends Handler {
@@ -56,7 +56,8 @@ public class FragmentXiaoXiXiTong extends Fragment implements SystemMessageListe
             FragmentXiaoXiXiTong fragment = fragmentXiaoXiXiaoXiWeakReference.get();
             switch (msg.what) {
                 case 1:
-
+//                    System.out.println(" fragment.adapter.setList(fragment.list);");
+                    fragment.adapter.setList(fragment.list);
                     break;
             }
         }
@@ -68,14 +69,21 @@ public class FragmentXiaoXiXiTong extends Fragment implements SystemMessageListe
         view = inflater.inflate(R.layout.fragment_xiaoxi_xitong, container, false);
         initDatas();
         initViews();
-        initSystemMessageList();
         MessageDao.getInstance().setSystemMessageListener(this);
         MessageDao.getInstance().setSystemMessageVariableListener(this);
         MessageDao.getInstance().setServiceMessageListener2(this);
-        MessageDao.getInstance().customerServiceList(BaseApplication.getInstance());
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        initSystemMessageList();
+        MessageDao.getInstance().customerServiceList(BaseApplication.getInstance());
+        if (null != adapter) {
+            adapter.resumeSystemMessageList();
+        }
+    }
 
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
@@ -85,7 +93,6 @@ public class FragmentXiaoXiXiTong extends Fragment implements SystemMessageListe
         } else {
             MessageUtils.getInstance().setCurrentPage(false);
         }
-
     }
 
     private void initSystemMessageList() {
@@ -198,20 +205,36 @@ public class FragmentXiaoXiXiTong extends Fragment implements SystemMessageListe
 
     @Override
     public void onSystemMessage(int message_type, String message_content, String time, int count) {
-//        System.out.println("message_type: "+message_type+" , message_content: "+message_content+" , time: "+time+" , count: "+count);
+//        System.out.println("message_type: " + message_type + " , message_content: " + message_content + " , time: " + time + " , count: " + count);
         int index = 0;
         for (int i = 0; i < list.size(); i++) {
+//            System.out.println("list_message_type: " + list.get(i).getMessage_type() + " , type: " + message_type + " , index: " + i);
             if (list.get(i).getMessage_type() == message_type) {
                 index = i;
                 break;
             }
         }
-//        System.out.println("systemMessage-index: "+index);
-        list.get(index).setMsgCount(count);
-        list.get(index).setTime(time);
-        list.get(index).setMsg(message_content);
-        list.get(index).setMessage_time(Long.parseLong(time));
-        adapter.setList(list);
+//        XiTongXiaoXi xiaoXi = new XiTongXiaoXi();
+//        xiaoXi.setName(list.get(index).getName());
+//        xiaoXi.setTime(time);
+//        xiaoXi.setMsgCount(count);
+//        xiaoXi.setMsg(message_content);
+//        xiaoXi.setMessage_time(Long.parseLong(time));
+//        xiaoXi.setGuanFang(list.get(index).isGuanFang());
+//        xiaoXi.setShop_id(list.get(index).getShop_id());
+//        xiaoXi.setAvatar(list.get(index).getAvatar());
+//        xiaoXi.setIcon(list.get(index).getIcon());
+//        System.out.println("获取当前消息的位置: " + index);
+        adapter.notifySystemMessage(index, message_type, message_content, time, count);
+//        list.get(index).setMsgCount(count);
+//        list.get(index).setTime(time);
+//        list.get(index).setMsg(message_content);
+//        list.get(index).setMessage_time(Long.parseLong(time));
+
+//        System.out.println("systemMessage-index: " + index + " , count: " + list.get(index).getMsgCount());
+//        Message message = myHandler.obtainMessage(1);
+//        message.sendToTarget();
+//        adapter.setList(list);
     }
 
     @Override
@@ -290,7 +313,7 @@ public class FragmentXiaoXiXiTong extends Fragment implements SystemMessageListe
     private void initDatas() {
         if (null != list && list.size() == 0) {
             XiTongXiaoXi x1 = new XiTongXiaoXi();
-            x1.setIcon(R.mipmap.quanzhuxiaomishu);
+            x1.setIcon(R.mipmap.logo_y);
             x1.setName("圈助小秘书");
             x1.setGuanFang(true);
             x1.setMessage_type(MessageTypeUtils.XIAO_MI_SHU);

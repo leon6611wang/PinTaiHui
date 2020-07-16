@@ -59,6 +59,12 @@ public class GsonUtils {
         return t;
     }
 
+    public static <T> T GsonToBean2(String gsonString, Class<T> cls) {
+        T t = null;
+        t = GsonToBeanPrivate(gsonString, cls);
+        return t;
+    }
+
     private static <T> T GsonToBeanPrivate(String gsonString, Class<T> cls) {
         parseToken(gsonString);
         T t = null;

@@ -31,12 +31,14 @@ import com.zhiyu.quanzhu.model.result.FeedCommentResult;
 import com.zhiyu.quanzhu.model.result.FeedInfoResult;
 import com.zhiyu.quanzhu.model.result.FeedInformationResult;
 import com.zhiyu.quanzhu.model.result.FeedResult;
+import com.zhiyu.quanzhu.model.result.ShareResult;
 import com.zhiyu.quanzhu.ui.adapter.CircleGuanZhuAdapter;
 import com.zhiyu.quanzhu.ui.adapter.CircleGuanZhuFeedTagListAdapter;
 import com.zhiyu.quanzhu.ui.adapter.FeedInfoCommentsParentRecyclerAdapter;
 import com.zhiyu.quanzhu.ui.adapter.FeedInformationCommentListParentAdapter;
 import com.zhiyu.quanzhu.ui.adapter.FullSearchFeedImagesGridAdapter;
 import com.zhiyu.quanzhu.ui.dialog.AddCommentDialog;
+import com.zhiyu.quanzhu.ui.dialog.ShareDialog;
 import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.CircleImageView;
 import com.zhiyu.quanzhu.ui.widget.HorizontalListView;
@@ -51,6 +53,7 @@ import com.zhiyu.quanzhu.utils.MyPtrRefresherFooter;
 import com.zhiyu.quanzhu.utils.MyPtrRefresherHeader;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
+import com.zhiyu.quanzhu.utils.ShareUtils;
 import com.zhiyu.quanzhu.utils.SoftKeyboardUtil;
 
 import org.xutils.common.Callback;
@@ -77,7 +80,7 @@ public class FeedInformationActivity extends BaseActivity implements View.OnClic
             circleIndustryTextView, chengyuanTextView, dongtaiTextView, commentCountTextView, followTextView, complaintTextView, viewCountTextView;
     private NiceImageView circleImageView;
     private ImageView followImageView, complaintImageView;
-    private ImageView collectImageView, priseImageView;
+    private ImageView collectImageView, priseImageView,shareImageView;
     private TextView collectNumTextView, priseNumTextView;
     private CardView circleCardView;
     private EditText commentEditText;
@@ -91,6 +94,7 @@ public class FeedInformationActivity extends BaseActivity implements View.OnClic
     private NiceImageView feedImageView;
     private LinearLayout priseLayout, itemRootLayout;
     private int feed_id, comment_id;
+    private int feed_type;
     private int commentCount;
     private boolean isComment;
     private int fromCircleInfo = 0;//0:默认值，不是圈子详情来源，1：来自圈子详情，点击圈子不跳转到圈子详情
@@ -98,6 +102,7 @@ public class FeedInformationActivity extends BaseActivity implements View.OnClic
     private String commentContent = null;
     private FeedInformationCommentListParentAdapter adapter;
     private View headerView;
+    private ShareDialog shareDialog;
 
 
     private MyHandler myHandler = new MyHandler(this);
@@ -240,10 +245,17 @@ public class FeedInformationActivity extends BaseActivity implements View.OnClic
         feed_id = getIntent().getIntExtra("feed_id", 0);
         comment_id = getIntent().getIntExtra("comment_id", 0);
         fromCircleInfo = getIntent().getIntExtra("fromCircleInfo", 0);
-        System.out.println("动态详情-feed_id: " + feed_id);
+        feed_type=getIntent().getIntExtra("feed_type",0);
+        initDialog();
+        shareConfig();
         initPtr();
         initViews();
         feedInformation();
+
+    }
+
+    private void initDialog(){
+        shareDialog=new ShareDialog(this,this,R.style.dialog);
     }
 
     private void initPtr() {
@@ -346,15 +358,19 @@ public class FeedInformationActivity extends BaseActivity implements View.OnClic
         priseImageView = findViewById(R.id.priseImageView);
         priseImageView.setOnClickListener(this);
         priseNumTextView = findViewById(R.id.priseNumTextView);
+        shareImageView=findViewById(R.id.shareImageView);
+        shareImageView.setOnClickListener(this);
 
 
     }
 
+    private String share_image_url,share_content;
     private void feedDataView() {
         timeTextView.setText(feedInfoResult.getData().getDetail().getTime());
         if (!StringUtils.isNullOrEmpty(feedInfoResult.getData().getDetail().getContent())) {
             mTextView.setVisibility(View.VISIBLE);
             mTextView.setText(feedInfoResult.getData().getDetail().getContent());
+            share_content=feedInfoResult.getData().getDetail().getContent();
         } else {
             mTextView.setVisibility(View.GONE);
         }
@@ -372,6 +388,7 @@ public class FeedInformationActivity extends BaseActivity implements View.OnClic
             imageGridView.setVisibility(View.GONE);
             videoPlayer.setVisibility(View.VISIBLE);
             videoPlayer.setDataSource(feedInfoResult.getData().getDetail().getVideo_url(), "");
+            share_image_url=feedInfoResult.getData().getDetail().getVideo_thumb();
             Glide.with(this).load(feedInfoResult.getData().getDetail().getVideo_thumb()).into(videoPlayer.getCoverController().getVideoCover());
 //            Glide.with(this).load(feedInfoResult.getData().getDetail().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into(videoPlayer.getCoverController().getVideoCover());
             videoPlayer.setLayoutParams(feedInfoResult.getData().getDetail().getLayoutParams(dp_240, true));
@@ -381,14 +398,24 @@ public class FeedInformationActivity extends BaseActivity implements View.OnClic
                 imageGridView.setVisibility(View.GONE);
                 videoPlayer.setVisibility(View.GONE);
             } else if (null != feedInfoResult.getData().getDetail().getImgs() && feedInfoResult.getData().getDetail().getImgs().size() == 1) {
+                share_image_url=feedInfoResult.getData().getDetail().getImgs().get(0).getFile();
                 feedImageView.setVisibility(View.VISIBLE);
                 imageGridView.setVisibility(View.GONE);
                 videoPlayer.setVisibility(View.GONE);
                 feedImageView.setLayoutParams(feedInfoResult.getData().getDetail().getLayoutParams(dp_240, false));
+                feedImageView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent largeIntent = new Intent(FeedInformationActivity.this, LargeImageActivity.class);
+                        largeIntent.putExtra("imgUrl", feedInfoResult.getData().getDetail().getImgs().get(0).getFile());
+                        startActivity(largeIntent);
+                    }
+                });
                 Glide.with(this).load(feedInfoResult.getData().getDetail().getImgs().get(0).getFile()).error(R.drawable.image_error)
                         .into(feedImageView);
 //                feedImageView.setOnClickListener(new CircleGuanZhuAdapter.OnLargeImageClick(list.get(position).getContent().getImgs().get(0).getFile()));
             } else {
+                share_image_url=feedInfoResult.getData().getDetail().getImgs().get(0).getFile();
                 feedImageView.setVisibility(View.GONE);
                 imageGridView.setVisibility(View.VISIBLE);
                 videoPlayer.setVisibility(View.GONE);
@@ -451,6 +478,18 @@ public class FeedInformationActivity extends BaseActivity implements View.OnClic
                     startActivityForResult(complaintIntent, 1132);
                 }
                 break;
+            case R.id.shareImageView:
+                if(!StringUtils.isNullOrEmpty(share_image_url)){
+                    shareResult.getData().getShare().setImage_url(share_image_url);
+                }
+                if(!StringUtils.isNullOrEmpty(share_content)){
+                    shareResult.getData().getShare().setContent(share_content);
+                }
+                shareResult.getData().getShare().setType(feed_type);
+                shareResult.getData().getShare().setType_desc(ShareUtils.SHARE_TYPE_FEED);
+                shareDialog.show();
+                shareDialog.setShare(shareResult.getData().getShare(),feed_id);
+                break;
         }
     }
 
@@ -463,6 +502,7 @@ public class FeedInformationActivity extends BaseActivity implements View.OnClic
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        shareDialog.setQQShareCallback(requestCode,resultCode,data);
         if (resultCode == 1132) {
             if (null != data && data.hasExtra("complaint")) {
                 feedInfoResult.getData().getDetail().setIs_report(true);
@@ -481,7 +521,7 @@ public class FeedInformationActivity extends BaseActivity implements View.OnClic
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("动态详情: " + result);
+//                System.out.println("动态详情: " + result);
                 feedInfoResult = GsonUtils.GsonToBean(result, FeedInformationResult.class);
                 if (200 == feedInfoResult.getCode()) {
                     commentCount = feedInfoResult.getData().getDetail().getComment_num();
@@ -680,6 +720,35 @@ public class FeedInformationActivity extends BaseActivity implements View.OnClic
             public void onError(Throwable ex, boolean isOnCallback) {
                 Message message = myHandler.obtainMessage(99);
                 message.sendToTarget();
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
+
+    private ShareResult shareResult;
+    private void shareConfig(){
+        RequestParams params=MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL+ConstantsUtils.SHARE_CONFIG);
+        params.addBodyParameter("type", ShareUtils.SHARE_TYPE_FEED);
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+//                System.out.println("shareConfig: "+result);
+                shareResult=GsonUtils.GsonToBean(result,ShareResult.class);
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+
             }
 
             @Override

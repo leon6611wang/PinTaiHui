@@ -61,6 +61,11 @@ public class MyOrderDaiFuKuanRecyclerAdapter extends RecyclerView.Adapter<MyOrde
                         }
                     }
                     break;
+                case 2:
+                    int position = (Integer) msg.obj;
+                    adapter.list.remove(position);
+                    adapter.notifyDataSetChanged();
+                    break;
             }
         }
     }
@@ -125,10 +130,12 @@ public class MyOrderDaiFuKuanRecyclerAdapter extends RecyclerView.Adapter<MyOrde
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         holder.shopNameTextView.setText(list.get(position).getShop_name());
         holder.shopNameTextView.setOnClickListener(new OnShopInfoClick(position));
-        holder.timeDownTextView.setOverTime(list.get(position).getOver_time(),new TimeDownTextView.OnTimeDownListener(){
+        holder.timeDownTextView.setOverTime(list.get(position).getOver_time(), new TimeDownTextView.OnTimeDownListener() {
             @Override
             public void onTImeDownFinish() {
-                System.out.println("倒计时结束: "+position);
+                Message message = myHandler.obtainMessage(2);
+                message.obj = position;
+                message.sendToTarget();
             }
         });
         holder.goodsCountTextView.setText(String.valueOf(list.get(position).getNum()));
@@ -168,7 +175,7 @@ public class MyOrderDaiFuKuanRecyclerAdapter extends RecyclerView.Adapter<MyOrde
         public void onClick(View v) {
             Intent intent = new Intent(context, OrderInformationActivity.class);
             intent.putExtra("order_id", list.get(position).getId());
-            intent.putExtra("order_status",list.get(position).getStatus());
+            intent.putExtra("order_status", list.get(position).getStatus());
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
         }
@@ -182,7 +189,7 @@ public class MyOrderDaiFuKuanRecyclerAdapter extends RecyclerView.Adapter<MyOrde
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("待付款: "+result);
+                System.out.println("待付款: " + result);
                 baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
@@ -190,7 +197,7 @@ public class MyOrderDaiFuKuanRecyclerAdapter extends RecyclerView.Adapter<MyOrde
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                System.out.println("待付款: "+ex.toString());
+                System.out.println("待付款: " + ex.toString());
             }
 
             @Override
@@ -206,7 +213,7 @@ public class MyOrderDaiFuKuanRecyclerAdapter extends RecyclerView.Adapter<MyOrde
     }
 
 
-    private class OnShopInfoClick implements View.OnClickListener{
+    private class OnShopInfoClick implements View.OnClickListener {
         private int position;
 
         public OnShopInfoClick(int position) {
@@ -215,8 +222,8 @@ public class MyOrderDaiFuKuanRecyclerAdapter extends RecyclerView.Adapter<MyOrde
 
         @Override
         public void onClick(View v) {
-            Intent shopIntent=new Intent(context, ShopInformationActivity.class);
-            shopIntent.putExtra("shop_id",String.valueOf(list.get(position).getShop_id()));
+            Intent shopIntent = new Intent(context, ShopInformationActivity.class);
+            shopIntent.putExtra("shop_id", String.valueOf(list.get(position).getShop_id()));
             shopIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(shopIntent);
         }

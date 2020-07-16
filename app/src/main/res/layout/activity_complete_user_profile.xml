@@ -243,6 +243,7 @@
                         android:gravity="center"
                         android:hint="公司/单位"
                         android:textColor="@color/text_color_black"
+                        android:visibility="gone"
                         android:textColorHint="#BBBBBB"
                         android:textSize="15sp" />
 
@@ -252,7 +253,7 @@
                         android:layout_height="61dp"
                         android:layout_weight="1"
                         android:background="@null"
-                        android:hint="选填）"
+                        android:hint="公司/单位 （选填）"
                         android:maxLines="1"
                         android:ellipsize="end"
                         android:textColor="@color/text_color_black"
@@ -280,6 +281,7 @@
                         android:hint="职位/岗位"
                         android:textColor="@color/text_color_black"
                         android:textColorHint="#BBBBBB"
+                        android:visibility="gone"
                         android:textSize="15sp" />
 
                     <EditText
@@ -287,7 +289,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="61dp"
                         android:background="@null"
-                        android:hint="（选填）"
+                        android:hint="职位/岗位 （选填）"
                         android:textColor="@color/text_color_black"
                         android:maxLines="1"
                         android:ellipsize="end"

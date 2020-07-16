@@ -1,5 +1,7 @@
 package com.zhiyu.quanzhu.ui.activity;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -129,6 +131,7 @@ public class CoordinateHistoryActivity extends BaseActivity implements View.OnCl
         mRecyclerView.setAdapter(adapter);
         mRecyclerView.setLayoutManager(layoutManager);
         tousuTextView = findViewById(R.id.tousuTextView);
+        tousuTextView.setOnClickListener(this);
     }
 
     @Override
@@ -138,7 +141,8 @@ public class CoordinateHistoryActivity extends BaseActivity implements View.OnCl
                 finish();
                 break;
             case R.id.tousuTextView:
-                MessageToast.getInstance(this).show("拨打电话");
+                callService();
+//                MessageToast.getInstance(this).show("拨打电话");
                 break;
         }
     }
@@ -187,5 +191,16 @@ public class CoordinateHistoryActivity extends BaseActivity implements View.OnCl
 
             }
         });
+    }
+
+    private String phoneNumber="400-8818-176";
+    /**
+     * 进入拨号界面
+     */
+    private void callService() {
+        Intent intent = new Intent(Intent.ACTION_DIAL);
+        Uri data = Uri.parse("tel:" + phoneNumber);
+        intent.setData(data);
+        startActivity(intent);
     }
 }

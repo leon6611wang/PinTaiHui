@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.model.bean.GuanZhuDianPu;
 import com.zhiyu.quanzhu.ui.activity.H5PageActivity;
+import com.zhiyu.quanzhu.ui.activity.ShopInformationActivity;
 import com.zhiyu.quanzhu.ui.widget.NiceImageView;
 
 import java.util.List;
@@ -56,18 +57,23 @@ public class XiTongXiaoXiGuanZhuDianPuRecyclerAdapter extends RecyclerView.Adapt
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
-        Glide.with(context).load(list.get(position).getShop_thumb()).error(R.drawable.image_error) .placeholder(R.drawable.image_error)
+        Glide.with(context).load(list.get(position).getShop_thumb()).error(R.drawable.image_error).placeholder(R.drawable.image_error)
                 .fallback(R.drawable.image_error).into(holder.iconImageView);
         holder.timeTextView.setText(list.get(position).getAdd_time());
         holder.nameTextView.setText(list.get(position).getShop_name());
         holder.actTitleTextView.setText(list.get(position).getAct_title());
-        holder.actContentTextView.setText(list.get(position).getAct_content());
+//        holder.actContentTextView.setText(list.get(position).getAct_content());
         holder.mCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(context, H5PageActivity.class);
+//                Intent intent = new Intent(context, H5PageActivity.class);
+//                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                intent.putExtra("url", list.get(position).getAct_url());
+//                context.startActivity(intent);
+
+                Intent intent = new Intent(context, ShopInformationActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.putExtra("url", list.get(position).getAct_url());
+                intent.putExtra("shop_id", String.valueOf(list.get(position).getShop_id()));
                 context.startActivity(intent);
             }
         });

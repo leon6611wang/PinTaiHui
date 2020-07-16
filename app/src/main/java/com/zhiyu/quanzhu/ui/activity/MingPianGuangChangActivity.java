@@ -249,7 +249,7 @@ public class MingPianGuangChangActivity extends BaseActivity implements View.OnC
         industryParentView.setListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(int index) {
-                if (!TextUtils.isEmpty(parentList.get(index))) {
+                if (null != parentList && parentList.size() > 0 && !TextUtils.isEmpty(parentList.get(index))) {
                     if (null != industryChildList) {
                         industryChildList.clear();
                     }
@@ -308,18 +308,23 @@ public class MingPianGuangChangActivity extends BaseActivity implements View.OnC
     }
 
     private void initIndustryData() {
-        if (null != industryParentList && industryParentList.size() > 0)
+        if (null != industryParentList && industryParentList.size() > 0) {
             for (IndustryHobby parent : industryParentList) {
-                parentList.add(parent.getName());
+                if (null != parent.getChild() && parent.getChild().size() > 0)
+                    parentList.add(parent.getName());
             }
+        }
+        System.out.println("parentList " + (null == parentList ? 0 : parentList.size()));
         industryParentView.setItems(parentList);
         industryParentView.setInitPosition(0);
-        industryChildList = industryParentList.get(0).getChild();
+        if (null != industryParentList && industryParentList.size() > 0)
+            industryChildList = industryParentList.get(0).getChild();
         if (null != industryChildList && industryChildList.size() > 0) {
             for (IndustryHobby child : industryChildList) {
                 childList.add(child.getName());
             }
         }
+        System.out.println("childList " + (null == childList ? 0 : childList.size()));
         industryChildView.setItems(childList);
         industryChildView.setInitPosition(0);
     }
@@ -624,8 +629,10 @@ public class MingPianGuangChangActivity extends BaseActivity implements View.OnC
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
+//                System.out.println("行业列表: " + result);
                 industryHobbyResult = GsonUtils.GsonToBean(result, IndustryHobbyResult.class);
                 industryParentList = industryHobbyResult.getData().getList().get(0).getChild();
+
                 int index = -1;
                 if (null != industryParentList && industryParentList.size() > 0) {
                     for (int i = 0; i < industryParentList.size(); i++) {
@@ -639,7 +646,6 @@ public class MingPianGuangChangActivity extends BaseActivity implements View.OnC
                 if (index > -1) {
                     industryParentList.remove(index);
                 }
-
                 Message message = myHandler.obtainMessage(3);
                 message.sendToTarget();
             }

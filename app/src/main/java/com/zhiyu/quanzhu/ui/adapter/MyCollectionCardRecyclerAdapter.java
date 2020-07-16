@@ -45,10 +45,12 @@ public class MyCollectionCardRecyclerAdapter extends RecyclerView.Adapter<MyColl
     private boolean isSelectModel;
 
     public void setAllSelect(boolean isAllSelected) {
-        for (Card feed : list) {
-            feed.setSelected(isAllSelected);
+        if(null!=list&&list.size()>0){
+            for (Card feed : list) {
+                feed.setSelected(isAllSelected);
+            }
+            notifyDataSetChanged();
         }
-        notifyDataSetChanged();
     }
 
     public String getCancelCollectIds() {

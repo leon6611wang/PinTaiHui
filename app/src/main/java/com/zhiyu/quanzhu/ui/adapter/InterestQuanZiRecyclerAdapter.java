@@ -78,10 +78,9 @@ public class InterestQuanZiRecyclerAdapter extends RecyclerView.Adapter<Interest
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Glide.with(context).load(list.get(position).getUser_avatar()).error(R.drawable.image_error).placeholder(R.drawable.image_error)
+        Glide.with(context).load(list.get(position).getAvatar()).error(R.drawable.image_error).placeholder(R.drawable.image_error)
                 .fallback(R.drawable.image_error).into(holder.avatarImageView);
-        if (!StringUtils.isNullOrEmpty(list.get(position).getUser_avatar()))
-            holder.nameTextView.setText(list.get(position).getUser_name());
+        holder.nameTextView.setText(list.get(position).getUsername());
         holder.daysTextView.setText(String.valueOf(list.get(position).getDays()));
         Glide.with(context).load(list.get(position).getThumb().getFile()).error(R.drawable.image_error).placeholder(R.drawable.image_error)
                 .fallback(R.drawable.image_error).into(holder.iconImageView);

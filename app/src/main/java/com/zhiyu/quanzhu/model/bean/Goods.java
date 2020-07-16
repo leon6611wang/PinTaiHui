@@ -29,6 +29,15 @@ public class Goods {
     private long min_price;
     private long max_price;
     private boolean is_collect;
+    private boolean goods_status;//true的时候可以下单
+
+    public boolean isGoods_status() {
+        return goods_status;
+    }
+
+    public void setGoods_status(boolean goods_status) {
+        this.goods_status = goods_status;
+    }
 
     public boolean isIs_collect() {
         return is_collect;

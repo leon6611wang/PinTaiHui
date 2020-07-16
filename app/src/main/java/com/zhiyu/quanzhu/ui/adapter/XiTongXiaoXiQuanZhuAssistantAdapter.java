@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.model.bean.QuanZhuAssistant;
 import com.zhiyu.quanzhu.ui.activity.H5PageActivity;
@@ -76,10 +77,12 @@ public class XiTongXiaoXiQuanZhuAssistantAdapter extends RecyclerView.Adapter<Xi
 
         @Override
         public void onClick(View v) {
-            Intent intent = new Intent(context, H5PageActivity.class);
-            intent.putExtra("url", list.get(position).getContent().getHandler_url());
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(intent);
+            if(!StringUtils.isNullOrEmpty(list.get(position).getContent().getHandler_url())){
+                Intent intent = new Intent(context, H5PageActivity.class);
+                intent.putExtra("url", list.get(position).getContent().getHandler_url());
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
+            }
         }
     }
 }

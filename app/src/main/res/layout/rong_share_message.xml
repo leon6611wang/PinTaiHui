@@ -27,11 +27,9 @@
                 android:id="@+id/titleTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_gravity="center"
                 android:ellipsize="end"
-                android:gravity="center|left"
                 android:maxLines="2"
-                android:text="俄奥委会:拒接受世界反兴奋剂机构禁赛处罚 将上诉"
+                android:text="分享标题"
                 android:textColor="@color/text_color_black"
                 android:textSize="14sp"
                 android:textStyle="bold" />
@@ -46,12 +44,10 @@
                     android:id="@+id/descriptionTextView"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
                     android:layout_weight="1"
                     android:ellipsize="end"
-                    android:gravity="center|left"
                     android:maxLines="3"
-                    android:text="当地时间12月24日，俄罗斯奥委会主席波兹德尼亚科夫和残奥委会主席卢金在新闻发布会上表示，俄罗斯奥委会执委会全会通过决议，支持俄罗斯反兴奋剂机构观察委员会19日所提出的，拒绝世界反兴奋剂机构对俄禁赛处罚决定的建议。随后，俄罗斯反兴奋剂机构全会审议并通过了上述决议。"
+                    android:text="分享内容"
                     android:textColor="@color/text_color_gray"
                     android:textSize="13sp" />
 
@@ -59,12 +55,13 @@
                     android:layout_width="@dimen/dp_10"
                     android:layout_height="match_parent" />
 
-                <ImageView
+                <com.zhiyu.quanzhu.ui.widget.NiceImageView
                     android:id="@+id/mImageView"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
                     android:scaleType="centerCrop"
-                    android:src="@mipmap/timg" />
+                    android:src="@drawable/image_error"
+                    app:corner_radius="3dp" />
             </LinearLayout>
 
             <View
@@ -84,7 +81,7 @@
                 <com.zhiyu.quanzhu.ui.widget.CircleImageView
                     android:layout_width="@dimen/dp_15"
                     android:layout_height="@dimen/dp_15"
-                    android:src="@mipmap/logo" />
+                    android:src="@mipmap/logo_y" />
 
                 <View
                     android:layout_width="@dimen/dp_5"

@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.leon.chic.utils.SPUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseApplication;
+import com.zhiyu.quanzhu.model.result.ShareResult;
 import com.zhiyu.quanzhu.ui.activity.CardInformationActivity;
 import com.zhiyu.quanzhu.ui.activity.CreateCircleActivity;
 import com.zhiyu.quanzhu.ui.activity.MyCirclesActivity;
@@ -22,6 +23,14 @@ import com.zhiyu.quanzhu.ui.adapter.MyFragmentStatePagerAdapter;
 import com.zhiyu.quanzhu.ui.dialog.HomeXiaoXiMenuDialog;
 import com.zhiyu.quanzhu.ui.dialog.ShareDialog;
 import com.zhiyu.quanzhu.ui.widget.NoScrollViewPager;
+import com.zhiyu.quanzhu.utils.ConstantsUtils;
+import com.zhiyu.quanzhu.utils.GsonUtils;
+import com.zhiyu.quanzhu.utils.MyRequestParams;
+import com.zhiyu.quanzhu.utils.ShareUtils;
+
+import org.xutils.common.Callback;
+import org.xutils.http.RequestParams;
+import org.xutils.x;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +55,7 @@ public class FragmentHomeXiaoXi extends Fragment implements View.OnClickListener
         view = inflater.inflate(R.layout.fragment_home_xiaoxi, container, false);
         initViews();
         initDialogs();
+        shareConfig();
         return view;
     }
 
@@ -75,6 +85,8 @@ public class FragmentHomeXiaoXi extends Fragment implements View.OnClickListener
                         break;
                     case 5:
                         shareDialog.show();
+                        shareDialog.setShare(shareResult.getData().getShare(),SPUtils.getInstance().getUserId(getContext()));
+                        shareDialog.hideInnerShare();
                         break;
                     case 6:
                         Intent shangquanIntent = new Intent(getActivity(), MyCirclesActivity.class);
@@ -103,7 +115,9 @@ public class FragmentHomeXiaoXi extends Fragment implements View.OnClickListener
         fragmentList.add(new FragmentXiaoXiXiTong());
         adapter = new MyFragmentStatePagerAdapter(getChildFragmentManager(), fragmentList);
         mViewPager.setAdapter(adapter);
-        titleChange(0);
+        mViewPager.setOffscreenPageLimit(3);
+        mViewPager.setCurrentItem(2);
+        titleChange(2);
         menuImageView = view.findViewById(R.id.menuImageView);
         menuImageView.getViewTreeObserver().addOnPreDrawListener(
                 new ViewTreeObserver.OnPreDrawListener() {
@@ -163,5 +177,38 @@ public class FragmentHomeXiaoXi extends Fragment implements View.OnClickListener
                 break;
         }
         mViewPager.setCurrentItem(position);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        shareDialog.setQQShareCallback(requestCode,resultCode,data);
+    }
+
+    private ShareResult shareResult;
+    private void shareConfig(){
+        RequestParams params= MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL+ConstantsUtils.SHARE_CONFIG);
+        params.addBodyParameter("type", ShareUtils.SHARE_TYPE_APP);
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                shareResult= GsonUtils.GsonToBean(result,ShareResult.class);
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
     }
 }

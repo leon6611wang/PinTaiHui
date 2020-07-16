@@ -1,5 +1,6 @@
 package com.zhiyu.quanzhu.ui.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -167,5 +168,11 @@ public class FragmentFullSearchFeed extends Fragment {
 
             }
         });}
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        adapter.setShareResultCode(requestCode,resultCode,data);
     }
 }

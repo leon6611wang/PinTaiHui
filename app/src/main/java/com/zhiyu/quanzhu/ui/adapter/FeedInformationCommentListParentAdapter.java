@@ -141,8 +141,10 @@ public class FeedInformationCommentListParentAdapter extends BaseAdapter impleme
         holder.priseNumTextView.setText(String.valueOf(list.get(position).getPnum()));
         if (list.get(position).isIs_prise()) {
             holder.priseImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.dianzan_yellow));
+            holder.priseNumTextView.setTextColor(context.getResources().getColor(R.color.text_color_yellow));
         } else {
             holder.priseImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.dianzan_gray));
+            holder.priseNumTextView.setTextColor(context.getResources().getColor(R.color.text_color_gray));
         }
         holder.timeTextView.setText(list.get(position).getDateline());
         holder.replyTextView.setOnClickListener(new OnReplyCommentClick(position));
@@ -330,8 +332,8 @@ public class FeedInformationCommentListParentAdapter extends BaseAdapter impleme
 
         @Override
         public void onClick(View v) {
-           Intent commentInfoIntent=new Intent(context, CommentInformationActivity.class);
-            commentInfoIntent.putExtra("comment_id",list.get(position).getId());
+            Intent commentInfoIntent = new Intent(context, CommentInformationActivity.class);
+            commentInfoIntent.putExtra("comment_id", list.get(position).getId());
             commentInfoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(commentInfoIntent);
 

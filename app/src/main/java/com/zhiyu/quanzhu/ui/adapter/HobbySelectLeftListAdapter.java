@@ -21,6 +21,17 @@ public class HobbySelectLeftListAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    public void addHobbyCount(){
+        if(null!=list&&list.size()>0){
+            for(int i=0;i<list.size();i++){
+                if(list.get(i).getName().equals("兴趣")){
+                    list.get(i).setSeletedCount(list.get(i).getSeletedCount()+1);
+                }
+            }
+        }
+        notifyDataSetChanged();
+    }
+
     public void setSelectedCount(int position, int selecetdCount) {
         list.get(position).setSeletedCount(selecetdCount);
         notifyDataSetChanged();

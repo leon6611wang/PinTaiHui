@@ -21,6 +21,7 @@ import com.zhiyu.quanzhu.model.bean.UploadImage;
 import com.zhiyu.quanzhu.ui.adapter.PublishFeedImagesGridAdapter;
 import com.zhiyu.quanzhu.ui.dialog.DeleteImageDialog;
 import com.zhiyu.quanzhu.ui.dialog.GoodsStatusDialog;
+import com.zhiyu.quanzhu.ui.dialog.LoadingDialog;
 import com.zhiyu.quanzhu.ui.dialog.RefundReasonDialog;
 import com.zhiyu.quanzhu.ui.dialog.ServiceTypeDialog;
 import com.zhiyu.quanzhu.ui.toast.MessageToast;
@@ -33,6 +34,7 @@ import com.zhiyu.quanzhu.utils.ImageUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.PriceParseUtils;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
+import com.zhiyu.quanzhu.utils.ThumbnailUtils;
 import com.zhiyu.quanzhu.utils.UploadImageUtils;
 
 import org.xutils.common.Callback;
@@ -61,6 +63,7 @@ public class AfterSaleServiceActivity extends BaseActivity implements View.OnCli
     private GoodsStatusDialog goodsStatusDialog;
     private RefundReasonDialog refundReasonDialog;
     private DeleteImageDialog deleteImageDialog;
+    private LoadingDialog loadingDialog;
     private int serviceTypeIndex = -1, goodsStatusIndex = -1;
     private String refundReason;
     private int refund_id;
@@ -88,6 +91,11 @@ public class AfterSaleServiceActivity extends BaseActivity implements View.OnCli
                         activity.finish();
                     }
                     break;
+                case 3:
+                    if (activity.uploadCount == 0) {
+                        activity.loadingDialog.dismiss();
+                    }
+                    break;
             }
         }
     }
@@ -99,8 +107,8 @@ public class AfterSaleServiceActivity extends BaseActivity implements View.OnCli
         ScreentUtils.getInstance().setStatusBarLightMode(this, true);
         order_id = getIntent().getIntExtra("order_id", 0);
         isUpdate = getIntent().getIntExtra("isUpdate", 0);
-        refund_id=getIntent().getIntExtra("refund_id",0);
-        refund_price=getIntent().getLongExtra("refund_money",0l);
+        refund_id = getIntent().getIntExtra("refund_id", 0);
+        refund_price = getIntent().getLongExtra("refund_money", 0l);
         String goodsJson = getIntent().getStringExtra("goodsJson");
 //        System.out.println("goodsJson: "+goodsJson);
         goods = GsonUtils.GsonToBean(goodsJson, OrderInformationGoods.class);
@@ -142,6 +150,7 @@ public class AfterSaleServiceActivity extends BaseActivity implements View.OnCli
                 imageGridAdapter.setData(mImageList);
             }
         });
+        loadingDialog = new LoadingDialog(this, R.style.dialog);
     }
 
     private void initViews() {
@@ -245,12 +254,38 @@ public class AfterSaleServiceActivity extends BaseActivity implements View.OnCli
     }
 
     private List<UploadImage> uploadImageList = new ArrayList<>();
+    private int uploadCount = 0;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_SELECT_IMAGES_CODE && resultCode == RESULT_OK) {
+            loadingDialog.show();
             mImageList = data.getStringArrayListExtra(ImagePicker.EXTRA_SELECT_IMAGES);
-            uploadImages();
+            if (mImageList.size() > 0) {
+                uploadCount = mImageList.size();
+                for (String path : mImageList) {
+                    ThumbnailUtils.getInstance().thumbnailImage(path, AfterSaleServiceActivity.this, new ThumbnailUtils.OnThumbnailListener() {
+                        @Override
+                        public void onThumbnail(final String thumb_path) {
+                            UploadImageUtils.getInstance().uploadFile(UploadImageUtils.CIRCLEFEES, thumb_path, new UploadImageUtils.OnUploadCallback() {
+                                @Override
+                                public void onUploadSuccess(String name) {
+                                    map.put(thumb_path, name);
+                                    imagesUploadList.add(name);
+                                    uploadCount--;
+                                    Message message = myHandler.obtainMessage(3);
+                                    message.sendToTarget();
+                                }
+                            });
+                        }
+                    });
+                }
+            } else {
+                loadingDialog.dismiss();
+            }
+            mImageList.add("add");
+            imageGridAdapter.setData(mImageList);
+        } else {
             mImageList.add("add");
             imageGridAdapter.setData(mImageList);
         }
@@ -260,7 +295,7 @@ public class AfterSaleServiceActivity extends BaseActivity implements View.OnCli
 
     private void uploadImages() {
         for (final String path : mImageList) {
-            if (!map.containsKey(path)) {
+            if (!map.containsKey(path) && !path.equals("add")) {
                 UploadImageUtils.getInstance().uploadFile(UploadImageUtils.CIRCLEFEES, path, new UploadImageUtils.OnUploadCallback() {
                     @Override
                     public void onUploadSuccess(String name) {

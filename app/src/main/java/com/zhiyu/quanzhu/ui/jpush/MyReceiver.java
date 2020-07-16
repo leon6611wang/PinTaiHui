@@ -36,34 +36,35 @@ public class MyReceiver extends BroadcastReceiver {
         try {
             Bundle bundle = intent.getExtras();
             if (JPushInterface.ACTION_REGISTRATION_ID.equals(intent.getAction())) {
-                String regId = bundle.getString(JPushInterface.EXTRA_REGISTRATION_ID);
-                System.out.println("JPush: " + "[MyReceiver] 接收Registration Id : " + regId);
+//                String regId = bundle.getString(JPushInterface.EXTRA_REGISTRATION_ID);
+//                System.out.println("JPush: " + "[MyReceiver] 接收Registration Id : " + regId);
             } else if (JPushInterface.ACTION_MESSAGE_RECEIVED.equals(intent.getAction())) {
                 MessageUtils.getInstance().getMessage(bundle, BaseApplication.getInstance(), new NotificationActionListener() {
                     @Override
                     public void onNotificationAction(int total_type, int system_type, int id, String avatar, String name, String content, String time) {
                         switch (total_type) {
                             case MessageTypeUtils.TOTAL_SYSTEM_MESSAGE:
-                                System.out.println("系统消息: " + name + " , " + content + " , " + time);
-                                if (!SPUtils.getInstance().messageSilence(BaseApplication.applicationContext, system_type)) {
+//                                System.out.println("系统消息: " + name + " , " + content + " , " + time);
+//                                System.out.println("是否弹出通知: " + (SPUtils.getInstance().notificatMessage(BaseApplication.applicationContext)));
+                                if (SPUtils.getInstance().notificatMessage(BaseApplication.applicationContext)) {
                                     NotificationUtils.getInstance().showSystemMessage(system_type, name, content);
                                 }
                                 break;
                             case MessageTypeUtils.TOTAL_CUSTOMER_SERVICE:
-                                System.out.println("客服消息: " + name + " , " + content + " , " + time);
+//                                System.out.println("客服消息: " + name + " , " + content + " , " + time);
                                 NotificationUtils.getInstance().showServiceMessage(id, name, content);
                                 break;
                             case MessageTypeUtils.TOTAL_CARD:
-                                System.out.println("名片消息: " + name + " , " + content + " , " + time+" (名片透传消息，不做提示)");
+//                                System.out.println("名片消息: " + name + " , " + content + " , " + time+" (名片透传消息，不做提示)");
                                 break;
                         }
                     }
                 });
             } else if (JPushInterface.ACTION_NOTIFICATION_RECEIVED.equals(intent.getAction())) {
                 int notifactionId = bundle.getInt(JPushInterface.EXTRA_NOTIFICATION_ID);
-                System.out.println("JPush: " + "[MyReceiver] 接收到推送下来的通知的ID: " + notifactionId);
+//                System.out.println("JPush: " + "[MyReceiver] 接收到推送下来的通知的ID: " + notifactionId);
             } else if (JPushInterface.ACTION_NOTIFICATION_OPENED.equals(intent.getAction())) {
-                System.out.println("JPush: " + "[MyReceiver] 用户点击打开了通知");
+//                System.out.println("JPush: " + "[MyReceiver] 用户点击打开了通知");
                 //打开自定义的Activity
                 Intent i = new Intent(context, HomeActivity.class);
                 i.putExtras(bundle);
@@ -73,9 +74,9 @@ public class MyReceiver extends BroadcastReceiver {
 
             } else if (JPushInterface.ACTION_CONNECTION_CHANGE.equals(intent.getAction())) {
                 boolean connected = intent.getBooleanExtra(JPushInterface.EXTRA_CONNECTION_CHANGE, false);
-                System.out.println("JPush: " + "[MyReceiver]" + intent.getAction() + " connected state change to " + connected);
+//                System.out.println("JPush: " + "[MyReceiver]" + intent.getAction() + " connected state change to " + connected);
             } else {
-                Logger.d(TAG, "[MyReceiver] Unhandled intent - " + intent.getAction());
+//                Logger.d(TAG, "[MyReceiver] Unhandled intent - " + intent.getAction());
             }
         } catch (Exception e) {
 
@@ -94,7 +95,7 @@ public class MyReceiver extends BroadcastReceiver {
                 sb.append("\nkey:" + key + ", value:" + bundle.getBoolean(key));
             } else if (key.equals(JPushInterface.EXTRA_EXTRA)) {
                 if (TextUtils.isEmpty(bundle.getString(JPushInterface.EXTRA_EXTRA))) {
-                    Logger.i(TAG, "This message has no Extra data");
+//                    Logger.i(TAG, "This message has no Extra data");
                     continue;
                 }
 
@@ -108,7 +109,7 @@ public class MyReceiver extends BroadcastReceiver {
                                 myKey + " - " + json.optString(myKey) + "]");
                     }
                 } catch (JSONException e) {
-                    Logger.e(TAG, "Get message extra JSON error!");
+//                    Logger.e(TAG, "Get message extra JSON error!");
                 }
 
             } else {

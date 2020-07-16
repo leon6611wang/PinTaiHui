@@ -74,16 +74,17 @@ public class HobbySelectActivity extends BaseActivity implements View.OnClickLis
                     if (activity.hobbyResult.getCode() == 200) {
                         activity.leftListAdapter.setList(activity.hobbyResult.getData().getList());
                         activity.rightListAdapter.setList(activity.hobbyResult.getData().getList().get(activity.leftIndex).getChild(), (activity.hobbyResult.getData().getList().get(activity.leftIndex).getType() == 2));
-
                     } else {
                         MessageToast.getInstance(activity).show(activity.hobbyResult.getMsg());
                     }
                     break;
                 case 2:
                     MessageToast.getInstance(activity).show(activity.addHobbyResult.getMsg());
-                    if (activity.addHobbyResult.getCode() == 200)
+                    if (activity.addHobbyResult.getCode() == 200) {
                         activity.hobby = activity.addHobbyResult.getData();
-                    activity.addLocalHobby();
+                        activity.addLocalHobby();
+                        activity.leftListAdapter.addHobbyCount();
+                    }
                     break;
                 case 3:
                     MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
@@ -352,7 +353,7 @@ public class HobbySelectActivity extends BaseActivity implements View.OnClickLis
         if (!rightList.isGroupExpanded(index)) {
             rightList.expandGroup(index);
         }
-
+        map.put(leftIndex, rightListAdapter.getHobbyList());
 //        rightListAdapter.setChildCurrentPosition(0);
     }
 

@@ -24,6 +24,7 @@ import com.zhiyu.quanzhu.model.bean.Circle;
 import com.zhiyu.quanzhu.model.bean.FullSearchHistory;
 import com.zhiyu.quanzhu.model.dao.FullSearchHistoryDao;
 import com.zhiyu.quanzhu.model.result.CircleResult;
+import com.zhiyu.quanzhu.model.result.ShareResult;
 import com.zhiyu.quanzhu.ui.adapter.MyShangQuanRecyclerAdapter;
 import com.zhiyu.quanzhu.ui.dialog.MyShangQuanMenuDialog;
 import com.zhiyu.quanzhu.ui.dialog.ShareDialog;
@@ -35,6 +36,7 @@ import com.zhiyu.quanzhu.utils.MyPtrHandlerHeader;
 import com.zhiyu.quanzhu.utils.MyPtrRefresherFooter;
 import com.zhiyu.quanzhu.utils.MyPtrRefresherHeader;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
+import com.zhiyu.quanzhu.utils.ShareUtils;
 import com.zhiyu.quanzhu.utils.SoftKeyboardUtil;
 import com.zhiyu.quanzhu.utils.SpaceItemDecoration;
 
@@ -52,8 +54,7 @@ import in.srain.cube.views.ptr.PtrFrameLayout;
 /**
  * 我的圈子
  */
-public class MyCirclesActivity extends BaseActivity implements View.OnClickListener {
-
+public class MyCirclesActivity extends BaseActivity implements View.OnClickListener,CircleSettingActivity.OnRemoveCircleListener {
     private LinearLayout backLayout;
     private LinearLayout rightLayout;
     private ImageView menuImageView;
@@ -93,10 +94,12 @@ public class MyCirclesActivity extends BaseActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_circles);
+        CircleSettingActivity.setOnRemoveCircleListener(this);
         dp_15 = (int) getResources().getDimension(R.dimen.dp_15);
         initPtr();
         initViews();
         initDialogs();
+        shareConfig();
     }
 
     private ShareDialog shareDialog;
@@ -121,6 +124,8 @@ public class MyCirclesActivity extends BaseActivity implements View.OnClickListe
                         break;
                     case 5:
                         shareDialog.show();
+                        shareDialog.setShare(shareResult.getData().getShare(),SPUtils.getInstance().getUserId(MyCirclesActivity.this));
+                        shareDialog.hideInnerShare();
                         break;
                 }
             }
@@ -205,9 +210,17 @@ public class MyCirclesActivity extends BaseActivity implements View.OnClickListe
     }
 
     @Override
+    public void onRemoveCircle() {
+        isRefresh = true;
+        page = 1;
+        circleList();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         isRefresh = true;
+        page=1;
         if (null != list) {
             list.clear();
         }
@@ -233,7 +246,6 @@ public class MyCirclesActivity extends BaseActivity implements View.OnClickListe
     private int page = 1;
 
     private void circleList() {
-
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.CIRCLE_LIST);
         params.addBodyParameter("keywords", keyword);
         params.addBodyParameter("page", String.valueOf(page));
@@ -267,5 +279,39 @@ public class MyCirclesActivity extends BaseActivity implements View.OnClickListe
 
             }
         });
+    }
+
+
+    private ShareResult shareResult;
+    private void shareConfig(){
+        RequestParams params=MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL+ConstantsUtils.SHARE_CONFIG);
+        params.addBodyParameter("type", ShareUtils.SHARE_TYPE_APP);
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                shareResult=GsonUtils.GsonToBean(result,ShareResult.class);
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        shareDialog.setQQShareCallback(requestCode,resultCode,data);
     }
 }

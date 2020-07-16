@@ -82,7 +82,7 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
             FragmentQuanZiTuiJian fragment = fragmentQuanZiTuiJianWeakReference.get();
             switch (msg.what) {
                 case 1:
-                    fragment.isRequesting=false;
+                    fragment.isRequesting = false;
                     if (fragment.loadingDialog.isShowing()) {
                         fragment.loadingDialog.dismiss();
                     }
@@ -90,7 +90,7 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
                     fragment.circleTuiJianAdapter.setList(fragment.tuiJianList);
                     break;
                 case 2:
-                    fragment.isRequesting=false;
+                    fragment.isRequesting = false;
                     if (fragment.loadingDialog.isShowing()) {
                         fragment.loadingDialog.dismiss();
                     }
@@ -98,7 +98,7 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
                     fragment.circleTuiJianAdapter.setList(fragment.tuiJianList);
                     break;
                 case 3:
-                    fragment.isRequesting=false;
+                    fragment.isRequesting = false;
                     if (fragment.loadingDialog.isShowing()) {
                         fragment.loadingDialog.dismiss();
                     }
@@ -122,7 +122,11 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
                     break;
                 case 6:
                     fragment.daoHangList.get(0).setChoose(true);
-                    fragment.titleRecyclerAdapter.setData(fragment.daoHangList);
+                    if (null == fragment.titleRecyclerAdapter) {
+                        System.out.println("titleRecyclerAdapter 为空");
+                    } else {
+                        fragment.titleRecyclerAdapter.setData(fragment.daoHangList);
+                    }
                     break;
             }
         }
@@ -138,7 +142,7 @@ public class FragmentQuanZiTuiJian extends Fragment implements QuanZiTuiJianTitl
         int sh = ScreentUtils.getInstance().getScreenHeight(getContext());
         float ratio = (float) sw / (float) sh;
         float ratio2 = (float) 9 / (float) 16;
-        System.out.println("ratio: " + ratio + " , ratio2: " + ratio2);
+//        System.out.println("ratio: " + ratio + " , ratio2: " + ratio2);
         float width = ratio * card_height;
         card_width = Math.round(width);
         try {

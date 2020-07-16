@@ -4,6 +4,7 @@ import java.util.List;
 
 public class FullSearchShop {
     private int id;
+    private int shop_id;
     private String icon;
     private float mark;
     private String name;
@@ -21,6 +22,13 @@ public class FullSearchShop {
     private List<FullSearchGoods> goods;
     private boolean isSelected;
 
+    public int getShop_id() {
+        return shop_id;
+    }
+
+    public void setShop_id(int shop_id) {
+        this.shop_id = shop_id;
+    }
 
     public boolean isSelected() {
         return isSelected;

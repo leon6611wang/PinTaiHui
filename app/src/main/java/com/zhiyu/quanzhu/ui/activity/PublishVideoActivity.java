@@ -144,6 +144,11 @@ public class PublishVideoActivity extends BaseActivity implements View.OnClickLi
                         activity.goToPublishSetting();
                     }
                     break;
+                case 4:
+                    if (activity.uploadCount == 0) {
+                        activity.loadingDialog.dismiss();
+                    }
+                    break;
                 case 99:
                     activity.loadingDialog.dismiss();
                     activity.nextButton.setClickable(true);
@@ -290,7 +295,7 @@ public class PublishVideoActivity extends BaseActivity implements View.OnClickLi
             bundle.putSerializable("tagList", tagList);
             paramsIntent.putExtras(bundle);
         }
-        startActivityForResult(paramsIntent,10041);
+        startActivityForResult(paramsIntent, 10041);
     }
 
     private void selectVideo() {
@@ -307,6 +312,8 @@ public class PublishVideoActivity extends BaseActivity implements View.OnClickLi
                 .start(PublishVideoActivity.this, REQUEST_SELECT_VIDEO_CODE);//REQEST_SELECT_IMAGES_CODE为Intent调用的requestCode
     }
 
+    private int uploadCount = 0;
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == 10041) {
@@ -317,33 +324,37 @@ public class PublishVideoActivity extends BaseActivity implements View.OnClickLi
             }
         }
         if (requestCode == REQUEST_SELECT_VIDEO_CODE && resultCode == RESULT_OK) {
-            mImageList = data.getStringArrayListExtra(ImagePicker.EXTRA_SELECT_IMAGES);
-            Glide.with(PublishVideoActivity.this).load(mImageList.get(0)).into(videoImageView);
-            videoImageView.setVisibility(View.VISIBLE);
-            addVideoLayout.setVisibility(View.GONE);
             loadingDialog.show();
-            UploadImageUtils.getInstance().uploadFile(UploadImageUtils.CIRCLEFEES, mImageList.get(0), new UploadImageUtils.OnUploadCallback() {
-                @Override
-                public void onUploadSuccess(String name) {
-                    video_url = name;
-                    ThreadPoolUtils.getInstance().init().execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            VideoUtils.getInstance().getVideoWidthAndHeightAndVideoTimes(video_url, new VideoUtils.OnCaculateVideoWidthHeightListener() {
-                                @Override
-                                public void onVideoWidthHeight(float w, float h, float vt) {
-                                    video_width = (int) w;
-                                    video_height = (int) h;
-                                    Message message = myHandler.obtainMessage(1);
-                                    message.sendToTarget();
-                                }
-                            });
-                        }
-                    });
+            mImageList = data.getStringArrayListExtra(ImagePicker.EXTRA_SELECT_IMAGES);
+            if (mImageList.size() > 0) {
+                Glide.with(PublishVideoActivity.this).load(mImageList.get(0)).into(videoImageView);
+                videoImageView.setVisibility(View.VISIBLE);
+                addVideoLayout.setVisibility(View.GONE);
+                loadingDialog.show();
+                UploadImageUtils.getInstance().uploadFile(UploadImageUtils.CIRCLEFEES, mImageList.get(0), new UploadImageUtils.OnUploadCallback() {
+                    @Override
+                    public void onUploadSuccess(String name) {
+                        video_url = name;
+                        ThreadPoolUtils.getInstance().init().execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                VideoUtils.getInstance().getVideoWidthAndHeightAndVideoTimes(video_url, new VideoUtils.OnCaculateVideoWidthHeightListener() {
+                                    @Override
+                                    public void onVideoWidthHeight(float w, float h, float vt) {
+                                        video_width = (int) w;
+                                        video_height = (int) h;
+                                        Message message = myHandler.obtainMessage(1);
+                                        message.sendToTarget();
+                                    }
+                                });
+                            }
+                        });
 
-                }
-            });
-
+                    }
+                });
+            } else {
+                loadingDialog.dismiss();
+            }
         }
     }
 
@@ -360,7 +371,7 @@ public class PublishVideoActivity extends BaseActivity implements View.OnClickLi
         params.addBodyParameter("video_width", String.valueOf(video_width));
         params.addBodyParameter("video_height", String.valueOf(video_height));
         params.addBodyParameter("tags", tagIds);
-        params.addBodyParameter("feeds_type","2");
+        params.addBodyParameter("feeds_type", "2");
         params.addBodyParameter("city_name", SPUtils.getInstance().getLocationCity(BaseApplication.applicationContext));
         params.addBodyParameter("province_name", SPUtils.getInstance().getLocationProvince(BaseApplication.applicationContext));
         x.http().post(params, new Callback.CommonCallback<String>() {
@@ -405,7 +416,7 @@ public class PublishVideoActivity extends BaseActivity implements View.OnClickLi
         params.addBodyParameter("video_width", String.valueOf(video_width));
         params.addBodyParameter("video_height", String.valueOf(video_height));
         params.addBodyParameter("tags", tagIds);
-        params.addBodyParameter("feeds_type","2");
+        params.addBodyParameter("feeds_type", "2");
         params.addBodyParameter("feeds_id", String.valueOf(feeds_id));
         params.addBodyParameter("city_name", SPUtils.getInstance().getLocationCity(BaseApplication.applicationContext));
         params.addBodyParameter("province_name", SPUtils.getInstance().getLocationProvince(BaseApplication.applicationContext));

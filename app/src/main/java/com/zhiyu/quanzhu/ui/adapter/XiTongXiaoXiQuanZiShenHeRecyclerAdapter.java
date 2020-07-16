@@ -56,8 +56,10 @@ public class XiTongXiaoXiQuanZiShenHeRecyclerAdapter extends RecyclerView.Adapte
                     break;
                 case 1:
                     MessageToast.getInstance(adapter.context).show(adapter.baseResult.getMsg());
-                    adapter.list.get(adapter.currentPosition).setStatus(adapter.operation_type);
-                    adapter.notifyDataSetChanged();
+                    if (200 == adapter.baseResult.getCode()) {
+                        adapter.list.get(adapter.currentPosition).setStatus(adapter.operation_type);
+                        adapter.notifyDataSetChanged();
+                    }
                     break;
             }
         }
@@ -98,7 +100,7 @@ public class XiTongXiaoXiQuanZiShenHeRecyclerAdapter extends RecyclerView.Adapte
     }
 
     class ViewHolder1 extends RecyclerView.ViewHolder {
-        TextView timeTextView, circleNameTextView, contentTextView, refuseTextView, confirmTextView, resultTextView,statusDescTextView;
+        TextView timeTextView, circleNameTextView, contentTextView, refuseTextView, confirmTextView, resultTextView, statusDescTextView;
         CircleImageView avatarImageView;
 
         public ViewHolder1(View itemView) {
@@ -110,7 +112,7 @@ public class XiTongXiaoXiQuanZiShenHeRecyclerAdapter extends RecyclerView.Adapte
             confirmTextView = itemView.findViewById(R.id.confirmTextView);
             avatarImageView = itemView.findViewById(R.id.avatarImageView);
             resultTextView = itemView.findViewById(R.id.resultTextView);
-            statusDescTextView=itemView.findViewById(R.id.statusDescTextView);
+            statusDescTextView = itemView.findViewById(R.id.statusDescTextView);
 
         }
     }
@@ -152,7 +154,7 @@ public class XiTongXiaoXiQuanZiShenHeRecyclerAdapter extends RecyclerView.Adapte
             String content = "<font color='#FE8627'>" + list.get(position).getUsername() + "</font><font color='#666666'>" + " 想要加入您的圈子 " + "</font>" +
                     "<font color='#FE8627'>" + list.get(position).getCircle_name() + "</font>";
             holder.contentTextView.setText(Html.fromHtml(content));
-            holder.resultTextView.setText("验证消息："+list.get(position).getContent());
+            holder.resultTextView.setText("验证消息：" + list.get(position).getContent());
             holder.refuseTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -175,8 +177,8 @@ public class XiTongXiaoXiQuanZiShenHeRecyclerAdapter extends RecyclerView.Adapte
             String content = "<font color='#FE8627'>" + list.get(position).getUsername() + "</font><font color='#666666'>" + " 想要加入您的圈子 " + "</font>" +
                     "<font color='#FE8627'>" + list.get(position).getCircle_name() + "</font>";
             holder.contentTextView.setText(Html.fromHtml(content));
-            holder.resultTextView.setText("验证消息："+list.get(position).getContent());
-            switch (list.get(position).getStatus()){
+            holder.resultTextView.setText("验证消息：" + list.get(position).getContent());
+            switch (list.get(position).getStatus()) {
                 case 1:
                     holder.statusDescTextView.setText("已通过");
                     holder.statusDescTextView.setTextColor(context.getResources().getColor(R.color.text_color_yellow));

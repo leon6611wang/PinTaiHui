@@ -102,11 +102,14 @@ public class ConversationPrivateSettingActivity extends BaseActivity implements 
     /**
      * 删除聊天item的方法
      */
-    public void removeRongIMMessage(String targetId) {
+    public void removeRongIMMessage(final String targetId) {
         RongIM.getInstance().removeConversation(Conversation.ConversationType.PRIVATE, targetId, new RongIMClient.ResultCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean aBoolean) {
                 System.out.println("删除成功");
+                if(null!=onDeleteConversationListener){
+                    onDeleteConversationListener.onDeleteConversation(Integer.parseInt(targetId));
+                }
             }
 
             @Override
@@ -114,6 +117,14 @@ public class ConversationPrivateSettingActivity extends BaseActivity implements 
                 System.out.println("删除失败");
             }
         });
+    }
+
+    private static OnDeleteConversationListener onDeleteConversationListener;
+    public static void setOnDeleteConversationListener(OnDeleteConversationListener listener){
+        onDeleteConversationListener=listener;
+    }
+    public interface OnDeleteConversationListener{
+        void onDeleteConversation(int id);
     }
 
 
@@ -197,7 +208,7 @@ public class ConversationPrivateSettingActivity extends BaseActivity implements 
         if (!StringUtils.isNullOrEmpty(friendSettingResult.getData().getTruename()))
             nameTextView.setText(friendSettingResult.getData().getTruename());
         if (!StringUtils.isNullOrEmpty(friendSettingResult.getData().getUsername()))
-            nickNameTextView.setText(friendSettingResult.getData().getUsername());
+            nickNameTextView.setText("昵称："+friendSettingResult.getData().getUsername());
         if (!StringUtils.isNullOrEmpty(friendSettingResult.getData().getNotename()))
             noteNameTextView.setText(friendSettingResult.getData().getNotename());
         switch (silence) {

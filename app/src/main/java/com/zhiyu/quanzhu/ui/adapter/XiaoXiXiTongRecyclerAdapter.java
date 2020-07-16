@@ -2,6 +2,9 @@ package com.zhiyu.quanzhu.ui.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -12,9 +15,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.leon.chic.dao.MessageDao;
 import com.leon.chic.utils.MessageTypeUtils;
+import com.leon.chic.utils.TimeUtils;
 import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
+import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.model.bean.SystemMessage;
 import com.zhiyu.quanzhu.model.bean.XiTongXiaoXi;
 import com.zhiyu.quanzhu.ui.activity.CustomerServiceActivity;
@@ -27,6 +33,7 @@ import com.zhiyu.quanzhu.ui.activity.XiTongXiaoXiQuanZiShenHeActivity;
 import com.zhiyu.quanzhu.ui.activity.XiTongXiaoXiZhiFuTongZhiActivity;
 import com.zhiyu.quanzhu.ui.widget.CircleImageView;
 
+import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -34,22 +41,166 @@ import java.util.List;
 public class XiaoXiXiTongRecyclerAdapter extends RecyclerView.Adapter<XiaoXiXiTongRecyclerAdapter.ViewHolder> {
     private List<XiTongXiaoXi> list;
     private Context context;
+    private MyHandler myHandler = new MyHandler(this);
+
+    private static class MyHandler extends Handler {
+        WeakReference<XiaoXiXiTongRecyclerAdapter> weakReference;
+
+        public MyHandler(XiaoXiXiTongRecyclerAdapter adapter) {
+            weakReference = new WeakReference<>(adapter);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            XiaoXiXiTongRecyclerAdapter adapter = weakReference.get();
+            switch (msg.what) {
+                case 1:
+                    Bundle bundle = (Bundle) msg.obj;
+                    int count = (Integer) bundle.get("count");
+                    int index = (Integer) bundle.get("index");
+                    String time = (String) bundle.get("time");
+                    String message_content = (String) bundle.get("message_content");
+                    adapter.list.get(index).setMsgCount(count);
+                    adapter.list.get(index).setTime(time);
+                    adapter.list.get(index).setMsg(message_content);
+                    XiTongXiaoXi xiaoXi = adapter.list.get(index);
+                    adapter.list.remove(index);
+                    adapter.list.add(0, xiaoXi);
+                    adapter.notifyDataSetChanged();
+                    break;
+            }
+        }
+    }
 
     public XiaoXiXiTongRecyclerAdapter(Context context) {
         this.context = context;
     }
 
+    public void resumeSystemMessageList() {
+        com.leon.chic.model.SystemMessage xiaoMiShuMessage = MessageDao.getInstance().getLatestSystemMessage(MessageTypeUtils.XIAO_MI_SHU, BaseApplication.getInstance());
+        if (null != xiaoMiShuMessage) {
+            int index = 0;
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).getMessage_type() == MessageTypeUtils.XIAO_MI_SHU) {
+                    index = i;
+                    break;
+                }
+            }
+            list.get(index).setMsgCount(xiaoMiShuMessage.getUnReadCount());
+            list.get(index).setTime(TimeUtils.getInstance().getDisTime(xiaoMiShuMessage.getMessage_time()));
+            list.get(index).setMsg(xiaoMiShuMessage.getMessage_content());
+            list.get(index).setMessage_time(xiaoMiShuMessage.getMessage_time());
+        }
+        com.leon.chic.model.SystemMessage quanYouQingQiuMessage = MessageDao.getInstance().getLatestSystemMessage(MessageTypeUtils.QUAN_YOU_QING_QIU, BaseApplication.getInstance());
+        if (null != quanYouQingQiuMessage) {
+            int index = 0;
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).getMessage_type() == MessageTypeUtils.QUAN_YOU_QING_QIU) {
+                    index = i;
+                    break;
+                }
+            }
+            list.get(index).setMsgCount(quanYouQingQiuMessage.getUnReadCount());
+            list.get(index).setTime(TimeUtils.getInstance().getDisTime(quanYouQingQiuMessage.getMessage_time()));
+            list.get(index).setMsg(quanYouQingQiuMessage.getMessage_content());
+            list.get(index).setMessage_time(quanYouQingQiuMessage.getMessage_time());
+        }
+        com.leon.chic.model.SystemMessage quanZiShenHeMessage = MessageDao.getInstance().getLatestSystemMessage(MessageTypeUtils.QUAN_ZI_SHEN_HE, BaseApplication.getInstance());
+        if (null != quanZiShenHeMessage) {
+            int index = 0;
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).getMessage_type() == MessageTypeUtils.QUAN_ZI_SHEN_HE) {
+                    index = i;
+                    break;
+                }
+            }
+            list.get(index).setMsgCount(quanZiShenHeMessage.getUnReadCount());
+            list.get(index).setTime(TimeUtils.getInstance().getDisTime(quanZiShenHeMessage.getMessage_time()));
+            list.get(index).setMsg(quanZiShenHeMessage.getMessage_content());
+            list.get(index).setMessage_time(quanZiShenHeMessage.getMessage_time());
+        }
+        com.leon.chic.model.SystemMessage fuKuanTongZhiMessage = MessageDao.getInstance().getLatestSystemMessage(MessageTypeUtils.FU_KUAN_TONG_ZHI, BaseApplication.getInstance());
+        if (null != fuKuanTongZhiMessage) {
+            int index = 0;
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).getMessage_type() == MessageTypeUtils.FU_KUAN_TONG_ZHI) {
+                    index = i;
+                    break;
+                }
+            }
+            list.get(index).setMsgCount(fuKuanTongZhiMessage.getUnReadCount());
+            list.get(index).setTime(TimeUtils.getInstance().getDisTime(fuKuanTongZhiMessage.getMessage_time()));
+            list.get(index).setMsg(fuKuanTongZhiMessage.getMessage_content());
+            list.get(index).setMessage_time(fuKuanTongZhiMessage.getMessage_time());
+        }
+        com.leon.chic.model.SystemMessage kaQuanTongZhiMessage = MessageDao.getInstance().getLatestSystemMessage(MessageTypeUtils.KA_QUAN_TONG_ZHI, BaseApplication.getInstance());
+        if (null != kaQuanTongZhiMessage) {
+            int index = 0;
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).getMessage_type() == MessageTypeUtils.KA_QUAN_TONG_ZHI) {
+                    index = i;
+                    break;
+                }
+            }
+            list.get(index).setMsgCount(kaQuanTongZhiMessage.getUnReadCount());
+            list.get(index).setTime(TimeUtils.getInstance().getDisTime(kaQuanTongZhiMessage.getMessage_time()));
+            list.get(index).setMsg(kaQuanTongZhiMessage.getMessage_content());
+            list.get(index).setMessage_time(kaQuanTongZhiMessage.getMessage_time());
+        }
+        com.leon.chic.model.SystemMessage guanZhuDianPuMessage = MessageDao.getInstance().getLatestSystemMessage(MessageTypeUtils.GUAN_ZHU_DIAN_PU, BaseApplication.getInstance());
+        if (null != guanZhuDianPuMessage) {
+            int index = 0;
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).getMessage_type() == MessageTypeUtils.GUAN_ZHU_DIAN_PU) {
+                    index = i;
+                    break;
+                }
+            }
+            list.get(index).setMsgCount(guanZhuDianPuMessage.getUnReadCount());
+            list.get(index).setTime(TimeUtils.getInstance().getDisTime(guanZhuDianPuMessage.getMessage_time()));
+            list.get(index).setMsg(guanZhuDianPuMessage.getMessage_content());
+            list.get(index).setMessage_time(guanZhuDianPuMessage.getMessage_time());
+        }
+        com.leon.chic.model.SystemMessage touSuFanKuiMessage = MessageDao.getInstance().getLatestSystemMessage(MessageTypeUtils.TOU_SU_FAN_KUI, BaseApplication.getInstance());
+        if (null != touSuFanKuiMessage) {
+            int index = 0;
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).getMessage_type() == MessageTypeUtils.TOU_SU_FAN_KUI) {
+                    index = i;
+                    break;
+                }
+            }
+            list.get(index).setMsgCount(touSuFanKuiMessage.getUnReadCount());
+            list.get(index).setTime(TimeUtils.getInstance().getDisTime(touSuFanKuiMessage.getMessage_time()));
+            list.get(index).setMsg(touSuFanKuiMessage.getMessage_content());
+            list.get(index).setMessage_time(touSuFanKuiMessage.getMessage_time());
+        }
+        notifyDataSetChanged();
+    }
+
+
     public void setList(List<XiTongXiaoXi> xiaoXiList) {
-        this.list = xiaoXiList;
-        Collections.sort(list, new Comparator<XiTongXiaoXi>() {
+        Collections.sort(xiaoXiList, new Comparator<XiTongXiaoXi>() {
             @Override
             public int compare(XiTongXiaoXi o1, XiTongXiaoXi o2) {
                 int sort = (int) (o2.getMessage_time() - o1.getMessage_time());
-//                System.out.println("--> sort: "+sort);
                 return sort;
             }
         });
+        this.list = xiaoXiList;
         notifyDataSetChanged();
+    }
+
+    public void notifySystemMessage(int index, int message_type, String message_content, String time, int count) {
+        Message message = myHandler.obtainMessage(1);
+        Bundle bundle = new Bundle();
+        bundle.putInt("index", index);
+        bundle.putInt("count", count);
+        bundle.putString("time", time);
+        bundle.putString("message_content", message_content);
+        message.obj = bundle;
+        message.sendToTarget();
+
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -80,7 +231,7 @@ public class XiaoXiXiTongRecyclerAdapter extends RecyclerView.Adapter<XiaoXiXiTo
         if (list.get(position).getMessage_type() > 0) {
             holder.iconImageView.setImageDrawable(context.getResources().getDrawable(list.get(position).getIcon()));
         } else {
-            Glide.with(context).load(list.get(position).getAvatar()).error(R.drawable.image_error) .placeholder(R.drawable.image_error)
+            Glide.with(context).load(list.get(position).getAvatar()).error(R.drawable.image_error).placeholder(R.drawable.image_error)
                     .fallback(R.drawable.image_error).into(holder.iconImageView);
         }
 
@@ -94,7 +245,7 @@ public class XiaoXiXiTongRecyclerAdapter extends RecyclerView.Adapter<XiaoXiXiTo
             if (list.get(position).getMsgCount() < 10) {
                 holder.msgCountTextView.setTextSize(9);
                 holder.msgCountTextView.setText(String.valueOf(list.get(position).getMsgCount()));
-            } else if (list.get(position).getMsgCount() > 10 && list.get(position).getMsgCount() < 100) {
+            } else if (list.get(position).getMsgCount() >= 10 && list.get(position).getMsgCount() < 100) {
                 holder.msgCountTextView.setTextSize(9);
                 holder.msgCountTextView.setText(String.valueOf(list.get(position).getMsgCount()));
             } else if (list.get(position).getMsgCount() > 99) {

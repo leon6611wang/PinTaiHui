@@ -325,7 +325,7 @@
                         android:layout_weight="1"
                         android:gravity="center|left"
                         android:paddingLeft="@dimen/dp_15"
-                        android:text="选择 规格、型号"
+                        android:text="规格、型号"
                         android:textColor="@color/text_color_gray"
                         android:textSize="14sp" />
 

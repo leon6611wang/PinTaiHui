@@ -11,6 +11,7 @@ import android.widget.LinearLayout;
 
 import com.bumptech.glide.Glide;
 import com.zhiyu.quanzhu.R;
+import com.zhiyu.quanzhu.ui.activity.LargeImageList2Activity;
 import com.zhiyu.quanzhu.ui.activity.LargeImageListActivity;
 import com.zhiyu.quanzhu.ui.widget.NiceImageView;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
@@ -76,7 +77,7 @@ public class MingPianDongTaiImageRecyclerAdapter extends RecyclerView.Adapter<Mi
 
         @Override
         public void onClick(View v) {
-            Intent intent = new Intent(context, LargeImageListActivity.class);
+            Intent intent = new Intent(context, LargeImageList2Activity.class);
             intent.putExtra("position", position);
             intent.putStringArrayListExtra("imgList", list);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

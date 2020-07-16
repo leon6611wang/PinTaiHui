@@ -23,7 +23,7 @@
             android:layout_weight="1"
             android:gravity="center|left"
             android:orientation="vertical"
-            android:visibility="visible">
+            android:visibility="invisible">
 
             <FrameLayout
                 android:layout_width="wrap_content"

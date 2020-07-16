@@ -325,7 +325,7 @@ public class PublishArticleContentEditActivity extends BaseActivity implements V
                 .start(PublishArticleContentEditActivity.this, REQUEST_SELECT_IMAGES_CODE);//REQEST_SELECT_IMAGES_CODE为Intent调用的requestCode
     }
 
-
+    private int uploadCount = 0;
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_SELECT_IMAGES_CODE && resultCode == RESULT_OK) {

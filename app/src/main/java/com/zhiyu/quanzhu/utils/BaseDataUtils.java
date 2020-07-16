@@ -116,7 +116,7 @@ public class BaseDataUtils {
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("BaseData - 地区: " + result);
+//                System.out.println("BaseData - 地区: " + result);
                 areaResult = GsonUtils.GsonToBean(result, AreaResult.class);
                 AreaDao.getInstance().saveAreaProvince(areaResult.getData().getCitys());
                 for (final AreaProvince p : areaResult.getData().getCitys()) {
@@ -157,7 +157,7 @@ public class BaseDataUtils {
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("BaseData - 行业: " + result);
+//                System.out.println("BaseData - 行业: " + result);
                 industryResult = GsonUtils.GsonToBean(result, IndustryResult.class);
                 if (null != industryResult) {
                     IndustryDao.getInstance().saveIndustryParent(industryResult.getData().getList().get(0).getChild());
@@ -197,7 +197,7 @@ public class BaseDataUtils {
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("BaseData - 兴趣爱好: " + result);
+//                System.out.println("BaseData - 兴趣爱好: " + result);
                 hobbyResult = GsonUtils.GsonToBean(result, HobbyDaoResult.class);
                 HobbyDao.getInstance().saveHobbyParentList(hobbyResult.getData().getList().get(0).getChild());
                 for (HobbyDaoParent parent : hobbyResult.getData().getList().get(0).getChild()) {

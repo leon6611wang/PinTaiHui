@@ -234,7 +234,8 @@ public class ShopVertifyActivity extends BaseActivity implements View.OnClickLis
         if (shopEnclosureList.size() > 4) {
             List<String> otherList = new ArrayList<>();
             for (int i = 4; i < shopEnclosureList.size(); i++) {
-                otherList.add(shopEnclosureList.get(i).getUrl());
+                if (!StringUtils.isNullOrEmpty(shopEnclosureList.get(i).getUrl()) && !"null".equals(shopEnclosureList.get(i).getUrl()))
+                    otherList.add(shopEnclosureList.get(i).getUrl());
             }
             other = GsonUtils.GsonString(otherList);
         }

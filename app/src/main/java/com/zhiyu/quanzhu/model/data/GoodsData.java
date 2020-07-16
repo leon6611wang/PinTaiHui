@@ -20,6 +20,7 @@ public class GoodsData {
     private GoodsCircle circle;
     private List<Goods> goods_list;
 
+
     public String getMax_coupon_desc() {
         return max_coupon_desc;
     }

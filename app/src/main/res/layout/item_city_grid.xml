@@ -12,6 +12,8 @@
         android:text="马鞍山"
         android:textSize="@dimen/sp_14"
         android:layout_gravity="center"
+        android:maxLines="1"
+        android:ellipsize="end"
         android:gravity="center"
         android:textColor="@color/text_color_gray"
         android:background="@drawable/shape_city"

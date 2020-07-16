@@ -21,6 +21,7 @@ import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.model.bean.MyConversation;
 import com.zhiyu.quanzhu.model.dao.ConversationDao;
+import com.zhiyu.quanzhu.ui.activity.ConversationPrivateSettingActivity;
 import com.zhiyu.quanzhu.ui.adapter.XiaoXiXiaoXiListAdapter;
 import com.zhiyu.quanzhu.ui.dialog.MessageMenuUpDialog;
 import com.zhiyu.quanzhu.ui.toast.MessageToast;
@@ -45,7 +46,9 @@ import io.rong.message.ImageMessage;
 import io.rong.message.TextMessage;
 
 
-public class FragmentXiaoXiXiaoXi extends Fragment implements View.OnTouchListener, AdapterView.OnItemClickListener {
+public class FragmentXiaoXiXiaoXi extends Fragment implements View.OnTouchListener, AdapterView.OnItemClickListener,
+        ConversationPrivateSettingActivity.OnDeleteConversationListener,
+        FragmentHomeRenMai.OnRemoveConversationListener {
     private View view;
     private ListView listView;
     private LinearLayout emptyLayout;
@@ -98,6 +101,8 @@ public class FragmentXiaoXiXiaoXi extends Fragment implements View.OnTouchListen
         view = inflater.inflate(R.layout.fragment_xiaoxi_xiaoxi, container, false);
         initViews();
         initDialogs();
+        ConversationPrivateSettingActivity.setOnDeleteConversationListener(this);
+        FragmentHomeRenMai.setOnRemoveConversationListener(this);
         RongIM.getInstance().addUnReadMessageCountChangedObserver(observer, Conversation.ConversationType.PRIVATE);
         return view;
     }
@@ -120,6 +125,40 @@ public class FragmentXiaoXiXiaoXi extends Fragment implements View.OnTouchListen
         if (isVisibleToUser && !isRequesting && list.size() == 0) {
             isRequesting = true;
             getConversationList();
+        }
+    }
+
+    @Override
+    public void onDeleteConversation(int id) {
+        if (null != list && list.size() > 0) {
+            int index = -1;
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).getUserId().equals(String.valueOf(id))) {
+                    index = i;
+                    break;
+                }
+            }
+            System.out.println("index: " + index);
+            if (index > -1) {
+                adapter.deleteConversation(index);
+            }
+        }
+    }
+
+    @Override
+    public void onRemoveConversation(int id) {
+        if (null != list && list.size() > 0) {
+            int index = -1;
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).getUserId().equals(String.valueOf(id))) {
+                    index = i;
+                    break;
+                }
+            }
+            System.out.println("index: " + index);
+            if (index > -1) {
+                adapter.deleteConversation(index);
+            }
         }
     }
 
@@ -315,10 +354,13 @@ public class FragmentXiaoXiXiaoXi extends Fragment implements View.OnTouchListen
                             RongIMClient.getInstance().getMessage(conversation.getLatestMessageId(), new RongIMClient.ResultCallback<Message>() {
                                 @Override
                                 public void onSuccess(Message message) {
+//                                    System.out.println("消息监听: "+GsonUtils.GsonString(message));
                                     if (message.getContent() instanceof TextMessage) {
                                         final TextMessage textMessage = (TextMessage) message.getContent();
                                         myConversation.setMessageContent(textMessage.getContent());
                                     } else if (message.getContent() instanceof ShareMessage) {
+//                                        final ShareMessage shareMessage = (ShareMessage) message.getContent();
+//                                        System.out.println("消息监听--> shareMessage: " + GsonUtils.GsonString(shareMessage));
                                         myConversation.setMessageContent("【分享消息】");
                                     } else if (message.getContent() instanceof MingPianMessage) {
                                         myConversation.setMessageContent("【名片】");

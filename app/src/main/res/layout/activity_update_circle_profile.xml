@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical">
+
+    <include layout="@layout/header_left_center_black" />
+
+    <!-- 商圈名称-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/dp_10"
+        android:paddingLeft="25dp"
+        android:paddingRight="25dp"
+        android:paddingTop="@dimen/dp_20">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="圈子名称"
+                android:textColor="@color/text_color_grey"
+                android:textSize="14sp" />
+
+            <EditText
+                android:id="@+id/mingchengEditText"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:background="@null"
+                android:gravity="center|right"
+                android:hint="请填写圈子名称"
+                android:textColor="@color/text_color_black"
+                android:textColorHint="#BBBBBB"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_10"
+            android:text="建议为地区+行业，例如“上海金融圈” ，规范填写更容易通过哦~"
+            android:textColor="@color/text_color_gray"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginLeft="@dimen/dp_15"
+        android:layout_marginRight="15dp"
+        android:background="#E6E6E6" />
+    <!-- 商圈性质-->
+    <LinearLayout
+        android:id="@+id/xingzhiLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="@dimen/dp_20"
+        android:paddingLeft="25dp"
+        android:paddingRight="25dp"
+        android:paddingTop="@dimen/dp_20">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="圈子性质"
+            android:textColor="@color/text_color_grey"
+            android:textSize="14sp" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/xingzhiTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="请选择"
+            android:textColor="@color/text_color_black"
+            android:textColorHint="@color/text_color_gray"
+            android:textSize="14sp" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="4.5dp"
+            android:src="@mipmap/sanjiao_hangyequan" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginLeft="@dimen/dp_15"
+        android:layout_marginRight="15dp"
+        android:background="#E6E6E6" />
+    <!-- 城市-->
+    <LinearLayout
+        android:id="@+id/chengshiLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="@dimen/dp_20"
+        android:paddingLeft="25dp"
+        android:paddingRight="25dp"
+        android:paddingTop="@dimen/dp_20">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="城市"
+            android:textColor="@color/text_color_grey"
+            android:textSize="14sp" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/chengshiTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="请选择"
+            android:textColor="@color/text_color_black"
+            android:textColorHint="@color/text_color_gray"
+            android:textSize="14sp" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="6dp"
+            android:src="@mipmap/arrow_right_gray_small" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginLeft="@dimen/dp_15"
+        android:layout_marginRight="15dp"
+        android:background="#E6E6E6" />
+    <!-- 行业-->
+    <LinearLayout
+        android:id="@+id/hangyeLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="@dimen/dp_20"
+        android:paddingLeft="25dp"
+        android:paddingRight="25dp"
+        android:paddingTop="@dimen/dp_20">
+
+        <TextView
+            android:id="@+id/industryTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="行业"
+            android:textColor="@color/text_color_grey"
+            android:textSize="14sp" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/hangyeTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="请选择"
+            android:textColor="@color/text_color_black"
+            android:textColorHint="@color/text_color_gray"
+            android:textSize="14sp" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="6.5dp"
+            android:src="@mipmap/arrow_right_gray_small" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <TextView
+        android:id="@+id/confirmTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="@dimen/dp_15"
+        android:background="@mipmap/create_shangquan_btn_bg"
+        android:gravity="center"
+        android:text="提交审核"
+        android:textColor="@color/white"
+        android:textSize="12sp" />
+
+
+</LinearLayout>

@@ -100,6 +100,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:src="@mipmap/guanzhu_yellow"
+                            android:visibility="gone"
                             android:layout_marginRight="2dp"
                             />
 
@@ -107,7 +108,7 @@
                             android:id="@+id/followTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="关注"
+                            android:text="收藏"
                             android:textSize="12sp"
                             android:textColor="@color/text_color_yellow"
                             />
@@ -175,7 +176,7 @@
 
         <android.support.v7.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="111.5dp"
+            android:layout_height="55dp"
             android:layout_marginBottom="@dimen/dp_15"
             android:layout_marginLeft="@dimen/dp_15"
             android:layout_marginRight="@dimen/dp_15"
@@ -255,6 +256,7 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
+                    android:visibility="gone"
                     android:layout_weight="1" />
 
                 <LinearLayout
@@ -262,6 +264,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:gravity="center"
+                    android:visibility="gone"
                     android:orientation="horizontal">
 
                     <TextView
@@ -295,12 +298,14 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
+                    android:visibility="gone"
                     android:layout_weight="1" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:visibility="gone"
                     android:gravity="center"
                     android:orientation="horizontal">
 

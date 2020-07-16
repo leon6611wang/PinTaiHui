@@ -165,6 +165,8 @@
         <attr name="cropMaxCropResultHeightPX" format="float"/>
     </declare-styleable>
 
-
+    <declare-styleable name="DragGirdView">
+        <attr name="column_num" format="integer"/>
+    </declare-styleable>
 
 </resources>

@@ -276,7 +276,7 @@ public class CircleInfoListAdapter extends BaseAdapter {
                 case 3:
                     Intent feedInfoIntent=new Intent(context, FeedInformationActivity.class);
                     feedInfoIntent.putExtra("feed_id",list.get(position).getContent().getId());
-                    feedInfoIntent.putExtra("feed_type",String.valueOf(list.get(position).getType()));
+                    feedInfoIntent.putExtra("feed_type",list.get(position).getType());
                     feedInfoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(feedInfoIntent);
                     break;

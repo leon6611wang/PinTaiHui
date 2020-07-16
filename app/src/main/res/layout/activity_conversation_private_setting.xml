@@ -43,6 +43,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="暂无数据"
+                        android:visibility="gone"
                         android:textColor="@color/text_color_black"
                         android:textSize="15sp" />
 
@@ -104,12 +105,14 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/dp_10"
+                android:visibility="gone"
                 android:background="#F8F8F8" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/dp_15"
+                android:visibility="gone"
                 android:orientation="horizontal">
 
                 <TextView
@@ -175,6 +178,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/dp_15"
+                android:visibility="gone"
                 android:orientation="horizontal">
 
                 <TextView
@@ -199,12 +203,14 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/dp_10"
+                android:visibility="gone"
                 android:background="#F8F8F8" />
 
             <LinearLayout
                 android:id="@+id/clearRecordLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:visibility="gone"
                 android:layout_margin="@dimen/dp_15"
                 android:orientation="horizontal">
 
@@ -273,6 +279,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/dp_15"
+                android:visibility="gone"
                 android:orientation="horizontal">
 
                 <TextView

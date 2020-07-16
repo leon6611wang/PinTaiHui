@@ -23,6 +23,8 @@ public class ShareUtils {
      * app,invite,feed,circle,card,goods,shop
      */
     public static final String SHARE_TYPE_FEED="feed";
+    public static final String SHARE_TYPE_ARTICLE="article";
+    public static final String SHARE_TYPE_VIDEO="video";
     public static final String SHARE_TYPE_INVITE="invite";
     public static final String SHARE_TYPE_SHOP="shop";
     public static final String SHARE_TYPE_GOODS="goods";

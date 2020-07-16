@@ -42,6 +42,7 @@ import org.xutils.x;
 
 import java.lang.ref.WeakReference;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,7 +54,7 @@ import in.srain.cube.views.ptr.PtrFrameLayout;
  * 我的钱包(重构)
  */
 public class MyPurseActivity extends BaseActivity implements View.OnClickListener {
-    private LinearLayout headerLayout, backLayout, rightLayout;
+    private LinearLayout headerLayout, backLayout, rightLayout, backLayout2, rightLayout2;
     private View headerView;
     private ExpandableListView mExpandableListView;
     private MyWalletExpandableListAdapter adapter;
@@ -137,6 +138,7 @@ public class MyPurseActivity extends BaseActivity implements View.OnClickListene
     }
 
     private int startYear, startMonth, startDay, endYear, endMonth, endDay, currentYear, currentMonth, currentDay;
+    private String start_time, end_time;
 
     private void initDialogs() {
         startDateDialog = new StartDateDialog(this, R.style.dialog, new StartDateDialog.OnCalendarListener() {
@@ -146,6 +148,20 @@ public class MyPurseActivity extends BaseActivity implements View.OnClickListene
                 startMonth = month;
                 startDay = day;
                 startDateTextView.setText(month + "月" + day + "日 " + year);
+                start_time = startYear + "-";
+                if (startMonth < 10) {
+                    start_time += "0" + startMonth;
+                } else {
+                    start_time += startMonth;
+                }
+                start_time += "-";
+                if (startDay < 10) {
+                    start_time += "0" + startDay;
+                } else {
+                    start_time += startDay;
+                }
+                page = 1;
+                purseList();
             }
         });
         endDateDialog = new EndDateDialog(this, R.style.dialog, new EndDateDialog.OnCalendarListener() {
@@ -155,6 +171,20 @@ public class MyPurseActivity extends BaseActivity implements View.OnClickListene
                 endMonth = month;
                 endDay = day;
                 endDateTextView.setText(month + "月" + day + "日 " + year);
+                end_time = endYear + "-";
+                if (endMonth < 10) {
+                    end_time += "0" + endMonth;
+                } else {
+                    end_time += endMonth;
+                }
+                end_time += "-";
+                if (endDay < 10) {
+                    end_time += "0" + endDay;
+                } else {
+                    end_time += endDay;
+                }
+                page = 1;
+                purseList();
             }
         });
         notificationDialog = new NotificationDialog(this, R.style.dialog);
@@ -197,6 +227,23 @@ public class MyPurseActivity extends BaseActivity implements View.OnClickListene
         backLayout.setOnClickListener(this);
         rightLayout = headerView.findViewById(R.id.rightLayout);
         rightLayout.setOnClickListener(this);
+        backLayout2 = findViewById(R.id.backLayout);
+        backLayout2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        rightLayout2 = findViewById(R.id.rightLayout);
+        rightLayout2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent bondAccountIntent = new Intent(MyPurseActivity.this, WithdrawSettingActivity.class);
+                bondAccountIntent.putExtra("is_ali", purseResult.getData().isIs_ali());
+                bondAccountIntent.putExtra("is_wechar", purseResult.getData().isIs_wechar());
+                startActivityForResult(bondAccountIntent, 1031);
+            }
+        });
         allMoneyTextView = headerView.findViewById(R.id.allMoneyTextView);
         frozenMoneyTextView = headerView.findViewById(R.id.frozenMoneyTextView);
         outMoneyTextView = headerView.findViewById(R.id.outMoneyTextView);
@@ -208,10 +255,10 @@ public class MyPurseActivity extends BaseActivity implements View.OnClickListene
         startDateTextView.setText(currentMonth + "月" + 1 + "日 " + currentYear);
         startDateTextView.setOnClickListener(this);
         endDateTextView = headerView.findViewById(R.id.endDateTextView);
-        endYear=currentYear;
-        endMonth=currentMonth;
-        endDay=CalendarUtils.getInstance().getCurrentDay();
-        endDateTextView.setText(endMonth + "月" +endDay + "日 " + endYear);
+        endYear = currentYear;
+        endMonth = currentMonth;
+        endDay = CalendarUtils.getInstance().getCurrentDay();
+        endDateTextView.setText(endMonth + "月" + endDay + "日 " + endYear);
         endDateTextView.setOnClickListener(this);
         quanbuView = findViewById(R.id.quanbuView);
         quanbuView.setOnClickListener(this);
@@ -448,8 +495,8 @@ public class MyPurseActivity extends BaseActivity implements View.OnClickListene
                 break;
             case R.id.endDateTextView:
                 endDateDialog.show();
-                System.out.println("start: "+startYear + " , " + startMonth + " , " + startDay);
-                endDateDialog.setStartDate(startYear, startMonth, startDay,endYear,endMonth,endDay);
+//                System.out.println("start: "+startYear + " , " + startMonth + " , " + startDay);
+                endDateDialog.setStartDate(startYear, startMonth, startDay, endYear, endMonth, endDay);
                 break;
             case R.id.tixianTextView:
                 Intent tixianIntent = new Intent(this, WithdrawActivity.class);
@@ -548,8 +595,8 @@ public class MyPurseActivity extends BaseActivity implements View.OnClickListene
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.MY_PURSE_RECORD_LIST);
         params.addBodyParameter("type", String.valueOf(currentMenuPosition));//1收入 2支出
         params.addBodyParameter("page", String.valueOf(page));
-        params.addBodyParameter("start_time", "");
-        params.addBodyParameter("end_time", "");
+        params.addBodyParameter("start_time", start_time);
+        params.addBodyParameter("end_time", end_time);
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {

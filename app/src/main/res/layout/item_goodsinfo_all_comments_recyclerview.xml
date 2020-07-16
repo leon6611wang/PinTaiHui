@@ -134,28 +134,16 @@
                     android:layout_height="wrap_content" />
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/replyLayout"
+            <TextView
+                android:id="@+id/replyTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/dp_10"
                 android:layout_marginTop="@dimen/dp_10"
-                android:visibility="gone"
                 android:background="@drawable/shape_comments_reply_bg"
-                android:orientation="vertical">
-
-                <cn.carbs.android.expandabletextview.library.ExpandableTextView
-                    android:id="@+id/replyExpandableTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/text_color_yellow"
-                    android:textSize="13sp"
-                    app:etv_MaxLinesOnShrink="5"
-                    app:etv_ToExpandHint="展开↓"
-                    app:etv_ToExpandHintColor="#009de0"
-                    app:etv_ToShrinkHint="收起↑"
-                    app:etv_ToShrinkHintColor="@color/text_color_gray" />
-            </LinearLayout>
+                android:padding="@dimen/dp_5"
+                android:textColor="@color/text_color_yellow"
+                android:textSize="13sp" />
 
         </LinearLayout>
     </LinearLayout>

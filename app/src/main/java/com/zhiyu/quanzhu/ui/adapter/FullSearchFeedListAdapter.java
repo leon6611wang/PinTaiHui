@@ -29,6 +29,7 @@ import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.FullSearchFeed;
 import com.zhiyu.quanzhu.model.bean.FullSearchFeedContent;
+import com.zhiyu.quanzhu.model.result.ShareResult;
 import com.zhiyu.quanzhu.ui.activity.FeedInformationActivity;
 import com.zhiyu.quanzhu.ui.activity.LargeImageActivity;
 import com.zhiyu.quanzhu.ui.dialog.ShareDialog;
@@ -40,6 +41,7 @@ import com.zhiyu.quanzhu.ui.widget.WrapImageView;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
+import com.zhiyu.quanzhu.utils.ShareUtils;
 
 import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
@@ -99,8 +101,13 @@ public class FullSearchFeedListAdapter extends BaseAdapter {
     public FullSearchFeedListAdapter(Activity aty, Context context) {
         this.context = context;
         this.activity = aty;
+        shareConfig();
         dp_240 = (int) context.getResources().getDimension(R.dimen.dp_240);
         initDialog();
+    }
+
+    public void setShareResultCode(int requestCode, int resultCode, Intent data) {
+        shareDialog.setQQShareCallback(requestCode, resultCode, data);
     }
 
     private void initDialog() {
@@ -133,7 +140,7 @@ public class FullSearchFeedListAdapter extends BaseAdapter {
         FullSearchFeedImagesGridAdapter imagesGridAdapter = new FullSearchFeedImagesGridAdapter(context);
         VideoPlayerTrackView videoPlayer;
         NiceImageView feedImageView;
-        LinearLayout priseLayout,itemRootLayout;
+        LinearLayout priseLayout, itemRootLayout;
     }
 
     @Override
@@ -147,7 +154,7 @@ public class FullSearchFeedListAdapter extends BaseAdapter {
             holder.timeTextView = convertView.findViewById(R.id.timeTextView);
             holder.mTextView = convertView.findViewById(R.id.mTextView);
             holder.collectImageView = convertView.findViewById(R.id.collectImageView);
-            holder.itemRootLayout=convertView.findViewById(R.id.itemRootLayout);
+            holder.itemRootLayout = convertView.findViewById(R.id.itemRootLayout);
             holder.priseLayout = convertView.findViewById(R.id.priseLayout);
             holder.shareTextView = convertView.findViewById(R.id.shareTextView);
             holder.commentTextView = convertView.findViewById(R.id.commentTextView);
@@ -199,7 +206,11 @@ public class FullSearchFeedListAdapter extends BaseAdapter {
 //            holder.videoPlayer.startPlayVideo();
             holder.videoPlayer.setLayoutParams(list.get(position).getContent().getLayoutParams(dp_240, true));
         } else {
-            if (list.get(position).getContent().getImgs().size() == 1) {
+            if (list.get(position).getContent().getImgs().size() == 0) {
+                holder.feedImageView.setVisibility(View.GONE);
+                holder.imageGridView.setVisibility(View.GONE);
+                holder.videoPlayer.setVisibility(View.GONE);
+            } else if (list.get(position).getContent().getImgs().size() == 1) {
                 holder.feedImageView.setVisibility(View.VISIBLE);
                 holder.imageGridView.setVisibility(View.GONE);
                 holder.videoPlayer.setVisibility(View.GONE);
@@ -274,7 +285,31 @@ public class FullSearchFeedListAdapter extends BaseAdapter {
 
         @Override
         public void onClick(View v) {
+            String share_image_url=null;
+            String share_content=null;
+            if (!StringUtils.isNullOrEmpty(list.get(position).getContent().getVideo_url())) {
+                share_image_url = list.get(position).getContent().getVideo_thumb();
+                if (!StringUtils.isNullOrEmpty(list.get(position).getContent().getContent())) {
+                    share_content = list.get(position).getContent().getContent();
+                }
+            } else {
+                if (list.get(position).getContent().getImgs().size() > 0) {
+                    share_image_url = list.get(position).getContent().getImgs().get(0).getFile();
+                    if (!StringUtils.isNullOrEmpty(list.get(position).getContent().getContent())) {
+                        share_content = list.get(position).getContent().getContent();
+                    }
+                }
+            }
+            if(!StringUtils.isNullOrEmpty(share_image_url)){
+                shareResult.getData().getShare().setImage_url(share_image_url);
+            }
+            if(!StringUtils.isNullOrEmpty(share_content)){
+                shareResult.getData().getShare().setContent(share_content);
+            }
+            shareResult.getData().getShare().setType(list.get(position).getType());
+            shareResult.getData().getShare().setType_desc(ShareUtils.SHARE_TYPE_FEED);
             shareDialog.show();
+            shareDialog.setShare(shareResult.getData().getShare(),list.get(position).getContent().getId());
 
         }
     }
@@ -316,7 +351,7 @@ public class FullSearchFeedListAdapter extends BaseAdapter {
         public void onClick(View v) {
             Intent feedInfoIntent = new Intent(context, FeedInformationActivity.class);
             feedInfoIntent.putExtra("feed_id", list.get(position).getContent().getId());
-            feedInfoIntent.putExtra("feed_type", String.valueOf(list.get(position).getType()));
+            feedInfoIntent.putExtra("feed_type", list.get(position).getType());
             feedInfoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(feedInfoIntent);
         }
@@ -367,6 +402,35 @@ public class FullSearchFeedListAdapter extends BaseAdapter {
                 Message message = myHandler.obtainMessage(1);
                 message.obj = position;
                 message.sendToTarget();
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
+
+    private ShareResult shareResult;
+
+    private void shareConfig() {
+        RequestParams params = MyRequestParams.getInstance(context).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.SHARE_CONFIG);
+        params.addBodyParameter("type", ShareUtils.SHARE_TYPE_FEED);
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                shareResult = GsonUtils.GsonToBean(result, ShareResult.class);
             }
 
             @Override

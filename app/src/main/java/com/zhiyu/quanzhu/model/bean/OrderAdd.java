@@ -1,7 +1,7 @@
 package com.zhiyu.quanzhu.model.bean;
 
 public class OrderAdd {
-    private int oid;
+    private String oid;
     private int all_price;
     private int ali_banlance;
     private int wx_banlance;
@@ -30,11 +30,11 @@ public class OrderAdd {
         this.wx_banlance = wx_banlance;
     }
 
-    public int getOid() {
+    public String getOid() {
         return oid;
     }
 
-    public void setOid(int oid) {
+    public void setOid(String oid) {
         this.oid = oid;
     }
 }

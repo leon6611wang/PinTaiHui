@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.tencent.connect.common.Constants;
@@ -30,20 +31,37 @@ import static com.zhiyu.quanzhu.utils.WXUtils.WECHAT_MOMENT;
 public class ShareDialog extends Dialog implements View.OnClickListener {
     private Context context;
     private Activity activity;
+    private LinearLayout innerShareLayout;
     private TextView shareInnerView, sharePengYouQuanView, shareWeiXinView, shareQQView, copyLinkView;
     private TextView cancelTextView;
-    private String url ;
+    private String url;
     private String title;
-    private String description ;
+    private String description;
     private String imageUrl;
     private int share_id;
+    private String type;
+    private int feed_type;
 
     public void setShare(Share share, int id) {
         this.title = share.getTitle();
-        this.url = share.getWeb_url();
+        this.url = share.getWeb_url() + id;
+        this.type = share.getType_desc();
+        this.feed_type=share.getType();
         this.description = share.getContent();
-        this.imageUrl = share.getImage_url();
-        this.share_id=id;
+        if (share.getImage_url().contains(".mp4") || share.getImage_url().contains(".MP4") ||
+                share.getImage_url().contains(".RMVB") || share.getImage_url().contains(".rmvb")) {
+            this.imageUrl = share.getImage_url() + "/w/100/h/100";
+        } else {
+            this.imageUrl = share.getImage_url() + "?imageView2/1/w/100/h/100/q/85";
+        }
+
+        this.share_id = id;
+    }
+
+    public void hideInnerShare(){
+        if(null!=innerShareLayout){
+            innerShareLayout.setVisibility(View.GONE);
+        }
     }
 
     public ShareDialog(Activity aty, Context context, int themeResId, OnShareListener listener) {
@@ -87,6 +105,7 @@ public class ShareDialog extends Dialog implements View.OnClickListener {
         copyLinkView.setOnClickListener(this);
         cancelTextView = findViewById(R.id.cancelTextView);
         cancelTextView.setOnClickListener(this);
+        innerShareLayout=findViewById(R.id.innerShareLayout);
     }
 
     @Override
@@ -98,7 +117,9 @@ public class ShareDialog extends Dialog implements View.OnClickListener {
                 intent.putExtra("desc", description);
                 intent.putExtra("webUrl", url);
                 intent.putExtra("imageUrl", imageUrl);
-                intent.putExtra("share_id",share_id);
+                intent.putExtra("share_id", share_id);
+                intent.putExtra("type",type);
+                intent.putExtra("feed_type",feed_type);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
                 break;
@@ -111,6 +132,7 @@ public class ShareDialog extends Dialog implements View.OnClickListener {
                 });
                 break;
             case R.id.shareWeiXinView:
+//                System.out.println("share_image_url: " + imageUrl);
                 ThreadPoolUtils.getInstance().init().execute(new Runnable() {
                     @Override
                     public void run() {
@@ -122,7 +144,7 @@ public class ShareDialog extends Dialog implements View.OnClickListener {
                 ShareUtils.getInstance(activity).shareToQQ(title, description, imageUrl, url, shareListener);
                 break;
             case R.id.copyLinkView:
-                CopyUtils.getInstance().copy(context,url+share_id);
+                CopyUtils.getInstance().copy(context, url);
                 MessageToast.getInstance(context).show("复制成功");
                 dismiss();
                 break;

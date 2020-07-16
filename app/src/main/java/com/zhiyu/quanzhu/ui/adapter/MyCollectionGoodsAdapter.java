@@ -33,10 +33,13 @@ public class MyCollectionGoodsAdapter extends BaseAdapter {
     private boolean isSelectModel;
 
     public void setAllSelect(boolean isAllSelected) {
-        for (FullSearchGoods feed : list) {
-            feed.setSelected(isAllSelected);
+        if(null!=list&&list.size()>0){
+            for (FullSearchGoods feed : list) {
+                feed.setSelected(isAllSelected);
+            }
+            notifyDataSetChanged();
         }
-        notifyDataSetChanged();
+
     }
 
     public void setSelectModel(boolean isSelected) {

@@ -50,7 +50,7 @@ public class PublishFeedImagesGridAdapter extends RecyclerView.Adapter<PublishFe
 
     @Override
     public void onMove(int fromPosition, int toPosition) {
-        if (fromPosition == list.size() - 1) {
+        if (fromPosition == list.size() - 1 || toPosition == list.size() - 1) {
 //            Toast.makeText(context, "此项不可移动", Toast.LENGTH_SHORT).show();
         } else {
             /**
@@ -64,7 +64,7 @@ public class PublishFeedImagesGridAdapter extends RecyclerView.Adapter<PublishFe
         }
     }
 
-    public List<String> getList(){
+    public List<String> getList() {
         return list;
     }
 
@@ -99,7 +99,7 @@ public class PublishFeedImagesGridAdapter extends RecyclerView.Adapter<PublishFe
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        if (list.get(position).equals("add")) {
+        if (null!=list&&null!=list.get(position)&&list.get(position).equals("add")) {
             Glide.with(context).load(R.mipmap.mingpian_add_img).into(holder.imageView);
             holder.imageView.setOnClickListener(new OnSelectImagesListener());
         } else {

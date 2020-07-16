@@ -32,6 +32,15 @@ public class AfterSaleServiceInformation {
     private String user_name;
     private String phone_number;
     private String address;
+    private int kefu_status;
+
+    public int getKefu_status() {
+        return kefu_status;
+    }
+
+    public void setKefu_status(int kefu_status) {
+        this.kefu_status = kefu_status;
+    }
 
     public int getPlatform_id() {
         return platform_id;

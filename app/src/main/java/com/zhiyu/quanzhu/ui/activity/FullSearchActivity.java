@@ -1,5 +1,6 @@
 package com.zhiyu.quanzhu.ui.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -284,5 +285,28 @@ public class FullSearchActivity extends BaseActivity implements View.OnClickList
     public void onSelectPage(int position) {
         tabTitleListView.setSelection(position);
         mViewPager.setCurrentItem(position);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (fragmentList.get(0).isAdded())
+            handleResult(fragmentList.get(0), requestCode, resultCode, data);
+        if (fragmentList.get(5).isAdded())
+            handleResult(fragmentList.get(5), requestCode, resultCode, data);
+        if (fragmentList.get(3).isAdded())
+            handleResult(fragmentList.get(3), requestCode, resultCode, data);
+        if (fragmentList.get(4).isAdded())
+            handleResult(fragmentList.get(4), requestCode, resultCode, data);
+    }
+
+    private void handleResult(Fragment fragment, int requestCode, int resultCode, Intent data) {
+        fragment.onActivityResult(requestCode, resultCode, data);//调用每个Fragment的onActivityResult
+        List<Fragment> childFragment = fragment.getChildFragmentManager().getFragments(); //找到第二层Fragment
+        if (childFragment != null)
+            for (Fragment f : childFragment)
+                if (f != null) {
+                    handleResult(f, requestCode, resultCode, data);
+                }
     }
 }

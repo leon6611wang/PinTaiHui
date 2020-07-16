@@ -1,6 +1,7 @@
 package com.zhiyu.quanzhu.wxapi;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -65,12 +66,12 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        iwxapi = WXAPIFactory.createWXAPI(this, WXUtils.APP_ID, true);
+        iwxapi = WXAPIFactory.createWXAPI(this, WXUtils.APP_ID, false);
+
         //接收到分享以及登录的intent传递handleIntent方法，处理结果
         iwxapi.handleIntent(getIntent(), this);
 
     }
-
 
     @Override
     public void onReq(BaseReq baseReq) {
@@ -81,62 +82,110 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
     //请求回调结果处理
     @Override
     public void onResp(BaseResp baseResp) {
-//        System.out.println("------------------------" + baseResp.getType());
-        resp = (SendAuth.Resp) baseResp;
-        //微信登录为getType为1，分享为0
-        if (resp.getType() == 1) {
-            //登录回调
-//            System.out.println("------------登陆回调------------");
-//            System.out.println("------------登陆回调的结果------------：" + new Gson().toJson(resp));
-            switch (resp.errCode) {
-                case BaseResp.ErrCode.ERR_OK:
-                    String code = String.valueOf(resp.code);
-                    //获取用户信息
-                    getAccessToken(code);
-                    break;
-                case BaseResp.ErrCode.ERR_AUTH_DENIED://用户拒绝授权
-                    Toast.makeText(WXEntryActivity.this, "用户拒绝授权", Toast.LENGTH_LONG).show();
-                    break;
-                case BaseResp.ErrCode.ERR_USER_CANCEL://用户取消
-                    Toast.makeText(WXEntryActivity.this, "用户取消登录", Toast.LENGTH_LONG).show();
-                    break;
-                default:
-                    break;
-            }
-        } else if (resp.getType() == 0) {
-            //分享成功回调
-//            System.out.println("------------分享回调------------");
-            switch (baseResp.errCode) {
-                case BaseResp.ErrCode.ERR_OK:
-                    //分享成功
-                    MessageToast.getInstance(WXEntryActivity.this).show("分享成功");
-                    break;
-                case BaseResp.ErrCode.ERR_USER_CANCEL:
-                    //分享取消
-                    MessageToast.getInstance(WXEntryActivity.this).show("分享取消");
-                    break;
-                case BaseResp.ErrCode.ERR_AUTH_DENIED:
-                    //分享拒绝
-                    MessageToast.getInstance(WXEntryActivity.this).show("分享拒绝");
-                    break;
-            }
-        } else if (resp.getType() == ConstantsAPI.COMMAND_PAY_BY_WX) {
-            if (resp.errCode == 0) {
-                MessageToast.getInstance(WXEntryActivity.this).show("微信支付成功");
-            } else {
-                MessageToast.getInstance(WXEntryActivity.this).show("微信失败");
-            }
-            if(null!=onWxpayCallbackListener){
-                onWxpayCallbackListener.onWxpayCallback();
-            }
+        switch (baseResp.getType()) {
+            case ConstantsAPI.COMMAND_SENDAUTH:
+                System.out.println("微信登录");
+                resp = (SendAuth.Resp) baseResp;
+                switch (resp.errCode) {
+                    case BaseResp.ErrCode.ERR_OK:
+                        String code = String.valueOf(resp.code);
+                        //获取用户信息
+                        getAccessToken(code);
+                        break;
+                    case BaseResp.ErrCode.ERR_AUTH_DENIED://用户拒绝授权
+                        MessageToast.getInstance(WXEntryActivity.this).show("用户拒绝授权");
+                        break;
+                    case BaseResp.ErrCode.ERR_USER_CANCEL://用户取消
+                        MessageToast.getInstance(WXEntryActivity.this).show("用户取消登录");
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case ConstantsAPI.COMMAND_SENDMESSAGE_TO_WX:
+                System.out.println("微信分享");
+                switch (baseResp.errCode) {
+                    case BaseResp.ErrCode.ERR_OK:
+                        MessageToast.getInstance(WXEntryActivity.this).show("分享成功");
+                        break;
+                    case BaseResp.ErrCode.ERR_USER_CANCEL:
+                        MessageToast.getInstance(WXEntryActivity.this).show("取消分享");
+                        break;
+                    case BaseResp.ErrCode.ERR_SENT_FAILED:
+                        MessageToast.getInstance(WXEntryActivity.this).show("分享失败");
+                        break;
+                }
+                break;
+            case ConstantsAPI.COMMAND_PAY_BY_WX:
+                System.out.println("微信支付");
+                if (resp.errCode == 0) {
+                    MessageToast.getInstance(WXEntryActivity.this).show("微信支付成功");
+                } else {
+                    MessageToast.getInstance(WXEntryActivity.this).show("微信支付失败");
+                }
+                if (null != onWxpayCallbackListener) {
+                    onWxpayCallbackListener.onWxpayCallback();
+                }
+                break;
         }
+//        resp = (SendAuth.Resp) baseResp;
+//        //微信登录为getType为1，分享为0
+//        if (resp.getType() == 1) {
+//            //登录回调
+//            System.out.println("------------登陆回调------------");
+////            System.out.println("------------登陆回调的结果------------：" + new Gson().toJson(resp));
+//            switch (resp.errCode) {
+//                case BaseResp.ErrCode.ERR_OK:
+//                    String code = String.valueOf(resp.code);
+//                    //获取用户信息
+//                    getAccessToken(code);
+//                    break;
+//                case BaseResp.ErrCode.ERR_AUTH_DENIED://用户拒绝授权
+//                    MessageToast.getInstance(WXEntryActivity.this).show("用户拒绝授权");
+//                    break;
+//                case BaseResp.ErrCode.ERR_USER_CANCEL://用户取消
+//                    MessageToast.getInstance(WXEntryActivity.this).show("用户取消登录");
+//                    break;
+//                default:
+//                    break;
+//            }
+//        } else if (resp.getType() == 0) {
+//            //分享成功回调
+//            System.out.println("------------分享回调------------" + baseResp.errCode);
+//            switch (baseResp.errCode) {
+//                case BaseResp.ErrCode.ERR_OK:
+//                    //分享成功
+//                    MessageToast.getInstance(WXEntryActivity.this).show("分享成功");
+//                    break;
+//                case BaseResp.ErrCode.ERR_USER_CANCEL:
+//                    //分享取消
+//                    MessageToast.getInstance(WXEntryActivity.this).show("分享取消");
+//                    break;
+//                case BaseResp.ErrCode.ERR_AUTH_DENIED:
+//                    //分享拒绝
+//                    MessageToast.getInstance(WXEntryActivity.this).show("分享拒绝");
+//                    break;
+//            }
+//        } else if (resp.getType() == ConstantsAPI.COMMAND_PAY_BY_WX) {
+//            if (resp.errCode == 0) {
+//                MessageToast.getInstance(WXEntryActivity.this).show("微信支付成功");
+//            } else {
+//                MessageToast.getInstance(WXEntryActivity.this).show("微信失败");
+//            }
+//            if (null != onWxpayCallbackListener) {
+//                onWxpayCallbackListener.onWxpayCallback();
+//            }
+//        }
         finish();
     }
+
     private static OnWxpayCallbackListener onWxpayCallbackListener;
-    public static   void setOnWxpayCallbackListener(OnWxpayCallbackListener listener){
-        onWxpayCallbackListener=listener;
+
+    public static void setOnWxpayCallbackListener(OnWxpayCallbackListener listener) {
+        onWxpayCallbackListener = listener;
     }
-    public  interface OnWxpayCallbackListener{
+
+    public interface OnWxpayCallbackListener {
         void onWxpayCallback();
     }
 
@@ -298,6 +347,7 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
 //                System.out.println("wxlogin token: " + loginTokenResult.getData().getToken());
                 if (loginTokenResult.getCode() == 200) {
                     SPUtils.getInstance().userLogin(BaseApplication.applicationContext);
+                    SPUtils.getInstance().saveUserId(BaseApplication.applicationContext,loginTokenResult.getData().getUser_id());
                     SPUtils.getInstance().saveUserToken(BaseApplication.applicationContext, loginTokenResult.getToken());
                     SPUtils.getInstance().saveIMToken(BaseApplication.applicationContext, loginTokenResult.getData().getToken());
                     SPUtils.getInstance().saveUserAvatar(BaseApplication.applicationContext, loginTokenResult.getData().getUserinfo().getAvatar());

@@ -19,46 +19,91 @@ import io.rong.imlib.model.MessageContent;
  */
 @MessageTag(value = "app:ShareMessage", flag = MessageTag.ISCOUNTED | MessageTag.ISPERSISTED)
 public class ShareMessage extends MessageContent {
-   private String title;
-   private String description;
-   private String url;
-   private String image_url;
+    //    private String shareTitle;
+//    private String shareContent;
+//    private String shareUrl;
+//    private String shareImageUrl;
+//    private String shareType;
+//    private String shareTypeId;
+    private String content;
 
-    public String getTitle() {
-        return title;
+//    public String getShareTitle() {
+//        return shareTitle;
+//    }
+//
+//    public void setShareTitle(String shareTitle) {
+//        this.shareTitle = shareTitle;
+//    }
+//
+//    public String getShareContent() {
+//        return shareContent;
+//    }
+//
+//    public void setShareContent(String shareContent) {
+//        this.shareContent = shareContent;
+//    }
+//
+//    public String getShareUrl() {
+//        return shareUrl;
+//    }
+//
+//    public void setShareUrl(String shareUrl) {
+//        this.shareUrl = shareUrl;
+//    }
+//
+//    public String getShareImageUrl() {
+//        return shareImageUrl;
+//    }
+//
+//    public void setShareImageUrl(String shareImageUrl) {
+//        this.shareImageUrl = shareImageUrl;
+//    }
+//
+//    public String getShareType() {
+//        return shareType;
+//    }
+//
+//    public void setShareType(String shareType) {
+//        this.shareType = shareType;
+//    }
+//
+//    public String getShareTypeId() {
+//        return shareTypeId;
+//    }
+//
+//    public void setShareTypeId(String shareTypeId) {
+//        this.shareTypeId = shareTypeId;
+//    }
+
+
+    public String getContent() {
+        return content;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setContent(String content) {
+        this.content = content;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getImage_url() {
-        return image_url;
-    }
-
-    public void setImage_url(String image_url) {
-        this.image_url = image_url;
-    }
 
     public ShareMessage() {
 
     }
+
+//    public ShareMessage(byte[] data) {
+//        String jsonStr = null;
+//        try {
+//            jsonStr = new String(data, "UTF-8");
+//        } catch (UnsupportedEncodingException e1) {
+//            e1.printStackTrace();
+//        }
+//        ShareMessage om = GsonUtils.GsonToBean(jsonStr, ShareMessage.class);
+//        setShareTitle(om.getShareTitle());
+//        setShareUrl(om.getShareUrl());
+//        setShareContent(om.getShareContent());
+//        setShareImageUrl(om.getShareImageUrl());
+//        setShareType(om.getShareType());
+//        setShareTypeId(om.getShareTypeId());
+//    }
 
     public ShareMessage(byte[] data) {
         String jsonStr = null;
@@ -67,28 +112,59 @@ public class ShareMessage extends MessageContent {
         } catch (UnsupportedEncodingException e1) {
             e1.printStackTrace();
         }
-        ShareMessage om = GsonUtils.GsonToBean(jsonStr, ShareMessage.class);
-        setTitle(om.getTitle());
-        setUrl(om.getUrl());
-        setImage_url(om.getImage_url());
+
+        try {
+            JSONObject jsonObj = new JSONObject(jsonStr);
+//            if (jsonObj.has("shareTitle"))
+//                setShareTitle(jsonObj.optString("shareTitle"));
+//
+//            if (jsonObj.has("shareContent"))
+//                setShareContent(jsonObj.optString("shareContent"));
+//
+//            if (jsonObj.has("shareUrl"))
+//                setShareUrl(jsonObj.optString("shareUrl"));
+//
+//            if (jsonObj.has("shareImageUrl"))
+//                setShareImageUrl(jsonObj.optString("shareImageUrl"));
+//
+//            if (jsonObj.has("shareType"))
+//                setShareType(jsonObj.optString("shareType"));
+//
+//            if (jsonObj.has("shareTypeId"))
+//                setShareTypeId(jsonObj.optString("shareTypeId"));
+
+            if (jsonObj.has("content"))
+                setContent(jsonObj.optString("content"));
+
+            if (jsonObj.has("title"))
+                setContent(jsonObj.optString("title"));
+
+        } catch (JSONException e) {
+            Log.d("JSONException", e.getMessage());
+        }
     }
 
     public ShareMessage(Parcel in) {
-        setTitle(ParcelUtils.readFromParcel(in));//该类为工具类，消息属性
-        setUrl(ParcelUtils.readFromParcel(in));//该类为工具类，消息属性
-        setImage_url(ParcelUtils.readFromParcel(in));//该类为工具类，消息属性
-        setDescription(ParcelUtils.readFromParcel(in));
+//        setShareTitle(ParcelUtils.readFromParcel(in));//该类为工具类，消息属性
+//        setShareUrl(ParcelUtils.readFromParcel(in));//该类为工具类，消息属性
+//        setShareImageUrl(ParcelUtils.readFromParcel(in));//该类为工具类，消息属性
+//        setShareContent(ParcelUtils.readFromParcel(in));
+//        setShareType(ParcelUtils.readFromParcel(in));
+//        setShareTypeId(ParcelUtils.readFromParcel(in));
+        setContent(ParcelUtils.readFromParcel(in));
     }
 
     @Override
     public byte[] encode() {
         JSONObject jsonObj = new JSONObject();
         try {
-            jsonObj.put("title", this.getTitle());
-            jsonObj.put("url", this.getUrl());
-            jsonObj.put("image_url", this.getImage_url());
-            jsonObj.put("description", this.getDescription());
-
+//            jsonObj.put("shareTitle", this.getShareTitle());
+//            jsonObj.put("shareUrl", this.getShareUrl());
+//            jsonObj.put("shareImageUrl", this.getShareImageUrl());
+//            jsonObj.put("shareContent", this.getShareContent());
+//            jsonObj.put("shareType", this.getShareType());
+//            jsonObj.put("shareTypeId", this.getShareTypeId());
+            jsonObj.put("content", this.getContent());
         } catch (JSONException e) {
             Log.e("JSONException", e.getMessage());
         }
@@ -121,10 +197,13 @@ public class ShareMessage extends MessageContent {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        ParcelUtils.writeToParcel(dest, getTitle());
-        ParcelUtils.writeToParcel(dest, getUrl());
-        ParcelUtils.writeToParcel(dest, getImage_url());
-        ParcelUtils.writeToParcel(dest, getDescription());
+//        ParcelUtils.writeToParcel(dest, getShareTitle());
+//        ParcelUtils.writeToParcel(dest, getShareUrl());
+//        ParcelUtils.writeToParcel(dest, getShareImageUrl());
+//        ParcelUtils.writeToParcel(dest, getShareContent());
+//        ParcelUtils.writeToParcel(dest, getShareType());
+//        ParcelUtils.writeToParcel(dest, getShareTypeId());
+        ParcelUtils.writeToParcel(dest, getContent());
     }
 
 

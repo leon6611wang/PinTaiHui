@@ -78,35 +78,35 @@ public class PingLunRecyclerAdapter extends RecyclerView.Adapter<PingLunRecycler
 
         @Override
         public void onClick(View v) {
-//            switch (list.get(position).getType()) {
-//                case 1://文章
-//                    Intent articleIntent = new Intent(context, ArticleInformationActivity.class);
-//                    articleIntent.putExtra("article_id", list.get(position).getFeeds_id());
-//                    articleIntent.putExtra("myCommentId", list.get(position).getId());
-//                    articleIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                    context.startActivity(articleIntent);
-//                    break;
-//                case 2://视频
-//                    Intent videoIntent = new Intent(context, VideoInformationActivity.class);
-//                    videoIntent.putExtra("feeds_id", videoIntent);
-//                    videoIntent.putExtra("myCommentId", list.get(position).getId());
-//                    videoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                    context.startActivity(videoIntent);
-//                    break;
-//                case 3://动态
-//                    Intent feedsIntent = new Intent(context, FeedInformationActivity.class);
-//                    feedsIntent.putExtra("feed_id", list.get(position).getId());
-//                    feedsIntent.putExtra("myCommentId", list.get(position).getId());
-//                    feedsIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                    context.startActivity(feedsIntent);
-//                    break;
-//            }
-            list.get(position).setIs_read(1);
-            notifyItemChanged(position);
-            Intent commentIntent = new Intent(context, CommentInformationActivity.class);
-            commentIntent.putExtra("comment_id", list.get(position).getId());
-            commentIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(commentIntent);
+            switch (list.get(position).getFeeds_type()) {
+                case 1://文章
+                    Intent articleIntent = new Intent(context, ArticleInformationActivity.class);
+                    articleIntent.putExtra("article_id", list.get(position).getFeeds_id());
+                    articleIntent.putExtra("myCommentId", list.get(position).getId());
+                    articleIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(articleIntent);
+                    break;
+                case 2://视频
+                    Intent videoIntent = new Intent(context, VideoInformationActivity.class);
+                    videoIntent.putExtra("feeds_id", list.get(position).getFeeds_id());
+                    videoIntent.putExtra("myCommentId", list.get(position).getId());
+                    videoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(videoIntent);
+                    break;
+                case 3://动态
+                    Intent feedsIntent = new Intent(context, FeedInformationActivity.class);
+                    feedsIntent.putExtra("feed_id", list.get(position).getFeeds_id());
+                    feedsIntent.putExtra("myCommentId", list.get(position).getId());
+                    feedsIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(feedsIntent);
+                    break;
+            }
+//            list.get(position).setIs_read(1);
+//            notifyItemChanged(position);
+//            Intent commentIntent = new Intent(context, CommentInformationActivity.class);
+//            commentIntent.putExtra("comment_id", list.get(position).getId());
+//            commentIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            context.startActivity(commentIntent);
         }
     }
 }

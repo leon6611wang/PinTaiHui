@@ -29,6 +29,7 @@ import com.zhiyu.quanzhu.ui.activity.ArticleInformationActivity;
 import com.zhiyu.quanzhu.ui.activity.ComplaintActivity;
 import com.zhiyu.quanzhu.ui.activity.FeedInformationActivity;
 import com.zhiyu.quanzhu.ui.activity.LargeImageActivity;
+import com.zhiyu.quanzhu.ui.activity.LargeImageListActivity;
 import com.zhiyu.quanzhu.ui.activity.VideoInformationActivity;
 import com.zhiyu.quanzhu.ui.dialog.DeleteFeedDialog;
 import com.zhiyu.quanzhu.ui.dialog.ShareDialog;
@@ -41,6 +42,7 @@ import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
+import com.zhiyu.quanzhu.utils.ShareUtils;
 import com.zhiyu.quanzhu.utils.SpaceItemDecoration;
 
 import org.xutils.common.Callback;
@@ -48,6 +50,7 @@ import org.xutils.http.RequestParams;
 import org.xutils.x;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 
 import cn.carbs.android.expandabletextview.library.ExpandableTextView;
@@ -484,7 +487,6 @@ public class CircleGuanZhuAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     private class OnLargeImageClick implements View.OnClickListener {
         private String imageUrl;
-
         public OnLargeImageClick(String imageUrl) {
             this.imageUrl = imageUrl;
         }
@@ -520,12 +522,37 @@ public class CircleGuanZhuAdapter extends RecyclerView.Adapter<RecyclerView.View
 
         @Override
         public void onClick(View v) {
-            shareDialog.show();
-            if (null == list.get(position).getContent().getImgs() || list.get(position).getContent().getImgs().size() > 0) {
-                share.setImage_url(list.get(position).getContent().getImgs().get(0).getFile());
-            } else {
-                share.setImage_url(share_image_url);
+            switch (list.get(position).getFeeds_type()) {
+                case FEED:
+                    if (null == list.get(position).getContent().getImgs() || list.get(position).getContent().getImgs().size() > 0) {
+                        share.setImage_url(list.get(position).getContent().getImgs().get(0).getFile());
+                    } else {
+                        share.setImage_url(share_image_url);
+                    }
+                    share.setType(list.get(position).getType());
+                    share.setType_desc(ShareUtils.SHARE_TYPE_FEED);
+                    share.setContent(list.get(position).getContent().getContent());
+                    break;
+                case ARTICLE:
+                    if (null != list.get(position).getContent().getNewthumb()) {
+                        share.setImage_url(list.get(position).getContent().getNewthumb().getFile());
+                    } else {
+                        share.setImage_url(share_image_url);
+                    }
+                    share.setType_desc(ShareUtils.SHARE_TYPE_ARTICLE);
+                    share.setContent(list.get(position).getContent().getTitle());
+                    break;
+                case VIDEO:
+                    if (null != list.get(position).getContent().getVideo_thumb()) {
+                        share.setImage_url(list.get(position).getContent().getVideo_thumb());
+                    } else {
+                        share.setImage_url(share_image_url);
+                    }
+                    share.setType_desc(ShareUtils.SHARE_TYPE_VIDEO);
+                    share.setContent(list.get(position).getContent().getContent());
+                    break;
             }
+            shareDialog.show();
             shareDialog.setShare(share, list.get(position).getContent().getId());
         }
     }
@@ -541,6 +568,7 @@ public class CircleGuanZhuAdapter extends RecyclerView.Adapter<RecyclerView.View
         public void onClick(View v) {
             Intent commentIntent = new Intent(context, FeedInformationActivity.class);
             commentIntent.putExtra("feed_id", list.get(position).getContent().getId());
+            commentIntent.putExtra("feed_type",list.get(position).getType());
             commentIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(commentIntent);
         }

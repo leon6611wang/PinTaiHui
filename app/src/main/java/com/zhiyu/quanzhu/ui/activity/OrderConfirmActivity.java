@@ -286,7 +286,7 @@ public class OrderConfirmActivity extends BaseActivity implements View.OnClickLi
                     return;
                 }
 
-                if (null != orderAddResult && null != orderAddResult.getData() && orderAddResult.getData().getOid() > 0) {
+                if (null != orderAddResult && null != orderAddResult.getData() && !StringUtils.isNullOrEmpty(orderAddResult.getData().getOid())) {
                     Intent intent = new Intent(this, MyOrderActivity.class);
                     startActivity(intent);
                     finish();
@@ -374,7 +374,7 @@ public class OrderConfirmActivity extends BaseActivity implements View.OnClickLi
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("购物车结算: " + result);
+//                System.out.println("购物车结算: " + result);
                 orderConfirmResult = GsonUtils.GsonToBean(result, OrderConfirmResult.class);
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
@@ -384,7 +384,7 @@ public class OrderConfirmActivity extends BaseActivity implements View.OnClickLi
             public void onError(Throwable ex, boolean isOnCallback) {
                 Message message = myHandler.obtainMessage(99);
                 message.sendToTarget();
-                System.out.println("goodsSettlement: " + ex.toString());
+//                System.out.println("goodsSettlement: " + ex.toString());
             }
 
             @Override
@@ -405,17 +405,23 @@ public class OrderConfirmActivity extends BaseActivity implements View.OnClickLi
      * 购物车-下单支付
      */
     private void cardOrderAdd() {
-        Map<Integer, String> map = new HashMap<>();
+        Map<Integer, String> remarkMap = new HashMap<>();
+        Map<Integer, Boolean> couponkMap = new HashMap<>();
         for (OrderConfirmShop shop : orderConfirmResult.getData().getList()) {
             if (!StringUtils.isNullOrEmpty(shop.getRemark())) {
-                map.put(shop.getShop_id(), shop.getRemark());
+                remarkMap.put(shop.getShop_id(), shop.getRemark());
             }
+            couponkMap.put(shop.getShop_id(), shop.isUseCoupon());
         }
         String remark = null;
-        if (map.size() > 0) {
-            remark = GsonUtils.GsonString(map);
+        if (remarkMap.size() > 0) {
+            remark = GsonUtils.GsonString(remarkMap);
         }
-        System.out.println("remark: " + remark);
+        String discount = null;
+        if (couponkMap.size() > 0) {
+            discount = GsonUtils.GsonString(couponkMap);
+        }
+        System.out.println("discount: " + discount);
 //        System.out.println("ids: " + ids + " , address_id: " + address_id);
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.CART_ORDER_ADD);
         params.addBodyParameter("ids", ids);//数组
@@ -425,11 +431,12 @@ public class OrderConfirmActivity extends BaseActivity implements View.OnClickLi
         params.addBodyParameter("address_mobile", address_mobile);
         params.addBodyParameter("address", address_info);
         params.addBodyParameter("remark", remark);//键值对map
+        params.addBodyParameter("discount", discount);
         params.addBodyParameter("type", String.valueOf(payType));//购物车结算1，其他2
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("购物车结算: " + result);
+//                System.out.println("购物车结算: " + result);
                 orderAddResult = GsonUtils.GsonToBean(result, OrderAddResult.class);
                 Message message = myHandler.obtainMessage(2);
                 message.sendToTarget();
@@ -437,7 +444,9 @@ public class OrderConfirmActivity extends BaseActivity implements View.OnClickLi
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                System.out.println("购物车结算: " + ex.toString());
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
+//                System.out.println("购物车结算: " + ex.toString());
             }
 
             @Override
@@ -454,17 +463,23 @@ public class OrderConfirmActivity extends BaseActivity implements View.OnClickLi
     }
 
     private void orderAdd() {
-        Map<Integer, String> map = new HashMap<>();
+        Map<Integer, String> remarkMap = new HashMap<>();
+        Map<Integer, Boolean> couponkMap = new HashMap<>();
         for (OrderConfirmShop shop : orderConfirmResult.getData().getList()) {
             if (!StringUtils.isNullOrEmpty(shop.getRemark())) {
-                map.put(shop.getShop_id(), shop.getRemark());
+                remarkMap.put(shop.getShop_id(), shop.getRemark());
             }
+            couponkMap.put(shop.getShop_id(), shop.isUseCoupon());
         }
         String remark = null;
-        if (map.size() > 0) {
-            remark = GsonUtils.GsonString(map);
+        if (remarkMap.size() > 0) {
+            remark = GsonUtils.GsonString(remarkMap);
         }
-        System.out.println("ids: " + ids + " , address_id: " + address_id);
+        String discount = null;
+        if (couponkMap.size() > 0) {
+            discount = GsonUtils.GsonString(couponkMap);
+        }
+//        System.out.println("ids: " + ids + " , address_id: " + address_id);
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.ORDER_ADD);
         params.addBodyParameter("spm", "");
         params.addBodyParameter("goods_id", String.valueOf(goods_id));
@@ -475,11 +490,12 @@ public class OrderConfirmActivity extends BaseActivity implements View.OnClickLi
         params.addBodyParameter("address_mobile", address_mobile);
         params.addBodyParameter("address", address_info);
         params.addBodyParameter("remark", remark);//键值对map
+        params.addBodyParameter("discount", discount);
         params.addBodyParameter("type", String.valueOf(payType));//购物车结算1，其他2
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("购物车结算: " + result);
+//                System.out.println("购物车结算: " + result);
                 orderAddResult = GsonUtils.GsonToBean(result, OrderAddResult.class);
                 Message message = myHandler.obtainMessage(2);
                 message.sendToTarget();
@@ -487,7 +503,9 @@ public class OrderConfirmActivity extends BaseActivity implements View.OnClickLi
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                System.out.println("购物车结算: " + ex.toString());
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
+//                System.out.println("购物车结算: " + ex.toString());
             }
 
             @Override
@@ -545,13 +563,13 @@ public class OrderConfirmActivity extends BaseActivity implements View.OnClickLi
     private AlipayOrderInfo alipayOrderInfo;
 
     private void alipayRequest() {
-        System.out.println("oid: " + orderAddResult.getData().getOid());
+//        System.out.println("oid: " + orderAddResult.getData().getOid());
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.ALIPAY);
-        params.addBodyParameter("oid", String.valueOf(orderAddResult.getData().getOid()));
+        params.addBodyParameter("oid", orderAddResult.getData().getOid());
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("alipay: " + result);
+//                System.out.println("alipay: " + result);
                 alipayOrderInfo = GsonUtils.GsonToBean(result, AlipayOrderInfo.class);
                 Message message = myHandler.obtainMessage(12);
                 message.sendToTarget();
@@ -561,7 +579,7 @@ public class OrderConfirmActivity extends BaseActivity implements View.OnClickLi
             public void onError(Throwable ex, boolean isOnCallback) {
                 Message message = myHandler.obtainMessage(99);
                 message.sendToTarget();
-                System.out.println("alipay: " + ex.toString());
+//                System.out.println("alipay: " + ex.toString());
 
             }
 
@@ -582,11 +600,11 @@ public class OrderConfirmActivity extends BaseActivity implements View.OnClickLi
     private void wxpayRequest() {
         System.out.println("oid: " + orderAddResult.getData().getOid());
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.WXPAY);
-        params.addBodyParameter("oid", String.valueOf(orderAddResult.getData().getOid()));
+        params.addBodyParameter("oid", orderAddResult.getData().getOid());
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("wxpay: " + result);
+//                System.out.println("wxpay: " + result);
                 wxpayOrderInfo = GsonUtils.GsonToBean(result, WxpayOrderInfo.class);
                 Message message = myHandler.obtainMessage(11);
                 message.sendToTarget();
@@ -594,7 +612,9 @@ public class OrderConfirmActivity extends BaseActivity implements View.OnClickLi
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                System.out.println("wxpay: " + ex.toString());
+//                System.out.println("wxpay: " + ex.toString());
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
             }
 
             @Override
@@ -612,15 +632,15 @@ public class OrderConfirmActivity extends BaseActivity implements View.OnClickLi
     private BaseResult baseResult;
 
     private void balancePay(String pwd) {
-        System.out.println("oid: " + orderAddResult.getData().getOid() + " , password: " + pwd + " , type: " + (balancePayType == 1 ? "wechat" : "ali"));
+//        System.out.println("oid: " + orderAddResult.getData().getOid() + " , password: " + pwd + " , type: " + (balancePayType == 1 ? "wechat" : "ali"));
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.BALANCE_PAY);
-        params.addBodyParameter("oid", String.valueOf(orderAddResult.getData().getOid()));
+        params.addBodyParameter("oid", orderAddResult.getData().getOid());
         params.addBodyParameter("password", pwd);
         params.addBodyParameter("type", balancePayType == 1 ? "wechat" : "ali");//ali,wechat
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("余额支付: " + result);
+//                System.out.println("余额支付: " + result);
                 baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
                 Message message = myHandler.obtainMessage(13);
                 message.sendToTarget();
@@ -629,7 +649,7 @@ public class OrderConfirmActivity extends BaseActivity implements View.OnClickLi
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                System.out.println("余额支付: " + ex.toString());
+//                System.out.println("余额支付: " + ex.toString());
                 Message message = myHandler.obtainMessage(99);
                 message.sendToTarget();
             }

@@ -21,6 +21,7 @@ public class CircleInfo {
     private String three_industry;
     private int three_industry_id;
     private String video;
+    private String video_thumb;
     private List<String> imgs;
     private int status;
     private String remark;
@@ -34,6 +35,14 @@ public class CircleInfo {
     private int uid;
     private String user_name;
     private String avatar;
+
+    public String getVideo_thumb() {
+        return video_thumb;
+    }
+
+    public void setVideo_thumb(String video_thumb) {
+        this.video_thumb = video_thumb;
+    }
 
     public boolean isIs_apply() {
         return is_apply;

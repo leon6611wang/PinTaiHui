@@ -20,10 +20,12 @@ import com.leon.myvideoplaerlibrary.constants.VideoConstants;
 import com.leon.myvideoplaerlibrary.utils.VideoUtils;
 import com.leon.myvideoplaerlibrary.view.VideoPlayerTrackView;
 import com.leon.myvideoplaerlibrary.view.VideoTextrueProvider;
+import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.FullSearchVideo;
+import com.zhiyu.quanzhu.model.result.ShareResult;
 import com.zhiyu.quanzhu.ui.activity.FeedInformationActivity;
 import com.zhiyu.quanzhu.ui.activity.VideoInformationActivity;
 import com.zhiyu.quanzhu.ui.dialog.ShareDialog;
@@ -35,6 +37,7 @@ import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
+import com.zhiyu.quanzhu.utils.ShareUtils;
 
 import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
@@ -48,21 +51,23 @@ import cn.carbs.android.expandabletextview.library.ExpandableTextView;
 
 public class FullSearchVideoListAdapter extends BaseAdapter {
     private Context context;
-    private int width,height;
+    private int width, height;
     private List<FullSearchVideo> list;
     private ShareDialog shareDialog;
     private Activity activity;
-    private MyHandler myHandler=new MyHandler(this);
-    private static class MyHandler extends Handler{
+    private MyHandler myHandler = new MyHandler(this);
+
+    private static class MyHandler extends Handler {
         WeakReference<FullSearchVideoListAdapter> adapterWeakReference;
-        public MyHandler(FullSearchVideoListAdapter adapter){
-            adapterWeakReference=new WeakReference<>(adapter);
+
+        public MyHandler(FullSearchVideoListAdapter adapter) {
+            adapterWeakReference = new WeakReference<>(adapter);
         }
 
         @Override
         public void handleMessage(Message msg) {
-            FullSearchVideoListAdapter adapter=adapterWeakReference.get();
-            switch (msg.what){
+            FullSearchVideoListAdapter adapter = adapterWeakReference.get();
+            switch (msg.what) {
                 case 1:
                     Toast.makeText(adapter.context, adapter.baseResult.getMsg(), Toast.LENGTH_SHORT).show();
                     if (adapter.baseResult.getCode() == 200) {
@@ -90,18 +95,23 @@ public class FullSearchVideoListAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-    public FullSearchVideoListAdapter(Activity aty,Context context) {
+    public void setShareResultCode(int requestCode, int resultCode, Intent data) {
+        shareDialog.setQQShareCallback(requestCode, resultCode, data);
+    }
+
+    public FullSearchVideoListAdapter(Activity aty, Context context) {
         this.context = context;
-        this.activity=aty;
-       int screenWidth = ScreentUtils.getInstance().getScreenWidth(context);
-       height=(int)context.getResources().getDimension(R.dimen.dp_240);
-       int dp_30=(int)context.getResources().getDimension(R.dimen.dp_30);
-       width=screenWidth-dp_30;
+        this.activity = aty;
+        shareConfig();
+        int screenWidth = ScreentUtils.getInstance().getScreenWidth(context);
+        height = (int) context.getResources().getDimension(R.dimen.dp_240);
+        int dp_30 = (int) context.getResources().getDimension(R.dimen.dp_30);
+        width = screenWidth - dp_30;
         initDialogs();
     }
 
-    private void initDialogs(){
-        shareDialog=new ShareDialog(activity,context,R.style.dialog);
+    private void initDialogs() {
+        shareDialog = new ShareDialog(activity, context, R.style.dialog);
     }
 
     @Override
@@ -127,7 +137,7 @@ public class FullSearchVideoListAdapter extends BaseAdapter {
         HorizontalListView tagListView;
         FullSearchFeedTagListAdapter adapter = new FullSearchFeedTagListAdapter();
         VideoPlayerTrackView videoPlayer;
-        LinearLayout priseLayout,itemRootLayout;
+        LinearLayout priseLayout, itemRootLayout;
     }
 
     @Override
@@ -141,7 +151,7 @@ public class FullSearchVideoListAdapter extends BaseAdapter {
             holder.timeTextView = convertView.findViewById(R.id.timeTextView);
             holder.mTextView = convertView.findViewById(R.id.mTextView);
             holder.collectImageView = convertView.findViewById(R.id.collectImageView);
-            holder.itemRootLayout=convertView.findViewById(R.id.itemRootLayout);
+            holder.itemRootLayout = convertView.findViewById(R.id.itemRootLayout);
             holder.priseLayout = convertView.findViewById(R.id.priseLayout);
             holder.shareTextView = convertView.findViewById(R.id.shareTextView);
             holder.commentTextView = convertView.findViewById(R.id.commentTextView);
@@ -149,7 +159,7 @@ public class FullSearchVideoListAdapter extends BaseAdapter {
             holder.priseNumTextView = convertView.findViewById(R.id.priseNumTextView);
             holder.tagListView = convertView.findViewById(R.id.tagListView);
             holder.sourceTextView = convertView.findViewById(R.id.sourceTextView);
-            holder.itemRootLayout=convertView.findViewById(R.id.itemRootLayout);
+            holder.itemRootLayout = convertView.findViewById(R.id.itemRootLayout);
             holder.tagListView.setAdapter(holder.adapter);
             holder.videoPlayer = convertView.findViewById(R.id.videoPlayer);
             convertView.setTag(holder);
@@ -180,7 +190,7 @@ public class FullSearchVideoListAdapter extends BaseAdapter {
         } else {
             holder.priseImageView.setImageDrawable(parent.getContext().getResources().getDrawable(R.mipmap.dianzan_gray));
         }
-        holder.videoPlayer.setLayoutParams(list.get(position).getContent().getLayoutParams(width,height));
+        holder.videoPlayer.setLayoutParams(list.get(position).getContent().getLayoutParams(width, height));
         holder.videoPlayer.setDataSource(list.get(position).getContent().getVideo_url(), "");
         Glide.with(context).load(list.get(position).getContent().getVideo_thumb()).into(holder.videoPlayer.getCoverController().getVideoCover());
 //        Glide.with(convertView).load(list.get(position).getContent().getVideo_url()).apply(BaseApplication.getInstance().getVideoCoverImageOption()).into( holder.videoPlayer.getCoverController().getVideoCover());
@@ -193,7 +203,7 @@ public class FullSearchVideoListAdapter extends BaseAdapter {
     }
 
 
-    private class OnVideoInformationClick implements View.OnClickListener{
+    private class OnVideoInformationClick implements View.OnClickListener {
         private int position;
 
         public OnVideoInformationClick(int position) {
@@ -202,8 +212,8 @@ public class FullSearchVideoListAdapter extends BaseAdapter {
 
         @Override
         public void onClick(View v) {
-            Intent videoInfoIntent=new Intent(context, VideoInformationActivity.class);
-            videoInfoIntent.putExtra("feeds_id",list.get(position).getContent().getId());
+            Intent videoInfoIntent = new Intent(context, VideoInformationActivity.class);
+            videoInfoIntent.putExtra("feeds_id", list.get(position).getContent().getId());
             videoInfoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(videoInfoIntent);
         }
@@ -231,7 +241,15 @@ public class FullSearchVideoListAdapter extends BaseAdapter {
 
         @Override
         public void onClick(View v) {
+            if (!StringUtils.isNullOrEmpty(list.get(position).getContent().getVideo_thumb())) {
+                shareResult.getData().getShare().setImage_url(list.get(position).getContent().getVideo_thumb());
+            }
+            if (!StringUtils.isNullOrEmpty(list.get(position).getContent().getContent())) {
+                shareResult.getData().getShare().setContent(list.get(position).getContent().getContent());
+            }
+            shareResult.getData().getShare().setType_desc(ShareUtils.SHARE_TYPE_VIDEO);
             shareDialog.show();
+            shareDialog.setShare(shareResult.getData().getShare(), list.get(position).getContent().getId());
 
         }
     }
@@ -264,6 +282,7 @@ public class FullSearchVideoListAdapter extends BaseAdapter {
 
 
     private BaseResult baseResult;
+
     private void priseFeed(final int position) {
         RequestParams params = MyRequestParams.getInstance(context).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.PRISE);
         params.addBodyParameter("prise_id", String.valueOf(list.get(position).getContent().getId()));
@@ -307,6 +326,34 @@ public class FullSearchVideoListAdapter extends BaseAdapter {
                 Message message = myHandler.obtainMessage(1);
                 message.obj = position;
                 message.sendToTarget();
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
+    private ShareResult shareResult;
+
+    private void shareConfig() {
+        RequestParams params = MyRequestParams.getInstance(context).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.SHARE_CONFIG);
+        params.addBodyParameter("type", ShareUtils.SHARE_TYPE_FEED);
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                shareResult = GsonUtils.GsonToBean(result, ShareResult.class);
             }
 
             @Override

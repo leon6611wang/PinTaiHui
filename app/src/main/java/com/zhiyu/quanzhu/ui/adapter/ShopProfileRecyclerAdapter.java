@@ -31,8 +31,8 @@ public class ShopProfileRecyclerAdapter extends BaseRecyclerAdapter<String> {
     public void onBind(RecyclerView.ViewHolder viewHolder, int RealPosition, String data) {
         if (viewHolder instanceof ViewHolder) {
             ViewHolder myHolder = (ViewHolder) viewHolder;
-            Glide.with(context).load(data).error(R.drawable.image_error) .placeholder(R.drawable.image_error)
-                    .fallback(R.drawable.image_error).into(myHolder.mImageView);
+            System.out.println("image url: "+data);
+            Glide.with(context).load(data).error(R.drawable.image_error).into(myHolder.mImageView);
         }
     }
 

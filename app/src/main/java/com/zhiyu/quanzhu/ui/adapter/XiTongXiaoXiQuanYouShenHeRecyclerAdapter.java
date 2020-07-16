@@ -60,8 +60,10 @@ public class XiTongXiaoXiQuanYouShenHeRecyclerAdapter extends RecyclerView.Adapt
                     break;
                 case 1:
                     MessageToast.getInstance(adapter.context).show(adapter.baseResult.getMsg());
-                    adapter.list.get(adapter.currentPosition).setStatus(adapter.type);
-                    adapter.notifyDataSetChanged();
+                    if (200 == adapter.baseResult.getCode()) {
+                        adapter.list.get(adapter.currentPosition).setStatus(adapter.type);
+                        adapter.notifyDataSetChanged();
+                    }
                     break;
             }
         }
@@ -185,7 +187,7 @@ public class XiTongXiaoXiQuanYouShenHeRecyclerAdapter extends RecyclerView.Adapt
             holder.timeTextView.setText(list.get(position).getAdd_time());
             String content = "<font color='#FE8627'>" + list.get(position).getUsername() + "</font><font color='#666666'>" + " 想要加您为圈友 " + "</font>";
             holder.nameTextView.setText(Html.fromHtml(content));
-            holder.resultTextView.setText("验证消息：" + list.get(position).getRefuse_reason());
+            holder.resultTextView.setText("验证消息：" + list.get(position).getContent());
             holder.statusDescTextView.setText(list.get(position).getStatus_desc());
             String buttonText = "";
             switch (list.get(position).getStatus()) {

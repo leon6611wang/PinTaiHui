@@ -52,7 +52,7 @@ public class LeonDrawerMenuLayout extends FrameLayout implements View.OnClickLis
         objectAnimator.start();
     }
 
-    private void hideAnima() {
+    public void hideAnima() {
         isShow = false;
         if (null != onMenuOperationListener) {
             onMenuOperationListener.onMenuOpen(isShow);

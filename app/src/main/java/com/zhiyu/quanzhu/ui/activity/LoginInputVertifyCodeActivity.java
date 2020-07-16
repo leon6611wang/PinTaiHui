@@ -161,6 +161,7 @@ public class LoginInputVertifyCodeActivity extends BaseActivity implements View.
                 loginTokenResult = GsonUtils.GsonToBean(result, LoginTokenResult.class);
                 if (200 == loginTokenResult.getCode()) {
                     SPUtils.getInstance().userLogin(BaseApplication.applicationContext);
+                    SPUtils.getInstance().saveUserId(BaseApplication.applicationContext, loginTokenResult.getData().getUser_id());
                     SPUtils.getInstance().saveUserToken(BaseApplication.applicationContext, loginTokenResult.getToken());
                     SPUtils.getInstance().saveIMToken(BaseApplication.applicationContext, loginTokenResult.getData().getToken());
                     SPUtils.getInstance().saveUserAvatar(BaseApplication.applicationContext, loginTokenResult.getData().getUserinfo().getAvatar());
@@ -192,14 +193,15 @@ public class LoginInputVertifyCodeActivity extends BaseActivity implements View.
     }
 
     private void pageChange() {
-        if (SPUtils.getInstance().getUserBindPhone(BaseApplication.applicationContext) &&
+        if (
                 SPUtils.getInstance().getUserFillProfile(BaseApplication.applicationContext) &&
-                SPUtils.getInstance().getUserChooseInterest(BaseApplication.applicationContext)) {
+                        SPUtils.getInstance().getUserChooseInterest(BaseApplication.applicationContext) &&
+                        SPUtils.getInstance().getUserHasPwd(BaseApplication.applicationContext)) {
             Intent homeIntent = new Intent(this, HomeActivity.class);
             startActivity(homeIntent);
         } else {
-            if (!SPUtils.getInstance().getUserBindPhone(BaseApplication.applicationContext)) {
-                Intent intent = new Intent(this, BondPhoneNumberActivity.class);
+            if (!SPUtils.getInstance().getUserHasPwd(BaseApplication.applicationContext)) {
+                Intent intent = new Intent(this, SetLoginPwdActivity.class);
                 startActivity(intent);
             } else if (!SPUtils.getInstance().getUserFillProfile(BaseApplication.applicationContext)) {
                 Intent intent = new Intent(this, CompleteUserProfileActivity.class);

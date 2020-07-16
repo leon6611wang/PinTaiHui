@@ -2,5 +2,4 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
     <corners android:radius="@dimen/dp_2"/>
     <solid android:color="#EDEDED"/>
-    <padding android:left="@dimen/dp_10" android:right="@dimen/dp_10" android:bottom="@dimen/dp_10" android:top="@dimen/dp_10"/>
 </shape>

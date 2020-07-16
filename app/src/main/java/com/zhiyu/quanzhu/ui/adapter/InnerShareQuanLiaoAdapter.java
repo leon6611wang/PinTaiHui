@@ -36,11 +36,12 @@ public class InnerShareQuanLiaoAdapter extends RecyclerView.Adapter<InnerShareQu
 
     public List<Integer> getSelectedIdList() {
         List<Integer> idsList = new ArrayList<>();
-        for (IMCircle user : list) {
-            if (user.isSelect()) {
-                idsList.add(user.getId());
+        if (null != list && list.size() > 0)
+            for (IMCircle user : list) {
+                if (user.isSelect()) {
+                    idsList.add(user.getId());
+                }
             }
-        }
         return idsList;
     }
 
@@ -111,12 +112,11 @@ public class InnerShareQuanLiaoAdapter extends RecyclerView.Adapter<InnerShareQu
     }
 
 
-
     private void unReadMsg(int position) {
         RongIM.getInstance().getUnreadCount(Conversation.ConversationType.GROUP, String.valueOf(list.get(position).getId()), new RongIMClient.ResultCallback<Integer>() {
             @Override
             public void onSuccess(Integer integer) {
-                System.out.println("未读消息: "+integer);
+                System.out.println("未读消息: " + integer);
             }
 
             @Override

@@ -135,8 +135,10 @@ public class ArticleInfoCommentListChildAdapter extends BaseAdapter {
         holder.nameTextView.setText(list.get(position).getUsername());
         if (list.get(position).isIs_prise()) {
             holder.priseImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.dianzan_yellow));
+            holder.priseTextView.setTextColor(context.getResources().getColor(R.color.text_color_yellow));
         } else {
             holder.priseImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.dianzan_gray));
+            holder.priseTextView.setTextColor(context.getResources().getColor(R.color.text_color_gray));
         }
         holder.priseTextView.setText(String.valueOf(list.get(position).getPnum()));
         if (list.get(position).getIs_del() == 1) {

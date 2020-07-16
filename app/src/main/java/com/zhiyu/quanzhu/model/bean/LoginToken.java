@@ -7,6 +7,15 @@ public class LoginToken {
     private long expires;
     private String token;
     private UserInfo userinfo;
+    private int user_id;
+
+    public int getUser_id() {
+        return user_id;
+    }
+
+    public void setUser_id(int user_id) {
+        this.user_id = user_id;
+    }
 
     public UserInfo getUserinfo() {
         return userinfo;

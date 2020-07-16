@@ -17,6 +17,24 @@ public class ShopProfile {
     private int sale_num;
     private boolean is_follow;
     private ArrayList<String> license;
+    private int collect_num;
+    private boolean is_collect;
+
+    public boolean isIs_collect() {
+        return is_collect;
+    }
+
+    public void setIs_collect(boolean is_collect) {
+        this.is_collect = is_collect;
+    }
+
+    public int getCollect_num() {
+        return collect_num;
+    }
+
+    public void setCollect_num(int collect_num) {
+        this.collect_num = collect_num;
+    }
 
     public int getShop_id() {
         return shop_id;

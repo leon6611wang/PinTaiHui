@@ -66,25 +66,25 @@ public class ShopProfileActivity extends BaseActivity implements View.OnClickLis
             ShopProfileActivity activity = activityWeakReference.get();
             switch (msg.what) {
                 case 1:
-                    Glide.with(activity).load(activity.shopProfileResult.getData().getShop_icon()).error(R.drawable.image_error) .placeholder(R.drawable.image_error)
+                    Glide.with(activity).load(activity.shopProfileResult.getData().getShop_icon()).error(R.drawable.image_error).placeholder(R.drawable.image_error)
                             .fallback(R.drawable.image_error).into(activity.shopIconImageView);
                     activity.shopNameTextView.setText(activity.shopProfileResult.getData().getShop_name());
                     activity.daysTextView.setText("入驻：" + activity.shopProfileResult.getData().getDays() + "天");
-                    if (activity.shopProfileResult.getData().isIs_follow()) {
+                    if (activity.shopProfileResult.getData().isIs_collect()) {
                         activity.followLayout.setBackground(activity.getResources().getDrawable(R.drawable.shape_oval_solid_bg_ededed_gray));
                         activity.followImageView.setVisibility(View.GONE);
-                        activity.followTextView.setText("已关注");
+                        activity.followTextView.setText("已收藏");
                         activity.followTextView.setTextColor(activity.getResources().getColor(R.color.text_color_grey));
                     } else {
                         activity.followLayout.setBackground(activity.getResources().getDrawable(R.drawable.shape_oval_bg_yellow));
-                        activity.followImageView.setVisibility(View.VISIBLE);
-                        activity.followTextView.setText("关注");
+                        activity.followImageView.setVisibility(View.GONE);
+                        activity.followTextView.setText("收藏");
                         activity.followTextView.setTextColor(activity.getResources().getColor(R.color.text_color_yellow));
                     }
                     activity.goodsCountTextView.setText("商品数量 " + activity.shopProfileResult.getData().getGoods_num());
                     activity.followCountTextView.setText("圈粉数 " + activity.shopProfileResult.getData().getFollow_num());
                     activity.saleNumTextView.setText("销量 " + activity.shopProfileResult.getData().getSale_num());
-                    activity.goodAppraiseTextView.setText((int)activity.shopProfileResult.getData().getMark() + "%");
+                    activity.goodAppraiseTextView.setText((int) activity.shopProfileResult.getData().getMark() + "%");
                     activity.goodsMarkTextView.setText(String.valueOf(activity.shopProfileResult.getData().getGoods_mark()));
                     activity.goodsMarkProgressBar.setProgress((int) activity.shopProfileResult.getData().getGoods_mark() * 10);
                     activity.serviceMarkProgressBar.setProgress((int) activity.shopProfileResult.getData().getService_mark() * 10);
@@ -206,6 +206,7 @@ public class ShopProfileActivity extends BaseActivity implements View.OnClickLis
             public void onSuccess(String result) {
                 System.out.println("shopProfile: " + result);
                 shopProfileResult = GsonUtils.GsonToBean(result, ShopProfileResult.class);
+                System.out.println("shopProfile: " + shopProfileResult.getData().getLicense().size());
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
             }
@@ -231,8 +232,8 @@ public class ShopProfileActivity extends BaseActivity implements View.OnClickLis
     private BaseResult baseResult;
 
     private void follow() {
-        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.FOLLOW);
-        params.addBodyParameter("follow_id", String.valueOf(shop_id));
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.COLLECT);
+        params.addBodyParameter("collect_id", String.valueOf(shop_id));
         params.addBodyParameter("module_type", "store");
         params.addBodyParameter("type", shopProfileResult.getData().isIs_follow() ? "1" : "0");
         x.http().post(params, new Callback.CommonCallback<String>() {

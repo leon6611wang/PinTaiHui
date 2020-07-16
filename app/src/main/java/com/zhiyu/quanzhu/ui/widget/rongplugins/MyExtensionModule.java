@@ -18,11 +18,11 @@ public class MyExtensionModule extends DefaultExtensionModule {
         IPluginModule location = new DefaultLocationPlugin();
 //        IPluginModule audio = new AudioPlugin();
 //        IPluginModule video = new VideoPlugin();
-        IPluginModule mingpian=new MingPianPlugins();
+//        IPluginModule mingpian=new MingPianPlugins();
 //        IPluginModule mingpian = new OrderPlugins();
 //        IPluginModule share = new SharePlugins();
         IPluginModule file = new FilePlugin();
-        IPluginModule reply = new QuickReplyPlugins();
+//        IPluginModule reply = new QuickReplyPlugins();
 
         if (conversationType.equals(Conversation.ConversationType.GROUP) ||
                 conversationType.equals(Conversation.ConversationType.DISCUSSION) ||
@@ -31,9 +31,9 @@ public class MyExtensionModule extends DefaultExtensionModule {
             pluginModuleList.add(location);
 //            pluginModuleList.add(audio);
 //            pluginModuleList.add(video);
-            pluginModuleList.add(mingpian);
+//            pluginModuleList.add(mingpian);
             pluginModuleList.add(file);
-            pluginModuleList.add(reply);
+//            pluginModuleList.add(reply);
         } else {
             pluginModuleList.add(image);
         }

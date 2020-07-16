@@ -103,7 +103,7 @@ public class QuanZiShenHe {
                 this.status_desc="审核已通过";
                 break;
             case 2:
-                this.status_desc="已被管理员拒绝";
+                this.status_desc="已被拒绝";
                 break;
         }
         return status_desc;

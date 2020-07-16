@@ -16,6 +16,7 @@ public class CreateShopListAdapter extends BaseAdapter {
 
     public void setList(List<ShopSearch> qiChaChaList) {
         this.list = qiChaChaList;
+        System.out.println("企查查数据: "+list.size());
         notifyDataSetChanged();
     }
 
@@ -43,7 +44,7 @@ public class CreateShopListAdapter extends BaseAdapter {
         ViewHolder holder = null;
         if (null == convertView) {
             holder = new ViewHolder();
-            convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_create_shop_name, null);
+            convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_create_shop_name, parent,false);
             holder.nameTextView = convertView.findViewById(R.id.nameTextView);
             convertView.setTag(holder);
         } else {

@@ -1,9 +1,15 @@
 package com.zhiyu.quanzhu.utils.recyclerTouchHelper;
 
+import android.os.Vibrator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+
+import com.zhiyu.quanzhu.R;
+import com.zhiyu.quanzhu.base.BaseApplication;
 
 public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
     private final ItemTouchHelperAdapter mAdapter;
@@ -75,6 +81,8 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
     public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
         RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
         if (layoutManager instanceof GridLayoutManager) {// GridLayoutManager
+            Vibrator vibrator = (Vibrator) BaseApplication.applicationContext.getSystemService(BaseApplication.applicationContext.VIBRATOR_SERVICE);
+            vibrator.vibrate(100);
             // flag如果值是0，相当于这个功能被关闭
             int dragFlag = ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT | ItemTouchHelper.UP | ItemTouchHelper.DOWN;
             int swipeFlag = 0;
@@ -83,7 +91,6 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
         } else if (layoutManager instanceof LinearLayoutManager) {// linearLayoutManager
             LinearLayoutManager linearLayoutManager = (LinearLayoutManager) layoutManager;
             int orientation = linearLayoutManager.getOrientation();
-
             int dragFlag = 0;
             int swipeFlag = 0;
 

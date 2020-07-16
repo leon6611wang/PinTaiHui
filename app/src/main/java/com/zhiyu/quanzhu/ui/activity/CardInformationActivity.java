@@ -245,8 +245,12 @@ public class CardInformationActivity extends BaseActivity implements View.OnClic
             public void onMyMingPianMenuChoose(int position, String desc) {
                 switch (position) {
                     case 1:
+                        shareResult.getData().getShare().setImage_url(cardResult.getData().getDetail().getCard_thumb());
+                        shareResult.getData().getShare().setContent(cardResult.getData().getDetail().getCard_name());
+                        shareResult.getData().getShare().setType_desc(ShareUtils.SHARE_TYPE_CARD);
+                        shareResult.getData().getShare().setUid((int) uid);
                         shareDialog.show();
-                        shareDialog.setShare(shareResult.getData().getShare(),(int)cardResult.getData().getDetail().getId());
+                        shareDialog.setShare(shareResult.getData().getShare(),(int)cardResult.getData().getDetail().getUid());
                         break;
                     case 2:
                         Intent editIntent = new Intent(CardInformationActivity.this, EditCardActivity.class);
@@ -531,22 +535,30 @@ public class CardInformationActivity extends BaseActivity implements View.OnClic
                     qrCodeDialog.setCard(cardResult.getData().getDetail());
                 } else {
                     if (cardResult.getData().getDetail().isIs_friends()) {
-                        shareDialog.show();
                         shareResult.getData().getShare().setImage_url(cardResult.getData().getDetail().getCard_thumb());
-                        shareDialog.setShare(shareResult.getData().getShare(),(int)cardResult.getData().getDetail().getId());
+                        shareResult.getData().getShare().setContent(cardResult.getData().getDetail().getCard_name());
+                        shareResult.getData().getShare().setType_desc(ShareUtils.SHARE_TYPE_CARD);
+                        shareResult.getData().getShare().setUid((int) uid);
+                        shareDialog.show();
+                        shareDialog.setShare(shareResult.getData().getShare(),(int)cardResult.getData().getDetail().getUid());
                     } else {
-                        shareDialog.show();
                         shareResult.getData().getShare().setImage_url(cardResult.getData().getDetail().getCard_thumb());
-                        shareDialog.setShare(shareResult.getData().getShare(),(int)cardResult.getData().getDetail().getId());
+                        shareResult.getData().getShare().setContent(cardResult.getData().getDetail().getCard_name());
+                        shareResult.getData().getShare().setType_desc(ShareUtils.SHARE_TYPE_CARD);
+                        shareResult.getData().getShare().setUid((int) uid);
+                        shareDialog.show();
+                        shareDialog.setShare(shareResult.getData().getShare(),(int)cardResult.getData().getDetail().getUid());
                     }
                 }
                 break;
             case 2:
                 if (isMyCard) {
-                    shareDialog.show();
                     shareResult.getData().getShare().setImage_url(cardResult.getData().getDetail().getCard_thumb());
                     shareResult.getData().getShare().setContent(cardResult.getData().getDetail().getCard_name());
-                    shareDialog.setShare(shareResult.getData().getShare(),(int)cardResult.getData().getDetail().getId());
+                    shareResult.getData().getShare().setType_desc(ShareUtils.SHARE_TYPE_CARD);
+                    shareResult.getData().getShare().setUid((int) uid);
+                    shareDialog.show();
+                    shareDialog.setShare(shareResult.getData().getShare(),(int)cardResult.getData().getDetail().getUid());
                 } else {
                     if (cardResult.getData().getDetail().isIs_friends()) {
                         chat();

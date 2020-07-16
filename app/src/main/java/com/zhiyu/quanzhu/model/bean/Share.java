@@ -9,6 +9,16 @@ public class Share {
     private int type;
     private String type_desc;
     private int type_id;
+    private int uid;
+
+
+    public int getUid() {
+        return uid;
+    }
+
+    public void setUid(int uid) {
+        this.uid = uid;
+    }
 
     public int getId() {
         return id;

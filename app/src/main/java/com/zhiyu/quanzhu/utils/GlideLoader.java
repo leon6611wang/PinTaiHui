@@ -44,6 +44,6 @@ public class GlideLoader implements ImageLoader {
     @Override
     public void clearMemoryCache() {
         //清理缓存
-        Glide.get(BaseApplication.getInstance().getApplicationContext()).clearMemory();
+        Glide.get(BaseApplication.applicationContext).clearMemory();
     }
 }

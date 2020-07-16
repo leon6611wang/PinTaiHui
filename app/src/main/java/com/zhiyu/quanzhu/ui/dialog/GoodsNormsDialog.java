@@ -122,15 +122,13 @@ public class GoodsNormsDialog extends Dialog implements View.OnClickListener, Go
 
     private void changeBottomButton(boolean isCanBuy) {
         if (isCanBuy) {
-            gouwucheTextView.setClickable(true);
-            goumaiTextView.setClickable(true);
+            gouwucheTextView.setOnClickListener(this);
+            goumaiTextView.setOnClickListener(this);
             gouwucheTextView.setBackground(getContext().getResources().getDrawable(R.drawable.shape_oval_bg_yellow));
             gouwucheTextView.setTextColor(getContext().getResources().getColor(R.color.text_color_yellow));
             goumaiTextView.setBackground(getContext().getResources().getDrawable(R.mipmap.mingpian_fenxiang_button_bg));
             goumaiTextView.setTextColor(getContext().getResources().getColor(R.color.white));
         } else {
-            gouwucheTextView.setClickable(false);
-            goumaiTextView.setClickable(false);
             gouwucheTextView.setBackground(getContext().getResources().getDrawable(R.drawable.shape_oval_bg_gray));
             gouwucheTextView.setTextColor(getContext().getResources().getColor(R.color.text_color_gray));
             goumaiTextView.setBackground(getContext().getResources().getDrawable(R.drawable.shape_oval_solid_bg_gray));
@@ -237,9 +235,7 @@ public class GoodsNormsDialog extends Dialog implements View.OnClickListener, Go
         numberTextView = findViewById(R.id.numberTextView);
         numberTextView.setText(String.valueOf(currentNumber));
         gouwucheTextView = findViewById(R.id.gouwucheTextView);
-        gouwucheTextView.setOnClickListener(this);
         goumaiTextView = findViewById(R.id.goumaiTextView);
-        goumaiTextView.setOnClickListener(this);
         closelayout = findViewById(R.id.closelayout);
         closelayout.setOnClickListener(this);
 
@@ -284,7 +280,7 @@ public class GoodsNormsDialog extends Dialog implements View.OnClickListener, Go
                 break;
             case R.id.gouwucheTextView:
                 if (hasNorm) {
-                    if (null != selectedGoodsStock) {
+                    if (isSelectedNorms) {
                         addCart();
                     } else {
                         MessageToast.getInstance(getContext()).show("请选择规格");
@@ -296,7 +292,7 @@ public class GoodsNormsDialog extends Dialog implements View.OnClickListener, Go
                 break;
             case R.id.goumaiTextView:
                 if (hasNorm) {
-                    if (null != selectedGoodsStock) {
+                    if (isSelectedNorms) {
                         lijigoumai();
                     } else {
                         MessageToast.getInstance(getContext()).show("请选择规格");
@@ -337,6 +333,8 @@ public class GoodsNormsDialog extends Dialog implements View.OnClickListener, Go
 
     }
 
+
+    private boolean isSelectedNorms=false;
     @Override
     public void onGuiGeSelected(int parentPosition, int childPosition) {
         list = GoodsNormStockDao.getInstance().calculateGoodsNormsStock(list, parentPosition, childPosition);
@@ -351,6 +349,11 @@ public class GoodsNormsDialog extends Dialog implements View.OnClickListener, Go
                     selectedGoodsNormList.add(goodsNorm);
                 }
             }
+        }
+        if(selectedGoodsNormList.size()>0){
+            isSelectedNorms=true;
+        }else{
+            isSelectedNorms=false;
         }
         if (selectedGoodsNormList.size() == list.size()) {
             selectedGoodsStock = GoodsNormStockDao.getInstance().getSelectedStock(selectedGoodsNormList);

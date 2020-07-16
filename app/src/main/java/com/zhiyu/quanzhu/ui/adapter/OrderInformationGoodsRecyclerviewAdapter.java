@@ -143,13 +143,13 @@ public class OrderInformationGoodsRecyclerviewAdapter extends RecyclerView.Adapt
                 String goodsJson = GsonUtils.GsonString(goods);
                 afterSaleServiceIntent.putExtra("order_id", order_id);
                 afterSaleServiceIntent.putExtra("goodsJson", goodsJson);
-                afterSaleServiceIntent.putExtra("refund_money", refund_money);
+                afterSaleServiceIntent.putExtra("refund_money", list.get(position).getRefund_price());
                 afterSaleServiceIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(afterSaleServiceIntent);
             } else {
                 Intent afterSaleServiceInfoIntent = new Intent(context, AfterSaleServiceInformationActivity.class);
                 afterSaleServiceInfoIntent.putExtra("refund_id", list.get(position).getRefund_id());
-                afterSaleServiceInfoIntent.putExtra("refund_money", refund_money);
+                afterSaleServiceInfoIntent.putExtra("refund_money", list.get(position).getRefund_price());
                 afterSaleServiceInfoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(afterSaleServiceInfoIntent);
             }

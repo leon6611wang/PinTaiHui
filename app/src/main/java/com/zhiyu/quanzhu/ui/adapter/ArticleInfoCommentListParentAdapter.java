@@ -144,8 +144,10 @@ public class ArticleInfoCommentListParentAdapter extends BaseAdapter implements 
         holder.priseNumTextView.setText(String.valueOf(list.get(position).getPnum()));
         if (list.get(position).isIs_prise()) {
             holder.priseImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.dianzan_yellow));
+            holder.priseNumTextView.setTextColor(convertView.getResources().getColor(R.color.text_color_yellow));
         } else {
             holder.priseImageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.dianzan_gray));
+            holder.priseNumTextView.setTextColor(convertView.getResources().getColor(R.color.text_color_gray));
         }
         holder.timeTextView.setText(list.get(position).getDateline());
         holder.replyTextView.setOnClickListener(new OnReplyCommentClick(position));

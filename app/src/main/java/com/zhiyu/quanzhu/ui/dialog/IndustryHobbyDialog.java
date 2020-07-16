@@ -92,13 +92,17 @@ public class IndustryHobbyDialog extends Dialog implements View.OnClickListener 
         for (IndustryHobby ih : list) {
             parentList.add(ih.getName());
         }
-        parent = list.get(0);
+        if (null != list && list.size() > 0)
+            parent = list.get(0);
         getChildList(0);
-        child = list.get(0).getChild().get(0);
+        if (null != list && list.size() > 0 && null != list.get(0).getChild() && list.get(0).getChild().size() > 0)
+            child = list.get(0).getChild().get(0);
         parentView.setItems(parentList);
-        parentView.setInitPosition(0);
+        if (parentList.size() > 0)
+            parentView.setInitPosition(0);
         childView.setItems(childList);
-        childView.setInitPosition(0);
+        if (childList.size() > 0)
+            childView.setInitPosition(0);
     }
 
 

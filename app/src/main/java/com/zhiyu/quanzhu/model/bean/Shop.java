@@ -5,10 +5,20 @@ public class Shop {
     private String shop_name;
     private String shop_icon;
     private int follow_num;
+    private int collection_num;
     private int mark;
     private boolean is_follow;
     private boolean is_collect;
     private long kefu_id;
+
+
+    public int getCollection_num() {
+        return collection_num;
+    }
+
+    public void setCollection_num(int collection_num) {
+        this.collection_num = collection_num;
+    }
 
     public boolean isIs_collect() {
         return is_collect;

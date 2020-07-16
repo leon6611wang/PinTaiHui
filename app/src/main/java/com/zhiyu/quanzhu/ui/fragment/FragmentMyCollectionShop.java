@@ -146,7 +146,7 @@ public class FragmentMyCollectionShop extends Fragment {
                 } else {
                     list.addAll(shopResult.getData().getList());
                 }
-                System.out.println("shop: "+(null==list?0:list.size()));
+                System.out.println("shop: "+result);
                 Message message = myHandler.obtainMessage(1);
                 message.sendToTarget();
             }

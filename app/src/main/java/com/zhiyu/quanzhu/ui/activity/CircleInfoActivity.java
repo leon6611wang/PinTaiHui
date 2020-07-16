@@ -13,7 +13,6 @@ import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.leon.myvideoplaerlibrary.view.VideoPlayerTrackView;
@@ -24,20 +23,16 @@ import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseActivity;
 import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.base.BaseResult;
-import com.zhiyu.quanzhu.model.bean.CircleInfoFeed;
 import com.zhiyu.quanzhu.model.bean.Feed;
 import com.zhiyu.quanzhu.model.result.AlipayOrderInfo;
-import com.zhiyu.quanzhu.model.result.CircleInfoFeedResult;
 import com.zhiyu.quanzhu.model.result.CircleInfoResult;
 import com.zhiyu.quanzhu.model.result.CircleInfoShopResult;
 import com.zhiyu.quanzhu.model.result.CircleInfoUserResult;
 import com.zhiyu.quanzhu.model.result.FeedResult;
 import com.zhiyu.quanzhu.model.result.OrderAddResult;
 import com.zhiyu.quanzhu.model.result.ShareResult;
-import com.zhiyu.quanzhu.model.result.StoreResult;
 import com.zhiyu.quanzhu.model.result.WxpayOrderInfo;
 import com.zhiyu.quanzhu.ui.adapter.CircleInfoFeedsAdapter;
-import com.zhiyu.quanzhu.ui.adapter.CircleInfoListAdapter;
 import com.zhiyu.quanzhu.ui.adapter.CircleInfoMemberListAdapter;
 import com.zhiyu.quanzhu.ui.adapter.CircleInfoShopListAdapter;
 import com.zhiyu.quanzhu.ui.dialog.CircleInfoEditDialog;
@@ -134,7 +129,7 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
                         activity.imageUrl = activity.circleInfoResult.getData().getImgs();
                         activity.buttonStatusChange(activity.circleInfoResult.getData().isIs_apply());
                         activity.initBanner();
-                        Glide.with(activity).load(activity.circleInfoResult.getData().getAvatar())
+                        Glide.with(activity).load(activity.circleInfoResult.getData().getThumb())
                                 .error(R.drawable.image_error)
                                 .into(activity.avatarImageView);
                         if (!StringUtils.isNullOrEmpty(activity.circleInfoResult.getData().getName()))
@@ -165,6 +160,11 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
                         activity.titleTextView2.setText(activity.circleInfoResult.getData().getName());
                         if (!activity.circleInfoResult.getData().isIs_join()) {
                             activity.joinCircleTextView.setVisibility(View.VISIBLE);
+                            if (activity.circleInfoResult.getData().getIs_price() == 1) {
+                                activity.joinCircleTextView.setText("付费加入 " + (activity.circleInfoResult.getData().getPrice() / 100) + "元/年");
+                            } else {
+                                activity.joinCircleTextView.setText("加入圈子");
+                            }
                         } else {
                             activity.joinCircleTextView.setVisibility(View.GONE);
                         }
@@ -216,6 +216,9 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
                     if (activity.baseResult.getCode() == 200) {
                         activity.circleBase();
                     }
+                    break;
+                case 14:
+                    MessageToast.getInstance(activity).show(activity.orderAddResult.getMsg());
                     break;
                 case 99:
                     MessageToast.getInstance(activity).show("服务器内部错误，请稍后再试");
@@ -517,10 +520,11 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
                         public void onMenuSelect(int index, String menu) {
                             switch (index) {
                                 case 1:
-                                    shareDialog.show();
                                     shareResult.getData().getShare().setContent(circleInfoResult.getData().getName());
                                     shareResult.getData().getShare().setImage_url(circleInfoResult.getData().getThumb());
-                                    shareDialog.setShare(shareResult.getData().getShare(),(int) circle_id);
+                                    shareResult.getData().getShare().setType_desc(ShareUtils.SHARE_TYPE_CIRCLE);
+                                    shareDialog.show();
+                                    shareDialog.setShare(shareResult.getData().getShare(), (int) circle_id);
                                     break;
                                 case 2:
 
@@ -536,7 +540,7 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
                                 case 5:
                                     Intent settingIntent = new Intent(CircleInfoActivity.this, CircleSettingActivity.class);
                                     settingIntent.putExtra("circle_id", circle_id);
-                                    startActivity(settingIntent);
+                                    startActivityForResult(settingIntent, 10071);
                                     break;
                             }
                         }
@@ -548,7 +552,11 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
                             public void onMenuSelect(int index, String menu) {
                                 switch (index) {
                                     case 1:
+                                        shareResult.getData().getShare().setContent(circleInfoResult.getData().getName());
+                                        shareResult.getData().getShare().setImage_url(circleInfoResult.getData().getThumb());
+                                        shareResult.getData().getShare().setType_desc(ShareUtils.SHARE_TYPE_CIRCLE);
                                         shareDialog.show();
+                                        shareDialog.setShare(shareResult.getData().getShare(), (int) circle_id);
                                         break;
                                     case 2:
 
@@ -572,7 +580,11 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
                             public void onMenuSelect(int index, String menu) {
                                 switch (index) {
                                     case 1:
+                                        shareResult.getData().getShare().setContent(circleInfoResult.getData().getName());
+                                        shareResult.getData().getShare().setImage_url(circleInfoResult.getData().getThumb());
+                                        shareResult.getData().getShare().setType_desc(ShareUtils.SHARE_TYPE_CIRCLE);
                                         shareDialog.show();
+                                        shareDialog.setShare(shareResult.getData().getShare(), (int) circle_id);
                                         break;
                                     case 2:
                                         Intent complaintIntent = new Intent(CircleInfoActivity.this, ComplaintActivity.class);
@@ -593,7 +605,11 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
                         public void onMenuSelect(int index, String menu) {
                             switch (index) {
                                 case 1:
+                                    shareResult.getData().getShare().setContent(circleInfoResult.getData().getName());
+                                    shareResult.getData().getShare().setImage_url(circleInfoResult.getData().getThumb());
+                                    shareResult.getData().getShare().setType_desc(ShareUtils.SHARE_TYPE_CIRCLE);
                                     shareDialog.show();
+                                    shareDialog.setShare(shareResult.getData().getShare(), (int) circle_id);
                                     break;
                                 case 2:
 
@@ -607,7 +623,7 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
                                     editDialog.setEditType(2);
                                     break;
                                 case 5:
-                                    Intent settingIntent = new Intent(CircleInfoActivity.this, CircleSettingActivity.class);
+                                    Intent settingIntent = new Intent(CircleInfoActivity.this, UpdateCircleProfileActivity.class);
                                     settingIntent.putExtra("circle_id", circle_id);
                                     startActivity(settingIntent);
                                     break;
@@ -621,7 +637,11 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
                             public void onMenuSelect(int index, String menu) {
                                 switch (index) {
                                     case 1:
+                                        shareResult.getData().getShare().setContent(circleInfoResult.getData().getName());
+                                        shareResult.getData().getShare().setImage_url(circleInfoResult.getData().getThumb());
+                                        shareResult.getData().getShare().setType_desc(ShareUtils.SHARE_TYPE_CIRCLE);
                                         shareDialog.show();
+                                        shareDialog.setShare(shareResult.getData().getShare(), (int) circle_id);
                                         break;
                                     case 2:
 
@@ -645,7 +665,11 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
                             public void onMenuSelect(int index, String menu) {
                                 switch (index) {
                                     case 1:
+                                        shareResult.getData().getShare().setContent(circleInfoResult.getData().getName());
+                                        shareResult.getData().getShare().setImage_url(circleInfoResult.getData().getThumb());
+                                        shareResult.getData().getShare().setType_desc(ShareUtils.SHARE_TYPE_CIRCLE);
                                         shareDialog.show();
+                                        shareDialog.setShare(shareResult.getData().getShare(), (int) circle_id);
                                         break;
                                     case 2:
                                         Intent complaintIntent = new Intent(CircleInfoActivity.this, ComplaintActivity.class);
@@ -909,14 +933,14 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
     private OrderAddResult orderAddResult;
 
     private void joinCircle() {
-        System.out.println("circle_id: " + circle_id + " , content: " + apply_content);
+//        System.out.println("circle_id: " + circle_id + " , content: " + apply_content);
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.JOIN_CIRCLE);
         params.addBodyParameter("circle_id", String.valueOf(circle_id));
         params.addBodyParameter("apply_content", apply_content);
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("加入圈子: " + result);
+//                System.out.println("加入圈子: " + result);
                 orderAddResult = GsonUtils.GsonToBean(result, OrderAddResult.class);
                 if (orderAddResult.getCode() == 200) {
                     Message message = myHandler.obtainMessage(6);
@@ -925,6 +949,9 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
                     userList();
                 } else if (orderAddResult.getCode() == 1006) {
                     Message message = myHandler.obtainMessage(10);
+                    message.sendToTarget();
+                } else {
+                    Message message = myHandler.obtainMessage(14);
                     message.sendToTarget();
                 }
 
@@ -987,6 +1014,9 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (null != data && requestCode == 10071) {
+            finish();
+        }
         shareDialog.setQQShareCallback(requestCode, resultCode, data);
         adapter.setShareResultCode(requestCode, resultCode, data);
     }
@@ -1092,6 +1122,7 @@ public class CircleInfoActivity extends BaseActivity implements AbsListView.OnSc
     }
 
     private ShareResult shareResult;
+
     private void shareConfig() {
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.SHARE_CONFIG);
         params.addBodyParameter("type", ShareUtils.SHARE_TYPE_CIRCLE);

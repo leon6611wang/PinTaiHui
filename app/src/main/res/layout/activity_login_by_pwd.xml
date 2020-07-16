@@ -50,6 +50,7 @@
             android:layout_weight="1" />
 
         <LinearLayout
+            android:id="@+id/originLoginLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
@@ -88,7 +89,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginBottom="@dimen/dp_25"
+                android:layout_marginBottom="36dp"
                 android:layout_marginTop="@dimen/dp_25"
                 android:gravity="center"
                 android:orientation="horizontal">
@@ -112,68 +113,12 @@
                     android:src="@mipmap/qq" />
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginBottom="@dimen/dp_15"
-                android:gravity="center"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:text="登录即代表你已同意《"
-                    android:textColor="#999999"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:id="@+id/yoonghuxieyiTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:text="圈助用户协议"
-                    android:textColor="@color/text_color_grey"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:text="》、《"
-                    android:textColor="#999999"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:id="@+id/yinsizhengceTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:text="隐私政策"
-                    android:textColor="@color/text_color_grey"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:text="》"
-                    android:textColor="#999999"
-                    android:textSize="12sp" />
-            </LinearLayout>
-
         </LinearLayout>
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="230dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="162dp"
         android:orientation="vertical">
 
@@ -310,16 +255,80 @@
                 <TextView
                     android:id="@+id/loginTextView"
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/dp_30"
+                    android:layout_height="@dimen/dp_40"
                     android:layout_gravity="center|bottom"
                     android:layout_marginBottom="@dimen/dp_25"
-                    android:background="@mipmap/button_yellow_bg"
+                    android:background="@drawable/shape_oval_solid_bg_bbbbbbb"
                     android:gravity="center"
                     android:text="点我登录"
                     android:textColor="@color/white"
                     android:textSize="14sp" />
             </LinearLayout>
         </android.support.v7.widget.CardView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="24dp"
+            android:layout_marginTop="@dimen/dp_15"
+            android:orientation="horizontal">
+
+            <CheckBox
+                android:id="@+id/checkBox"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:button="@drawable/checkbox_style"
+                android:layout_marginRight="@dimen/dp_5"
+                android:layout_gravity="center"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="注册/登录即代表你已同意《"
+                android:textColor="#999999"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/yoonghuxieyiTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="圈助用户协议"
+                android:textColor="@color/text_color_grey"
+                android:textSize="12sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="》、《"
+                android:textColor="#999999"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/yinsizhengceTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="隐私政策"
+                android:textColor="@color/text_color_grey"
+                android:textSize="12sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="》"
+                android:textColor="#999999"
+                android:textSize="12sp" />
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"

@@ -174,10 +174,11 @@ public class CircleSelectDialog extends Dialog implements View.OnClickListener {
         params.addBodyParameter("page", String.valueOf(page));
         params.addBodyParameter("type", String.valueOf(type));
         params.addBodyParameter("feeds_type",String.valueOf(feeds_type));
+        System.out.println("feeds_type " + feeds_type);
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-//                System.out.println("myCircle " + result);
+                System.out.println("myCircle " + result);
                 myCircleResult = GsonUtils.GsonToBean(result, MyCircleResult.class);
                 if (isRefresh) {
                     list = myCircleResult.getData().getCircle_list();

@@ -30,9 +30,11 @@ import com.zhiyu.quanzhu.model.bean.FeedCommentParent;
 import com.zhiyu.quanzhu.model.result.ArticleInformationGoodsResult;
 import com.zhiyu.quanzhu.model.result.ArticleInformationResult;
 import com.zhiyu.quanzhu.model.result.FeedCommentResult;
+import com.zhiyu.quanzhu.model.result.ShareResult;
 import com.zhiyu.quanzhu.ui.adapter.ArticleInfoCommentListParentAdapter;
 import com.zhiyu.quanzhu.ui.adapter.ArticleInfoGoodsGridAdapter;
 import com.zhiyu.quanzhu.ui.dialog.ShareDialog;
+import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.CircleImageView;
 import com.zhiyu.quanzhu.ui.widget.LeonDrawerMenuLayout;
 import com.zhiyu.quanzhu.ui.widget.NiceImageView;
@@ -44,6 +46,7 @@ import com.zhiyu.quanzhu.utils.MyPtrRefresherFooter;
 import com.zhiyu.quanzhu.utils.MyPtrRefresherHeader;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
+import com.zhiyu.quanzhu.utils.ShareUtils;
 import com.zhiyu.quanzhu.utils.SoftKeyboardUtil;
 
 import org.xutils.common.Callback;
@@ -78,10 +81,11 @@ public class ArticleInformationActivity extends BaseActivity implements View.OnC
     private TextView userNameTextView, followTextView, titleTextView, complaintTextView, viewCountTextView,
             circleUserNameTextView, circleTimeTextView, circleNameTextView, circleDescTextView, circleCityTextView,
             circleIndustryTextView, chengyuanTextView, dongtaiTextView, commentCountTextView;
-    private ImageView followImageView, complaintImageView;
+    private ImageView followImageView, complaintImageView, shareImageView;
     private CardView circleCardView;
     private NiceImageView circleImageView;
     private ShareDialog shareDialog;
+    private View noDataLayout, backTextView;
     private int dp_15, dp_5, screenWidth, screenHeight;
     private String commentContent = null;
     private int article_id, myCommentId;
@@ -99,6 +103,9 @@ public class ArticleInformationActivity extends BaseActivity implements View.OnC
         public void handleMessage(Message msg) {
             ArticleInformationActivity activity = articleInformationActivityWeakReference.get();
             switch (msg.what) {
+                case 99:
+                    MessageToast.getInstance(activity).show("服务器内部错误，请稍后再试");
+                    break;
                 case 0:
                     activity.createArticleContent();
                     Glide.with(activity).load(activity.articleInformationResult.getData().getDetail().getAvatar()).into(activity.avatarImageView);
@@ -129,7 +136,7 @@ public class ArticleInformationActivity extends BaseActivity implements View.OnC
                         activity.circleCardView.setVisibility(View.VISIBLE);
                         Glide.with(activity).load(activity.articleInformationResult.getData().getDetail().getCircle().getAvatar()).into(activity.circleAvatarImageView);
                         activity.circleUserNameTextView.setText(activity.articleInformationResult.getData().getDetail().getCircle().getUsername());
-                        activity.circleTimeTextView.setText("创建"+activity.articleInformationResult.getData().getDetail().getCircle().getDays()+"天");
+                        activity.circleTimeTextView.setText("创建" + activity.articleInformationResult.getData().getDetail().getCircle().getDays() + "天");
                         Glide.with(activity).load(activity.articleInformationResult.getData().getDetail().getCircle().getThumb()).into(activity.circleImageView);
                         activity.circleNameTextView.setText(activity.articleInformationResult.getData().getDetail().getCircle().getName());
                         activity.circleDescTextView.setText(activity.articleInformationResult.getData().getDetail().getCircle().getDescirption());
@@ -182,6 +189,11 @@ public class ArticleInformationActivity extends BaseActivity implements View.OnC
                     }
                     break;
                 case 3:
+                    if (null != activity.goodsList && activity.goodsList.size() > 0) {
+                        activity.noDataLayout.setVisibility(View.GONE);
+                    } else {
+                        activity.noDataLayout.setVisibility(View.VISIBLE);
+                    }
                     activity.goodsListPtr.refreshComplete();
                     activity.goodsGridAdapter.setList(activity.goodsList);
                     break;
@@ -236,18 +248,14 @@ public class ArticleInformationActivity extends BaseActivity implements View.OnC
         screenHeight = ScreentUtils.getInstance().getScreenHeight(this);
         initDialogs();
         initViews();
+        shareConfig();
         articleInformation();
         articleInformationGoodsList();
         commentList();
     }
 
     private void initDialogs() {
-        shareDialog = new ShareDialog(this, this, R.style.dialog, new ShareDialog.OnShareListener() {
-            @Override
-            public void onShare(int position, String desc) {
-
-            }
-        });
+        shareDialog = new ShareDialog(this, this, R.style.dialog);
     }
 
     private void initViews() {
@@ -260,8 +268,16 @@ public class ArticleInformationActivity extends BaseActivity implements View.OnC
                     public boolean onPreDraw() {
                         informationHeaderLayout.getViewTreeObserver().removeOnPreDrawListener(this);
                         informationHeaderLayout.getWidth(); // 获取宽度
+                        int statusHeight = ScreentUtils.getInstance().getStatusHeight(ArticleInformationActivity.this);
                         int height = informationHeaderLayout.getHeight(); // 获取高度
-                        mleonDrawerMenuLayout.setHeight(screenHeight - height);
+                        int layoutHeight;
+                        if (ScreentUtils.getInstance().isAllScreenDevice(ArticleInformationActivity.this)) {
+                            layoutHeight = screenHeight - height + statusHeight;
+                        } else {
+                            layoutHeight = screenHeight - height;
+                        }
+//                        System.out.println("layoutHeight: " + layoutHeight);
+                        mleonDrawerMenuLayout.setHeight(layoutHeight);
                         return true;
                     }
                 });
@@ -275,6 +291,10 @@ public class ArticleInformationActivity extends BaseActivity implements View.OnC
         followTextView = findViewById(R.id.followTextView);
         mleonDrawerMenuLayout = findViewById(R.id.mleonDrawerMenuLayout);
         mleonDrawerMenuLayout.setOnMenuOperationListener(this);
+        noDataLayout = findViewById(R.id.noDataLayout);
+        noDataLayout.setVisibility(View.GONE);
+        backTextView = findViewById(R.id.backTextView);
+        backTextView.setOnClickListener(this);
         goodsGridView = findViewById(R.id.goodsGridView);
         goodsGridAdapter = new ArticleInfoGoodsGridAdapter(this);
         goodsGridView.setAdapter(goodsGridAdapter);
@@ -328,7 +348,8 @@ public class ArticleInformationActivity extends BaseActivity implements View.OnC
         priseImageView = findViewById(R.id.priseImageView);
         priseImageView.setOnClickListener(this);
         priseNumTextView = findViewById(R.id.priseNumTextView);
-
+        shareImageView = findViewById(R.id.shareImageView);
+        shareImageView.setOnClickListener(this);
     }
 
     private void initPtr() {
@@ -441,17 +462,30 @@ public class ArticleInformationActivity extends BaseActivity implements View.OnC
                     Intent complaintIntent = new Intent(this, ComplaintActivity.class);
                     complaintIntent.putExtra("report_id", article_id);
                     complaintIntent.putExtra("module_type", "feeds");
-                    startActivityForResult(complaintIntent,1132);
+                    startActivityForResult(complaintIntent, 1132);
                 }
 
                 break;
             case R.id.circleCardView:
-                if(fromCircleInfo==0){
+                if (fromCircleInfo == 0) {
                     Intent circleIntent = new Intent(this, CircleInfoActivity.class);
                     circleIntent.putExtra("circle_id", (long) articleInformationResult.getData().getDetail().getCircle().getId());
                     startActivity(circleIntent);
                 }
 
+                break;
+            case R.id.shareImageView:
+                if (null != articleInformationResult && null != articleInformationResult.getData() && null != articleInformationResult.getData().getDetail()
+                        && !StringUtils.isNullOrEmpty(articleInformationResult.getData().getDetail().getThumb())) {
+                    shareResult.getData().getShare().setImage_url(articleInformationResult.getData().getDetail().getThumb());
+                }
+                shareResult.getData().getShare().setContent(articleInformationResult.getData().getDetail().getTitle());
+                shareResult.getData().getShare().setType_desc(ShareUtils.SHARE_TYPE_ARTICLE);
+                shareDialog.show();
+                shareDialog.setShare(shareResult.getData().getShare(), article_id);
+                break;
+            case R.id.backTextView:
+                mleonDrawerMenuLayout.hideAnima();
                 break;
         }
     }
@@ -593,12 +627,12 @@ public class ArticleInformationActivity extends BaseActivity implements View.OnC
                 baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
                 Message message = myHandler.obtainMessage(2);
                 message.sendToTarget();
-                System.out.println("feedComment: " + result);
             }
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                System.out.println("feedComment: " + ex.toString());
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
             }
 
             @Override
@@ -626,19 +660,21 @@ public class ArticleInformationActivity extends BaseActivity implements View.OnC
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
+                System.out.println("goods: " + result);
                 goodsResult = GsonUtils.GsonToBean(result, ArticleInformationGoodsResult.class);
                 if (goodsListIsRefresh) {
                     goodsList = goodsResult.getData().getGoods();
                 } else {
                     goodsList.addAll(goodsResult.getData().getGoods());
                 }
+                System.out.println("goods: " + goodsList.size());
                 Message message = myHandler.obtainMessage(3);
                 message.sendToTarget();
             }
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-
+                System.out.println("goods: " + ex.toString());
             }
 
             @Override
@@ -672,7 +708,8 @@ public class ArticleInformationActivity extends BaseActivity implements View.OnC
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
             }
 
             @Override
@@ -686,6 +723,7 @@ public class ArticleInformationActivity extends BaseActivity implements View.OnC
             }
         });
     }
+
 
     private void collect() {
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.COLLECT);
@@ -703,7 +741,8 @@ public class ArticleInformationActivity extends BaseActivity implements View.OnC
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
             }
 
             @Override
@@ -734,7 +773,8 @@ public class ArticleInformationActivity extends BaseActivity implements View.OnC
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
             }
 
             @Override
@@ -752,12 +792,41 @@ public class ArticleInformationActivity extends BaseActivity implements View.OnC
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(resultCode==1132){
-            if(null!=data&&data.hasExtra("complaint")){
+        shareDialog.setQQShareCallback(requestCode, resultCode, data);
+        if (resultCode == 1132) {
+            if (null != data && data.hasExtra("complaint")) {
                 articleInformationResult.getData().getDetail().setIs_report(true);
-                Message message=myHandler.obtainMessage(5);
+                Message message = myHandler.obtainMessage(5);
                 message.sendToTarget();
             }
         }
+    }
+
+    private ShareResult shareResult;
+
+    private void shareConfig() {
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.SHARE_CONFIG);
+        params.addBodyParameter("type", ShareUtils.SHARE_TYPE_FEED);
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                shareResult = GsonUtils.GsonToBean(result, ShareResult.class);
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
     }
 }

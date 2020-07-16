@@ -1,5 +1,7 @@
 package com.zhiyu.quanzhu.model.bean;
 
+import com.qiniu.android.utils.StringUtils;
+
 import java.util.List;
 
 public class OrderDelivery {
@@ -11,29 +13,30 @@ public class OrderDelivery {
     private int oid;
 
     public String getStatus_desc() {
-        switch (status) {
-            case "0":
-                this.status_desc = "在途";
-                break;
-            case "1":
-                this.status_desc = "揽收";
-                break;
-            case "2":
-                this.status_desc = "疑难";
-                break;
-            case "3":
-                this.status_desc = "签收";
-                break;
-            case "4":
-                this.status_desc = "退签";
-                break;
-            case "5":
-                this.status_desc = "派件";
-                break;
-            case "6":
-                this.status_desc = "退回";
-                break;
-        }
+        if (!StringUtils.isNullOrEmpty(status))
+            switch (status) {
+                case "0":
+                    this.status_desc = "在途";
+                    break;
+                case "1":
+                    this.status_desc = "揽收";
+                    break;
+                case "2":
+                    this.status_desc = "疑难";
+                    break;
+                case "3":
+                    this.status_desc = "签收";
+                    break;
+                case "4":
+                    this.status_desc = "退签";
+                    break;
+                case "5":
+                    this.status_desc = "派件";
+                    break;
+                case "6":
+                    this.status_desc = "退回";
+                    break;
+            }
         return status_desc;
     }
 

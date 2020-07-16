@@ -82,7 +82,7 @@ public class CircleMemberManageActivity extends BaseActivity implements View.OnC
         ScreentUtils.getInstance().setStatusBarLightMode(this, true);
         circle_id = getIntent().getLongExtra("circle_id", 0l);
         own = getIntent().getIntExtra("own", -1);
-        System.out.println("------- own: "+own);
+//        System.out.println("------- own: "+own);
         initPtr();
         initViews();
     }
@@ -185,7 +185,7 @@ public class CircleMemberManageActivity extends BaseActivity implements View.OnC
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("circleUserList: " + result);
+//                System.out.println("circleUserList: " + result);
                 circleInfoUserResult = GsonUtils.GsonToBean(result, CircleInfoUserResult.class);
                 if (isRefresh) {
                     list = circleInfoUserResult.getData().getList();

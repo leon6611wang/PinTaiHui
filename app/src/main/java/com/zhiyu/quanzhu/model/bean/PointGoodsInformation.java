@@ -10,6 +10,16 @@ public class PointGoodsInformation {
     private int credits;
     private String desc;
     private List<GoodsImg> pics;
+    private List<GoodsImg> img_json;
+
+
+    public List<GoodsImg> getImg_json() {
+        return img_json;
+    }
+
+    public void setImg_json(List<GoodsImg> img_json) {
+        this.img_json = img_json;
+    }
 
     public int getId() {
         return id;

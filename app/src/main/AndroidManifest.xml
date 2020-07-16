@@ -44,12 +44,14 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" /><!-- Android Q后台定位权限-->
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:name=".base.BaseApplication"
         android:allowBackup="true"
         android:icon="@mipmap/logo_f"
         android:label="@string/app_name"
+        android:largeHeap="true"
         android:roundIcon="@mipmap/logo_y"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
@@ -78,34 +80,42 @@
             android:theme="@android:style/Theme.NoTitleBar" />
         <activity android:name=".ui.activity.BindPhoneNumberActivity" />
         <activity android:name=".ui.activity.SetLoginPwdActivity" />
-        <activity android:name=".ui.activity.LoginGetVertifyCodeActivity"
+        <activity
+            android:name=".ui.activity.LoginGetVertifyCodeActivity"
+            android:configChanges="orientation|screenSize"
             android:launchMode="singleTask"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".ui.activity.LoginInputVertifyCodeActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateHidden"
-            />
-        <activity android:name=".ui.activity.LoginInputVertifyCodeActivity"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name=".ui.activity.LoginByPwdActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateHidden"
-            />
-        <activity android:name=".ui.activity.LoginByPwdActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".ui.activity.CityListActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateHidden"
-            />
-        <activity android:name=".ui.activity.CityListActivity" />
-        <activity android:name=".ui.activity.FeedInformationActivity" />
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name=".ui.activity.FeedInformationActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan" />
         <activity android:name=".ui.activity.ShangQuanSettingActivity" />
         <activity android:name=".ui.activity.ComplaintActivity" />
         <activity
             android:name=".ui.activity.PublishFeedActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ui.activity.ConversationActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden|adjustResize">
+            android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -123,7 +133,7 @@
             android:name=".ui.activity.MyOrderActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustPan" />
         <activity android:name=".ui.activity.MemberCenterActivity" />
         <activity android:name=".ui.activity.WoDeHuiYuanQuanZhuActivity" />
         <activity android:name=".ui.activity.EditPhoneNum1Activity" />
@@ -143,7 +153,7 @@
             android:name=".ui.activity.MyProfileActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustPan" />
         <activity android:name=".ui.activity.AddressActivity" />
         <activity android:name=".ui.activity.AddEditAddressActivity" />
         <activity android:name=".ui.activity.MyWalletActivity" />
@@ -151,18 +161,18 @@
         <activity android:name=".ui.activity.BankCardListActivity" />
         <activity
             android:name=".ui.activity.TiXianActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ui.activity.AddBankCardActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustPan" />
         <activity android:name=".ui.activity.MyCouponActivity" />
         <activity
             android:name=".ui.activity.MingPianGuangChangActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustPan" />
         <activity android:name=".ui.activity.CardInformationActivity" />
         <activity
             android:name=".ui.activity.EditCardActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustPan" />
 
         <activity
             android:name="io.vov.vitamio.activity.InitActivity"
@@ -175,7 +185,7 @@
             android:name=".ui.activity.ShareInnerActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustPan" />
         <activity android:name=".ui.activity.MallGoodsTypeActivity" />
         <activity android:name=".ui.activity.GoodsInformationActivity" />
         <activity android:name=".ui.activity.GoodsInformationBActivity" />
@@ -185,13 +195,13 @@
             android:name=".ui.activity.MyCirclesActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustPan" />
         <activity android:name=".ui.activity.MessageListActivity" />
         <activity android:name=".ui.activity.ConversationPrivateSettingActivity" />
         <activity android:name=".ui.activity.ManageReplyActivity" />
         <activity
             android:name=".ui.activity.CreateCircleActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ui.activity.VideoPlayActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
@@ -211,41 +221,41 @@
             android:name=".ui.activity.CompleteUserProfileActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustPan" />
         <activity android:name=".ui.activity.HobbySelectActivity" />
         <activity android:name=".ui.activity.InterestQuanZiSelectActivity" />
         <activity android:name=".ui.activity.MyQRCodeActivity" />
         <activity android:name=".ui.activity.ScanActivity" />
         <activity
             android:name=".ui.activity.GoodsSearchActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustPan" />
         <!--<activity android:name=".ui.activity.ShopInformationActivity"/>-->
         <activity android:name=".ui.activity.LargeImageListActivity" />
         <activity android:name=".ui.activity.GoodsInfoAllCommentsActivity" />
         <activity
             android:name=".ui.activity.PublishArticleActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ui.activity.PublishVideoActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ui.activity.PublishArticle2Activity"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustPan" />
 
         <activity android:name=".ui.activity.PublishParamSettingActivity" />
         <activity
             android:name=".ui.activity.PublishChooseGoodsActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustPan" />
         <activity android:name=".ui.activity.ShangQuanInformationActivity" />
         <activity android:name=".ui.activity.CircleInfoActivity" />
-        <activity android:name=".ui.activity.CircleSettingActivity" />
+        <activity android:name=".ui.activity.UpdateCircleProfileActivity" />
         <activity
             android:name=".ui.activity.FullSearchActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ui.activity.VideoPlayerActivity"
             android:configChanges="orientation|screenSize"
@@ -254,14 +264,18 @@
             android:name=".ui.activity.CircleMemberManageActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ui.activity.CircleMemberManageAddFrendActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustPan" />
         <activity android:name=".ui.activity.ShopInformationActivity" />
-        <activity android:name=".ui.activity.ArticleInformationActivity" />
+        <activity
+            android:name=".ui.activity.ArticleInformationActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan" />
         <activity android:name=".ui.activity.FullScreenVideoPlayerActivity" />
         <activity
             android:name=".ui.activity.CommentInformationActivity"
@@ -270,18 +284,18 @@
             android:name=".ui.activity.VideoInformationActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustPan" />
         <activity android:name=".ui.activity.MyPublishListActivity" />
         <activity
             android:name=".ui.activity.PublishChooseGoodsRelationActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ui.activity.PublishArticleContentEditActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustPan" />
         <activity android:name=".ui.activity.MyFansActivity" />
         <activity android:name=".ui.activity.MyFollowActivity" />
         <activity
@@ -291,24 +305,24 @@
         <activity android:name=".ui.activity.UserVertifyActivity" />
         <activity
             android:name=".ui.activity.CreateShopActivity"
-            android:windowSoftInputMode="adjustPan|stateHidden" />
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ui.activity.ShopVertifyActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ui.activity.ContactCustomerServiceActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustPan" />
         <activity android:name=".ui.activity.BuyVIPActivity" />
         <activity android:name=".ui.activity.AllVIPEquityActivity" />
         <activity
             android:name=".ui.activity.MyCollectionActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustPan" />
         <activity android:name=".ui.activity.PointGoodsInformationActivity" />
         <activity android:name=".ui.activity.PointGoodsOrderConfirmActivity" />
         <activity android:name=".ui.activity.MyPurseActivity" />
@@ -316,17 +330,17 @@
             android:name=".ui.activity.WithdrawActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ui.activity.EditPwdFirstActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ui.activity.EditPwdSecondActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustPan" />
         <activity android:name=".ui.activity.WithdrawSettingActivity" />
         <activity android:name=".ui.activity.WithdrawBondAlipayActivity" />
         <activity android:name=".ui.activity.UpdatePhoneNumberFirstActivity" />
@@ -339,17 +353,17 @@
             android:name=".ui.activity.AfterSaleServiceActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ui.activity.AfterSaleServiceInformationActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ui.activity.OrderGoodsCommentsActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ui.activity.CustomerServiceActivity"
             android:launchMode="singleTask"
@@ -368,18 +382,33 @@
             android:name=".ui.activity.ShenSuActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustPan" />
         <activity android:name=".ui.activity.WebLoginActivity" />
-        <activity android:name=".ui.activity.StartCoordinateActivity"
+        <activity
+            android:name=".ui.activity.StartCoordinateActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateHidden"
-            />
-        <activity android:name=".ui.activity.CoordinateHistoryActivity"/>
-        <activity android:name=".ui.activity.AfterSaleOrderActivity"/>
+            android:windowSoftInputMode="adjustPan" />
+        <activity android:name=".ui.activity.CoordinateHistoryActivity" />
+        <activity android:name=".ui.activity.AfterSaleOrderActivity" />
+        <activity
+            android:name=".ui.activity.CircleSettingActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan" />
+        <activity android:name=".ui.activity.PublishMultiFeedsActivity" />
 
-
-
+        <activity
+            android:name=".ui.activity.ForgetLoginPwd1Activity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name=".ui.activity.ForgetLoginPwd2Activity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan" />
+        <activity android:name=".ui.activity.LargeImageList2Activity" />
 
 
         <!-- 支付宝支付start-->
@@ -655,6 +684,11 @@
             android:name="JPUSH_APPKEY"
             android:value="4a2e305f7622238e98956067" />
         <!-- 极光-->
+
+        <!-- 全面屏-->
+        <meta-data
+            android:name="android.max_aspect"
+            android:value="2.1" />
     </application>
 
 </manifest>

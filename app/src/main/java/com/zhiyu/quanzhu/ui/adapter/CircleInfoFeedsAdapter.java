@@ -24,6 +24,7 @@ import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.Feed;
+import com.zhiyu.quanzhu.model.result.ShareResult;
 import com.zhiyu.quanzhu.ui.activity.ArticleInformationActivity;
 import com.zhiyu.quanzhu.ui.activity.ComplaintActivity;
 import com.zhiyu.quanzhu.ui.activity.FeedInformationActivity;
@@ -40,6 +41,7 @@ import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
+import com.zhiyu.quanzhu.utils.ShareUtils;
 
 import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
@@ -61,10 +63,12 @@ public class CircleInfoFeedsAdapter extends BaseAdapter {
     private Context context;
     private int dp_240;
     private int width, height;
+    private String share_image_url;
     private MyHandler myHandler = new MyHandler(this);
 
     public CircleInfoFeedsAdapter(Activity aty, final Context context) {
         this.context = context;
+        shareConfig();
         this.activity = aty;
         dp_240 = (int) context.getResources().getDimension(R.dimen.dp_240);
         int screenWidth = ScreentUtils.getInstance().getScreenWidth(context);
@@ -503,7 +507,42 @@ public class CircleInfoFeedsAdapter extends BaseAdapter {
 
         @Override
         public void onClick(View v) {
+            String image_url;
+            switch (list.get(position).getFeeds_type() - 1) {
+                case FEED:
+                    if (!StringUtils.isNullOrEmpty(list.get(position).getContent().getVideo_url())) {
+                        image_url = list.get(position).getContent().getVideo_thumb();
+                    } else {
+                        if (null == list.get(position).getContent().getImgs() || list.get(position).getContent().getImgs().size() == 0) {
+                            image_url = share_image_url;
+                        } else {
+                            image_url = list.get(position).getContent().getImgs().get(0).getFile();
+                        }
+                    }
+                    shareResult.getData().getShare().setImage_url(image_url);
+                    shareResult.getData().getShare().setContent(list.get(position).getContent().getContent());
+                    break;
+                case ARTICLE:
+                    if (null != list.get(position).getContent().getNewthumb() && null != list.get(position).getContent().getNewthumb().getFile()) {
+                        image_url = list.get(position).getContent().getNewthumb().getFile();
+                    } else {
+                        image_url = share_image_url;
+                    }
+                    shareResult.getData().getShare().setImage_url(image_url);
+                    shareResult.getData().getShare().setContent(list.get(position).getContent().getTitle());
+                    break;
+                case VIDEO:
+                    if (null != list.get(position).getContent().getVideo_thumb()) {
+                        image_url = list.get(position).getContent().getVideo_thumb();
+                    } else {
+                        image_url = share_image_url;
+                    }
+                    shareResult.getData().getShare().setImage_url(image_url);
+                    shareResult.getData().getShare().setContent(list.get(position).getContent().getContent());
+                    break;
+            }
             shareDialog.show();
+            shareDialog.setShare(shareResult.getData().getShare(), list.get(position).getContent().getId());
         }
     }
 
@@ -518,7 +557,8 @@ public class CircleInfoFeedsAdapter extends BaseAdapter {
         public void onClick(View v) {
             Intent commentIntent = new Intent(context, FeedInformationActivity.class);
             commentIntent.putExtra("feed_id", list.get(position).getContent().getId());
-            commentIntent.putExtra("fromCircleInfo",1);
+            commentIntent.putExtra("feed_type",list.get(position).getType());
+            commentIntent.putExtra("fromCircleInfo", 1);
             commentIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(commentIntent);
         }
@@ -549,7 +589,7 @@ public class CircleInfoFeedsAdapter extends BaseAdapter {
             Intent articleInfoIntent = new Intent(context, ArticleInformationActivity.class);
             articleInfoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             articleInfoIntent.putExtra("article_id", list.get(position).getContent().getId());
-            articleInfoIntent.putExtra("fromCircleInfo",1);
+            articleInfoIntent.putExtra("fromCircleInfo", 1);
             context.startActivity(articleInfoIntent);
         }
     }
@@ -565,7 +605,7 @@ public class CircleInfoFeedsAdapter extends BaseAdapter {
         public void onClick(View v) {
             Intent videoInfoIntent = new Intent(context, VideoInformationActivity.class);
             videoInfoIntent.putExtra("feeds_id", list.get(position).getContent().getId());
-            videoInfoIntent.putExtra("fromCircleInfo",1);
+            videoInfoIntent.putExtra("fromCircleInfo", 1);
             videoInfoIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(videoInfoIntent);
         }
@@ -668,6 +708,34 @@ public class CircleInfoFeedsAdapter extends BaseAdapter {
                 Message message = myHandler.obtainMessage(3);
                 message.obj = position;
                 message.sendToTarget();
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
+    private ShareResult shareResult;
+    private void shareConfig() {
+        RequestParams params = MyRequestParams.getInstance(context).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.SHARE_CONFIG);
+        params.addBodyParameter("type", ShareUtils.SHARE_TYPE_FEED);
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                shareResult = GsonUtils.GsonToBean(result, ShareResult.class);
+                share_image_url = shareResult.getData().getShare().getImage_url();
             }
 
             @Override

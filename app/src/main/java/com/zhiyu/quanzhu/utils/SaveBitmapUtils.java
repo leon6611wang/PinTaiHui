@@ -40,11 +40,9 @@ public class SaveBitmapUtils {
         return UUID.randomUUID().toString();
     }
 
-    private static final String SD_PATH = Environment.getExternalStorageDirectory().getPath() + "/OA头像/";
+    private static final String SD_PATH = Environment.getExternalStorageDirectory().getPath() + "/圈助名片/";
 
     public static void saveBitmap2file(Bitmap bmp, Context context) {
-        System.out.println("saveBitmap2file");
-
         String savePath;
         String fileName = generateFileName() + ".JPEG";
         if (Environment.getExternalStorageState().equals(

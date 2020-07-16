@@ -91,10 +91,11 @@ public class GoodsInfoAllCommentsRecyclerAdapter extends RecyclerView.Adapter<Go
     class ViewHolder extends RecyclerView.ViewHolder {
         CircleImageView headerImageView;
         TextView nickNameTextView, dateTextView;
-        ExpandableTextView conentExpandableTextView, replyExpandableTextView;
+        ExpandableTextView conentExpandableTextView;
+        TextView replyTextView;
         RecyclerView commentImagesRecyclerView;
         ItemGoodsInfoCommentsRecyclerAdapter adapter;
-        LinearLayout dianzanLayout, replyLayout;
+        LinearLayout dianzanLayout;
         ImageView dianzanImageView;
         TextView normsTextView, dianzanTextView;
 
@@ -115,15 +116,14 @@ public class GoodsInfoAllCommentsRecyclerAdapter extends RecyclerView.Adapter<Go
             dianzanLayout = itemView.findViewById(R.id.dianzanLayout);
             dianzanImageView = itemView.findViewById(R.id.dianzanImageView);
             dianzanTextView = itemView.findViewById(R.id.dianzanTextView);
-            replyExpandableTextView = itemView.findViewById(R.id.replyExpandableTextView);
-            replyLayout = itemView.findViewById(R.id.replyLayout);
+            replyTextView = itemView.findViewById(R.id.replyTextView);
         }
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_goodsinfo_all_comments_recyclerview, null));
+        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_goodsinfo_all_comments_recyclerview, parent,false));
     }
 
     private int etvWidth;
@@ -145,10 +145,11 @@ public class GoodsInfoAllCommentsRecyclerAdapter extends RecyclerView.Adapter<Go
         Integer state = mPositionsAndStates.get(position);
         holder.conentExpandableTextView.updateForRecyclerView(list.get(position).getContent(), etvWidth, state == null ? 0 : state);
         if (!StringUtils.isNullOrEmpty(list.get(position).getReply())) {
-            holder.replyExpandableTextView.updateForRecyclerView("商家回复：" + list.get(position).getReply(), etvWidth, state == null ? 0 : state);
-            holder.replyLayout.setVisibility(View.VISIBLE);
+            String reply = "商家回复：" + list.get(position).getReply().trim();
+            holder.replyTextView.setText(reply);
+            holder.replyTextView.setVisibility(View.VISIBLE);
         } else {
-            holder.replyLayout.setVisibility(View.GONE);
+            holder.replyTextView.setVisibility(View.GONE);
         }
         holder.adapter.setList(list.get(position).getImg());
         holder.normsTextView.setText(list.get(position).getNorms_name());

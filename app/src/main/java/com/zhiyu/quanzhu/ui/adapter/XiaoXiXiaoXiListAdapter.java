@@ -50,7 +50,7 @@ public class XiaoXiXiaoXiListAdapter extends BaseAdapter {
                 case 1:
                     int position = (Integer) msg.obj;
                     IMUser user = IMUserDao.getInstance().selectIMUser(adapter.list.get(position).getUserId(), BaseApplication.getInstance());
-                    if(null!=user&&null!=adapter.list){
+                    if (null != user && null != adapter.list) {
                         String name = user.getUsername();
                         String avatar = user.getAvatar();
                         adapter.list.get(position).setUserName(name);
@@ -96,10 +96,13 @@ public class XiaoXiXiaoXiListAdapter extends BaseAdapter {
     }
 
     public void deleteConversation(int position) {
+        System.out.println("adatper position: "+position);
         if (null != list && list.size() > 0 && list.size() > position) {
+            System.out.println("删除对话");
             list.remove(position);
             notifyDataSetChanged();
         }
+        System.out.println("list size: "+(null==list?0:list.size()));
     }
 
 

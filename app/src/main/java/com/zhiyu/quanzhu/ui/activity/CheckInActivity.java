@@ -16,6 +16,7 @@ import com.zhiyu.quanzhu.base.BaseActivity;
 import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.CheckIn;
 import com.zhiyu.quanzhu.model.result.CheckInResult;
+import com.zhiyu.quanzhu.model.result.ShareResult;
 import com.zhiyu.quanzhu.ui.adapter.CheckInRecyclerAdapter;
 import com.zhiyu.quanzhu.ui.dialog.CheckInSuccessDialog;
 import com.zhiyu.quanzhu.ui.dialog.RegTokenDialog;
@@ -24,6 +25,7 @@ import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
+import com.zhiyu.quanzhu.utils.ShareUtils;
 
 import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
@@ -46,7 +48,8 @@ public class CheckInActivity extends BaseActivity implements View.OnClickListene
     private CheckInSuccessDialog checkInSuccessDialog;
     private ShareDialog shareDialog;
     private TextView qiandaoTextView, daysTextView;
-    private String regToken, shareText;
+    private String regToken, shareText, avatar;
+    private int uid;
     private MyHandler myHandler = new MyHandler(this);
 
     private static class MyHandler extends Handler {
@@ -90,8 +93,12 @@ public class CheckInActivity extends BaseActivity implements View.OnClickListene
         setContentView(R.layout.activity_check_in);
         regToken = getIntent().getStringExtra("regToken");
         shareText = getIntent().getStringExtra("shareText");
+        avatar = getIntent().getStringExtra("avatar");
+        uid = getIntent().getIntExtra("uid", 0);
         initViews();
         initDialogs();
+        appShareConfig();
+        inviteShareConfig();
     }
 
     @Override
@@ -106,6 +113,9 @@ public class CheckInActivity extends BaseActivity implements View.OnClickListene
             @Override
             public void onRegToakenShare() {
                 shareDialog.show();
+                inviteShareResult.getData().getShare().setImage_url(avatar);
+                shareDialog.setShare(inviteShareResult.getData().getShare(), uid);
+                shareDialog.hideInnerShare();
             }
         });
         shareDialog = new ShareDialog(this, this, R.style.dialog);
@@ -275,6 +285,9 @@ public class CheckInActivity extends BaseActivity implements View.OnClickListene
                 break;
             case 2:
                 shareDialog.show();
+                appShareResult.getData().getShare().setImage_url(avatar);
+                shareDialog.setShare(appShareResult.getData().getShare(), uid);
+                shareDialog.hideInnerShare();
                 break;
         }
     }
@@ -283,5 +296,61 @@ public class CheckInActivity extends BaseActivity implements View.OnClickListene
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         shareDialog.setQQShareCallback(requestCode, resultCode, data);
+    }
+
+    private ShareResult appShareResult;
+
+    private void appShareConfig() {
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.SHARE_CONFIG);
+        params.addBodyParameter("type", ShareUtils.SHARE_TYPE_INVITE);
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                appShareResult = GsonUtils.GsonToBean(result, ShareResult.class);
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
+    private ShareResult inviteShareResult;
+
+    private void inviteShareConfig() {
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.SHARE_CONFIG);
+        params.addBodyParameter("type", ShareUtils.SHARE_TYPE_INVITE);
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                inviteShareResult = GsonUtils.GsonToBean(result, ShareResult.class);
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
     }
 }

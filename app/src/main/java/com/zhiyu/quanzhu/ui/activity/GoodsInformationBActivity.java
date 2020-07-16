@@ -25,6 +25,7 @@ import com.zhiyu.quanzhu.model.result.GoodsCommentResult;
 import com.zhiyu.quanzhu.model.result.GoodsNormResult;
 import com.zhiyu.quanzhu.model.result.GoodsResult;
 import com.zhiyu.quanzhu.model.result.GoodsStockResult;
+import com.zhiyu.quanzhu.model.result.ShareResult;
 import com.zhiyu.quanzhu.ui.adapter.GoodsInfoCommentsRecyclerAdapter;
 import com.zhiyu.quanzhu.ui.adapter.GoodsInfoLikeGoodsAdapter;
 import com.zhiyu.quanzhu.ui.adapter.GoodsInfoLikeGoodsBAdapter;
@@ -50,6 +51,7 @@ import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.PriceParseUtils;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
+import com.zhiyu.quanzhu.utils.ShareUtils;
 
 import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
@@ -297,25 +299,27 @@ public class GoodsInformationBActivity extends BaseActivity implements View.OnCl
         initDatas();
         initViews();
         initDialogs();
+        shareConfig();
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
         loadingDialog.show();
+        if (null != normsDialog) {
+            normsDialog.clearSelectedNorms();
+        }
         goodsInformation();
         goodsInfoComments();
         goodsInfoGoodsNorms();
         goodsInfoGoodsStock();
     }
 
-
     private void initDialogs() {
         normsDialog = new GoodsNormsDialog(this, R.style.dialog);
         youHuiQuanDialog = new GoodsCouponsDialog(this, R.style.dialog);
         loadingDialog = new LoadingDialog(this, R.style.dialog);
-        shareDialog = new ShareDialog(this, this, R.style.dialog, new ShareDialog.OnShareListener() {
-            @Override
-            public void onShare(int position, String desc) {
-
-            }
-        });
+        shareDialog = new ShareDialog(this, this, R.style.dialog);
         payWayDialog = new PayWayDialog(this, R.style.dialog, new PayWayDialog.OnPayWayListener() {
             @Override
             public void onPayWay(int payWay, String payWayStr) {
@@ -470,17 +474,29 @@ public class GoodsInformationBActivity extends BaseActivity implements View.OnCl
                 startActivity(goodsIntent);
                 break;
             case R.id.bottomShareTextView:
+                shareResult.getData().getShare().setImage_url(goodsResult.getData().getDetail().getImg_list().get(0).getUrl());
+                shareResult.getData().getShare().setContent(goodsResult.getData().getDetail().getGoods_name());
+                shareResult.getData().getShare().setType_desc(ShareUtils.SHARE_TYPE_GOODS);
                 shareDialog.show();
+                shareDialog.setShare(shareResult.getData().getShare(), (int) goodsResult.getData().getDetail().getId());
                 break;
             case R.id.bottomAddCartTextView:
-                normsDialog.show();
-                normsDialog.setGoods(goodsResult.getData().getDetail(), goodsResult.getData().isHas_norms());
-                normsDialog.setType(1);
+                if (goodsResult.getData().getDetail().isGoods_status()) {
+                    normsDialog.show();
+                    normsDialog.setGoods(goodsResult.getData().getDetail(), goodsResult.getData().isHas_norms());
+                    normsDialog.setType(1);
+                } else {
+                    MessageToast.getInstance(this).show("该商品已失效");
+                }
                 break;
             case R.id.bottomBuyTextView:
-                normsDialog.show();
-                normsDialog.setGoods(goodsResult.getData().getDetail(), goodsResult.getData().isHas_norms());
-                normsDialog.setType(2);
+                if (goodsResult.getData().getDetail().isGoods_status()) {
+                    normsDialog.show();
+                    normsDialog.setGoods(goodsResult.getData().getDetail(), goodsResult.getData().isHas_norms());
+                    normsDialog.setType(2);
+                } else {
+                    MessageToast.getInstance(this).show("该商品已失效");
+                }
                 break;
             case R.id.circleLayout:
                 if (null != goodsResult && null != goodsResult.getData().getCircle()) {
@@ -808,5 +824,36 @@ public class GoodsInformationBActivity extends BaseActivity implements View.OnCl
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         shareDialog.setQQShareCallback(requestCode, resultCode, data);
+    }
+
+    private ShareResult shareResult;
+
+    private void shareConfig() {
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.SHARE_CONFIG);
+        params.addBodyParameter("type", ShareUtils.SHARE_TYPE_GOODS);
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                System.out.println("share: " + result);
+                shareResult = GsonUtils.GsonToBean(result, ShareResult.class);
+//                Message message=myHandler.obtainMessage(3);
+//                message.sendToTarget();
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
     }
 }

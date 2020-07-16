@@ -97,13 +97,13 @@ public class BaseApplication extends Application implements BaseActivity.OnExter
             //订单消息
             RongIM.registerMessageType(OrderMessage.class);
             RongIM.registerMessageTemplate(new OrderMessageItemProvider(this));
-
             //分享消息
             RongIM.registerMessageType(ShareMessage.class);
             RongIM.registerMessageTemplate(new ShareMessageItemProvider(this));
             //名片好友消息
             RongIM.registerMessageType(FrendMessage.class);
             RongIM.registerMessageTemplate(new FrendMessageItemProvider(this));
+            //圈子
             RongIM.registerMessageType(CircleMessage.class);
             RongIM.registerMessageTemplate(new CircleMessageItemProvider(this));
         }
@@ -199,7 +199,7 @@ public class BaseApplication extends Application implements BaseActivity.OnExter
             @Override
             public boolean onMessageClick(Context context, View view, Message message) {
 //                System.out.println("onMessageClick");
-                return true;
+                return false;
             }
 
             @Override

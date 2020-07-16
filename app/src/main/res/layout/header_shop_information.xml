@@ -90,7 +90,7 @@
                             android:id="@+id/followTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="0关注"
+                            android:text="0 收藏"
                             android:textColor="@color/white"
                             android:textSize="12sp" />
 

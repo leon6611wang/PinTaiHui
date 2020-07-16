@@ -18,7 +18,9 @@ import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.model.bean.AreaCity;
 import com.zhiyu.quanzhu.model.bean.AreaProvince;
+import com.zhiyu.quanzhu.model.result.ShareResult;
 import com.zhiyu.quanzhu.ui.activity.CardInformationActivity;
+import com.zhiyu.quanzhu.ui.activity.CityListActivity;
 import com.zhiyu.quanzhu.ui.activity.CreateCircleActivity;
 import com.zhiyu.quanzhu.ui.activity.FullSearchActivity;
 import com.zhiyu.quanzhu.ui.activity.MyCirclesActivity;
@@ -30,14 +32,22 @@ import com.zhiyu.quanzhu.ui.dialog.ProvinceCityDialog;
 import com.zhiyu.quanzhu.ui.dialog.PublishDialog;
 import com.zhiyu.quanzhu.ui.dialog.ShareDialog;
 import com.zhiyu.quanzhu.ui.widget.NoScrollViewPager;
+import com.zhiyu.quanzhu.utils.ConstantsUtils;
+import com.zhiyu.quanzhu.utils.GsonUtils;
+import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
+import com.zhiyu.quanzhu.utils.ShareUtils;
+
+import org.xutils.common.Callback;
+import org.xutils.http.RequestParams;
+import org.xutils.x;
 
 import java.util.ArrayList;
 
 /**
  * 首页-圈子
  */
-public class FragmentHomeQuanZi extends Fragment implements View.OnClickListener,CircleGuanZhuAdapter.OnMoreCircleClickListener {
+public class FragmentHomeQuanZi extends Fragment implements View.OnClickListener, CircleGuanZhuAdapter.OnMoreCircleClickListener, CityListActivity.OnCityListSelected {
     private View view;
     private NoScrollViewPager viewPager;
     private MyFragmentStatePagerAdapter adapter;
@@ -59,6 +69,8 @@ public class FragmentHomeQuanZi extends Fragment implements View.OnClickListener
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_home_quanzi, container, false);
+        CityListActivity.setOnCityListSelected(this);
+        shareConfig();
         Bundle bundle = getArguments();
         bottomBarHeight = bundle.getInt("bottomBarHeight");
 //        System.out.println("FragmentHomeQuanZi bottomBarHeight: " + bottomBarHeight);
@@ -82,7 +94,7 @@ public class FragmentHomeQuanZi extends Fragment implements View.OnClickListener
     }
 
     private void initDialogs() {
-        shareDialog=new ShareDialog(getActivity(),getContext(),R.style.dialog);
+        shareDialog = new ShareDialog(getActivity(), getContext(), R.style.dialog);
         publishDialog = new PublishDialog(getContext(), R.style.dialog);
         cityDialog = new ProvinceCityDialog(getContext(), R.style.dialog, new ProvinceCityDialog.OnCityChooseListener() {
             @Override
@@ -91,7 +103,7 @@ public class FragmentHomeQuanZi extends Fragment implements View.OnClickListener
                 fragmentQuanZiTuiJian.setCity(city.getName());
             }
         });
-        menuDialog=new HomeCircleMenuDialog(getContext(), R.style.dialog, new HomeCircleMenuDialog.OnMenuSelectedListener() {
+        menuDialog = new HomeCircleMenuDialog(getContext(), R.style.dialog, new HomeCircleMenuDialog.OnMenuSelectedListener() {
             @Override
             public void onMenuSelected(int position, String desc) {
                 switch (position) {
@@ -119,6 +131,8 @@ public class FragmentHomeQuanZi extends Fragment implements View.OnClickListener
                         break;
                     case 5:
                         shareDialog.show();
+                        shareDialog.setShare(shareResult.getData().getShare(), SPUtils.getInstance().getUserId(getContext()));
+                        shareDialog.hideInnerShare();
                         break;
                     case 6:
                         Intent shangquanIntent = new Intent(getActivity(), MyCirclesActivity.class);
@@ -128,6 +142,14 @@ public class FragmentHomeQuanZi extends Fragment implements View.OnClickListener
                 }
             }
         });
+    }
+
+    @Override
+    public void onCityListSelectd(String city) {
+        if (null != cityTextView)
+            cityTextView.setText(city);
+        if (null != fragmentQuanZiTuiJian)
+            fragmentQuanZiTuiJian.setCity(city);
     }
 
     private FragmentQuanZiTuiJian fragmentQuanZiTuiJian;
@@ -146,7 +168,7 @@ public class FragmentHomeQuanZi extends Fragment implements View.OnClickListener
 //        }
     }
 
-    public void setCityName(String cityName){
+    public void setCityName(String cityName) {
         cityTextView.setText(cityName);
     }
 
@@ -186,6 +208,7 @@ public class FragmentHomeQuanZi extends Fragment implements View.OnClickListener
         CircleGuanZhuAdapter.setOnMoreCircleClickListener(this);
         viewPager.setAdapter(adapter);
         viewPager.setCurrentItem(1);
+        viewPager.setOffscreenPageLimit(3);
         barChange(1);
     }
 
@@ -217,7 +240,10 @@ public class FragmentHomeQuanZi extends Fragment implements View.OnClickListener
                 getContext().startActivity(fullSearchIntent);
                 break;
             case R.id.cityLayout:
-                cityDialog.show();
+//                cityDialog.show();
+                Intent cityIntent = new Intent(getActivity(), CityListActivity.class);
+                cityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                getContext().startActivity(cityIntent);
                 break;
         }
     }
@@ -250,5 +276,34 @@ public class FragmentHomeQuanZi extends Fragment implements View.OnClickListener
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        shareDialog.setQQShareCallback(requestCode, resultCode, data);
+    }
+
+    private ShareResult shareResult;
+
+    private void shareConfig() {
+        RequestParams params = MyRequestParams.getInstance(getContext()).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.SHARE_CONFIG);
+        params.addBodyParameter("type", ShareUtils.SHARE_TYPE_APP);
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                shareResult = GsonUtils.GsonToBean(result, ShareResult.class);
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
     }
 }

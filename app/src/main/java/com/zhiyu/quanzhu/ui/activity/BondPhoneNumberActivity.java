@@ -85,6 +85,8 @@ public class BondPhoneNumberActivity extends BaseActivity implements View.OnClic
                         activity.ynDialog.setTitle(activity.bindMobileResult.getMsg());
                     } else if (500 == activity.bindMobileResult.getCode()) {
                         MessageToast.getInstance(activity).show(activity.bindMobileResult.getMsg());
+                    } else if (1005 == activity.bindMobileResult.getCode()) {
+                        MessageToast.getInstance(activity).show(activity.bindMobileResult.getMsg());
                     }
                     break;
                 case 3:
@@ -319,9 +321,9 @@ public class BondPhoneNumberActivity extends BaseActivity implements View.OnClic
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                LogUtils.getInstance().show(null, result);
+                System.out.println("绑定手机号：" + result);
                 bindMobileResult = GsonUtils.GsonToBean(result, BindMobileResult.class);
-                if (baseResult.getCode() == 200) {
+                if (bindMobileResult.getCode() == 200) {
                     SPUtils.getInstance().userBindPhone(BaseApplication.applicationContext);
                 }
                 Message message = myHandler.obtainMessage(2);
@@ -330,9 +332,9 @@ public class BondPhoneNumberActivity extends BaseActivity implements View.OnClic
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
+                System.out.println("绑定手机号：" + ex.toString());
                 Message message = myHandler.obtainMessage(99);
                 message.sendToTarget();
-                LogUtils.getInstance().show(null, ex.toString());
             }
 
             @Override

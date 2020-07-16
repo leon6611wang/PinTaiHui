@@ -39,6 +39,8 @@ import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GlideLoader;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
+import com.zhiyu.quanzhu.utils.NameUtils;
+import com.zhiyu.quanzhu.utils.PhoneNumberUtils;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 import com.zhiyu.quanzhu.utils.UploadImageUtils;
 import com.zhiyu.quanzhu.utils.VideoUtils;
@@ -151,7 +153,7 @@ public class EditCardActivity extends BaseActivity implements View.OnClickListen
                 chengshitextview.setText(chengshi);
             }
         });
-        industryDialog = new IndustryHobbyDialog(this, R.style.dialog,true, new IndustryHobbyDialog.OnIndustryHobbySelectedListener() {
+        industryDialog = new IndustryHobbyDialog(this, R.style.dialog, true, new IndustryHobbyDialog.OnIndustryHobbySelectedListener() {
             @Override
             public void onIndustryHobbySelected(IndustryHobby parent, IndustryHobby child) {
                 hangye = parent.getName() + " " + child.getName();
@@ -196,7 +198,6 @@ public class EditCardActivity extends BaseActivity implements View.OnClickListen
         uploadvideoImageView = findViewById(R.id.uploadvideoImageView);
         uploadvideoImageView.setOnClickListener(this);
 
-
     }
 
 
@@ -217,6 +218,18 @@ public class EditCardActivity extends BaseActivity implements View.OnClickListen
                 break;
             case R.id.saveButtonTextView:
                 if (checkValues()) {
+                    shouji = shoujiedittext.getText().toString().trim();
+                    if (!PhoneNumberUtils.getInstance().isMobileNO(shouji)) {
+                        MessageToast.getInstance(this).show("请输入正确的手机号");
+                        return;
+                    }
+                    weixin = weixinedittext.getText().toString().trim();
+                    youxiang = youxiangedittext.getText().toString().trim();
+                    gongsi = gongsiedittext.getText().toString().trim();
+                    zhiwei = zhiweiedittext.getText().toString().trim();
+                    neirong = introEditText.getText().toString().trim();
+                    is_open = gongkaiChecked ? 1 : 0;
+                    is_verifiy = yanzhengChecked ? 1 : 0;
                     editCard();
                 }
                 break;
@@ -283,6 +296,15 @@ public class EditCardActivity extends BaseActivity implements View.OnClickListen
             checked = false;
             MessageToast.getInstance(this).show("请输入姓名");
             return checked;
+        } else if (!StringUtils.isNullOrEmpty(xingming)) {
+            String firstStr = xingming.substring(0, 1);
+            if (NameUtils.isZiMu(firstStr) || NameUtils.isChineseChar(firstStr)) {
+                checked = true;
+            } else {
+                checked = false;
+                MessageToast.getInstance(this).show("名片名称必须以字母或汉字开头");
+            }
+            return checked;
         }
         if (TextUtils.isEmpty(city_name)) {
             checked = false;
@@ -294,14 +316,7 @@ public class EditCardActivity extends BaseActivity implements View.OnClickListen
             MessageToast.getInstance(this).show("请选择行业");
             return checked;
         }
-        shouji = shoujiedittext.getText().toString().trim();
-        weixin = weixinedittext.getText().toString().trim();
-        youxiang = youxiangedittext.getText().toString().trim();
-        gongsi = gongsiedittext.getText().toString().trim();
-        zhiwei = zhiweiedittext.getText().toString().trim();
-        neirong = introEditText.getText().toString().trim();
-        is_open = gongkaiChecked ? 1 : 0;
-        is_verifiy = yanzhengChecked ? 1 : 0;
+
         return checked;
     }
 
@@ -311,9 +326,11 @@ public class EditCardActivity extends BaseActivity implements View.OnClickListen
         switch (buttonView.getId()) {
             case R.id.gongkaiToggleButton:
                 gongkaiChecked = isChecked;
+                is_open = isChecked ? 1 : 0;
                 break;
             case R.id.yanzhengToggleButton:
                 yanzhengChecked = isChecked;
+                is_verifiy = isChecked ? 1 : 0;
                 break;
         }
     }
@@ -385,7 +402,6 @@ public class EditCardActivity extends BaseActivity implements View.OnClickListen
     private BaseResult baseResult;
 
     private void editCard() {
-        System.out.println("编辑名片 videoUrl: " + videoUrl);
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.CARD_UPDATE);
         params.addBodyParameter("card_id", String.valueOf(card_id));
         params.addBodyParameter("card_name", xingming);
@@ -395,28 +411,35 @@ public class EditCardActivity extends BaseActivity implements View.OnClickListen
         params.addBodyParameter("city_name", city_name);
         params.addBodyParameter("industry", hangye);
         params.addBodyParameter("mobile", shouji);
+        System.out.println(" " + shouji);
         params.addBodyParameter("card_thumb", avatarUrl);
         params.addBodyParameter("occupation", zhiwei);
+        System.out.println("occupation" + zhiwei);
         params.addBodyParameter("wx", weixin);
+        System.out.println("wx " + weixin);
         params.addBodyParameter("email", youxiang);
+        System.out.println("email " + youxiang);
         params.addBodyParameter("company", gongsi);
+        System.out.println(" company " + gongsi);
         params.addBodyParameter("video_intro", videoUrl);
         params.addBodyParameter("img", imageUrl);
         params.addBodyParameter("intro", neirong);
+        System.out.println(" intro " + neirong);
         params.addBodyParameter("is_open", String.valueOf(is_open));
         params.addBodyParameter("is_verifiy", String.valueOf(is_verifiy));
+//        System.out.println("is_open: "+is_open+" , is_verifiy: "+is_verifiy);
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
                 baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
                 Message message = myHandler.obtainMessage(3);
                 message.sendToTarget();
-                System.out.println("编辑名片 " + result);
+//                System.out.println("编辑名片 " + result);
             }
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                System.out.println("编辑名片 " + ex.toString());
+//                System.out.println("编辑名片 " + ex.toString());
                 Message message = myHandler.obtainMessage(4);
                 message.sendToTarget();
             }
@@ -441,6 +464,7 @@ public class EditCardActivity extends BaseActivity implements View.OnClickListen
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
+                System.out.println("名片详情: " + result);
                 cardResult = GsonUtils.GsonToBean(result, CardResult.class);
                 xingming = cardResult.getData().getDetail().getCard_name();
                 avatarUrl = cardResult.getData().getDetail().getCard_thumb();
@@ -465,7 +489,7 @@ public class EditCardActivity extends BaseActivity implements View.OnClickListen
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-
+                System.out.println("名片详情: " + ex.toString());
             }
 
             @Override

@@ -63,6 +63,9 @@ public class IndustryDialog extends Dialog implements View.OnClickListener {
         public void handleMessage(Message msg) {
             IndustryDialog dialog = dialogWeakReference.get();
             switch (msg.what) {
+                case 99:
+                    MessageToast.getInstance(dialog.getContext()).show("服务器内部错误，请稍后再试");
+                    break;
                 case 1:
                     dialog.initData();
                     break;
@@ -149,13 +152,15 @@ public class IndustryDialog extends Dialog implements View.OnClickListener {
                 childList.add(child.getName());
             }
         }
-
+        System.out.println("parentList size: " + parentList.size() + " , childList size: " + childList.size());
         parentView.setItems(parentList);
         parentView.setInitPosition(0);
         childView.setItems(childList);
         childView.setInitPosition(0);
-        parent = parentList.get(parentView.getSelectedItem());
-        child = childList.get(childView.getSelectedItem());
+        if (parentList.size() > 0)
+            parent = parentList.get(parentView.getSelectedItem());
+        if (childList.size() > 0)
+            child = childList.get(childView.getSelectedItem());
 
     }
 
@@ -274,7 +279,9 @@ public class IndustryDialog extends Dialog implements View.OnClickListener {
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                System.out.println("industry list error: " + ex.toString());
+//                System.out.println("industry list error: " + ex.toString());
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
             }
 
             @Override

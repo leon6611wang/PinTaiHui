@@ -117,7 +117,8 @@ public class OrderInformationActivity extends BaseActivity implements View.OnCli
                     }
                     break;
                 case 2:
-                    if (200 == activity.orderDeliveryResult.getCode()) {
+                    if (200 == activity.orderDeliveryResult.getCode()&&null!=activity.orderDeliveryResult.getData()&&
+                            null!=activity.orderDeliveryResult.getData().getList()&&activity.orderDeliveryResult.getData().getList().size()>0) {
                         activity.deliveryTimeTextView.setText(activity.orderDeliveryResult.getData().getList().get(0).getData().get(0).getTime());
                         activity.deliveryContextTextView.setText(activity.orderDeliveryResult.getData().getList().get(0).getData().get(0).getContext());
                     }

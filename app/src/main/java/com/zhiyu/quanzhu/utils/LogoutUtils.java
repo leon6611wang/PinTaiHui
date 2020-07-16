@@ -7,6 +7,7 @@ import android.os.Message;
 
 import com.leon.chic.utils.LogUtils;
 import com.leon.chic.utils.SPUtils;
+import com.tencent.tauth.Tencent;
 import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.ui.activity.LoginGetVertifyCodeActivity;
@@ -68,7 +69,10 @@ public class LogoutUtils {
     private static Context context;
 
     public void logout() {
-        LogUtils.getInstance().show("leon", "token过期");
+        Tencent mTencent = Tencent.createInstance("101762258",BaseApplication.applicationContext);
+        if(mTencent.isSessionValid()){
+            mTencent.logout(context);
+        }
         logoutSP();
     }
 

@@ -19,6 +19,7 @@ import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.model.bean.IMCircle;
 import com.zhiyu.quanzhu.model.result.CircleResult;
 import com.zhiyu.quanzhu.model.result.IMCircleResult;
+import com.zhiyu.quanzhu.ui.activity.CircleSettingActivity;
 import com.zhiyu.quanzhu.ui.adapter.HomeQuanLiaoRecyclerAdapter;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
@@ -44,7 +45,7 @@ import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.message.TextMessage;
 
-public class FragmentXiaoXiQuanLiao extends Fragment {
+public class FragmentXiaoXiQuanLiao extends Fragment implements CircleSettingActivity.OnRemoveCircleListener {
     private View view;
     private PtrFrameLayout ptrFrameLayout;
     private RecyclerView mRecyclerView;
@@ -64,7 +65,7 @@ public class FragmentXiaoXiQuanLiao extends Fragment {
             FragmentXiaoXiQuanLiao fragment = fragmentXiaoXiQuanLiaoWeakReference.get();
             switch (msg.what) {
                 case 1:
-                    fragment.isRequesting=false;
+                    fragment.isRequesting = false;
                     fragment.ptrFrameLayout.refreshComplete();
                     fragment.adapter.setList(fragment.list);
                     break;
@@ -75,7 +76,7 @@ public class FragmentXiaoXiQuanLiao extends Fragment {
                     fragment.adapter.setUnReadCount(position, count);
                     break;
                 case 99:
-                    fragment.isRequesting=false;
+                    fragment.isRequesting = false;
                     fragment.ptrFrameLayout.refreshComplete();
                     break;
             }
@@ -86,6 +87,7 @@ public class FragmentXiaoXiQuanLiao extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_xiaoxi_quanliao, null);
+        CircleSettingActivity.setOnRemoveCircleListener(this);
         dp_15 = (int) getContext().getResources().getDimension(R.dimen.dp_15);
         initPtr();
         initViews();
@@ -98,7 +100,7 @@ public class FragmentXiaoXiQuanLiao extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (!isRequesting && (null == list || list.size() == 0) &&
+        if (!isRequesting &&
                 !StringUtils.isNullOrEmpty(SPUtils.getInstance().getUserToken(getContext()))) {
             page = 1;
             isRefresh = true;
@@ -109,13 +111,14 @@ public class FragmentXiaoXiQuanLiao extends Fragment {
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-        if (isVisibleToUser&&!isRequesting && (null == list || list.size() == 0) &&
+        if (isVisibleToUser && !isRequesting && (null == list || list.size() == 0) &&
                 !StringUtils.isNullOrEmpty(SPUtils.getInstance().getUserToken(getContext()))) {
             page = 1;
             isRefresh = true;
             circleList();
         }
     }
+
 
     private void initViews() {
         mRecyclerView = view.findViewById(R.id.mRecyclerView);
@@ -195,6 +198,13 @@ public class FragmentXiaoXiQuanLiao extends Fragment {
         });
 //        ptrFrameLayout.autoRefresh();
         ptrFrameLayout.setMode(PtrFrameLayout.Mode.BOTH);
+    }
+
+    @Override
+    public void onRemoveCircle() {
+        page = 1;
+        isRefresh = true;
+        circleList();
     }
 
     private int page = 1;

@@ -31,6 +31,7 @@ public class MessageImage {
                     width = wh[0];
                     height = wh[1];
                 }
+//                width=(width>max)?max:width;
                 if (width >= height) {
                     int _height = Math.round(max * ((float) height / (float) width));
                     imageParams = new LinearLayout.LayoutParams(max, _height);

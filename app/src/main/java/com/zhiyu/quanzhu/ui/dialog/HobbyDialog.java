@@ -64,6 +64,9 @@ public class HobbyDialog extends Dialog implements View.OnClickListener {
         public void handleMessage(Message msg) {
             HobbyDialog dialog = dialogWeakReference.get();
             switch (msg.what) {
+                case 99:
+                    MessageToast.getInstance(dialog.getContext()).show("服务器内部错误，请稍后再试");
+                    break;
                 case 1:
                     dialog.initData();
                     break;
@@ -265,7 +268,7 @@ public class HobbyDialog extends Dialog implements View.OnClickListener {
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("hobby list: " + result);
+//                System.out.println("hobby list: " + result);
                 hobbyResult = GsonUtils.GsonToBean(result, HobbyDaoResult.class);
                 hobbyParentList = hobbyResult.getData().getList().get(0).getChild();
                 Message message = myHandler.obtainMessage(1);
@@ -274,7 +277,9 @@ public class HobbyDialog extends Dialog implements View.OnClickListener {
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-                System.out.println("hobby list error: " + ex.toString());
+                Message message = myHandler.obtainMessage(99);
+                message.sendToTarget();
+//                System.out.println("hobby list error: " + ex.toString());
             }
 
             @Override

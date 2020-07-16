@@ -72,6 +72,18 @@ public class BuyVipRecyclerAdapter extends RecyclerView.Adapter<BuyVipRecyclerAd
         holder.vipNametTextView.setText(list.get(position).getName());
         holder.vipPriceTextView.setText(PriceParseUtils.getInstance().parsePrice(list.get(position).getPrice()));
         holder.adapter.setList(list.get(position).getEquity_list());
+        switch (list.get(position).getStatus()){
+            //0 不可购买 1续费 2购买
+            case 0:
+               holder.buyButtonTextView.setVisibility(View.INVISIBLE);
+                break;
+            case 1:
+                holder.buyButtonTextView.setText("立即续费");
+                break;
+            case 2:
+                holder.buyButtonTextView.setText("立即购买");
+                break;
+        }
         holder.moreEquityTextView.setOnClickListener(new OnMoreEquityClick(position));
         holder.buyButtonTextView.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -61,7 +61,6 @@ public class QuanZiTuiJianTitleRecyclerAdapter extends RecyclerView.Adapter<Quan
     }
 
 
-
     @Override
     public int getItemCount() {
         return null == list ? 0 : list.size();

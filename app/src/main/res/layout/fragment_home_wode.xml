@@ -256,9 +256,14 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="39dp"
+                android:layout_gravity="center"
                 android:layout_marginLeft="@dimen/dp_30"
                 android:layout_marginRight="@dimen/dp_30"
+                android:gravity="center"
+                android:background="@mipmap/vip_bg"
+                android:paddingLeft="@dimen/dp_15"
+                android:paddingRight="@dimen/dp_15"
                 android:orientation="horizontal">
 
                 <TextView
@@ -291,9 +296,9 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="13dp" />
+            <!--<View-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="13dp" />-->
         </LinearLayout>
 
     </FrameLayout>
@@ -778,6 +783,7 @@
                             android:layout_height="74dp"
                             android:layout_margin="12dp"
                             android:background="@drawable/shape_wode_wuliu_bg"
+                            android:visibility="gone"
                             android:orientation="vertical">
 
                             <LinearLayout
@@ -1140,7 +1146,7 @@
                                 android:layout_gravity="center"
                                 android:layout_weight="1"
                                 android:gravity="center"
-                                android:visibility="invisible"
+                                android:visibility="visible"
                                 android:orientation="vertical">
 
                                 <FrameLayout

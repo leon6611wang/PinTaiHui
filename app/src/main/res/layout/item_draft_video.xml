@@ -86,7 +86,6 @@
                 android:id="@+id/sourceTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="上海酿酒圈"
                 android:textColor="#009DE0"
                 android:textSize="12sp" />
 
@@ -112,6 +111,7 @@
             android:layout_gravity="center"
             android:layout_marginBottom="@dimen/dp_15"
             android:layout_marginTop="@dimen/dp_15"
+            android:visibility="gone"
             android:gravity="center"
             android:orientation="horizontal">
 

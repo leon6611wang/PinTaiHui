@@ -6,7 +6,7 @@ package com.zhiyu.quanzhu.utils;
 public class ConstantsUtils {
     //            public static final String BASE_URL = "http://app.pintaihui.test/";
     public static final String BASE_URL = "http://192.168.1.200:8090/";
-    public static final String BASE_URL_2 = "http://cs.pintaihui.test";
+    public static final String BASE_URL_2 = "http://192.168.1.200:9501";
     //首页-圈子-关注列表
     public static final String HOME_QUANZI_GUANZHU_LIST = "api/v1/index/followcircles";
     //首页-圈子-推荐列表
@@ -377,6 +377,8 @@ public class ConstantsUtils {
     //修改售后
     public static final String ORDER_UPDATE_REFUND = "/api/v1/user/order/updaterefund";
 
+    public static final String UPDATE_PWD="/api/v1/user/updatepwd";
+
     public static final String ORDER_EDIT_DELIVERY = "/api/v1/user/order/send";
     //售后详情
     public static final String ORDER_REFUND_INFORMATION = "/api/v1/user/order/refunddetail";
@@ -465,4 +467,11 @@ public class ConstantsUtils {
     public static final String KE_FU_JIE_RU = "/api/v1/user/order/kefu";
     //type=app,invite,feed,circle,card,goods,shop
     public static final String SHARE_CONFIG = "/api/v1/common/shareconfig";
+    public static final String COMMON_QUESION="/api/v1/common/question";
+    public static final String COMMON_CUSTOMER="/api/v1/common/customer";
+
+
+
+
+
 }

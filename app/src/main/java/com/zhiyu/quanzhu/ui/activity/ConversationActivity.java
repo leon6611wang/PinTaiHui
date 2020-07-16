@@ -43,7 +43,7 @@ import io.rong.imkit.fragment.ConversationFragment;
 /**
  * 聊天界面
  */
-public class ConversationActivity extends BaseActivity implements View.OnClickListener {
+public class ConversationActivity extends BaseActivity implements View.OnClickListener,CircleSettingActivity.OnRemoveCircleListener {
     private View headerView;
     private LinearLayout rootLayout, privateBackLayout, privateRightLayout, groupBackLayout, groupRightLayout;
     private TextView titleTextView, noticeTextView;
@@ -91,15 +91,19 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation);
+        CircleSettingActivity.setOnRemoveCircleListener(this);
         uri = getIntent().getData();
         conversation_type = SharedPreferencesUtils.getInstance(this).getConversationType();
         targetId = uri.getQueryParameter("targetId").toString();
         title = uri.getQueryParameter("title").toString();
 //        System.out.println("ConversationActivity targetId: " + targetId);
         initHeaderViews();
-
-
         initDialogs();
+    }
+
+    @Override
+    public void onRemoveCircle() {
+        finish();
     }
 
     private void initHeaderViews() {

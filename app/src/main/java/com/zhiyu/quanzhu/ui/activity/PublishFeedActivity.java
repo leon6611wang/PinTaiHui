@@ -44,6 +44,7 @@ import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.ImageUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
+import com.zhiyu.quanzhu.utils.ThumbnailUtils;
 import com.zhiyu.quanzhu.utils.UploadImageUtils;
 import com.zhiyu.quanzhu.utils.VideoUtils;
 import com.zhiyu.quanzhu.utils.recyclerTouchHelper.ItemTouchHelperCallback;
@@ -73,7 +74,7 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
     private LinkedHashMap<String, String> map = new LinkedHashMap<>();
     private List<String> uploadImgList = new ArrayList<>();
     private RecyclerScrollView mScrollView;
-    private LoadingDialog waitDialog;
+    private LoadingDialog loadingDialog;
     private int feeds_id;
     private String video_url;
     private int video_width, video_height;
@@ -146,7 +147,7 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
                     break;
                 case 1:
                     activity.publishTextView.setClickable(true);
-                    activity.waitDialog.dismiss();
+                    activity.loadingDialog.dismiss();
                     MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
                     if (activity.baseResult.getCode() == 200) {
                         activity.finish();
@@ -154,8 +155,14 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
                     break;
                 case 2:
                     activity.publishTextView.setClickable(true);
-                    activity.waitDialog.dismiss();
+                    activity.loadingDialog.dismiss();
                     FailureToast.getInstance(activity).show("发布失败");
+                    break;
+                case 3:
+                    if (activity.uploadCount == 0) {
+                        activity.loadingDialog.dismiss();
+                        MessageToast.getInstance(activity).show("上传成功");
+                    }
                     break;
             }
         }
@@ -281,7 +288,7 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
                 fanweiTextView.setText(whoCanSee.getTitle());
             }
         });
-        waitDialog = new LoadingDialog(this, R.style.dialog);
+        loadingDialog = new LoadingDialog(this, R.style.dialog);
 
 
         choosePhotoDialog = new ChoosePhotoDialog(this, R.style.dialog, new ChoosePhotoDialog.OnChoosePhotoListener() {
@@ -367,7 +374,7 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
                 }
                 break;
             case R.id.publishTextView:
-                waitDialog.show();
+                loadingDialog.show();
                 if (feeds_id > 0) {
                     updateFeed();
                 } else {
@@ -436,35 +443,69 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
     }
 
     private List<UploadImage> uploadImageList = new ArrayList<>();
+    private int uploadCount = 0;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_SELECT_IMAGES_CODE && resultCode == RESULT_OK) {
+            loadingDialog.show();
             mImageList = data.getStringArrayListExtra(ImagePicker.EXTRA_SELECT_IMAGES);
-            uploadImages();
+            if (mImageList.size() > 0) {
+                uploadCount = mImageList.size();
+                for (String path : mImageList) {
+                    ThumbnailUtils.getInstance().thumbnailImage(path, PublishFeedActivity.this, new ThumbnailUtils.OnThumbnailListener() {
+                        @Override
+                        public void onThumbnail(final String thumb_path) {
+                            UploadImageUtils.getInstance().uploadFile(UploadImageUtils.CIRCLEFEES, thumb_path, new UploadImageUtils.OnUploadCallback() {
+                                @Override
+                                public void onUploadSuccess(String name) {
+                                    map.put(thumb_path, name);
+                                    imagesUploadList.add(name);
+                                    uploadCount--;
+                                    Message message = myHandler.obtainMessage(3);
+                                    message.sendToTarget();
+                                }
+                            });
+                        }
+                    });
+                }
+            } else {
+                loadingDialog.dismiss();
+            }
+
+//            uploadImages();
             mImageList.add("add");
             imageGridAdapter.setData(mImageList);
         }
 
         if (requestCode == REQUEST_SELECT_VIDEO_CODE && resultCode == RESULT_OK) {
+            loadingDialog.show();
             mImageList = data.getStringArrayListExtra(ImagePicker.EXTRA_SELECT_IMAGES);
+            if (mImageList.size() > 0) {
+                uploadCount = mImageList.size();
+                UploadImageUtils.getInstance().uploadFile(UploadImageUtils.CIRCLEFEES, mImageList.get(0), new UploadImageUtils.OnUploadCallback() {
+                    @Override
+                    public void onUploadSuccess(String name) {
+                        video_url = name;
+                        System.out.println("视频上传video_url回调: " + video_url);
+                        VideoUtils.getInstance().getVideoWidthAndHeightAndVideoTimes(video_url, new VideoUtils.OnCaculateVideoWidthHeightListener() {
+                            @Override
+                            public void onVideoWidthHeight(float w, float h, float vt) {
+                                video_width = (int) w;
+                                video_height = (int) h;
+                                uploadCount--;
+                                Message message = myHandler.obtainMessage(3);
+                                message.sendToTarget();
+                            }
+                        });
+                    }
+                });
+            } else {
+                loadingDialog.dismiss();
+            }
+
             mImageList.add("add");
             imageGridAdapter.setData(mImageList);
-            UploadImageUtils.getInstance().uploadFile(UploadImageUtils.CIRCLEFEES, mImageList.get(0), new UploadImageUtils.OnUploadCallback() {
-                @Override
-                public void onUploadSuccess(String name) {
-                    video_url = name;
-                    System.out.println("视频上传video_url回调: " + video_url);
-                    VideoUtils.getInstance().getVideoWidthAndHeightAndVideoTimes(video_url, new VideoUtils.OnCaculateVideoWidthHeightListener() {
-                        @Override
-                        public void onVideoWidthHeight(float w, float h, float vt) {
-                            video_width = (int) w;
-                            video_height = (int) h;
-                        }
-                    });
-                }
-            });
-
         }
     }
 
@@ -473,7 +514,6 @@ public class PublishFeedActivity extends BaseActivity implements View.OnClickLis
     private void uploadImages() {
         for (final String path : mImageList) {
             if (!map.containsKey(path)) {
-//                System.out.println("path: "+path);
                 UploadImageUtils.getInstance().uploadFile(UploadImageUtils.CIRCLEFEES, path, new UploadImageUtils.OnUploadCallback() {
                     @Override
                     public void onUploadSuccess(String name) {

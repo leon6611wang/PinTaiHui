@@ -145,19 +145,22 @@ public class CircleMemeberManageListAdapter extends BaseAdapter {
 
         @Override
         public void onClick(View v) {
-            System.out.println("own: "+own+"role: "+list.get(position).getRole()+" , circle_id: "+circle_id+" , tuid: "+list.get(position).getId());
+//            System.out.println("own: "+own+"role: "+list.get(position).getRole()+" , circle_id: "+circle_id+" , tuid: "+list.get(position).getId());
             int itemHeight = v.getHeight();
             int count = position - listView.getFirstVisiblePosition() + 1;
             int disY = topLayoutHeight + itemHeight * count;
             if (disY > (screenHeight - topLayoutHeight) / 2) {
-                new CircleMemberManageTopMenuWindow(context, own, list.get(position).getRole(), circle_id, list.get(position).getId(), new CircleMemberManageTopMenuWindow.CircleMemberManageTopListener() {
+                CircleMemberManageTopMenuWindow window=   new CircleMemberManageTopMenuWindow(context, own, list.get(position).getRole(), circle_id, list.get(position).getId(), new CircleMemberManageTopMenuWindow.CircleMemberManageTopListener() {
                     @Override
                     public void onComplete() {
                         if (null != onRefreshUserListener) {
                             onRefreshUserListener.onRefreshUserList();
                         }
                     }
-                }).showAtTop(menuLayout);
+                });
+                window.getContentView().measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+                int popHeight=window.getContentView().getMeasuredHeight();
+                window.showAtTop(menuLayout,popHeight);
             } else {
                 new CircleMemberManageBottomMenuWindow(context, own, list.get(position).getRole(), circle_id, list.get(position).getId(), new CircleMemberManageBottomMenuWindow.CircleMemberManageBottomListener() {
                     @Override

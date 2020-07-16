@@ -203,7 +203,13 @@ public class CustomerServiceAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                     holder.imageLayout.setVisibility(View.VISIBLE);
                     holder.orderLayout.setVisibility(View.GONE);
                     holder.goodsLayout.setVisibility(View.GONE);
-                    Glide.with(context).load(list.get(position).getMessage().getImage().getUrl()).error(R.drawable.image_error).placeholder(R.drawable.image_error)
+                    String imageUrl = list.get(position).getMessage().getImage().getUrl();
+//                    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(list.get(position).getMessage().getImage().getWidth(),
+//                            list.get(position).getMessage().getImage().getHeight());
+                    if (null != list.get(position).getMessage().getImage().getImageParams(context))
+                        holder.mWrapImageView.setLayoutParams(list.get(position).getMessage().getImage().getImageParams(context));
+//                    holder.mWrapImageView.setLayoutParams(layoutParams);
+                    Glide.with(context).load(imageUrl).error(R.drawable.image_error).placeholder(R.drawable.image_error)
                             .fallback(R.drawable.image_error).into(holder.mWrapImageView);
                     break;
                 case CustomerServiceMessage.TYPE_ORDER:

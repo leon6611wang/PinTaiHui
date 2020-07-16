@@ -13,6 +13,8 @@ import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.model.bean.FeedImage;
 import com.zhiyu.quanzhu.model.bean.QuanZiTuiJianImg;
 import com.zhiyu.quanzhu.ui.activity.LargeImageActivity;
+import com.zhiyu.quanzhu.ui.activity.LargeImageList2Activity;
+import com.zhiyu.quanzhu.ui.activity.LargeImageListActivity;
 import com.zhiyu.quanzhu.ui.widget.NiceImageView;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 
@@ -73,21 +75,26 @@ public class CircleTuiJianFeedImagesGridAdapter extends BaseAdapter {
         }
         holder.feedImageView.setLayoutParams(params);
         Glide.with(parent.getContext()).load(list.get(position).getThumb_file()).into(holder.feedImageView);
-        holder.feedImageView.setOnClickListener(new OnLargeImageClick(list.get(position).getFile()));
+        holder.feedImageView.setOnClickListener(new OnLargeImageClick(position));
         return convertView;
     }
 
     private class OnLargeImageClick implements View.OnClickListener {
-        private String imageUrl;
+        private int position;
 
-        public OnLargeImageClick(String imageUrl) {
-            this.imageUrl = imageUrl;
+        public OnLargeImageClick(int position) {
+            this.position = position;
         }
 
         @Override
         public void onClick(View v) {
-            Intent largeIntent = new Intent(context, LargeImageActivity.class);
-            largeIntent.putExtra("imgUrl", imageUrl);
+            ArrayList<String> imgList = new ArrayList<>();
+            for (int i = 0; i < list.size(); i++) {
+                imgList.add(list.get(i).getFile());
+            }
+            Intent largeIntent = new Intent(context, LargeImageList2Activity.class);
+            largeIntent.putExtra("imgList", imgList);
+            largeIntent.putExtra("position", position);
             largeIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(largeIntent);
         }

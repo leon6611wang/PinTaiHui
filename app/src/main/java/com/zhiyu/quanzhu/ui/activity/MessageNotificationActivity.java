@@ -7,9 +7,11 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.leon.chic.utils.SPUtils;
 import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseActivity;
+import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.result.SystemSettingInfoResult;
 import com.zhiyu.quanzhu.ui.dialog.TimeDialog;
@@ -27,6 +29,8 @@ import org.xutils.x;
 import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import io.rong.imkit.RongIM;
 
 public class MessageNotificationActivity extends BaseActivity implements View.OnClickListener {
     private LinearLayout backLayout, mLayout;
@@ -130,6 +134,12 @@ public class MessageNotificationActivity extends BaseActivity implements View.On
         messaageSwitchButton.setOnSwitchButtonListener(new SwitchButton.OnSwitchButtonListener() {
             @Override
             public void onOpen(boolean isOpen) {
+                if (isOpen) {
+                    SPUtils.getInstance().setNotificatMessage(BaseApplication.applicationContext,true);
+
+                } else {
+                    SPUtils.getInstance().setNotificatMessage(BaseApplication.applicationContext, false);
+                }
                 mLayout.setVisibility(isOpen ? View.VISIBLE : View.INVISIBLE);
                 messagestatus = isOpen ? 1 : 0;
                 if (!isMessageFirst)
@@ -217,7 +227,7 @@ public class MessageNotificationActivity extends BaseActivity implements View.On
         if (!StringUtils.isNullOrEmpty(silence_end) && silence_end.contains("次日")) {
             silence_end = silence_end.replace("次日", "");
         }
-        System.out.println("设置: silencestatus: " + silencestatus + " , messagestatus: " + messagestatus + " , is_next_day: " + is_next_day + " , silence_end: " + silence_end);
+//        System.out.println("设置: silencestatus: " + silencestatus + " , messagestatus: " + messagestatus + " , is_next_day: " + is_next_day + " , silence_end: " + silence_end);
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.SET_SYSTEM_SETTING);
         params.addBodyParameter("silencestatus", String.valueOf(silencestatus));
         params.addBodyParameter("messagestatus", String.valueOf(messagestatus));
@@ -227,7 +237,7 @@ public class MessageNotificationActivity extends BaseActivity implements View.On
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("设置: " + result);
+//                System.out.println("设置: " + result);
                 baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
                 Message message = myHandler.obtainMessage(2);
                 message.sendToTarget();

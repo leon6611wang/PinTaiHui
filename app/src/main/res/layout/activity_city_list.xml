@@ -7,33 +7,7 @@
 
     <include
         android:id="@+id/headerView"
-        layout="@layout/header_left_center" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/dp_10"
-        android:background="@drawable/shape_city_list_search"
-        android:orientation="horizontal">
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginLeft="@dimen/dp_10"
-            android:layout_marginRight="@dimen/dp_10"
-            android:src="@mipmap/search" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:layout_gravity="center"
-            android:gravity="center|left"
-            android:hint="搜索城市"
-            android:textColor="#999999"
-            android:textSize="12sp" />
-
-    </LinearLayout>
+        layout="@layout/header_city_list" />
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -48,10 +22,10 @@
                 android:id="@+id/cityListView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:divider="@color/white"
                 android:dividerHeight="0dp"
-                android:scrollbars="none"
-                android:layout_weight="1" />
+                android:scrollbars="none" />
 
             <View
                 android:layout_width="@dimen/dp_20"
@@ -62,10 +36,10 @@
         <ListView
             android:id="@+id/ziMuListView"
             android:layout_width="@dimen/dp_20"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|center"
             android:divider="@color/white"
-            android:dividerHeight="0dp"
-            android:layout_gravity="right" />
+            android:dividerHeight="0dp" />
     </FrameLayout>
 
 

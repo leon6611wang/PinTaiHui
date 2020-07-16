@@ -106,7 +106,7 @@ public class InterestQuanZiSelectActivity extends BaseActivity implements View.O
             }
         });
         ptrFrameLayout.autoRefresh();
-        ptrFrameLayout.setMode(PtrFrameLayout.Mode.BOTH);
+        ptrFrameLayout.setMode(PtrFrameLayout.Mode.REFRESH);
 
     }
 

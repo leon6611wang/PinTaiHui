@@ -20,6 +20,7 @@ import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.bean.Feed;
 import com.zhiyu.quanzhu.model.bean.FullSearchArticle;
+import com.zhiyu.quanzhu.model.result.ShareResult;
 import com.zhiyu.quanzhu.ui.activity.ArticleInformationActivity;
 import com.zhiyu.quanzhu.ui.dialog.ShareDialog;
 import com.zhiyu.quanzhu.ui.toast.MessageToast;
@@ -29,6 +30,7 @@ import com.zhiyu.quanzhu.ui.widget.NiceImageView;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
 import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
+import com.zhiyu.quanzhu.utils.ShareUtils;
 
 import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
@@ -47,6 +49,7 @@ public class FooterPrintHistoryArticleListAdapter extends BaseAdapter {
     public FooterPrintHistoryArticleListAdapter(Activity aty, Context context) {
         this.activity = aty;
         this.context = context;
+        shareConfig();
         initDialogs();
     }
 
@@ -75,6 +78,9 @@ public class FooterPrintHistoryArticleListAdapter extends BaseAdapter {
         public void handleMessage(Message msg) {
             FooterPrintHistoryArticleListAdapter adapter = adapterWeakReference.get();
             switch (msg.what) {
+                case 99:
+                    MessageToast.getInstance(adapter.context).show("服务器内部错误，请稍后再试");
+                    break;
                 case 1:
                     MessageToast.getInstance(adapter.context).show(adapter.baseResult.getMsg());
                     if (adapter.baseResult.getCode() == 200) {
@@ -206,7 +212,17 @@ public class FooterPrintHistoryArticleListAdapter extends BaseAdapter {
 
         @Override
         public void onClick(View v) {
+            String image_url;
+            if (null != list.get(position).getContent().getNewthumb() && null != list.get(position).getContent().getNewthumb().getFile()) {
+                image_url = list.get(position).getContent().getNewthumb().getFile();
+            } else {
+                image_url = share_image_url;
+            }
+            shareResult.getData().getShare().setType_desc(ShareUtils.SHARE_TYPE_ARTICLE);
+            shareResult.getData().getShare().setImage_url(image_url);
+            shareResult.getData().getShare().setContent(list.get(position).getContent().getTitle());
             shareDialog.show();
+            shareDialog.setShare(shareResult.getData().getShare(), list.get(position).getContent().getId());
         }
     }
 
@@ -257,7 +273,8 @@ public class FooterPrintHistoryArticleListAdapter extends BaseAdapter {
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
-
+                Message message=myHandler.obtainMessage(99);
+                message.sendToTarget();
             }
 
             @Override
@@ -284,6 +301,37 @@ public class FooterPrintHistoryArticleListAdapter extends BaseAdapter {
                 Message message = myHandler.obtainMessage(1);
                 message.obj = position;
                 message.sendToTarget();
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+                Message message=myHandler.obtainMessage(99);
+                message.sendToTarget();
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
+    private ShareResult shareResult;
+    private String share_image_url;
+
+    private void shareConfig() {
+        RequestParams params = MyRequestParams.getInstance(context).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.SHARE_CONFIG);
+        params.addBodyParameter("type", ShareUtils.SHARE_TYPE_FEED);
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                shareResult = GsonUtils.GsonToBean(result, ShareResult.class);
+                share_image_url = shareResult.getData().getShare().getImage_url();
             }
 
             @Override

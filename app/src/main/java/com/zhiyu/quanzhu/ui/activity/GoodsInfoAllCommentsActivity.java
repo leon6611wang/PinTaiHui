@@ -63,7 +63,6 @@ public class GoodsInfoAllCommentsActivity extends BaseActivity implements View.O
             GoodsInfoAllCommentsActivity activity = allCommentsActivityWeakReference.get();
             switch (msg.what) {
                 case 1:
-                    System.out.println("商品全部评价网络请求结束");
                     activity.ptrFrameLayout.refreshComplete();
                     activity.allCommentsTextView.setText("全部(" + activity.commentResult.getData().getAllnum() + ")");
                     activity.hasImageTextView.setText("有图(" + activity.commentResult.getData().getImgnum() + ")");

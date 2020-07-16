@@ -1,5 +1,6 @@
 package com.zhiyu.quanzhu.ui.activity;
 
+import android.accessibilityservice.AccessibilityService;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -8,8 +9,11 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,6 +32,7 @@ import com.zhiyu.quanzhu.base.BaseApplication;
 import com.zhiyu.quanzhu.base.BaseResult;
 import com.zhiyu.quanzhu.model.result.LoginTokenResult;
 import com.zhiyu.quanzhu.model.result.PaymentResult;
+import com.zhiyu.quanzhu.model.result.ShareResult;
 import com.zhiyu.quanzhu.ui.dialog.ShareDialog;
 import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.utils.ConstantsUtils;
@@ -35,6 +40,7 @@ import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.PhoneNumberUtils;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
+import com.zhiyu.quanzhu.utils.SoftKeyBoardListener;
 import com.zhiyu.quanzhu.utils.SoftKeyboardUtil;
 import com.zhiyu.quanzhu.utils.WXUtils;
 import com.zhiyu.quanzhu.wxapi.WXEntryActivity;
@@ -52,7 +58,7 @@ import java.util.TimerTask;
 
 import io.vov.vitamio.utils.Log;
 
-public class LoginGetVertifyCodeActivity extends BaseActivity implements View.OnClickListener, WXEntryActivity.OnWxLoginSuccessListener {
+public class LoginGetVertifyCodeActivity extends BaseActivity implements View.OnClickListener, WXEntryActivity.OnWxLoginSuccessListener, SoftKeyBoardListener.OnSoftKeyBoardChangeListener {
     private TextView getVertifyCodeTextView, loginByPwdTextView, yoonghuxieyiTextView, yinsizhengceTextView;
     private EditText phoneNumberEdit;
     private ImageView closeImageView, wxLoginImageView, qqLoginImageView;
@@ -63,6 +69,9 @@ public class LoginGetVertifyCodeActivity extends BaseActivity implements View.On
     private final int COUNT = 60;
     private int timeCount = COUNT;
     private Tencent mTencent;
+    private CheckBox checkBox;
+    private LinearLayout originLoginLayout;
+    private boolean isCheck = false;
     private MyHandler myHandler = new MyHandler(this);
     private ShareDialog shareDialog;
     private String xieyi_url = H5Utils.getInstance().yongHuXieYi(),//用户协议
@@ -120,14 +129,27 @@ public class LoginGetVertifyCodeActivity extends BaseActivity implements View.On
         ScreentUtils.getInstance().setStatusBarLightMode(this, false);
         mTencent = Tencent.createInstance("101762258", getApplicationContext());
         WXEntryActivity.setOnWxLoginSuccessListener(this);
+        SoftKeyBoardListener softKeyBoardListener = new SoftKeyBoardListener(this);
+        softKeyBoardListener.setOnSoftKeyBoardChangeListener(this);
         initViews();
         initTimerTask();
+        shareConfig();
         shareDialog = new ShareDialog(this, this, R.style.dialog, new ShareDialog.OnShareListener() {
             @Override
             public void onShare(int position, String desc) {
 
             }
         });
+    }
+
+    @Override
+    public void keyBoardShow(int height) {
+        originLoginLayout.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void keyBoardHide(int height) {
+        originLoginLayout.setVisibility(View.VISIBLE);
     }
 
     private void initViews() {
@@ -146,8 +168,12 @@ public class LoginGetVertifyCodeActivity extends BaseActivity implements View.On
                 if (!TextUtils.isEmpty(phoneNumber)) {
                     clearPhoneNumberLayout.setVisibility(View.VISIBLE);
                     if (PhoneNumberUtils.getInstance().isMobileNO(phoneNumber)) {
-                        getVertifyCodeTextView.setBackground(getResources().getDrawable(R.mipmap.create_shangquan_btn_bg));
-                        getVertifyCodeTextView.setClickable(true);
+                        if (!isCheck) {
+                            MessageToast.getInstance(LoginGetVertifyCodeActivity.this).show("同意《圈助用户协议》、《隐私政策》才可登录");
+                        } else {
+                            getVertifyCodeTextView.setBackground(getResources().getDrawable(R.mipmap.create_shangquan_btn_bg));
+                            getVertifyCodeTextView.setClickable(true);
+                        }
                     } else {
                         getVertifyCodeTextView.setBackground(getResources().getDrawable(R.drawable.shape_oval_solid_bg_bbbbbbb));
                         getVertifyCodeTextView.setClickable(false);
@@ -164,6 +190,7 @@ public class LoginGetVertifyCodeActivity extends BaseActivity implements View.On
 
             }
         });
+        originLoginLayout=findViewById(R.id.originLoginLayout);
         closeImageView = findViewById(R.id.closeImageView);
         closeImageView.setOnClickListener(this);
         clearPhoneNumberLayout = findViewById(R.id.clearPhoneNumberLayout);
@@ -178,6 +205,21 @@ public class LoginGetVertifyCodeActivity extends BaseActivity implements View.On
         yoonghuxieyiTextView.setOnClickListener(this);
         yinsizhengceTextView = findViewById(R.id.yinsizhengceTextView);
         yinsizhengceTextView.setOnClickListener(this);
+        checkBox = findViewById(R.id.checkBox);
+        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView,
+                                         boolean isChecked) {
+                isCheck = isChecked;
+                if (PhoneNumberUtils.getInstance().isMobileNO(phoneNumber) && isCheck) {
+                    getVertifyCodeTextView.setBackground(getResources().getDrawable(R.mipmap.create_shangquan_btn_bg));
+                    getVertifyCodeTextView.setClickable(true);
+                } else {
+                    getVertifyCodeTextView.setBackground(getResources().getDrawable(R.drawable.shape_oval_solid_bg_bbbbbbb));
+                    getVertifyCodeTextView.setClickable(false);
+                }
+            }
+        });
     }
 
     private void initTimerTask() {
@@ -242,10 +284,19 @@ public class LoginGetVertifyCodeActivity extends BaseActivity implements View.On
                 finish();
                 break;
             case R.id.wxLoginImageView:
-                WXUtils.WxLogin(LoginGetVertifyCodeActivity.this);
+                if (!isCheck) {
+                    MessageToast.getInstance(this).show("同意《圈助用户协议》、《隐私政策》才可登录");
+                } else {
+                    WXUtils.WxLogin(LoginGetVertifyCodeActivity.this);
+                }
+
                 break;
             case R.id.qqLoginImageView:
-                qqLogin();
+                if (!isCheck) {
+                    MessageToast.getInstance(this).show("同意《圈助用户协议》、《隐私政策》才可登录");
+                } else {
+                    qqLogin();
+                }
                 break;
             case R.id.yoonghuxieyiTextView:
                 Intent xieyiIntent = new Intent(this, H5PageActivity.class);
@@ -262,15 +313,17 @@ public class LoginGetVertifyCodeActivity extends BaseActivity implements View.On
 
     public void qqLogin() {
         if (!mTencent.isSessionValid()) {
+            System.out.println("qqLogin");
             mTencent.login(this, "all", loginListener);
         }
+        System.out.println("mTencent.isSessionValid: " + mTencent.isSessionValid());
     }
 
     //授权登录监听（最下面是返回结果）
     private IUiListener loginListener = new IUiListener() {
         @Override
         public void onComplete(Object o) {
-//            System.out.println(GsonUtils.GsonString(o));
+            System.out.println(GsonUtils.GsonString(o));
             final String uniqueCode = ((JSONObject) o).optString("openid"); //QQ的openid
             String token = null;
             String expires_in = null;
@@ -307,10 +360,12 @@ public class LoginGetVertifyCodeActivity extends BaseActivity implements View.On
 
                 @Override
                 public void onError(UiError uiError) {
+                    System.out.println("QQ error: " + uiError.toString());
                 }
 
                 @Override
                 public void onCancel() {
+                    System.out.println("QQ cancel ");
                 }
             });
         }
@@ -439,6 +494,7 @@ public class LoginGetVertifyCodeActivity extends BaseActivity implements View.On
                 loginTokenResult = GsonUtils.GsonToBean(result, LoginTokenResult.class);
                 if (200 == loginTokenResult.getCode()) {
                     SPUtils.getInstance().userLogin(BaseApplication.applicationContext);
+                    SPUtils.getInstance().saveUserId(BaseApplication.applicationContext, loginTokenResult.getData().getUser_id());
                     SPUtils.getInstance().saveUserToken(BaseApplication.applicationContext, loginTokenResult.getToken());
                     SPUtils.getInstance().saveIMToken(BaseApplication.applicationContext, loginTokenResult.getData().getToken());
                     SPUtils.getInstance().saveUserAvatar(BaseApplication.applicationContext, loginTokenResult.getData().getUserinfo().getAvatar());
@@ -499,5 +555,34 @@ public class LoginGetVertifyCodeActivity extends BaseActivity implements View.On
                 startActivity(intent);
             }
         }
+    }
+
+    private ShareResult shareResult;
+
+    private void shareConfig() {
+        RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.SHARE_CONFIG);
+        params.addBodyParameter("type", "serviceagreement");
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                System.out.println(result);
+                shareResult = GsonUtils.GsonToBean(result, ShareResult.class);
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+                System.out.println(ex.toString());
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
     }
 }

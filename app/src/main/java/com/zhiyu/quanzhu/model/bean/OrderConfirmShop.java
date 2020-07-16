@@ -17,7 +17,7 @@ public class OrderConfirmShop {
     private int postage_status;
     private int discount_price;//优惠价格
     private int pay_price;
-    private boolean useCoupon;
+    private boolean useCoupon=true;
 
 
     public int getPostage_status() {

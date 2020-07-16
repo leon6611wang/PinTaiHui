@@ -8,6 +8,10 @@ import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.model.bean.MessageImage;
 import com.zhiyu.quanzhu.model.bean.UploadImage;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+
 /**
  * 图片处理工具类
  */
@@ -70,5 +74,26 @@ public class ImageUtils {
         wh[0] = imageWidth;
         wh[1] = imageHeight;
         return wh;
+    }
+
+    public  int getImageSize(String path) {
+        FileInputStream fis= null;
+        int size=0;
+        try{
+            File f= new File(path);
+            fis= new FileInputStream(f);
+            size=fis.available();
+        }catch(Exception e){
+            e.printStackTrace();
+        } finally{
+            if (null!=fis){
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                   e.printStackTrace();
+                }
+            }
+        }
+        return size;
     }
 }

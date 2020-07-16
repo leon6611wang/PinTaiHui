@@ -93,4 +93,7 @@ dependencies {
     implementation files('libs/jcore-android-2.3.4.jar')
     implementation files('libs/jpush-android-3.6.0.jar')
     implementation project(':leon')
+//    implementation 'top.zibin:Luban:1.1.8'
+//    implementation 'id.zelory:compressor:3.0.0'
+    implementation 'com.wgd.gdcp.gdcplibrary:ImageCompress:1.0.10'
 }

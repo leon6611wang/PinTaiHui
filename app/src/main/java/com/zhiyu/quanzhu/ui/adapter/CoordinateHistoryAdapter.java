@@ -55,9 +55,13 @@ public class CoordinateHistoryAdapter extends RecyclerView.Adapter<CoordinateHis
         holder.nameTextView.setText(list.get(position).getFrom());
         holder.timeTextView.setText(list.get(position).getAdd_time());
         holder.titleTextView.setText(list.get(position).getTitle());
-        if (!StringUtils.isNullOrEmpty(list.get(position).getRefund_type())) {
+        if (!StringUtils.isNullOrEmpty(list.get(position).getRefund_type()) || !StringUtils.isNullOrEmpty(list.get(position).getAddress_name())) {
             holder.typeTextView.setVisibility(View.VISIBLE);
-            holder.typeTextView.setText("退款类型：" + list.get(position).getRefund_type());
+            if (!StringUtils.isNullOrEmpty(list.get(position).getRefund_type())) {
+                holder.typeTextView.setText("退款类型：" + list.get(position).getRefund_type());
+            } else if (!StringUtils.isNullOrEmpty(list.get(position).getAddress_name())) {
+                holder.typeTextView.setText("收货人：" + list.get(position).getAddress_name());
+            }
         } else {
             holder.typeTextView.setVisibility(View.GONE);
         }
@@ -67,33 +71,39 @@ public class CoordinateHistoryAdapter extends RecyclerView.Adapter<CoordinateHis
         } else {
             holder.priceLayout.setVisibility(View.GONE);
         }
-        if (!StringUtils.isNullOrEmpty(list.get(position).getRefund_reason())) {
+        if (!StringUtils.isNullOrEmpty(list.get(position).getRefund_reason()) || !StringUtils.isNullOrEmpty(list.get(position).getAddress_phone())) {
             holder.reasonTextView.setVisibility(View.VISIBLE);
             String reason_pre = "";
             switch (list.get(position).getType()) {
                 case 1:
-                    reason_pre = "退款原因：";
+                    reason_pre = "退款原因：" + list.get(position).getRefund_reason();
+                    break;
+                case 3:
+                    reason_pre = "联系电话：" + list.get(position).getAddress_phone();
                     break;
                 case 4:
-                    reason_pre = "拒绝原因：";
+                    reason_pre = "拒绝原因：" + list.get(position).getRefund_reason();
                     break;
             }
-            holder.reasonTextView.setText(reason_pre + list.get(position).getRefund_reason());
+            holder.reasonTextView.setText(reason_pre);
         } else {
             holder.reasonTextView.setVisibility(View.GONE);
         }
-        if (!StringUtils.isNullOrEmpty(list.get(position).getRefund_desc())) {
+        if (!StringUtils.isNullOrEmpty(list.get(position).getRefund_desc()) || !StringUtils.isNullOrEmpty(list.get(position).getAddress())) {
             holder.descTextView.setVisibility(View.VISIBLE);
             String desc_pre = "";
             switch (list.get(position).getType()) {
                 case 1:
-                    desc_pre = "退款描述：";
+                    desc_pre = "退款描述：" + list.get(position).getRefund_desc();
+                    break;
+                case 3:
+                    desc_pre = "退货地址：" + list.get(position).getAddress();
                     break;
                 case 6:
-                    desc_pre = "处理备注：";
+                    desc_pre = "处理备注：" + list.get(position).getRefund_desc();
                     break;
             }
-            holder.descTextView.setText(desc_pre + list.get(position).getRefund_desc());
+            holder.descTextView.setText(desc_pre);
         } else {
             holder.descTextView.setVisibility(View.GONE);
         }

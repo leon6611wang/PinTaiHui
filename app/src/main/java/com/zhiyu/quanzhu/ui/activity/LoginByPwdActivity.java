@@ -11,13 +11,17 @@ import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.leon.chic.utils.H5Utils;
 import com.leon.chic.utils.SPUtils;
+import com.qiniu.android.utils.StringUtils;
 import com.tencent.connect.UserInfo;
 import com.tencent.connect.auth.QQToken;
 import com.tencent.connect.common.Constants;
@@ -34,6 +38,7 @@ import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.MyRequestParams;
 import com.zhiyu.quanzhu.utils.PhoneNumberUtils;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
+import com.zhiyu.quanzhu.utils.SoftKeyBoardListener;
 import com.zhiyu.quanzhu.utils.WXUtils;
 import com.zhiyu.quanzhu.wxapi.WXEntryActivity;
 
@@ -45,17 +50,19 @@ import org.xutils.x;
 
 import java.lang.ref.WeakReference;
 
-public class LoginByPwdActivity extends BaseActivity implements View.OnClickListener, WXEntryActivity.OnWxLoginSuccessListener {
+public class LoginByPwdActivity extends BaseActivity implements View.OnClickListener, WXEntryActivity.OnWxLoginSuccessListener,SoftKeyBoardListener.OnSoftKeyBoardChangeListener {
     private ImageView closeImageView, seePwdImageView, wxLoginImageView, qqLoginImageView;
     private EditText phoneNumberEdit, pwdEditText;
     private RelativeLayout clearPhoneNumberLayout, seePwdLayout;
     private TextView loginTextView, verifyCodeLoginTextView, forgetPwdTextView, yoonghuxieyiTextView, yinsizhengceTextView;
     private String phoneNumber, pwd;
     private Tencent mTencent;
+    private CheckBox checkBox;
+    private boolean isCheck = false;
     private String xieyi_url = H5Utils.getInstance().yongHuXieYi(),//用户协议
             yinsi_url = H5Utils.getInstance().yinSiZhengCe();//隐私政策
     private MyHandler myHandler = new MyHandler(this);
-
+    private LinearLayout originLoginLayout;
     private static class MyHandler extends Handler {
         WeakReference<LoginByPwdActivity> activityWeakReference;
 
@@ -85,10 +92,28 @@ public class LoginByPwdActivity extends BaseActivity implements View.OnClickList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login_by_pwd);
+        SoftKeyBoardListener softKeyBoardListener = new SoftKeyBoardListener(this);
+        softKeyBoardListener.setOnSoftKeyBoardChangeListener(this);
         ScreentUtils.getInstance().setStatusBarLightMode(this, false);
         mTencent = Tencent.createInstance("101762258", getApplicationContext());
         WXEntryActivity.setOnWxLoginSuccessListener(this);
         initViews();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        isPwdLogin=false;
+    }
+
+    @Override
+    public void keyBoardShow(int height) {
+        originLoginLayout.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void keyBoardHide(int height) {
+        originLoginLayout.setVisibility(View.VISIBLE);
     }
 
     private void initViews() {
@@ -96,6 +121,7 @@ public class LoginByPwdActivity extends BaseActivity implements View.OnClickList
         closeImageView.setOnClickListener(this);
         seePwdImageView = findViewById(R.id.seePwdImageView);
         phoneNumberEdit = findViewById(R.id.phoneNumberEdit);
+        originLoginLayout=findViewById(R.id.originLoginLayout);
         phoneNumberEdit.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -104,11 +130,30 @@ public class LoginByPwdActivity extends BaseActivity implements View.OnClickList
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                phoneNumber = phoneNumberEdit.getText().toString().trim();
+//                phoneNumber = phoneNumberEdit.getText().toString().trim();
+//                if (!TextUtils.isEmpty(phoneNumber)) {
+//                    clearPhoneNumberLayout.setVisibility(View.VISIBLE);
+//                } else {
+//                    clearPhoneNumberLayout.setVisibility(View.INVISIBLE);
+//                }
+                phoneNumber = phoneNumberEdit.getText().toString();
                 if (!TextUtils.isEmpty(phoneNumber)) {
                     clearPhoneNumberLayout.setVisibility(View.VISIBLE);
+                    if (PhoneNumberUtils.getInstance().isMobileNO(phoneNumber)) {
+                        if (!isCheck) {
+                            MessageToast.getInstance(LoginByPwdActivity.this).show("同意《圈助用户协议》、《隐私政策》才可登录");
+                        } else {
+                            loginTextView.setBackground(getResources().getDrawable(R.mipmap.create_shangquan_btn_bg));
+                            loginTextView.setClickable(true);
+                        }
+                    } else {
+                        loginTextView.setBackground(getResources().getDrawable(R.drawable.shape_oval_solid_bg_bbbbbbb));
+                        loginTextView.setClickable(false);
+                    }
                 } else {
                     clearPhoneNumberLayout.setVisibility(View.INVISIBLE);
+                    loginTextView.setBackground(getResources().getDrawable(R.drawable.shape_oval_solid_bg_bbbbbbb));
+                    loginTextView.setClickable(false);
                 }
             }
 
@@ -157,6 +202,21 @@ public class LoginByPwdActivity extends BaseActivity implements View.OnClickList
         yoonghuxieyiTextView.setOnClickListener(this);
         yinsizhengceTextView = findViewById(R.id.yinsizhengceTextView);
         yinsizhengceTextView.setOnClickListener(this);
+        checkBox = findViewById(R.id.checkBox);
+        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView,
+                                         boolean isChecked) {
+                isCheck = isChecked;
+                if (!isCheck) {
+                    loginTextView.setBackground(getResources().getDrawable(R.drawable.shape_oval_solid_bg_bbbbbbb));
+                    loginTextView.setClickable(false);
+                } else {
+                    loginTextView.setBackground(getResources().getDrawable(R.mipmap.create_shangquan_btn_bg));
+                    loginTextView.setClickable(true);
+                }
+            }
+        });
     }
 
     @Override
@@ -175,7 +235,15 @@ public class LoginByPwdActivity extends BaseActivity implements View.OnClickList
                 break;
             case R.id.loginTextView:
                 if (PhoneNumberUtils.getInstance().isMobileNO(phoneNumber)) {
-                    loginByPwd();
+                    if (!isCheck) {
+                        MessageToast.getInstance(this).show("同意《圈助用户协议》、《隐私政策》才可登录");
+                    } else {
+                        if (!StringUtils.isNullOrEmpty(pwd)) {
+                            loginByPwd();
+                        } else {
+                            MessageToast.getInstance(this).show("请输入密码");
+                        }
+                    }
                 } else {
                     MessageToast.getInstance(this).show("请输入正确的手机号码");
                 }
@@ -185,14 +253,22 @@ public class LoginByPwdActivity extends BaseActivity implements View.OnClickList
                 startActivity(verifyLoginIntent);
                 break;
             case R.id.forgetPwdTextView:
-                Intent intent = new Intent(LoginByPwdActivity.this, EditPwdFirstActivity.class);
+                Intent intent = new Intent(LoginByPwdActivity.this, ForgetLoginPwd1Activity.class);
                 startActivity(intent);
                 break;
             case R.id.wxLoginImageView:
-                WXUtils.WxLogin(LoginByPwdActivity.this);
+                if (!isCheck) {
+                    MessageToast.getInstance(this).show("同意《圈助用户协议》、《隐私政策》才可登录");
+                } else {
+                    WXUtils.WxLogin(LoginByPwdActivity.this);
+                }
                 break;
             case R.id.qqLoginImageView:
-                qqLogin();
+                if (!isCheck) {
+                    MessageToast.getInstance(this).show("同意《圈助用户协议》、《隐私政策》才可登录");
+                } else {
+                    qqLogin();
+                }
                 break;
             case R.id.yoonghuxieyiTextView:
                 Intent xieyiIntent = new Intent(this, H5PageActivity.class);
@@ -301,6 +377,7 @@ public class LoginByPwdActivity extends BaseActivity implements View.OnClickList
                 loginTokenResult = GsonUtils.GsonToBean(result, LoginTokenResult.class);
                 if (200 == loginTokenResult.getCode()) {
                     SPUtils.getInstance().userLogin(BaseApplication.applicationContext);
+                    SPUtils.getInstance().saveUserId(BaseApplication.applicationContext, loginTokenResult.getData().getUser_id());
                     SPUtils.getInstance().saveUserAvatar(BaseApplication.applicationContext, loginTokenResult.getData().getUserinfo().getAvatar());
                     SPUtils.getInstance().saveUserName(BaseApplication.applicationContext, loginTokenResult.getData().getUserinfo().getUsername());
                     SPUtils.getInstance().saveUserInfoStatus(BaseApplication.applicationContext, loginTokenResult.getData().getUserinfo().isHas_pwd(),
@@ -369,10 +446,12 @@ public class LoginByPwdActivity extends BaseActivity implements View.OnClickList
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println(result);
+//                System.out.println(result);
                 loginTokenResult = GsonUtils.GsonToBean(result, LoginTokenResult.class);
                 if (200 == loginTokenResult.getCode()) {
+                    isPwdLogin=true;
                     SPUtils.getInstance().userLogin(BaseApplication.applicationContext);
+                    SPUtils.getInstance().saveUserId(BaseApplication.applicationContext, loginTokenResult.getData().getUser_id());
                     SPUtils.getInstance().saveUserToken(BaseApplication.applicationContext, loginTokenResult.getToken());
                     SPUtils.getInstance().saveIMToken(BaseApplication.applicationContext, loginTokenResult.getData().getToken());
                     SPUtils.getInstance().saveUserAvatar(BaseApplication.applicationContext, loginTokenResult.getData().getUserinfo().getAvatar());
@@ -406,6 +485,7 @@ public class LoginByPwdActivity extends BaseActivity implements View.OnClickList
         });
     }
 
+    private boolean isPwdLogin=false;
     private void pageChange() {
         if (SPUtils.getInstance().getUserBindPhone(BaseApplication.applicationContext) &&
                 SPUtils.getInstance().getUserFillProfile(BaseApplication.applicationContext) &&
@@ -413,7 +493,7 @@ public class LoginByPwdActivity extends BaseActivity implements View.OnClickList
             Intent homeIntent = new Intent(this, HomeActivity.class);
             startActivity(homeIntent);
         } else {
-            if (!SPUtils.getInstance().getUserBindPhone(BaseApplication.applicationContext)) {
+            if (!SPUtils.getInstance().getUserBindPhone(BaseApplication.applicationContext)&&!isPwdLogin) {
                 Intent intent = new Intent(this, BondPhoneNumberActivity.class);
                 startActivity(intent);
             } else if (!SPUtils.getInstance().getUserFillProfile(BaseApplication.applicationContext)) {

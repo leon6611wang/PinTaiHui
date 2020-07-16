@@ -317,4 +317,12 @@ public class FragmentFullSearchAll extends Fragment implements View.OnClickListe
             });
         }
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        articleListAdapter.setShareResultCode(requestCode,resultCode,data);
+        feedListAdapter.setShareResultCode(requestCode,resultCode,data);
+        videoListAdapter.setShareResultCode(requestCode,resultCode,data);
+    }
 }

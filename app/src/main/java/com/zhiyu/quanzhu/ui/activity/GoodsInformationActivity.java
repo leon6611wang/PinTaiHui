@@ -329,12 +329,7 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
         normsDialog = new GoodsNormsDialog(this, R.style.dialog);
         youHuiQuanDialog = new GoodsCouponsDialog(this, R.style.dialog);
         loadingDialog = new LoadingDialog(this, R.style.dialog);
-        shareDialog = new ShareDialog(this, this, R.style.dialog, new ShareDialog.OnShareListener() {
-            @Override
-            public void onShare(int position, String desc) {
-
-            }
-        });
+        shareDialog = new ShareDialog(this, this, R.style.dialog);
         payWayDialog = new PayWayDialog(this, R.style.dialog, new PayWayDialog.OnPayWayListener() {
             @Override
             public void onPayWay(int payWay, String payWayStr) {
@@ -489,30 +484,37 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
                 startActivity(goodsIntent);
                 break;
             case R.id.bottomShareTextView:
-                shareDialog.show();
                 shareResult.getData().getShare().setImage_url(goodsResult.getData().getDetail().getImg_list().get(0).getUrl());
                 shareResult.getData().getShare().setContent(goodsResult.getData().getDetail().getGoods_name());
+                shareResult.getData().getShare().setType_desc(ShareUtils.SHARE_TYPE_GOODS);
+                shareDialog.show();
                 shareDialog.setShare(shareResult.getData().getShare(), (int) goodsResult.getData().getDetail().getId());
                 break;
             case R.id.bottomAddCartTextView:
-                if (normFinish && stockFinish) {
-                    normsDialog.show();
-                    normsDialog.setGoods(goodsResult.getData().getDetail(), goodsResult.getData().isHas_norms());
-                    normsDialog.setType(1);
+                if (goodsResult.getData().getDetail().isGoods_status()) {
+                    if (normFinish && stockFinish) {
+                        normsDialog.show();
+                        normsDialog.setGoods(goodsResult.getData().getDetail(), goodsResult.getData().isHas_norms());
+                        normsDialog.setType(1);
+                    } else {
+                        MessageToast.getInstance(this).show("数据正在加载，请稍后再试");
+                    }
                 } else {
-                    MessageToast.getInstance(this).show("数据正在加载，请稍后再试.");
+                    MessageToast.getInstance(this).show("该商品已失效");
                 }
-
                 break;
             case R.id.bottomBuyTextView:
-                if (normFinish && stockFinish) {
-                    normsDialog.show();
-                    normsDialog.setGoods(goodsResult.getData().getDetail(), goodsResult.getData().isHas_norms());
-                    normsDialog.setType(2);
+                if (goodsResult.getData().getDetail().isGoods_status()) {
+                    if (normFinish && stockFinish) {
+                        normsDialog.show();
+                        normsDialog.setGoods(goodsResult.getData().getDetail(), goodsResult.getData().isHas_norms());
+                        normsDialog.setType(2);
+                    } else {
+                        MessageToast.getInstance(this).show("数据正在加载，请稍后再试");
+                    }
                 } else {
-                    MessageToast.getInstance(this).show("数据正在加载，请稍后再试.");
+                    MessageToast.getInstance(this).show("该商品已失效");
                 }
-
                 break;
             case R.id.circleLayout:
                 if (null != goodsResult && null != goodsResult.getData().getCircle()) {
@@ -605,6 +607,7 @@ public class GoodsInformationActivity extends BaseActivity implements View.OnCli
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
+                System.out.println("商品详情 "+ex.toString());
                 isInfo = true;
                 Message message = myHandler.obtainMessage(0);
                 message.sendToTarget();

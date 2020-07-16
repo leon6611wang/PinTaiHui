@@ -9,8 +9,10 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.qiniu.android.utils.StringUtils;
 import com.zhiyu.quanzhu.R;
 import com.zhiyu.quanzhu.base.BaseActivity;
+import com.zhiyu.quanzhu.model.bean.ShareMessageContent;
 import com.zhiyu.quanzhu.ui.adapter.InnerShareQuanLiaoAdapter;
 import com.zhiyu.quanzhu.ui.adapter.InnerShareQuanYouAdapter;
 import com.zhiyu.quanzhu.ui.adapter.InnerShareZuiJinAdapter;
@@ -22,6 +24,7 @@ import com.zhiyu.quanzhu.ui.fragment.FragmentShareInnerZuiJin;
 import com.zhiyu.quanzhu.ui.listener.ShareInnerSelectListener;
 import com.zhiyu.quanzhu.ui.toast.MessageToast;
 import com.zhiyu.quanzhu.ui.widget.rongshare.ShareMessage;
+import com.zhiyu.quanzhu.utils.GsonUtils;
 import com.zhiyu.quanzhu.utils.ScreentUtils;
 
 import java.util.ArrayList;
@@ -44,17 +47,23 @@ public class ShareInnerActivity extends BaseActivity implements View.OnClickList
     private TextView zuijintextview, quanyoutextview, quanliaotextview;
     private View zuijinlineview, quanyoulineview, quanliaolineview;
     private ShareInnerDialog shareInnerDialog;
-    private String title,desc,webUrl,imageUrl;
+    private String title, desc, webUrl, imageUrl, type;
+    private int feed_type;
+    private int type_id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_share_inner);
         ScreentUtils.getInstance().setStatusBarLightMode(this, true);
-        title=getIntent().getStringExtra("title");
-        desc=getIntent().getStringExtra("desc");
-        webUrl=getIntent().getStringExtra("webUrl");
-        imageUrl=getIntent().getStringExtra("imageUrl");
+        title = getIntent().getStringExtra("title");
+        desc = getIntent().getStringExtra("desc");
+        webUrl = getIntent().getStringExtra("webUrl");
+        imageUrl = getIntent().getStringExtra("imageUrl");
+        type = getIntent().getStringExtra("type");
+        feed_type=getIntent().getIntExtra("feed_type",0);
+        System.out.println("share type: " + type);
+        type_id = getIntent().getIntExtra("share_id", 0);
         setShareInnerSelectListener();
         initDialogs();
         initViews();
@@ -122,7 +131,7 @@ public class ShareInnerActivity extends BaseActivity implements View.OnClickList
             case R.id.rightLayout:
                 shareInnerDialog.show();
                 shareInnerDialog.setShareContent(shareInnerDialogAvatar,
-                        shareInnerDialogName, "[链接]圈助注册");
+                        shareInnerDialogName, StringUtils.isNullOrEmpty(title) ? "[链接]圈助注册" : title);
                 break;
             case R.id.zuijinlayout:
                 barChange(0);
@@ -183,12 +192,16 @@ public class ShareInnerActivity extends BaseActivity implements View.OnClickList
 
     private void share(String mTargetId, boolean isPrivate) {
         ShareMessage shareMessage = new ShareMessage();
-        shareMessage.setUrl(webUrl);
-        shareMessage.setImage_url(imageUrl);
-        shareMessage.setTitle(title);
-        shareMessage.setDescription(desc);
+        ShareMessageContent shareMessageContent = new ShareMessageContent();
+        shareMessageContent.setShareUrl(webUrl);
+        shareMessageContent.setShareImageUrl(imageUrl);
+        shareMessageContent.setShareTitle(title);
+        shareMessageContent.setShareContent(desc);
+        shareMessageContent.setShareType(type);
+        shareMessageContent.setShareTypeId(String.valueOf(type_id));
+        shareMessage.setContent(GsonUtils.GsonString(shareMessageContent));
         RongIM.getInstance().sendMessage(Message.obtain(mTargetId, isPrivate ? Conversation.ConversationType.PRIVATE : Conversation.ConversationType.GROUP, shareMessage),
-                "您有一条新分享", null, new IRongCallback.ISendMessageCallback() {
+                "您有一条新分享消息", null, new IRongCallback.ISendMessageCallback() {
                     @Override
                     public void onAttached(Message message) {
                         System.out.println("消息发送Attached");
@@ -238,10 +251,10 @@ public class ShareInnerActivity extends BaseActivity implements View.OnClickList
         if (selectUserList.size() > 1) {
             shareInnerDialogAvatar = null;
             shareInnerDialogName = "";
-            for(int i=0;i<selectUserList.size();i++){
+            for (int i = 0; i < selectUserList.size(); i++) {
                 shareInnerDialogName += selectUserList.get(i).getName();
-                if(i<selectUserList.size()-1){
-                    shareInnerDialogName+="、";
+                if (i < selectUserList.size() - 1) {
+                    shareInnerDialogName += "、";
                 }
             }
         } else if (selectUserList.size() == 1) {

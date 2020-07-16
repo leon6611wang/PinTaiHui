@@ -226,7 +226,7 @@ public class FragmentQuanZiGuanZhu extends Fragment {
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-//                System.out.println("动态-关注: " + result);
+                System.out.println("动态-关注: " + result);
 //                LogUtils.i("guanzhu", result);
                 PageDao.getInstance().save(QuanZiGuanZhuResult.class, result, BaseApplication.getInstance());
                 feedResult = GsonUtils.GsonToBean(result, FeedResult.class);

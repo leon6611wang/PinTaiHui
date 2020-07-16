@@ -81,6 +81,7 @@ public class AfterSaleServiceInformationActivity extends BaseActivity implements
             AfterSaleServiceInformationActivity activity = activityWeakReference.get();
             switch (msg.what) {
                 case 99:
+                    activity.loadingDialog.dismiss();
                     MessageToast.getInstance(activity).show("服务器内部错误，请稍后再试");
                     break;
                 case 1:
@@ -139,12 +140,14 @@ public class AfterSaleServiceInformationActivity extends BaseActivity implements
                     }
                     break;
                 case 2://撤销申请
+                    activity.loadingDialog.dismiss();
                     MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
                     if (200 == activity.baseResult.getCode()) {
                         activity.finish();
                     }
                     break;
                 case 3:
+                    activity.loadingDialog.dismiss();
                     MessageToast.getInstance(activity).show(activity.baseResult.getMsg());
                     if (200 == activity.baseResult.getCode()) {
                         activity.refundInformation();
@@ -160,7 +163,7 @@ public class AfterSaleServiceInformationActivity extends BaseActivity implements
         setContentView(R.layout.activity_after_sale_service_information);
         ScreentUtils.getInstance().setStatusBarLightMode(this, true);
         refund_id = getIntent().getIntExtra("refund_id", 0);
-        refund_money=getIntent().getLongExtra("refund_money",0l);
+        refund_money = getIntent().getLongExtra("refund_money", 0l);
 //        System.out.println("refund_id: "+refund_id);
         initDialogs();
         initViews();
@@ -297,16 +300,41 @@ public class AfterSaleServiceInformationActivity extends BaseActivity implements
                     case ServiceUtils.REFUND_QU_XIAO:
                     case ServiceUtils.REFUND_JU_JUE:
                     case ServiceUtils.REFUND_KE_FU_JIE_RU:
-                        Intent serviceIntent = new Intent(this, CustomerServiceActivity.class);
-                        serviceIntent.putExtra("shop_id", informationResult.getData().getData().getPlatform_id());
-                        startActivity(serviceIntent);
+                        if (informationResult.getData().getData().getKefu_status() == 1) {
+                            if (StringUtils.isNullOrEmpty(deliveryNoEditText.getText().toString().trim())) {
+                                MessageToast.getInstance(this).show("请补全物流单号");
+                                return;
+                            }
+                            if (StringUtils.isNullOrEmpty(deliveryCompanyCode)) {
+                                MessageToast.getInstance(this).show("请选择物流公司");
+                                return;
+                            }
+                            postDeliveryNo();
+                        } else {
+                            Intent serviceIntent = new Intent(this, CustomerServiceActivity.class);
+                            serviceIntent.putExtra("shop_id", informationResult.getData().getData().getPlatform_id());
+                            startActivity(serviceIntent);
+                        }
+
                         break;
                 }
                 break;
             case R.id.servicerTextView://客服介入
-                Intent intent = new Intent(this, StartCoordinateActivity.class);
-                intent.putExtra("id", informationResult.getData().getData().getId());
-                startActivity(intent);
+                if (informationResult.getData().getData().getKefu_status() == 3) {
+                    if (informationResult.getData().getData().isIs_kefu()) {
+                        //撤销申请
+                        cancelRefund();
+                    } else {
+                        Intent serviceIntent = new Intent(this, CustomerServiceActivity.class);
+                        serviceIntent.putExtra("shop_id", informationResult.getData().getData().getShop_id());
+                        startActivity(serviceIntent);
+                    }
+                } else {
+                    Intent intent = new Intent(this, StartCoordinateActivity.class);
+                    intent.putExtra("id", informationResult.getData().getData().getId());
+                    startActivity(intent);
+                }
+
                 break;
             case R.id.cancelRefundTextView:
                 ynDialog.show();
@@ -384,16 +412,20 @@ public class AfterSaleServiceInformationActivity extends BaseActivity implements
         applyTimeLayout.setVisibility(View.VISIBLE);
         refundNoLayout.setVisibility(View.VISIBLE);
         midButtonLayout.setVisibility(View.GONE);
+        bottomButtonLeftTextView.setBackground(getResources().getDrawable(R.drawable.shape_oval_bg_yellow));
+        bottomButtonLeftTextView.setTextColor(getResources().getColor(R.color.text_color_yellow));
+        bottomButtonLeftTextView.setClickable(true);
 //        midButtonLayout2.setVisibility(View.GONE);
 //        0 未处理
 //        1 已同意,待退货
 //        2 已退货,待收货
 //        3 退款成功
-//        4 退款失败
+//        4 客服介入
 //        5 取消退款
 //        6 拒绝退款
         switch (refundStatus) {
             case ServiceUtils.REFUND_DAI_CHU_LI://待处理
+                coordinateHistoryLayout.setVisibility(View.VISIBLE);
                 midButtonLayout.setVisibility(View.VISIBLE);
                 bottomButtonLeftTextView.setText("联系卖家");
                 bottomButtonRightTextView.setText("圈助客服");
@@ -416,6 +448,7 @@ public class AfterSaleServiceInformationActivity extends BaseActivity implements
                 bottomButtonRightTextView.setText("提交信息");
                 break;
             case ServiceUtils.REFUND_QU_XIAO://用户取消
+                coordinateHistoryLayout.setVisibility(View.VISIBLE);
                 bottomButtonRightTextView.setText("圈助客服");
                 bottomButtonLeftTextView.setText("联系卖家");
                 break;
@@ -430,6 +463,7 @@ public class AfterSaleServiceInformationActivity extends BaseActivity implements
                 bottomButtonRightTextView.setText("返回首页");
                 break;
             case ServiceUtils.REFUND_DAI_SHOU_HUO://快递寄回中
+                coordinateHistoryLayout.setVisibility(View.VISIBLE);
                 deliveryNoLayout.setVisibility(View.VISIBLE);
                 deliveryNoEditText.setFocusable(false);
                 deliveryNoEditText.setFocusableInTouchMode(false);
@@ -439,9 +473,27 @@ public class AfterSaleServiceInformationActivity extends BaseActivity implements
                 bottomButtonRightTextView.setText("返回首页");
                 break;
             case ServiceUtils.REFUND_KE_FU_JIE_RU://客服介入
+                coordinateHistoryLayout.setVisibility(View.VISIBLE);
                 applyKeFuReasonLayout.setVisibility(View.VISIBLE);
                 bottomButtonRightTextView.setText("圈助客服");
                 bottomButtonLeftTextView.setText("撤销申请");
+                if (informationResult.getData().getData().getKefu_status() > 0) {
+                    bottomButtonLeftTextView.setBackground(getResources().getDrawable(R.drawable.shape_oval_bg_gray));
+                    bottomButtonLeftTextView.setTextColor(getResources().getColor(R.color.text_color_gray));
+                    bottomButtonLeftTextView.setClickable(false);
+                    if (informationResult.getData().getData().getKefu_status() == 1) {
+                        coordinateHistoryLayout.setVisibility(View.VISIBLE);
+                        deliveryNoLayout.setVisibility(View.VISIBLE);
+                        deliveryNoEditText.setFocusableInTouchMode(true);
+                        deliveryNoEditText.setFocusable(true);
+                        deliveryNoEditText.requestFocus();
+                        deliveryNoEditText.setHint("请填写物流单号");
+                        deliverySelectLayout.setVisibility(View.VISIBLE);
+                        addressLaout.setVisibility(View.VISIBLE);
+                        bottomButtonLeftTextView.setText("联系卖家");
+                        bottomButtonRightTextView.setText("提交信息");
+                    }
+                }
                 break;
         }
     }
@@ -489,7 +541,7 @@ public class AfterSaleServiceInformationActivity extends BaseActivity implements
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("撤销申请: " + result);
+//                System.out.println("撤销申请: " + result);
                 baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
                 Message message = myHandler.obtainMessage(2);
                 message.sendToTarget();
@@ -515,13 +567,21 @@ public class AfterSaleServiceInformationActivity extends BaseActivity implements
     }
 
     private void postDeliveryNo() {
+        String type = null;
+        if (informationResult.getData().getData().isIs_kefu()) {
+            type = "1";
+        } else {
+            type = "2";
+        }
         RequestParams params = MyRequestParams.getInstance(this).getRequestParams(ConstantsUtils.BASE_URL + ConstantsUtils.ORDER_EDIT_DELIVERY);
         params.addBodyParameter("id", String.valueOf(informationResult.getData().getData().getId()));
         params.addBodyParameter("wl_no", deliveryNoEditText.getText().toString().trim());
         params.addBodyParameter("wl_company", deliveryCompanyCode);
+        params.addBodyParameter("type", type);
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
+                System.out.println("填写订单信息: " + result);
                 baseResult = GsonUtils.GsonToBean(result, BaseResult.class);
                 Message message = myHandler.obtainMessage(3);
                 message.sendToTarget();
