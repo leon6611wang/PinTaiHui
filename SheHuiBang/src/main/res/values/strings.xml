@@ -1,0 +1,7 @@
+<resources>
+<string name="app_name">demo</string>
+
+
+<string name="behavior_mine_title">com.leon.shehuibang.ui.behavior.MineTitleBehavior</string>
+<string name="behavior_mine_circle_image">com.leon.shehuibang.ui.behavior.MineCircleImageBehavior</string>
+</resources>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="@dimen/dp_10"
+    android:paddingLeft="@dimen/dp_10"
+    android:paddingRight="@dimen/dp_10"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <com.leon.shehuibang.ui.widget.NiceImageView
+            android:layout_width="@dimen/dp_60"
+            android:layout_height="@dimen/dp_60"
+            android:src="@mipmap/avatar_default"
+            android:layout_marginRight="@dimen/dp_10"
+            app:corner_radius="@dimen/dp_3" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            >
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="店铺名称"
+                android:textSize="@dimen/sp_14"
+                android:textColor="@color/text_color_black"
+                android:textStyle="bold"
+                />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="店铺地址"
+                android:textSize="@dimen/sp_10"
+                android:textColor="@color/text_color_grey"
+                />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_100"
+        android:src="@mipmap/mine_bg"
+        android:scaleType="centerCrop"
+        android:layout_marginTop="@dimen/dp_10"
+        />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="店铺优惠/活动告示店铺优惠/活动告示店铺优惠/活动告示店铺优惠/活动告示店铺优惠/活动告示店铺优惠/活动告示店铺优惠/活动告示店铺优惠/活动告示店铺优惠/活动告示店铺优惠/活动告示店铺优惠/活动告示店铺优惠/活动告示店铺优惠/活动告示店铺优惠/活动告示店铺优惠/活动告示店铺优惠/活动告示店铺优惠/活动告示店铺优惠/活动告示店铺优惠/活动告示店铺优惠/活动告示"
+        android:maxLines="5"
+        android:ellipsize="end"
+        android:textSize="@dimen/sp_12"
+        android:textColor="@color/text_color_grey"
+        android:layout_marginTop="@dimen/dp_10"
+        />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_1"
+        android:background="@color/line_color"
+        android:layout_marginTop="@dimen/dp_10"
+        />
+</LinearLayout>
